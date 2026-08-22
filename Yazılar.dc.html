@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #EFEFEF; -webkit-font-smoothing: antialiased; }
+  a { color: #0A0A0A; text-decoration: none; }
+  a:hover { color: #0A0A0A; }
+</style>
+</helmet>
+<div style="display: flex; align-items: stretch; min-height: 100vh; min-width: 1360px; background: #EFEFEF; font-family: 'Geist', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #0A0A0A; letter-spacing: -0.011em;">
+
+  <aside style="width: 248px; flex: 0 0 248px; padding: 32px 20px 28px 28px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 40px; height: 40px; border-radius: 13px; background: #0A0A0A; display: flex; align-items: flex-start; justify-content: flex-start; padding: 9px;"><span style="width: 9px; height: 9px; border-radius: 999px; background: #FFFFFF;"></span></div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 16px; font-weight: 700; letter-spacing: -0.03em;">diji.news</div>
+        <div style="font-size: 12px; font-weight: 500; color: #A1A1A1;">Yönetim paneli</div>
+      </div>
+    </div>
+
+    <nav style="display: flex; flex-direction: column; gap: 4px;">
+      <a href="Blog%20Admin%20Dashboard.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">Dashboard</a>
+      <a href="Yaz%C4%B1lar.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; background: #0A0A0A; color: #FFFFFF; font-size: 15px; font-weight: 600;">
+        <span>Yazılar</span>
+        <span style="font-size: 13px; font-weight: 500; color: #FFFFFF; font-variant-numeric: tabular-nums;">48</span>
+      </a>
+      <a href="E-b%C3%BClten.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>E-bülten</span>
+        <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">12</span>
+      </a>
+      <a href="Kullan%C4%B1c%C4%B1lar.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>Kullanıcılar</span>
+        <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">6</span>
+      </a>
+      <a href="%C4%B0statistik.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">İstatistik</a>
+      <a href="Ayarlar.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">Ayarlar</a>
+      <a href="Ziyaret%C3%A7i.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; margin-top: 8px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #A1A1A1;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>Siteyi gör</span>
+        <span>↗</span>
+      </a>
+    </nav>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px;">
+      <div style="background: #FFFFFF; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13px; font-weight: 500; color: #A1A1A1;">Depolama</div>
+        <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.035em; font-variant-numeric: tabular-nums;">%38</div>
+        <div style="height: 4px; border-radius: 999px; background: #ECECEC; overflow: hidden;">
+          <div style="width: 38%; height: 100%; background: #0A0A0A; border-radius: 999px;"></div>
+        </div>
+      </div>
+      <div style="background: #FFFFFF; border-radius: 20px; padding: 12px 14px; display: flex; align-items: center; gap: 11px;">
+        <div style="width: 34px; height: 34px; flex: 0 0 34px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">MK</div>
+        <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
+          <div style="font-size: 14px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mert Kaya</div>
+          <div style="font-size: 12px; font-weight: 500; color: #A1A1A1;">Yönetici</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; min-width: 0; padding: 32px 40px 40px 12px; display: flex; flex-direction: column; gap: 20px;">
+
+    <header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 0 4px 4px 4px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <h1 style="margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.045em; line-height: 1;">Yazılar</h1>
+        <div style="font-size: 15px; font-weight: 500; color: #A1A1A1;">48 yazı · son güncelleme 12 dk önce</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="height: 44px; display: flex; align-items: center; padding: 0 20px; border-radius: 999px; background: #FFFFFF; font-size: 14px; font-weight: 500; color: #A1A1A1;">Başlık veya etikette ara</div>
+        <a href="#" style="height: 44px; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 22px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; font-size: 14px; font-weight: 600;" style-hover="background: #262626;">
+          <span>Yeni yazı</span>
+          <span style="width: 28px; height: 28px; border-radius: 999px; background: #FFFFFF; color: #0A0A0A; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">→</span>
+        </a>
+      </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px;">
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Tümü</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">48</div>
+          <div style="font-size: 14px; font-weight: 500; color: #A1A1A1;">yazı</div>
+        </div>
+      </div>
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Yayında</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">36</div>
+          <div style="font-size: 14px; font-weight: 500; color: #A1A1A1;">bu ay 6</div>
+        </div>
+      </div>
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Taslak</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">9</div>
+          <div style="font-size: 14px; font-weight: 500; color: #A1A1A1;">3’ü hazır</div>
+        </div>
+      </div>
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Planlı</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">3</div>
+          <div style="font-size: 14px; font-weight: 500; color: #A1A1A1;">24 Ağu’dan</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border-radius: 28px; padding: 26px 24px 20px 24px; display: flex; flex-direction: column; gap: 18px;">
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+            <button type="button" onClick="{{ tab.onClick }}" style="height: 38px; padding: 0 16px; border: none; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: -0.015em; cursor: pointer; display: flex; align-items: center; gap: 8px; background: {{ tab.bg }}; color: {{ tab.fg }};">
+              <span>{{ tab.label }}</span>
+              <span style="font-weight: 500; font-variant-numeric: tabular-nums; opacity: 0.55;">{{ tab.count }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; color: #A1A1A1;">
+          <span>Sırala</span>
+          <span style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 16px; border-radius: 999px; background: #F5F5F5; color: #0A0A0A; font-weight: 600;">
+            <span>En yeni</span>
+            <span style="color: #A1A1A1;">↓</span>
+          </span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 150px 130px 100px 120px; align-items: center; gap: 16px; padding: 0 8px 12px 8px; border-bottom: 1px solid #F1F1F1; font-size: 13px; font-weight: 600; color: #A1A1A1;">
+        <span>Başlık</span>
+        <span>Kategori</span>
+        <span>Durum</span>
+        <span style="text-align: right;">Okuma</span>
+        <span style="text-align: right;">Tarih</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column;">
+        <sc-for list="{{ rows }}" as="row" hint-placeholder-count="8">
+          <a href="#" style="display: grid; grid-template-columns: minmax(0, 1fr) 150px 130px 100px 120px; align-items: center; gap: 16px; padding: 14px 8px; border-radius: 16px;" style-hover="background: #F7F7F7;">
+            <span style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+              <span style="width: 3px; height: 26px; flex: 0 0 3px; border-radius: 2px; background: {{ row.markColor }};"></span>
+              <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                <span style="font-size: 16px; font-weight: 600; letter-spacing: -0.022em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ row.title }}</span>
+                <span style="font-size: 13px; font-weight: 500; color: #A1A1A1;">{{ row.author }}</span>
+              </span>
+            </span>
+            <span style="font-size: 14px; font-weight: 500; color: #4A4A4A;">{{ row.category }}</span>
+            <span>
+              <span style="display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: {{ row.pillBg }}; color: {{ row.pillFg }}; box-shadow: {{ row.pillRing }};">{{ row.status }}</span>
+            </span>
+            <span style="text-align: right; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">{{ row.reads }}</span>
+            <span style="text-align: right; font-size: 14px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">{{ row.date }}</span>
+          </a>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid #F1F1F1;">
+        <div style="font-size: 14px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">{{ pageInfo }}</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 40px; height: 40px; border-radius: 999px; background: #F5F5F5; color: #C4C4C4; display: flex; align-items: center; justify-content: center; font-size: 16px;">←</span>
+          <a href="#" style="width: 40px; height: 40px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px;" style-hover="background: #262626;">→</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;defaultTab&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Tümü&quot;, &quot;Yayında&quot;, &quot;Taslak&quot;, &quot;Planlı&quot;], &quot;default&quot;: &quot;Tümü&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Liste&quot; }
+}">
+const POSTS = [
+  { title: "Yapay zekâ ile yazı taslağı hazırlamak", author: "Mert Kaya", category: "Üretkenlik", status: "Yayında", reads: "1.204", date: "22 Ağu" },
+  { title: "Ağustos bülteni: okuma listesi", author: "Selin Demir", category: "E-bülten", status: "Taslak", reads: "—", date: "21 Ağu" },
+  { title: "Tipografi notları: satır aralığı", author: "Mert Kaya", category: "Tasarım", status: "Yayında", reads: "2.106", date: "19 Ağu" },
+  { title: "Editör ekibi için stil rehberi", author: "Ayşe Tuna", category: "Ekip", status: "Taslak", reads: "—", date: "18 Ağu" },
+  { title: "Sade tasarımın maliyeti", author: "Mert Kaya", category: "Tasarım", status: "Yayında", reads: "4.812", date: "16 Ağu" },
+  { title: "Arşivi yeniden düzenledik", author: "Selin Demir", category: "Duyuru", status: "Yayında", reads: "1.578", date: "14 Ağu" },
+  { title: "Okuma süresi hesaplama yöntemi", author: "Ahmet Yıldız", category: "Teknik", status: "Planlı", reads: "—", date: "24 Ağu" },
+  { title: "Bülten yazarken kaçınılması gerekenler", author: "Selin Demir", category: "E-bülten", status: "Yayında", reads: "3.940", date: "11 Ağu" },
+  { title: "Yorum kurallarını güncelledik", author: "Ayşe Tuna", category: "Duyuru", status: "Planlı", reads: "—", date: "26 Ağu" }
+];
+
+const STATUS_STYLE = {
+  "Yayında": { pillBg: "#0A0A0A", pillFg: "#FFFFFF", pillRing: "none", markColor: "#0A0A0A" },
+  "Taslak": { pillBg: "#F0F0F0", pillFg: "#6B6B6B", pillRing: "none", markColor: "#DCDCDC" },
+  "Planlı": { pillBg: "#FFFFFF", pillFg: "#0A0A0A", pillRing: "inset 0 0 0 1px #DEDEDE", markColor: "#9E9E9E" }
+};
+
+const TABS = ["Tümü", "Yayında", "Taslak", "Planlı"];
+
+class Component extends DCLogic {
+  state = { active: null };
+
+  renderVals() {
+    const active = this.state.active ?? this.props.defaultTab ?? "Tümü";
+    const rows = (active === "Tümü" ? POSTS : POSTS.filter(p => p.status === active)).map(p => {
+      const s = STATUS_STYLE[p.status];
+      return Object.assign({}, p, s);
+    });
+    return {
+      rows,
+      tabs: TABS.map(label => ({
+        label,
+        count: label === "Tümü" ? 48 : POSTS.filter(p => p.status === label).length,
+        bg: label === active ? "#0A0A0A" : "#F5F5F5",
+        fg: label === active ? "#FFFFFF" : "#4A4A4A",
+        onClick: () => this.setState({ active: label })
+      })),
+      pageInfo: "1–" + rows.length + " / " + (active === "Tümü" ? 48 : rows.length)
+    };
+  }
+}
+</script>
+</body>
+</html>

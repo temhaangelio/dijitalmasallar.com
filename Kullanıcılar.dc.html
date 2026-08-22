@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #EFEFEF; -webkit-font-smoothing: antialiased; }
+  a { color: #0A0A0A; text-decoration: none; }
+  a:hover { color: #0A0A0A; }
+</style>
+</helmet>
+<div style="display: flex; align-items: stretch; min-height: 100vh; min-width: 1360px; background: #EFEFEF; font-family: 'Geist', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #0A0A0A; letter-spacing: -0.011em;">
+
+  <aside style="width: 248px; flex: 0 0 248px; padding: 32px 20px 28px 28px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 40px; height: 40px; border-radius: 13px; background: #0A0A0A; display: flex; align-items: flex-start; justify-content: flex-start; padding: 9px;"><span style="width: 9px; height: 9px; border-radius: 999px; background: #FFFFFF;"></span></div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 16px; font-weight: 700; letter-spacing: -0.03em;">diji.news</div>
+        <div style="font-size: 12px; font-weight: 500; color: #A1A1A1;">Yönetim paneli</div>
+      </div>
+    </div>
+
+    <nav style="display: flex; flex-direction: column; gap: 4px;">
+      <a href="Blog%20Admin%20Dashboard.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">Dashboard</a>
+      <a href="Yaz%C4%B1lar.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>Yazılar</span>
+        <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">48</span>
+      </a>
+      <a href="E-b%C3%BClten.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>E-bülten</span>
+        <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">12</span>
+      </a>
+      <a href="Kullan%C4%B1c%C4%B1lar.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; background: #0A0A0A; color: #FFFFFF; font-size: 15px; font-weight: 600;">
+        <span>Kullanıcılar</span>
+        <span style="font-size: 13px; font-weight: 500; color: #FFFFFF; font-variant-numeric: tabular-nums;">6</span>
+      </a>
+      <a href="%C4%B0statistik.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">İstatistik</a>
+      <a href="Ayarlar.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">Ayarlar</a>
+      <a href="Ziyaret%C3%A7i.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; margin-top: 8px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #A1A1A1;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>Siteyi gör</span>
+        <span>↗</span>
+      </a>
+    </nav>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px;">
+      <div style="background: #FFFFFF; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13px; font-weight: 500; color: #A1A1A1;">Depolama</div>
+        <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.035em; font-variant-numeric: tabular-nums;">%38</div>
+        <div style="height: 4px; border-radius: 999px; background: #ECECEC; overflow: hidden;">
+          <div style="width: 38%; height: 100%; background: #0A0A0A; border-radius: 999px;"></div>
+        </div>
+      </div>
+      <div style="background: #FFFFFF; border-radius: 20px; padding: 12px 14px; display: flex; align-items: center; gap: 11px;">
+        <div style="width: 34px; height: 34px; flex: 0 0 34px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">MK</div>
+        <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
+          <div style="font-size: 14px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mert Kaya</div>
+          <div style="font-size: 12px; font-weight: 500; color: #A1A1A1;">Yönetici</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; min-width: 0; padding: 32px 40px 40px 12px; display: flex; flex-direction: column; gap: 20px;">
+
+    <header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 0 4px 4px 4px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <h1 style="margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.045em; line-height: 1;">Kullanıcılar</h1>
+        <div style="font-size: 15px; font-weight: 500; color: #A1A1A1;">6 ekip üyesi · 1 bekleyen davet</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="height: 44px; display: flex; align-items: center; padding: 0 20px; border-radius: 999px; background: #FFFFFF; font-size: 14px; font-weight: 500; color: #A1A1A1;">Ad veya e-posta ara</div>
+        <a href="#" style="height: 44px; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 22px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; font-size: 14px; font-weight: 600;" style-hover="background: #262626;">
+          <span>Kullanıcı davet et</span>
+          <span style="width: 28px; height: 28px; border-radius: 999px; background: #FFFFFF; color: #0A0A0A; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">→</span>
+        </a>
+      </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px;">
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Ekip</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">6</div>
+          <div style="font-size: 14px; font-weight: 500; color: #A1A1A1;">kişi</div>
+        </div>
+      </div>
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Yönetici</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">2</div>
+        </div>
+      </div>
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Editör</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">3</div>
+        </div>
+      </div>
+      <div style="height: 132px; background: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Yazar</div>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; font-variant-numeric: tabular-nums;">1</div>
+          <div style="font-size: 14px; font-weight: 500; color: #A1A1A1;">+1 davet</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px;">
+
+      <div style="grid-column: span 8; background: #FFFFFF; border-radius: 28px; padding: 26px 24px 20px 24px; display: flex; flex-direction: column; gap: 18px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+          <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.04em;">Ekip</div>
+          <div style="font-size: 15px; font-weight: 500; color: #A1A1A1;">Role göre</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 130px 90px 120px; align-items: center; gap: 16px; padding: 0 8px 12px 8px; border-bottom: 1px solid #F1F1F1; font-size: 13px; font-weight: 600; color: #A1A1A1;">
+          <span>Kişi</span>
+          <span>Rol</span>
+          <span style="text-align: right;">Yazı</span>
+          <span style="text-align: right;">Son giriş</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+          <sc-for list="{{ users }}" as="user" hint-placeholder-count="6">
+            <a href="#" style="display: grid; grid-template-columns: minmax(0, 1fr) 130px 90px 120px; align-items: center; gap: 16px; padding: 12px 8px; border-radius: 16px;" style-hover="background: #F7F7F7;">
+              <span style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+                <span style="width: 38px; height: 38px; flex: 0 0 38px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: {{ user.avatarBg }}; color: {{ user.avatarFg }};">{{ user.initials }}</span>
+                <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                  <span style="font-size: 16px; font-weight: 600; letter-spacing: -0.022em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.name }}</span>
+                  <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.email }}</span>
+                </span>
+              </span>
+              <span>
+                <span style="display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: {{ user.pillBg }}; color: {{ user.pillFg }}; box-shadow: {{ user.pillRing }};">{{ user.role }}</span>
+              </span>
+              <span style="text-align: right; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">{{ user.posts }}</span>
+              <span style="text-align: right; font-size: 14px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">{{ user.lastSeen }}</span>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="grid-column: span 4; display: flex; flex-direction: column; gap: 20px;">
+        <div style="background: #FFFFFF; border-radius: 28px; padding: 26px 24px; display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.04em;">Davetler</div>
+            <span style="width: 28px; height: 28px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">1</span>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: stretch;">
+            <span style="width: 3px; flex: 0 0 3px; border-radius: 2px; background: #DCDCDC;"></span>
+            <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+              <div style="font-size: 16px; font-weight: 600; letter-spacing: -0.022em;">deniz@diji.news</div>
+              <div style="font-size: 14px; font-weight: 500; color: #A1A1A1;">Yazar · 2 gün önce gönderildi</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="#" style="flex: 1; height: 42px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;" style-hover="background: #262626;">Tekrar gönder</a>
+            <a href="#" style="height: 42px; padding: 0 18px; border-radius: 999px; background: #F5F5F5; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;" style-hover="background: #ECECEC;">İptal</a>
+          </div>
+        </div>
+
+        <div style="flex: 1; background: #FFFFFF; border-radius: 28px; padding: 26px 24px; display: flex; flex-direction: column; gap: 18px;">
+          <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.04em;">Yetkiler</div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Yönetici</div>
+              <div style="font-size: 13px; font-weight: 500; color: #A1A1A1; line-height: 1.4;">Tüm ayarlar, kullanıcılar ve bülten gönderimi</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px; padding-top: 14px; border-top: 1px solid #F1F1F1;">
+              <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Editör</div>
+              <div style="font-size: 13px; font-weight: 500; color: #A1A1A1; line-height: 1.4;">Tüm yazıları yayınlar, bülten taslağı hazırlar</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px; padding-top: 14px; border-top: 1px solid #F1F1F1;">
+              <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Yazar</div>
+              <div style="font-size: 13px; font-weight: 500; color: #A1A1A1; line-height: 1.4;">Yalnızca kendi yazılarını hazırlar, yayınlamaz</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;roleFilter&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Tümü&quot;, &quot;Yönetici&quot;, &quot;Editör&quot;, &quot;Yazar&quot;], &quot;default&quot;: &quot;Tümü&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Liste&quot; }
+}">
+const ROLE_STYLE = {
+  "Yönetici": { pillBg: "#0A0A0A", pillFg: "#FFFFFF", pillRing: "none", avatarBg: "#0A0A0A", avatarFg: "#FFFFFF" },
+  "Editör": { pillBg: "#F0F0F0", pillFg: "#4A4A4A", pillRing: "none", avatarBg: "#F2F2F2", avatarFg: "#0A0A0A" },
+  "Yazar": { pillBg: "#FFFFFF", pillFg: "#0A0A0A", pillRing: "inset 0 0 0 1px #DEDEDE", avatarBg: "#F2F2F2", avatarFg: "#0A0A0A" }
+};
+
+const USERS = [
+  { name: "Mert Kaya", email: "mert@diji.news", initials: "MK", role: "Yönetici", posts: 18, lastSeen: "4 dk önce" },
+  { name: "Selin Demir", email: "selin@diji.news", initials: "SD", role: "Yönetici", posts: 12, lastSeen: "1 sa önce" },
+  { name: "Ayşe Tuna", email: "ayse@diji.news", initials: "AT", role: "Editör", posts: 9, lastSeen: "Bugün 09:10" },
+  { name: "Ahmet Yıldız", email: "ahmet@diji.news", initials: "AY", role: "Editör", posts: 5, lastSeen: "Dün" },
+  { name: "Ece Aydın", email: "ece@diji.news", initials: "EA", role: "Editör", posts: 3, lastSeen: "3 gün önce" },
+  { name: "Kerem Şahin", email: "kerem@diji.news", initials: "KŞ", role: "Yazar", posts: 1, lastSeen: "1 hafta önce" }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    const role = this.props.roleFilter ?? "Tümü";
+    const list = role === "Tümü" ? USERS : USERS.filter(u => u.role === role);
+    return { users: list.map(u => Object.assign({}, u, ROLE_STYLE[u.role])) };
+  }
+}
+</script>
+</body>
+</html>

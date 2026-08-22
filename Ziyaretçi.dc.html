@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #EFEFEF; -webkit-font-smoothing: antialiased; }
+  a { color: #0A0A0A; text-decoration: none; }
+  a:hover { color: #0A0A0A; }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #EFEFEF; font-family: 'Geist', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #0A0A0A; letter-spacing: -0.011em; display: flex; flex-direction: column; align-items: center; padding: 20px 20px 48px 20px;">
+
+  <div style="width: 100%; max-width: 720px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 14px; border-radius: 999px; background: #FFFFFF; position: sticky; top: 20px; z-index: 5;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="width: 30px; height: 30px; border-radius: 10px; background: #0A0A0A; display: flex; align-items: flex-start; justify-content: flex-start; padding: 7px;"><span style="width: 7px; height: 7px; border-radius: 999px; background: #FFFFFF;"></span></span>
+      <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.03em;">diji.news</span>
+    </div>
+    <nav style="display: flex; align-items: center; gap: 4px;">
+      <a href="#" style="height: 34px; display: flex; align-items: center; padding: 0 14px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; font-size: 14px; font-weight: 600;">Akış</a>
+      <a href="#" style="height: 34px; display: flex; align-items: center; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: #4A4A4A;" style-hover="background: #F5F5F5;">Favoriler</a>
+      <a href="Ayarlar.dc.html" style="height: 34px; display: flex; align-items: center; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: #4A4A4A;" style-hover="background: #F5F5F5;">Ayarlar</a>
+      <a href="#" style="height: 34px; display: flex; align-items: center; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: #4A4A4A;" style-hover="background: #F5F5F5;">Hakkında</a>
+    </nav>
+  </div>
+
+  <header style="width: 100%; max-width: 720px; padding: 56px 8px 40px 8px; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center;">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.16em; color: #A1A1A1;">DİJİ.NEWS</div>
+    <h1 style="margin: 0; font-size: 40px; font-weight: 700; letter-spacing: -0.05em; line-height: 1.05; max-width: 520px; text-wrap: pretty;">Kısa ve özgün teknoloji notları</h1>
+    <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.5; color: #6B6B6B; max-width: 480px; text-wrap: pretty;">Teknoloji, tasarım ve dijital kültür üzerine günde birkaç kısa not. Görsel yok, uzun giriş yok — yalnızca özet.</p>
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #A1A1A1;">
+      <span style="font-variant-numeric: tabular-nums;">12,4B abone</span>
+      <span>·</span>
+      <span style="font-variant-numeric: tabular-nums;">48 not</span>
+    </div>
+  </header>
+
+  <div style="width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 12px;">
+
+    <div style="padding: 4px 8px 8px 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; color: #A1A1A1;">KISA KISA GÜNDEM</div>
+
+    <a href="#" style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 24px; padding: 24px;" style-hover="background: #FBFBFB;">
+      <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: #1A1A1A; text-wrap: pretty;">Değişken fontlar artık tüm ana tarayıcılarda <span style="background: #F0F0F0; border-radius: 4px; padding: 1px 5px; font-weight: 600;">tek dosyayla</span> çalışıyor. Kalınlık, genişlik ve optik boyut eksenleri aynı dosyada taşındığı için sayfa ağırlığı düşüyor; başlıklarda ince ayar yapmak kolaylaşıyor. Küçük yayınlar için en görünür kazanç yükleme süresinde.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+          <span>4 saat önce</span>
+          <span>·</span>
+          <span style="font-weight: 600; color: #0A0A0A; letter-spacing: 0.04em;">NOT</span>
+        </div>
+        <span style="width: 30px; height: 30px; border-radius: 999px; background: #F5F5F5; color: #A1A1A1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">+</span>
+      </div>
+    </a>
+
+    <a href="#" style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 24px; padding: 24px;" style-hover="background: #FBFBFB;">
+      <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: #1A1A1A; text-wrap: pretty;">Kısa formatlı bültenlerde açılma oranı, uzun formatlara göre <span style="background: #F0F0F0; border-radius: 4px; padding: 1px 5px; font-weight: 600;">belirgin biçimde yüksek</span> kalıyor. 250–400 karakterlik notlar okurun tek ekranda bitirmesini sağlıyor; görsel kullanmamak ise hem yükleme hızını hem de e-posta istemcilerindeki kırılmaları azaltıyor.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+          <span>9 saat önce</span>
+          <span>·</span>
+          <span style="font-weight: 600; color: #0A0A0A; letter-spacing: 0.04em;">BÜLTEN #12</span>
+        </div>
+        <span style="width: 30px; height: 30px; border-radius: 999px; background: #F5F5F5; color: #A1A1A1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">+</span>
+      </div>
+    </a>
+
+    <a href="#" style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 24px; padding: 24px;" style-hover="background: #FBFBFB;">
+      <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: #1A1A1A; text-wrap: pretty;">Okuma süresi göstergesi her yayında işe yaramıyor. Kısa notlardan oluşan akışlarda süre bilgisi gereksiz bir gürültü yaratıyor; uzun analizlerde ise tamamlama oranını artırıyor. Ölçüt basit: <span style="background: #F0F0F0; border-radius: 4px; padding: 1px 5px; font-weight: 600;">iki ekranı geçen yazıda göster</span>, geçmeyende gösterme.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+          <span>1 gün önce</span>
+          <span>·</span>
+          <span style="font-weight: 600; color: #0A0A0A; letter-spacing: 0.04em;">ÖLÇÜM</span>
+        </div>
+        <span style="width: 30px; height: 30px; border-radius: 999px; background: #F5F5F5; color: #A1A1A1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">+</span>
+      </div>
+    </a>
+
+    <div style="padding: 20px 8px 8px 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; color: #A1A1A1;">20 AĞUSTOS</div>
+
+    <a href="#" style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 24px; padding: 24px;" style-hover="background: #FBFBFB;">
+      <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: #1A1A1A; text-wrap: pretty;">Arşiv sayfasını tarihe göre değil <span style="background: #F0F0F0; border-radius: 4px; padding: 1px 5px; font-weight: 600;">konuya göre</span> böldük. Ziyaretçilerin yarısı tek bir konuyu takip etmek için geliyor ve tarih sıralaması bu niyetle çalışmıyor. Yeni düzende her konu kendi sayfasında toplanıyor, akışta yalnızca son notlar kalıyor.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+          <span>2 gün önce</span>
+          <span>·</span>
+          <span style="font-weight: 600; color: #0A0A0A; letter-spacing: 0.04em;">ARŞİV</span>
+        </div>
+        <span style="width: 30px; height: 30px; border-radius: 999px; background: #F5F5F5; color: #A1A1A1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">+</span>
+      </div>
+    </a>
+
+    <sc-if value="{{ showSubscribe }}" hint-placeholder-val="{{ true }}">
+      <div style="background: #0A0A0A; color: #FFFFFF; border-radius: 24px; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+          <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.035em;">Haftalık bülten</div>
+          <div style="font-size: 14px; font-weight: 500; color: #A1A1A1; text-wrap: pretty;">Cuma 18:00’de altı kısa not, tek e-posta.</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex: 0 0 auto;">
+          <span style="height: 44px; display: flex; align-items: center; padding: 0 18px; border-radius: 999px; background: #1F1F1F; color: #8A8A8A; font-size: 14px; font-weight: 500;">e-posta adresiniz</span>
+          <span style="height: 44px; display: flex; align-items: center; padding: 0 20px; border-radius: 999px; background: #FFFFFF; color: #0A0A0A; font-size: 14px; font-weight: 600;">Katıl</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <a href="#" style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 24px; padding: 24px;" style-hover="background: #FBFBFB;">
+      <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: #1A1A1A; text-wrap: pretty;">Yorumları kapatmak trafiği düşürmedi. Üç aylık ölçümde sayfa başına süre neredeyse aynı kaldı; moderasyona giden zaman ise <span style="background: #F0F0F0; border-radius: 4px; padding: 1px 5px; font-weight: 600;">haftada dört saat</span> azaldı. Geri bildirim artık bültene gelen yanıtlar üzerinden toplanıyor.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+          <span>2 gün önce</span>
+          <span>·</span>
+          <span style="font-weight: 600; color: #0A0A0A; letter-spacing: 0.04em;">ÖLÇÜM</span>
+        </div>
+        <span style="width: 30px; height: 30px; border-radius: 999px; background: #F5F5F5; color: #A1A1A1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">+</span>
+      </div>
+    </a>
+
+    <div style="padding: 20px 8px 8px 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; color: #A1A1A1;">19 AĞUSTOS</div>
+
+    <a href="#" style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 24px; padding: 24px;" style-hover="background: #FBFBFB;">
+      <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: #1A1A1A; text-wrap: pretty;">Koyu tema talebi ilk kez okur anketinin başına yerleşti; katılımcıların yarısından fazlası akışı gece okuduğunu söyledi. Tek renkli bir arayüzde koyu tema <span style="background: #F0F0F0; border-radius: 4px; padding: 1px 5px; font-weight: 600;">kontrast eşiklerini yeniden kurmayı</span> gerektiriyor, gri tonlarının çoğu ters çevrildiğinde okunmuyor.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+          <span>3 gün önce</span>
+          <span>·</span>
+          <span style="font-weight: 600; color: #0A0A0A; letter-spacing: 0.04em;">ANKET</span>
+        </div>
+        <span style="width: 30px; height: 30px; border-radius: 999px; background: #F5F5F5; color: #A1A1A1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">+</span>
+      </div>
+    </a>
+
+    <a href="#" style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 24px; padding: 24px;" style-hover="background: #FBFBFB;">
+      <p style="margin: 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: #1A1A1A; text-wrap: pretty;">Bültenin gönderim saatini 09:00’dan 18:00’a taşıdık. Açılma oranı üç sayı boyunca ortalama <span style="background: #F0F0F0; border-radius: 4px; padding: 1px 5px; font-weight: 600;">%4 arttı</span>, tıklama oranı sabit kaldı. Akşam gönderimi hafta içi günlerde daha iyi çalışıyor; hafta sonunda fark ölçülebilir değil.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+          <span>4 gün önce</span>
+          <span>·</span>
+          <span style="font-weight: 600; color: #0A0A0A; letter-spacing: 0.04em;">BÜLTEN</span>
+        </div>
+        <span style="width: 30px; height: 30px; border-radius: 999px; background: #F5F5F5; color: #A1A1A1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">+</span>
+      </div>
+    </a>
+
+    <div style="display: flex; justify-content: center; padding: 24px 0 8px 0;">
+      <a href="#" style="height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 24px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; font-size: 15px; font-weight: 600;" style-hover="background: #262626;">
+        <span>Daha fazla not</span>
+        <span style="width: 32px; height: 32px; border-radius: 999px; background: #FFFFFF; color: #0A0A0A; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600;">↓</span>
+      </a>
+    </div>
+
+    <footer style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 8px 0 8px; border-top: 1px solid #E2E2E2; font-size: 13px; font-weight: 500; color: #A1A1A1;">
+      <span>© 2026 diji.news</span>
+      <span style="display: flex; align-items: center; gap: 16px;">
+        <a href="#" style="color: #A1A1A1;" style-hover="color: #0A0A0A;">RSS</a>
+        <a href="#" style="color: #A1A1A1;" style-hover="color: #0A0A0A;">Arşiv</a>
+        <a href="#" style="color: #A1A1A1;" style-hover="color: #0A0A0A;">İletişim</a>
+      </span>
+    </footer>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showSubscribe&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Akış&quot; }
+}">
+class Component extends DCLogic {
+  renderVals() {
+    return { showSubscribe: this.props.showSubscribe ?? true };
+  }
+}
+</script>
+</body>
+</html>

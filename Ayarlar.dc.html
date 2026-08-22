@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #EFEFEF; -webkit-font-smoothing: antialiased; }
+  a { color: #0A0A0A; text-decoration: none; }
+  a:hover { color: #0A0A0A; }
+</style>
+</helmet>
+<div style="display: flex; align-items: stretch; min-height: 100vh; min-width: 1360px; background: #EFEFEF; font-family: 'Geist', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #0A0A0A; letter-spacing: -0.011em;">
+
+  <aside style="width: 248px; flex: 0 0 248px; padding: 32px 20px 28px 28px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 40px; height: 40px; border-radius: 13px; background: #0A0A0A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700; letter-spacing: -0.04em;">M</div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 16px; font-weight: 700; letter-spacing: -0.03em;">Mürekkep</div>
+        <div style="font-size: 12px; font-weight: 500; color: #A1A1A1;">Yönetim paneli</div>
+      </div>
+    </div>
+
+    <nav style="display: flex; flex-direction: column; gap: 4px;">
+      <a href="Blog%20Admin%20Dashboard.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">Dashboard</a>
+      <a href="Yaz%C4%B1lar.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>Yazılar</span>
+        <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">48</span>
+      </a>
+      <a href="E-b%C3%BClten.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>E-bülten</span>
+        <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">12</span>
+      </a>
+      <a href="Kullan%C4%B1c%C4%B1lar.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>Kullanıcılar</span>
+        <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; font-variant-numeric: tabular-nums;">6</span>
+      </a>
+      <a href="%C4%B0statistik.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #4A4A4A;" style-hover="background: #FFFFFF; color: #0A0A0A;">İstatistik</a>
+      <a href="Ayarlar.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 16px; border-radius: 14px; background: #0A0A0A; color: #FFFFFF; font-size: 15px; font-weight: 600;">
+        <span>Ayarlar</span>
+        <span style="width: 6px; height: 6px; border-radius: 999px; background: #FFFFFF;"></span>
+      </a>
+      <a href="Ziyaret%C3%A7i.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 44px; margin-top: 8px; padding: 0 16px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #A1A1A1;" style-hover="background: #FFFFFF; color: #0A0A0A;">
+        <span>Siteyi gör</span>
+        <span>↗</span>
+      </a>
+    </nav>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px;">
+      <div style="background: #FFFFFF; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13px; font-weight: 500; color: #A1A1A1;">Depolama</div>
+        <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.035em; font-variant-numeric: tabular-nums;">%38</div>
+        <div style="height: 4px; border-radius: 999px; background: #ECECEC; overflow: hidden;">
+          <div style="width: 38%; height: 100%; background: #0A0A0A; border-radius: 999px;"></div>
+        </div>
+      </div>
+      <div style="background: #FFFFFF; border-radius: 20px; padding: 12px 14px; display: flex; align-items: center; gap: 11px;">
+        <div style="width: 34px; height: 34px; flex: 0 0 34px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">MK</div>
+        <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
+          <div style="font-size: 14px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mert Kaya</div>
+          <div style="font-size: 12px; font-weight: 500; color: #A1A1A1;">Yönetici</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; min-width: 0; padding: 32px 40px 40px 12px; display: flex; flex-direction: column; gap: 20px;">
+
+    <header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 0 4px 4px 4px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <h1 style="margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.045em; line-height: 1;">Ayarlar</h1>
+        <div style="font-size: 15px; font-weight: 500; color: #A1A1A1;">Son kayıt bugün 14:20</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="#" style="height: 44px; display: flex; align-items: center; padding: 0 22px; border-radius: 999px; background: #FFFFFF; font-size: 14px; font-weight: 600; color: #4A4A4A;" style-hover="background: #F5F5F5;">Vazgeç</a>
+        <a href="#" style="height: 44px; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 22px; border-radius: 999px; background: #0A0A0A; color: #FFFFFF; font-size: 14px; font-weight: 600;" style-hover="background: #262626;">
+          <span>Kaydet</span>
+          <span style="width: 28px; height: 28px; border-radius: 999px; background: #FFFFFF; color: #0A0A0A; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">→</span>
+        </a>
+      </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px;">
+
+      <div style="grid-column: span 7; background: #FFFFFF; border-radius: 28px; padding: 26px 24px; display: flex; flex-direction: column; gap: 20px;">
+        <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.04em;">Genel</div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Blog adı</div>
+          <div style="height: 48px; display: flex; align-items: center; padding: 0 18px; border-radius: 16px; background: #F5F5F5; font-size: 16px; font-weight: 600; letter-spacing: -0.022em;">Mürekkep</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Alan adı</div>
+            <div style="height: 48px; display: flex; align-items: center; padding: 0 18px; border-radius: 16px; background: #F5F5F5; font-size: 16px; font-weight: 500;">murekkep.co</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Dil</div>
+            <div style="height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-radius: 16px; background: #F5F5F5; font-size: 16px; font-weight: 500;">
+              <span>Türkçe</span>
+              <span style="color: #A1A1A1;">↓</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Açıklama</div>
+          <div style="min-height: 96px; padding: 14px 18px; border-radius: 16px; background: #F5F5F5; font-size: 15px; font-weight: 500; line-height: 1.5; color: #4A4A4A; text-wrap: pretty;">Teknoloji, tasarım ve dijital kültür üzerine kısa ve özgün notlar. Haftada iki yazı, ayda bir bülten.</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px;">
+          <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Yazı akışı biçimi</div>
+          <div style="display: flex; gap: 8px;">
+            <sc-for list="{{ layoutOptions }}" as="option" hint-placeholder-count="3">
+              <button type="button" onClick="{{ option.onClick }}" style="height: 42px; padding: 0 18px; border: none; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; background: {{ option.bg }}; color: {{ option.fg }};">{{ option.label }}</button>
+            </sc-for>
+          </div>
+          <div style="font-size: 13px; font-weight: 500; color: #A1A1A1;">Akışta her yazı 250–400 karakterlik özetle, görsel olmadan listelenir.</div>
+        </div>
+      </div>
+
+      <div style="grid-column: span 5; display: flex; flex-direction: column; gap: 20px;">
+
+        <div style="background: #FFFFFF; border-radius: 28px; padding: 26px 24px; display: flex; flex-direction: column; gap: 18px;">
+          <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.04em;">Yayın</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <sc-for list="{{ toggles }}" as="item" hint-placeholder-count="4">
+              <button type="button" onClick="{{ item.onClick }}" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border: none; background: none; font-family: inherit; text-align: left; cursor: pointer;">
+                <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                  <span style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: #0A0A0A;">{{ item.label }}</span>
+                  <span style="font-size: 13px; font-weight: 500; color: #A1A1A1; line-height: 1.4;">{{ item.desc }}</span>
+                </span>
+                <span style="width: 46px; height: 28px; flex: 0 0 46px; border-radius: 999px; padding: 3px; display: flex; background: {{ item.trackBg }}; justify-content: {{ item.knobAlign }};">
+                  <span style="width: 22px; height: 22px; border-radius: 999px; background: #FFFFFF;"></span>
+                </span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex: 1; background: #FFFFFF; border-radius: 28px; padding: 26px 24px; display: flex; flex-direction: column; gap: 18px;">
+          <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.04em;">E-bülten</div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Gönderim günü</div>
+              <div style="height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-radius: 16px; background: #F5F5F5; font-size: 16px; font-weight: 500;">
+                <span>Cuma</span>
+                <span style="color: #A1A1A1;">↓</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Saat</div>
+              <div style="height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-radius: 16px; background: #F5F5F5; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums;">
+                <span>18:00</span>
+                <span style="color: #A1A1A1;">↓</span>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 14px; font-weight: 600; color: #A1A1A1;">Gönderen adresi</div>
+            <div style="height: 48px; display: flex; align-items: center; padding: 0 18px; border-radius: 16px; background: #F5F5F5; font-size: 16px; font-weight: 500;">bulten@murekkep.co</div>
+          </div>
+          <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; border-top: 1px solid #F1F1F1;">
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.02em;">Bülteni durdur</div>
+              <div style="font-size: 13px; font-weight: 500; color: #A1A1A1;">Planlı gönderimler beklemeye alınır</div>
+            </div>
+            <a href="#" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; box-shadow: inset 0 0 0 1px #DEDEDE;" style-hover="background: #F5F5F5;">Durdur</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;feedLayout&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Kısa akış&quot;, &quot;Kart&quot;, &quot;Klasik liste&quot;], &quot;default&quot;: &quot;Kısa akış&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Genel&quot; }
+}">
+const TOGGLES = [
+  { key: "autosave", label: "Otomatik kaydetme", desc: "Taslaklar 30 saniyede bir kaydedilir", on: true },
+  { key: "preview", label: "Önizleme bağlantısı", desc: "Yayınlanmamış yazılar link ile paylaşılabilir", on: true },
+  { key: "readtime", label: "Okuma süresi göster", desc: "Akışta ve yazı sayfasında görünür", on: false },
+  { key: "rss", label: "RSS akışı", desc: "murekkep.co/rss adresinden yayınlanır", on: true }
+];
+
+const LAYOUTS = ["Kısa akış", "Kart", "Klasik liste"];
+
+class Component extends DCLogic {
+  state = {
+    on: TOGGLES.reduce((acc, t) => { acc[t.key] = t.on; return acc; }, {}),
+    layout: null
+  };
+
+  renderVals() {
+    const layout = this.state.layout ?? this.props.feedLayout ?? "Kısa akış";
+    return {
+      toggles: TOGGLES.map(t => {
+        const on = this.state.on[t.key];
+        return {
+          label: t.label,
+          desc: t.desc,
+          trackBg: on ? "#0A0A0A" : "#E2E2E2",
+          knobAlign: on ? "flex-end" : "flex-start",
+          onClick: () => this.setState(s => ({ on: Object.assign({}, s.on, { [t.key]: !s.on[t.key] }) }))
+        };
+      }),
+      layoutOptions: LAYOUTS.map(label => ({
+        label,
+        bg: label === layout ? "#0A0A0A" : "#F5F5F5",
+        fg: label === layout ? "#FFFFFF" : "#4A4A4A",
+        onClick: () => this.setState({ layout: label })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
