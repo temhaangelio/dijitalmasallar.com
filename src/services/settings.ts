@@ -9,6 +9,8 @@ export type SiteSettings = {
   language: "tr" | "en";
   description: string;
   descriptionEn: string;
+  aboutText: string;
+  aboutTextEn: string;
   homeTitle: string;
   feedLayout: "short" | "card" | "classic";
   postsPerPage: number;
@@ -31,6 +33,8 @@ export const defaultSiteSettings: SiteSettings = {
   language: "tr",
   description: "Teknoloji, yapay zekâ, bilim ve dijital kültür yoğunluklu kısa ve güncel paylaşımlar.",
   descriptionEn: "Concise and current notes focused on technology, artificial intelligence, science, and digital culture.",
+  aboutText: "Teknoloji, yapay zekâ, bilim ve dijital kültürdeki gelişmeleri gün boyu takip edip kısa notlara dönüştürüyoruz. Her not tek bir habere odaklanır ve kaynağına bağlantı verir. Amacımız, uzun okumalara vakit ayıramayanların gündemi birkaç dakikada yakalamasını sağlamak.",
+  aboutTextEn: "We follow what happens in technology, artificial intelligence, science, and digital culture through the day and turn it into short notes. Each note covers a single story and links back to its source. The goal is to let you catch up on the day in a couple of minutes.",
   homeTitle: "Kısa ve özgün teknoloji notları",
   feedLayout: "short",
   postsPerPage: 7,
@@ -53,6 +57,8 @@ const settingKeys = {
   diji_language: "language",
   diji_description: "description",
   diji_description_en: "descriptionEn",
+  about_text: "aboutText",
+  about_text_en: "aboutTextEn",
   home_intro_text: "description",
   home_title: "homeTitle",
   diji_feed_layout: "feedLayout",

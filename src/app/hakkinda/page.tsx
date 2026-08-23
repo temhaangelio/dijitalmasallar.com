@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Globe2, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
+import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorBackLink, VisitorShell } from "@/components/layout/visitor-shell";
 import { getVisitorLanguage } from "@/lib/visitor-language";
@@ -19,25 +20,25 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
   const query = await searchParams;
   const [language, settings] = await Promise.all([getVisitorLanguage(query.lang), settingsPromise]);
   const isEnglish = language === "en";
-  const about = isEnglish ? settings.descriptionEn : settings.description;
+  // Falls back to the one-line description so the page still reads correctly before the dedicated
+  // about text has been filled in.
+  const about = isEnglish
+    ? settings.aboutTextEn || settings.descriptionEn
+    : settings.aboutText || settings.description;
 
   return (
     <VisitorShell language={language} siteName={settings.siteName} action={<VisitorBackLink language={language} />}>
 
       <main className="w-full max-w-[720px] pt-10">
-        <header className="px-2 pb-8">
-          <p className="visitor-muted text-xs font-bold tracking-[.16em] text-muted">{isEnglish ? "ABOUT" : "HAKKINDA"}</p>
-          <h1 className="visitor-heading mt-3 text-[42px] font-semibold tracking-[-.055em] sm:text-[56px]">{settings.siteName}</h1>
-        </header>
-
         <div className="space-y-3">
           <section className="visitor-panel rounded-panel bg-surface p-6 sm:p-9">
-            <h2 className="visitor-heading text-[24px] font-semibold tracking-[-.04em]">{isEnglish ? "About" : "Hakkında"}</h2>
+            {/* Promoted to h1: the page-title header above it is gone, and a page still needs one. */}
+            <h1 className="visitor-heading text-[24px] font-semibold tracking-[-.04em]">{isEnglish ? "About" : "Hakkında"}</h1>
             <p className="visitor-copy mt-5 text-[18px] leading-8 text-ink [text-wrap:pretty]">{about}</p>
           </section>
 
           <section className="visitor-panel rounded-panel bg-surface p-6 sm:p-9">
-            <div className="flex items-center gap-3"><Globe2 className="size-5" aria-hidden="true" /><h2 className="visitor-heading text-[24px] font-semibold tracking-[-.04em]">{isEnglish ? "Page settings" : "Sayfa ayarları"}</h2></div>
+            <h2 className="visitor-heading text-[24px] font-semibold tracking-[-.04em]">{isEnglish ? "Page settings" : "Sayfa ayarları"}</h2>
 
             <div className="mt-6 divide-y divide-line">
               <div className="flex flex-col gap-3 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
@@ -59,8 +60,12 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             </div>
           </section>
 
+          {settings.moduleNewsletter && settings.newsletterEnabled ? (
+            <NewsletterPanel title={settings.newsletterTitle} description={settings.newsletterDescription} />
+          ) : null}
+
           <section className="visitor-panel rounded-panel bg-ink p-6 text-ink-contrast sm:p-9">
-            <div className="flex items-center gap-3"><Mail className="size-5" /><h2 className="visitor-heading text-[24px] font-semibold tracking-[-.04em]">{isEnglish ? "Contact" : "İletişim"}</h2></div>
+            <div className="flex items-center gap-3"><Mail className="size-5" aria-hidden="true" /><h2 className="visitor-heading text-[24px] font-semibold tracking-[-.04em]">{isEnglish ? "Contact" : "İletişim"}</h2></div>
             <p className="mt-4 max-w-[560px] text-[15px] leading-7 text-on-dark">{isEnglish ? "For questions, suggestions, and collaborations, reach us by email." : "Soru, öneri ve iş birlikleri için e-posta üzerinden bize ulaşabilirsiniz."}</p>
             <a href={`mailto:${settings.contactEmail}`} className="mt-7 inline-flex min-h-11 items-center rounded-full bg-ink-contrast px-5 text-sm font-bold text-ink transition-opacity hover:opacity-85">{settings.contactEmail}</a>
           </section>

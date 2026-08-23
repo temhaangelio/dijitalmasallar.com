@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 
@@ -33,34 +33,21 @@ export function VisitorShell({
   );
 }
 
-const navLink = "visitor-copy flex h-[34px] items-center gap-2 rounded-full px-3.5 text-sm font-medium transition-colors";
+const navLink = "visitor-copy flex h-[34px] items-center gap-2 rounded-full px-3.5 text-sm font-semibold transition-colors";
 
-/** Feed / About switch used on the home page. */
-export function VisitorTabs({ language, active }: { language: VisitorLanguage; active: "feed" | "about" }) {
-  const tabs = [
-    { key: "feed" as const, href: `/?lang=${language}`, label: language === "en" ? "Feed" : "Akış" },
-    { key: "about" as const, href: `/hakkinda?lang=${language}`, label: language === "en" ? "About" : "Hakkında" },
-  ];
+/** Forward link to the about page, used from the feed. */
+export function VisitorAboutLink({ language }: { language: VisitorLanguage }) {
   return (
-    <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {tabs.map((tab) => (
-        <Link
-          key={tab.key}
-          href={tab.href}
-          aria-current={tab.key === active ? "page" : undefined}
-          className={`${navLink} ${tab.key === active ? "bg-ink font-semibold text-ink-contrast" : "text-ink-2 hover:bg-surface-2"}`}
-        >
-          {tab.label}
-        </Link>
-      ))}
-    </div>
+    <Link href={`/hakkinda?lang=${language}`} className={`${navLink} text-ink-2 hover:bg-surface-2 hover:text-ink`}>
+      {language === "en" ? "About" : "Hakkında"} <ArrowRight size={14} aria-hidden="true" />
+    </Link>
   );
 }
 
 /** Back-to-feed action used on the article and about pages. */
 export function VisitorBackLink({ language, label }: { language: VisitorLanguage; label?: string }) {
   return (
-    <Link href={`/?lang=${language}`} className={`${navLink} font-semibold text-ink-2 hover:bg-surface-2`}>
+    <Link href={`/?lang=${language}`} className={`${navLink} text-ink-2 hover:bg-surface-2 hover:text-ink`}>
       <ArrowLeft size={14} aria-hidden="true" /> {label ?? (language === "en" ? "Back to feed" : "Akışa dön")}
     </Link>
   );

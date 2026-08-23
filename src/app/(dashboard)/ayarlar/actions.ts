@@ -17,6 +17,8 @@ export async function saveSettingsAction(input: unknown) {
     ["diji_description", parsed.data.description],
     ["home_intro_text", parsed.data.description],
     ["diji_description_en", parsed.data.descriptionEn],
+    ["about_text", parsed.data.aboutText],
+    ["about_text_en", parsed.data.aboutTextEn],
     ["diji_language", parsed.data.language],
     ["diji_feed_layout", parsed.data.feedLayout],
     ["home_posts_per_page", parsed.data.postsPerPage],

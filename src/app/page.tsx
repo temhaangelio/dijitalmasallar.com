@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
-import { SubscribeForm } from "@/components/forms/subscribe-form";
 import { LoadMoreButton } from "@/components/features/visitor/load-more-button";
-import { VisitorFooter, VisitorShell, VisitorTabs } from "@/components/layout/visitor-shell";
+import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
+import { VisitorAboutLink, VisitorFooter, VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
@@ -118,7 +118,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const adSlots = randomAdSlots(posts.length, ads, newsletterSlot >= 0 ? [newsletterSlot] : []);
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName} action={<VisitorTabs language={language} active="feed" />}>
+    <VisitorShell language={language} siteName={settings.siteName} action={<VisitorAboutLink language={language} />}>
 
       <header id="hakkinda" className="flex w-full max-w-[720px] flex-col items-center gap-[18px] px-2 pb-10 pt-14 text-center">
         <h1 className="visitor-heading m-0 max-w-[560px] text-[24px] font-semibold leading-snug tracking-[-.03em] [text-wrap:pretty]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
@@ -132,10 +132,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             {/* An ad can land as early as the second card, where it becomes the LCP element. */}
             {adSlots.has(index) && <AdCard ad={adSlots.get(index)!} priority={index <= 2} />}
             {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
-              <section className="flex flex-col items-stretch justify-between gap-5 rounded-panel bg-ink p-6 text-ink-contrast sm:flex-row sm:items-center">
-                <div className="min-w-0"><h2 className="text-xl font-bold tracking-[-.035em]">{settings.newsletterTitle}</h2><p className="mt-1.5 text-sm font-medium text-on-dark [text-wrap:pretty]">{settings.newsletterDescription}</p></div>
-                <SubscribeForm />
-              </section>
+              <NewsletterPanel title={settings.newsletterTitle} description={settings.newsletterDescription} />
             )}
           </div>
         )) : <div className="visitor-panel visitor-muted rounded-panel bg-surface px-6 py-12 text-center text-muted">{language === "en" ? "No English posts have been published yet." : "Henüz Türkçe yazı yayınlanmadı."}</div>}

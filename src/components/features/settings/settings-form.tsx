@@ -47,8 +47,12 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
           <FormField label="Alan adı" htmlFor="domain" error={errors.domain?.message}><Input id="domain" {...register("domain")} /></FormField>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormField label="Türkçe açıklama" htmlFor="description" error={errors.description?.message}><Textarea id="description" {...register("description")} /></FormField>
-          <FormField label="İngilizce açıklama" htmlFor="descriptionEn" error={errors.descriptionEn?.message}><Textarea id="descriptionEn" {...register("descriptionEn")} /></FormField>
+          <FormField label="Türkçe açıklama" htmlFor="description" error={errors.description?.message} hint="Ana sayfa başlığı ve arama sonuçlarındaki özet. Tek cümlede tutun."><Textarea id="description" {...register("description")} /></FormField>
+          <FormField label="İngilizce açıklama" htmlFor="descriptionEn" error={errors.descriptionEn?.message} hint="Aynı metnin İngilizcesi."><Textarea id="descriptionEn" {...register("descriptionEn")} /></FormField>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FormField label="Türkçe hakkında metni" htmlFor="aboutText" error={errors.aboutText?.message} hint="Yalnızca /hakkinda sayfasında görünür. 2–3 cümle uygundur."><Textarea id="aboutText" className="min-h-36" {...register("aboutText")} /></FormField>
+          <FormField label="İngilizce hakkında metni" htmlFor="aboutTextEn" error={errors.aboutTextEn?.message} hint="Aynı metnin İngilizcesi."><Textarea id="aboutTextEn" className="min-h-36" {...register("aboutTextEn")} /></FormField>
         </div>
         <FormField label="Gösterilecek yazı" htmlFor="postsPerPage" error={errors.postsPerPage?.message}><Input id="postsPerPage" type="number" min={3} max={20} {...register("postsPerPage", { valueAsNumber: true })} /></FormField>
         <div className="grid gap-5 sm:grid-cols-2">
