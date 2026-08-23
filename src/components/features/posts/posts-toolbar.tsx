@@ -41,8 +41,8 @@ export function PostsToolbar({
           type="search"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          aria-label="Yüklenen yazılarda ara"
-          placeholder="Başlık, özet veya kategoride ara"
+          aria-label="Tüm yazılarda ara"
+          placeholder="Tüm yazılarda ara"
           className={query ? "px-11" : "pl-11"}
         />
         {query ? (

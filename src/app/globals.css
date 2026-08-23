@@ -172,6 +172,24 @@ html[data-visitor-font="modern"] .visitor-page { font-family: var(--font-geist),
 html[data-visitor-font="classic"] .visitor-page { font-family: Georgia, "Times New Roman", serif; letter-spacing: -.006em; }
 html[data-visitor-font="mono"] .visitor-page { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; letter-spacing: -.02em; }
 
+html[data-visitor-font-size="small"] .visitor-page { --visitor-font-scale: .9; }
+html[data-visitor-font-size="normal"] .visitor-page { --visitor-font-scale: 1; }
+html[data-visitor-font-size="large"] .visitor-page { --visitor-font-scale: 1.12; }
+
+html[data-visitor-font-size] .visitor-page .text-xs { font-size: calc(.75rem * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-base { font-size: calc(1rem * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[10px\] { font-size: calc(10px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[11px\] { font-size: calc(11px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[12px\] { font-size: calc(12px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[13px\] { font-size: calc(13px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[15px\] { font-size: calc(15px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[18px\] { font-size: calc(18px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[19px\] { font-size: calc(19px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[24px\] { font-size: calc(24px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[30px\] { font-size: calc(30px * var(--visitor-font-scale)); }
+html[data-visitor-font-size] .visitor-page .text-\[36px\] { font-size: calc(36px * var(--visitor-font-scale)); }
+
 @keyframes diji-loading-orbit {
   0%, 100% { transform: translate(0, 0); }
   25% { transform: translate(20px, 0); }
@@ -179,9 +197,22 @@ html[data-visitor-font="mono"] .visitor-page { font-family: "SFMono-Regular", Co
   75% { transform: translate(0, 20px); }
 }
 
+@keyframes live-news-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 @layer components {
   .visitor-highlight { background: var(--color-highlight); }
   .visitor-markdown > div { font-size: 18px; font-weight: 400; line-height: 1.75; }
   .diji-loading-dot { animation: diji-loading-orbit 1.25s cubic-bezier(.65, 0, .35, 1) infinite; }
+  .live-news-track { animation: live-news-scroll 38s linear infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-news-viewport { overflow-x: auto; scrollbar-width: none; }
+    .live-news-viewport::-webkit-scrollbar { display: none; }
+    .live-news-track { animation: none; }
+    .live-news-track > [aria-hidden="true"] { display: none; }
+  }
   .page-loading-visitor:not(.page-loading-embedded), .page-loading-admin:not(.page-loading-embedded) { background: var(--color-canvas); }
 }

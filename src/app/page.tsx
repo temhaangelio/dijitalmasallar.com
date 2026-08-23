@@ -4,11 +4,13 @@ import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
 import { LoadMoreButton } from "@/components/features/visitor/load-more-button";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
+import { LiveNewsBand } from "@/components/features/visitor/live-news-band";
 import { VisitorAboutLink, VisitorFooter, VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
+import { sourceLabel } from "@/lib/source-label";
 import { languageHref, resolveVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
 import type { ReactNode } from "react";
@@ -68,11 +70,12 @@ function dateKey(value: string) {
 
 function NoteCard({ post, layout, language }: { post: Post; layout: SiteSettings["feedLayout"]; language: VisitorLanguage }) {
   const layoutClass = layout === "card" ? "border border-line shadow-card" : layout === "classic" ? "border border-line-strong" : "border border-transparent";
+  const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
   return (
     <article className={`visitor-card group rounded-panel bg-surface p-5 transition duration-300 hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-soft sm:p-6 ${layoutClass}`}>
       <Link href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")} className="visitor-copy block text-[19px] font-normal leading-[1.65] text-ink [text-wrap:pretty] transition-opacity hover:opacity-65">{feedContent(post)}</Link>
       <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-[12px] font-semibold">
-        {post.source_url ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{post.source_name || (language === "en" ? "Source" : "Kaynak")} ↗</a> : <span className="visitor-source tracking-[.04em] text-muted">{post.source_name || (language === "en" ? "Source" : "Kaynak")}</span>}
+        {post.source_url ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source font-normal tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a> : <span className="visitor-source font-normal tracking-[.04em] text-muted">{displayedSource}</span>}
         <span className="text-faint transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
       </div>
     </article>
@@ -133,10 +136,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const adSlots = randomAdSlots(posts.length, ads, newsletterSlot >= 0 ? [newsletterSlot] : []);
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName} action={<VisitorAboutLink language={language} />}>
+    <VisitorShell language={language} siteName={settings.siteName} action={<VisitorAboutLink language={language} />} topContent={<LiveNewsBand posts={posts} language={language} />}>
 
-      <header className="flex w-full max-w-[760px] flex-col items-center px-2 pb-10 pt-14 text-center">
-        <h1 className="visitor-heading m-0 max-w-[620px] text-[30px] font-semibold leading-[1.2] tracking-[-.045em] [text-wrap:pretty] sm:text-[36px]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
+      <header className="flex w-full max-w-[720px] flex-col items-center px-4 pb-16 pt-16 text-center sm:pb-20 sm:pt-20">
+        <h1 className="visitor-heading m-0 max-w-[600px] text-[30px] font-semibold leading-[1.3] tracking-[-.04em] [text-wrap:balance] sm:text-[36px] sm:leading-[1.28]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
       </header>
 
       <main className="flex w-full max-w-[720px] flex-col">
@@ -146,7 +149,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           const startsNewDay = index === 0 || dateKey(publishedAt) !== dateKey(posts[index - 1].published_at ?? posts[index - 1].created_at);
           return (
           <div className="pb-5" key={post.id}>
-            {startsNewDay && <div className="visitor-muted mb-3 pl-[84px] pt-1 text-[11px] font-bold uppercase tracking-[.13em] text-muted sm:pl-0">{dateLabel(publishedAt, language)}</div>}
+            {startsNewDay && (
+              <div className={`visitor-muted mb-5 flex items-center gap-3 pl-[84px] sm:pl-0 ${index === 0 ? "pt-1" : "pt-7"}`}>
+                <span className="shrink-0 rounded-full border border-line-strong bg-canvas px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.13em] text-ink-2 shadow-[0_1px_2px_rgba(0,0,0,.03)]">{dateLabel(publishedAt, language)}</span>
+                <span className="h-px min-w-6 flex-1 bg-line-strong" aria-hidden="true" />
+              </div>
+            )}
             <div className="relative pl-[84px] sm:pl-0">
               <time dateTime={publishedAt} title={dateLabel(publishedAt, language)} className="visitor-muted absolute left-0 top-5 w-[50px] text-right font-mono text-[12px] font-semibold tabular-nums tracking-[.06em] text-muted sm:-left-[104px] sm:w-[64px]">{timeLabel(publishedAt, language)}</time>
               <span className="absolute left-[60px] top-[23px] z-10 size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] sm:-left-7" aria-hidden="true" />

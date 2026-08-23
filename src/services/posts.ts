@@ -9,6 +9,7 @@ import type { Post } from "@/types/database";
 type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; category: string; source_name: string | null; source_url: string | null; cover_path: string | null; featured: boolean; show_title: boolean; show_excerpt: boolean; created_at: string; author_id: string | null };
 const postColumns = "id,content_tr,content_en,legacy_english_id,category,source_name,source_url,cover_path,featured,show_title,show_excerpt,created_at,author_id";
 export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc" | "category-asc";
+export type PostPublicationFilter = "all" | "published" | "scheduled";
 
 function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
   const content = parsePostContent(language === "en" ? row.content_en : row.content_tr);
@@ -59,8 +60,13 @@ export type PostsPageResult = { posts: Post[]; total: number; page: number; tota
 
 const postSorts: readonly PostSort[] = ["newest", "oldest", "title-asc", "title-desc", "category-asc"];
 
-function demoPage(page: number, pageSize: number, language: "tr" | "en"): PostsPageResult {
-  const localizedPosts = demoPosts.filter((post) => post.language === language);
+function demoPage(page: number, pageSize: number, language: "tr" | "en", search = "", status: PostPublicationFilter = "all"): PostsPageResult {
+  const needle = search.trim().toLocaleLowerCase("tr");
+  const localizedPosts = demoPosts.filter((post) => {
+    if (post.language !== language) return false;
+    if (status !== "all" && post.status !== status) return false;
+    return !needle || `${post.title} ${post.excerpt} ${post.body} ${post.category} ${post.source_name ?? ""}`.toLocaleLowerCase("tr").includes(needle);
+  });
   const totalPages = Math.max(Math.ceil(localizedPosts.length / pageSize), 1);
   const currentPage = Math.min(page, totalPages);
   return { posts: localizedPosts.slice((currentPage - 1) * pageSize, currentPage * pageSize), total: localizedPosts.length, page: currentPage, totalPages };
@@ -74,11 +80,24 @@ const titleColumn = { tr: "content_tr", en: "content_en" } as const;
  * with `# <title>`, so they sort the same way. The previous implementation ordered by `content`,
  * a column dropped in the translation-merge migration, which made every title sort fail.
  */
-async function fetchAdminPostRows(page: number, pageSize: number, sort: PostSort, language: "tr" | "en") {
+function quotedLikePattern(value: string) {
+  const escaped = value.replace(/[\\%_"]/g, "\\$&");
+  return `"%${escaped}%"`;
+}
+
+async function fetchAdminPostRows(page: number, pageSize: number, sort: PostSort, language: "tr" | "en", search = "", status: PostPublicationFilter = "all") {
   const access = await getAuthorizedAdminClient();
   if (!access) throw new Error("Admin session is unavailable.");
   const from = (page - 1) * pageSize;
   let query = access.admin.from("posts").select(postColumns, { count: "exact" });
+  const normalizedSearch = search.trim().slice(0, 120);
+  if (normalizedSearch) {
+    const pattern = quotedLikePattern(normalizedSearch);
+    query = query.or(`content_tr.ilike.${pattern},content_en.ilike.${pattern},category.ilike.${pattern},source_name.ilike.${pattern}`);
+  }
+  const now = new Date().toISOString();
+  if (status === "published") query = query.lte("created_at", now);
+  else if (status === "scheduled") query = query.gt("created_at", now);
   if (sort === "oldest") query = query.order("created_at", { ascending: true });
   else if (sort === "title-asc") query = query.order(titleColumn[language], { ascending: true });
   else if (sort === "title-desc") query = query.order(titleColumn[language], { ascending: false });
@@ -94,17 +113,17 @@ function clampPageSize(pageSize: number) { return Math.min(Math.max(Math.floor(p
 function clampPage(page: number) { return Math.max(Math.floor(page), 1); }
 function safeSort(sort: PostSort): PostSort { return postSorts.includes(sort) ? sort : "newest"; }
 
-export async function getPostsPage(page = 1, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest"): Promise<PostsPageResult> {
+export async function getPostsPage(page = 1, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest", search = "", status: PostPublicationFilter = "all"): Promise<PostsPageResult> {
   const safePageSize = clampPageSize(pageSize);
   const requestedPage = clampPage(page);
-  if (!isSupabaseConfigured()) return demoPage(requestedPage, safePageSize, language);
+  if (!isSupabaseConfigured()) return demoPage(requestedPage, safePageSize, language, search, status);
   try {
-    const { rows, total } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), language);
+    const { rows, total } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), language, search, status);
     const totalPages = Math.max(Math.ceil(total / safePageSize), 1);
-    if (requestedPage > totalPages) return getPostsPage(totalPages, safePageSize, language, sort);
+    if (requestedPage > totalPages) return getPostsPage(totalPages, safePageSize, language, sort, search, status);
     return { posts: rows.map((row) => mapPost(row, language)), total, page: requestedPage, totalPages };
   } catch {
-    return demoPage(requestedPage, safePageSize, language);
+    return demoPage(requestedPage, safePageSize, language, search, status);
   }
 }
 

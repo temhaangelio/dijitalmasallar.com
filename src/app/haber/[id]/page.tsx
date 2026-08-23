@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorBackLink, VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref } from "@/lib/visitor-language";
+import { sourceLabel } from "@/lib/source-label";
 import { getNextPublishedPost, getPublishedPostById } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -58,6 +59,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
 
   const language = post.language === "en" ? "en" : "tr";
   const publishedAt = post.published_at ?? post.created_at;
+  const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
   const nextPost = await getNextPublishedPost(post.created_at, language);
 
   return (
@@ -69,11 +71,11 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
             <time dateTime={publishedAt}>{dateLabel(publishedAt, language)}</time>
             <span>·</span>
             {post.source_url ? (
-              <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source text-ink hover:underline">
-                {post.source_name || (language === "en" ? "Source" : "Kaynak")}
+              <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source font-normal text-ink hover:underline">
+                {displayedSource}
               </a>
             ) : (
-              <span className="visitor-source text-ink">{post.source_name || (language === "en" ? "Source" : "Kaynak")}</span>
+              <span className="visitor-source font-normal text-ink">{displayedSource}</span>
             )}
           </div>
           <div className="visitor-markdown">

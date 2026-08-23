@@ -5,9 +5,10 @@ import { revalidatePath } from "next/cache";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { isUuid } from "@/lib/utils";
 import { postSchema } from "@/lib/validations/post";
-import { getPostsPage, type PostSort } from "@/services/posts";
+import { getPostsPage, type PostPublicationFilter, type PostSort } from "@/services/posts";
 
 const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc", "category-asc"];
+const postStatuses: PostPublicationFilter[] = ["all", "published", "scheduled"];
 const acceptedImages = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function storagePathFromUrl(value: string | null) {
@@ -28,7 +29,7 @@ async function uploadCover(access: NonNullable<Awaited<ReturnType<typeof getAuth
   return { url: access.admin.storage.from("diji-post-media").getPublicUrl(path).data.publicUrl, path, error: null };
 }
 
-export async function loadMorePostsAction(page: number, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest") {
+export async function loadMorePostsAction(page: number, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest", search = "", status: PostPublicationFilter = "all") {
   const safePage = Number.isInteger(page) && page >= 1 ? page : 1;
   const safePageSize = Number.isInteger(pageSize) ? Math.min(Math.max(pageSize, 1), 50) : 20;
   const access = await getAuthorizedAdminClient();
@@ -36,7 +37,8 @@ export async function loadMorePostsAction(page: number, pageSize = 20, language:
 
   try {
     const safeSort = postSorts.includes(sort) ? sort : "newest";
-    const result = await getPostsPage(safePage, safePageSize, language, safeSort);
+    const safeStatus = postStatuses.includes(status) ? status : "all";
+    const result = await getPostsPage(safePage, safePageSize, language, safeSort, String(search).slice(0, 120), safeStatus);
     return { success: true as const, ...result };
   } catch {
     return { success: false as const, message: "Yazılar yüklenemedi. Lütfen tekrar deneyin." };

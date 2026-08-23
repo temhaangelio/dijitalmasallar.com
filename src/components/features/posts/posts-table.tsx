@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ImagePlus, LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
@@ -23,22 +23,19 @@ const languageLabels = { tr: "Türkçe", en: "İngilizce" } as const;
 const columnsStorageKey = "diji-news-post-columns";
 const defaultColumns: Record<OptionalColumn, boolean> = { language: true, category: true, status: true, reads: true, date: true };
 
-type InitialLanguageData = Record<"tr" | "en", { posts: Post[]; total: number }>;
-
 type PostsTableProps = {
   initialPosts: Post[];
   total: number;
   scheduledTotal: number;
   language: "tr" | "en";
-  initialLanguageData: InitialLanguageData;
   pageSize?: number;
 };
 
-export function PostsTable({ initialPosts, total, scheduledTotal, language, initialLanguageData, pageSize = 20 }: PostsTableProps) {
+export function PostsTable({ initialPosts, total, scheduledTotal, language, pageSize = 20 }: PostsTableProps) {
   const router = useRouter();
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [posts, setPosts] = useState(initialPosts);
-  const [totalCount, setTotalCount] = useState(total);
+  const [resultTotal, setResultTotal] = useState(total);
   const [page, setPage] = useState(1);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoadingMore, startLoadingMore] = useTransition();
@@ -47,6 +44,9 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
   const [sort, setSort] = useState<PostSort>("newest");
   const [status, setStatus] = useState<PostStatusFilter>("all");
   const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRequest = useRef(0);
+  const initialCriteria = useRef(true);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [visibleColumns, setVisibleColumns] = useState(defaultColumns);
@@ -63,21 +63,31 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // Keeps typing responsive: the filter runs against the last settled value instead of every keystroke.
-  const deferredQuery = useDeferredValue(query);
-  const isFiltering = query !== deferredQuery;
+  useEffect(() => {
+    if (initialCriteria.current) {
+      initialCriteria.current = false;
+      return;
+    }
+    const requestId = ++searchRequest.current;
+    const timer = window.setTimeout(async () => {
+      setIsSearching(true);
+      const result = await loadMorePostsAction(1, pageSize, currentLanguage, sort, query, status);
+      if (requestId !== searchRequest.current) return;
+      if (!result.success) {
+        setLoadError(result.message);
+      } else {
+        setPosts(result.posts);
+        setResultTotal(result.total);
+        setPage(1);
+        setLoadError(null);
+      }
+      setIsSearching(false);
+    }, query.trim() ? 300 : 0);
+    return () => window.clearTimeout(timer);
+  }, [currentLanguage, pageSize, query, sort, status]);
 
-  const filtered = useMemo(() => {
-    const needle = deferredQuery.trim().toLocaleLowerCase("tr");
-    return posts.filter((post) => {
-      if (status !== "all" && post.status !== status) return false;
-      if (!needle) return true;
-      return `${post.title} ${post.excerpt} ${post.body} ${post.category}`.toLocaleLowerCase("tr").includes(needle);
-    });
-  }, [posts, status, deferredQuery]);
-
-  const hasMore = posts.length < totalCount;
-  const busy = isChangingLanguage || isSorting;
+  const hasMore = posts.length < resultTotal;
+  const busy = isChangingLanguage || isSorting || isSearching;
 
   function toggleColumn(column: OptionalColumn) {
     setVisibleColumns((current) => {
@@ -90,33 +100,21 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
   function changeSort(nextSort: PostSort) {
     if (nextSort === sort || isSorting) return;
     setLoadError(null);
-    startSorting(async () => {
-      const result = await loadMorePostsAction(1, pageSize, currentLanguage, nextSort);
-      if (!result.success) { setLoadError(result.message); return; }
-      setPosts(result.posts);
-      setTotalCount(result.total);
-      setPage(1);
-      setSort(nextSort);
-    });
+    setIsSearching(true);
+    startSorting(() => setSort(nextSort));
   }
 
   function changeLanguage(nextLanguage: "tr" | "en") {
     if (nextLanguage === currentLanguage || isChangingLanguage) return;
     setLoadError(null);
-    startLanguageChange(() => {
-      const nextData = initialLanguageData[nextLanguage];
-      setPosts(nextData.posts);
-      setTotalCount(nextData.total);
-      setPage(1);
-      setCurrentLanguage(nextLanguage);
-      setSort("newest");
-    });
+    setIsSearching(true);
+    startLanguageChange(() => { setCurrentLanguage(nextLanguage); setSort("newest"); });
   }
 
   function loadMore() {
     setLoadError(null);
     startLoadingMore(async () => {
-      const result = await loadMorePostsAction(page + 1, pageSize, currentLanguage, sort);
+      const result = await loadMorePostsAction(page + 1, pageSize, currentLanguage, sort, query, status);
       if (!result.success) {
         setLoadError(result.message);
         return;
@@ -125,7 +123,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
         const knownIds = new Set(current.map((post) => post.id));
         return [...current, ...result.posts.filter((post) => !knownIds.has(post.id))];
       });
-      setTotalCount(result.total);
+      setResultTotal(result.total);
       setPage(result.page);
     });
   }
@@ -152,12 +150,12 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
 
   return (
     <>
-      <PostsStatusTabs active={status} total={totalCount} scheduledTotal={scheduledTotal} onChange={setStatus} />
+      <PostsStatusTabs active={status} total={total} scheduledTotal={scheduledTotal} onChange={(value) => { setIsSearching(true); setStatus(value); }} />
 
       <div className="card">
         <PostsToolbar
           query={query}
-          onQueryChange={setQuery}
+          onQueryChange={(value) => { setIsSearching(true); setQuery(value); }}
           language={currentLanguage}
           onLanguageChange={changeLanguage}
           languagePending={isChangingLanguage}
@@ -167,7 +165,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
           onToggleColumn={toggleColumn}
         />
 
-        <div className="relative" aria-busy={busy || isFiltering}>
+        <div className="relative" aria-busy={busy}>
           {busy ? (
             <div className="absolute inset-0 z-10 grid place-items-center rounded-field bg-surface/75 backdrop-blur-[1px]" role="status">
               <span className="flex items-center gap-2 text-sm font-semibold text-muted">
@@ -176,7 +174,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
             </div>
           ) : null}
 
-          {filtered.length ? (
+          {posts.length ? (
             <TableWrap>
               <Table>
                 <thead>
@@ -191,7 +189,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((post) => (
+                  {posts.map((post) => (
                     <tr key={post.id} className="transition-colors hover:bg-surface-2">
                       <Td className="align-top">
                         <Link href={`/yazilar/${post.id}/duzenle`} className="block rounded-sm text-base font-bold tracking-[-.022em] hover:underline">{post.title}</Link>
@@ -222,7 +220,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, init
           ) : <EmptyState title={emptyState.title} description={emptyState.description} />}
 
           <div className="mt-5 flex flex-col items-center gap-3 border-t border-line pt-5">
-            <p className="text-sm text-muted" aria-live="polite">{posts.length.toLocaleString("tr-TR")} / {totalCount.toLocaleString("tr-TR")} yazı yüklendi</p>
+            <p className="text-sm text-muted" aria-live="polite">{posts.length.toLocaleString("tr-TR")} / {resultTotal.toLocaleString("tr-TR")} yazı yüklendi</p>
             {hasMore ? (
               <Button type="button" variant="outline" onClick={loadMore} disabled={isLoadingMore} aria-describedby={loadError ? "load-more-error" : undefined}>
                 {isLoadingMore ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Plus className="size-4" aria-hidden="true" />}

@@ -12,28 +12,31 @@ export function VisitorShell({
   language,
   siteName,
   action,
+  topContent,
   children,
 }: {
   language: VisitorLanguage;
   siteName: string;
   action?: ReactNode;
+  topContent?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-5 pb-12 pt-5 text-ink">
-      <nav className="visitor-nav flex w-full max-w-[720px] items-center justify-between gap-4 py-2.5" aria-label={language === "en" ? "Site" : "Site"}>
+      {topContent}
+      <nav className={`visitor-nav flex min-h-14 w-full max-w-[720px] items-center justify-between gap-4 py-3 ${topContent ? "mt-5" : ""}`} aria-label={language === "en" ? "Site" : "Site"}>
         <Link href={languageHref("/", language)} className="flex shrink-0 items-center gap-2.5 rounded-full">
-          <span aria-hidden="true" className="flex size-[30px] items-start justify-start rounded-[10px] bg-ink p-[7px]"><span className="size-[7px] rounded-full bg-ink-contrast" /></span>
-          <span className="visitor-heading text-[15px] font-bold tracking-[-.03em]">{siteName}</span>
+          <span aria-hidden="true" className="flex size-8 items-start justify-start rounded-[11px] bg-ink p-[7px] shadow-[0_2px_8px_rgba(0,0,0,.12)]"><span className="size-[7px] rounded-full bg-ink-contrast" /></span>
+          <span className="visitor-heading text-base font-bold tracking-[-.03em]">{siteName}</span>
         </Link>
-        {action}
+        {action ? <div className="ml-auto flex shrink-0 items-center">{action}</div> : null}
       </nav>
       {children}
     </div>
   );
 }
 
-const navLink = "visitor-copy flex h-[34px] items-center gap-2 rounded-full px-3.5 text-sm font-semibold transition-colors";
+const navLink = "visitor-copy flex h-9 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors";
 
 /** Forward link to the about page, used from the feed. */
 export function VisitorAboutLink({ language }: { language: VisitorLanguage }) {

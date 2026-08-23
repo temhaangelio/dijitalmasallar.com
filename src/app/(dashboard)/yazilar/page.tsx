@@ -26,7 +26,6 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         total={result.total}
         language={language}
         scheduledTotal={scheduledTotal}
-        initialLanguageData={{ tr: turkish, en: english }}
       />
       </div>
     </AppShell>

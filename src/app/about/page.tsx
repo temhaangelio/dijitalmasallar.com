@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Mail, Rss } from "lucide-react";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
-import { FontPicker } from "@/components/features/visitor/font";
+import { FontPicker, FontSizePicker } from "@/components/features/visitor/font";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorBackLink, VisitorShell } from "@/components/layout/visitor-shell";
@@ -61,12 +61,20 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
                 <ThemePicker language={language} />
               </div>
 
-              <div className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+              <div className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
                 <div className="min-w-0">
                   <strong className="visitor-copy block text-[15px]">{isEnglish ? "Font" : "Yazı tipi"}</strong>
                   <p className="visitor-muted mt-1 text-sm text-muted">{isEnglish ? "Choose the typeface used across visitor pages." : "Ziyaretçi sayfalarında kullanılacak yazı tipini seçin."}</p>
                 </div>
                 <FontPicker language={language} />
+              </div>
+
+              <div className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                <div className="min-w-0">
+                  <strong className="visitor-copy block text-[15px]">{isEnglish ? "Font size" : "Yazı boyutu"}</strong>
+                  <p className="visitor-muted mt-1 text-sm text-muted">{isEnglish ? "Adjust text size across visitor pages." : "Ziyaretçi sayfalarındaki metin boyutunu ayarlayın."}</p>
+                </div>
+                <FontSizePicker language={language} />
               </div>
 
             </div>
