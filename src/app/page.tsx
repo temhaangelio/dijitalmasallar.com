@@ -200,7 +200,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <header className="flex w-full max-w-[720px] flex-col items-center px-4 pb-16 pt-16 text-center sm:pb-20 sm:pt-20">
-        <h1 className="visitor-heading m-0 max-w-[600px] text-[30px] font-semibold leading-[1.3] tracking-[-.04em] [text-wrap:balance] sm:text-[36px] sm:leading-[1.28]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
+        <h1 className="visitor-intro-title visitor-heading m-0 max-w-[580px] text-[23px] font-semibold leading-[1.4] tracking-[-.03em] [text-wrap:balance] sm:text-[28px] sm:leading-[1.35]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
       </header>
 
       <main className="flex w-full max-w-[720px] flex-col">

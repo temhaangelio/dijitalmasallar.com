@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
-import { VisitorBackLink, VisitorShell } from "@/components/layout/visitor-shell";
+import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref } from "@/lib/visitor-language";
 import { sourceLabel } from "@/lib/source-label";
 import { absoluteUrl, jsonLd, postDescription, postHeadline, siteUrl } from "@/lib/seo";
@@ -114,32 +114,37 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
   };
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName} action={<VisitorBackLink language={language} label={language === "en" ? "Back" : "Geri dön"} />}>
+    <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[720px] pt-10">
         <article className="visitor-panel rounded-panel border border-line bg-surface p-6 sm:p-9">
-          <div className="visitor-muted mb-7 flex flex-wrap items-center gap-2 text-[12px] font-semibold text-muted">
+          <div className="visitor-muted mb-7 flex items-center justify-between gap-4 text-[12px] font-semibold text-muted">
             <time dateTime={publishedAt}>{dateLabel(publishedAt, language)}</time>
-            <span>·</span>
-            {post.source_url ? (
-              <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source font-normal text-ink hover:underline">
-                {displayedSource}
-              </a>
-            ) : (
-              <span className="visitor-source font-normal text-ink">{displayedSource}</span>
-            )}
+            <Link href={languageHref("/", language)} aria-label={language === "en" ? "Close article" : "Haberi kapat"} className="grid size-10 place-items-center rounded-full border border-line-strong bg-surface text-ink transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft">
+              <X size={18} aria-hidden="true" />
+            </Link>
           </div>
           <div className="visitor-markdown">
             <MarkdownPreview value={post.body} />
           </div>
+          {(post.source_url || post.source_name) && (
+            <div className="visitor-muted mt-8 flex items-center justify-between gap-4 border-t border-line pt-5 text-[12px] text-muted">
+              <span>{language === "en" ? "Source" : "Kaynak"}</span>
+              {post.source_url ? (
+                <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source font-normal text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
+              ) : (
+                <span className="visitor-source font-normal text-ink">{displayedSource}</span>
+              )}
+            </div>
+          )}
         </article>
 
         {nextPost && (
-          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-panel visitor-next group mt-3 block rounded-panel border border-line bg-surface p-6 transition-colors hover:bg-surface-2 sm:p-8">
+          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-panel visitor-next group mt-3 block rounded-panel border border-line bg-surface-2 p-6 transition-colors hover:bg-surface sm:p-8">
             <span className="visitor-muted text-[11px] font-bold tracking-[.16em] text-muted">{language === "en" ? "NEXT STORY" : "SONRAKİ HABER"}</span>
             <div className="mt-4 flex items-end justify-between gap-6">
-              <p className="visitor-copy max-w-[570px] text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty]">{firstSentence(nextPost.body)}</p>
+              <p className="visitor-copy max-w-[570px] text-[16px] font-normal leading-[1.65] text-ink [text-wrap:pretty]">{firstSentence(nextPost.body)}</p>
               <span className="grid size-10 shrink-0 place-items-center rounded-full bg-ink text-ink-contrast transition-transform group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={16} /></span>
             </div>
           </Link>

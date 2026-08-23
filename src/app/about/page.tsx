@@ -29,10 +29,6 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
       <main className="w-full max-w-[720px] pb-14 pt-12 sm:pb-20 sm:pt-20">
         <article>
           <header className="relative border-b border-line-strong pb-10 sm:pb-14">
-            <div className="mb-8 flex items-center gap-3">
-              <span className="size-2 rounded-full bg-ink" aria-hidden="true" />
-              <p className="visitor-muted text-[11px] font-bold uppercase tracking-[.18em] text-muted">{settings.siteName}</p>
-            </div>
             <h1 className="visitor-heading max-w-[650px] text-[52px] font-semibold leading-[.95] tracking-[-.065em] sm:text-[76px]">{isEnglish ? "About" : "Hakkında"}</h1>
           </header>
 

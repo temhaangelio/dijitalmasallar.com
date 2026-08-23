@@ -165,12 +165,21 @@ html[data-visitor-theme="dark"] .visitor-page {
   --color-danger-surface: #2d1512;
 
   --focus-ring: #f2f2f2;
+
+  --visitor-ambient-a: rgb(77 96 137 / .16);
+  --visitor-ambient-b: rgb(130 88 66 / .12);
 }
 
 /* Visitor font preferences are intentionally scoped away from the admin panel. */
 html[data-visitor-font="modern"] .visitor-page { font-family: var(--font-geist), Arial, sans-serif; }
 html[data-visitor-font="classic"] .visitor-page { font-family: Georgia, "Times New Roman", serif; letter-spacing: -.006em; }
 html[data-visitor-font="mono"] .visitor-page { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; letter-spacing: -.02em; }
+
+/* Article markdown is rendered through a reusable preview component. Bind its typography directly
+   so the visitor font preference cannot be lost through that component boundary. */
+html[data-visitor-font="modern"] .visitor-markdown { font-family: var(--font-geist), Arial, sans-serif; }
+html[data-visitor-font="classic"] .visitor-markdown { font-family: Georgia, "Times New Roman", serif; }
+html[data-visitor-font="mono"] .visitor-markdown { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 
 html[data-visitor-font-size="small"] .visitor-page { --visitor-font-scale: .9; }
 html[data-visitor-font-size="normal"] .visitor-page { --visitor-font-scale: 1; }
@@ -190,6 +199,12 @@ html[data-visitor-font-size] .visitor-page .text-\[24px\] { font-size: calc(24px
 html[data-visitor-font-size] .visitor-page .text-\[30px\] { font-size: calc(30px * var(--visitor-font-scale)); }
 html[data-visitor-font-size] .visitor-page .text-\[36px\] { font-size: calc(36px * var(--visitor-font-scale)); }
 
+/* Article markdown has its own typography, so it follows the reader scale directly instead of
+   relying on Tailwind's fixed text-size utility emitted by the shared preview component. */
+.visitor-page .visitor-markdown > div { font-size: calc(19px * var(--visitor-font-scale, 1)); font-weight: 400; line-height: 1.65; }
+.visitor-page .visitor-markdown h1 { font-size: calc(30px * var(--visitor-font-scale, 1)); }
+.visitor-page .visitor-markdown h2 { font-size: calc(24px * var(--visitor-font-scale, 1)); }
+
 @keyframes diji-loading-orbit {
   0%, 100% { transform: translate(0, 0); }
   25% { transform: translate(20px, 0); }
@@ -202,13 +217,65 @@ html[data-visitor-font-size] .visitor-page .text-\[36px\] { font-size: calc(36px
   to { transform: translateX(-50%); }
 }
 
+@keyframes visitor-ambient-drift {
+  0% { transform: translate3d(-52%, -2%, 0) scale(1) rotate(-2deg); }
+  50% { transform: translate3d(-48%, 4%, 0) scale(1.06) rotate(1deg); }
+  100% { transform: translate3d(-51%, 0, 0) scale(1.02) rotate(3deg); }
+}
+
+@keyframes visitor-sheet-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes visitor-sheet-panel-in {
+  from { opacity: 0; transform: translateY(28px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @layer components {
+  .visitor-page {
+    --visitor-ambient-a: rgb(150 174 220 / .2);
+    --visitor-ambient-b: rgb(238 191 157 / .16);
+    position: relative;
+    isolation: isolate;
+    overflow-x: clip;
+  }
+  .visitor-ambient {
+    position: absolute;
+    z-index: -1;
+    top: -260px;
+    left: 50%;
+    width: min(1120px, 145vw);
+    height: 700px;
+    pointer-events: none;
+    opacity: .8;
+    filter: blur(14px);
+    background:
+      radial-gradient(circle at 27% 54%, var(--visitor-ambient-a) 0, transparent 42%),
+      radial-gradient(circle at 72% 38%, var(--visitor-ambient-b) 0, transparent 40%);
+    animation: visitor-ambient-drift 20s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  .visitor-intro-title { position: relative; isolation: isolate; }
+  .visitor-intro-title::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -48px -72px;
+    pointer-events: none;
+    opacity: .9;
+    filter: blur(18px);
+    background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-surface) 88%, transparent) 0, transparent 70%);
+  }
+  .visitor-sheet-backdrop { animation: visitor-sheet-backdrop-in .22s ease-out both; }
+  .visitor-sheet-panel { animation: visitor-sheet-panel-in .3s cubic-bezier(.2,.8,.2,1) both; }
   .visitor-highlight { background: var(--color-highlight); }
-  .visitor-markdown > div { font-size: 18px; font-weight: 400; line-height: 1.75; }
   .diji-loading-dot { animation: diji-loading-orbit 1.25s cubic-bezier(.65, 0, .35, 1) infinite; }
   .live-news-track { animation: live-news-scroll 38s linear infinite; }
 
   @media (prefers-reduced-motion: reduce) {
+    .visitor-ambient { animation: none; will-change: auto; }
     .live-news-viewport { overflow-x: auto; scrollbar-width: none; }
     .live-news-viewport::-webkit-scrollbar { display: none; }
     .live-news-track { animation: none; }

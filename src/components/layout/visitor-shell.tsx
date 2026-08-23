@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
+import { VisitorSettingsButton } from "@/components/features/visitor/visitor-settings-button";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
 /**
@@ -24,6 +25,7 @@ export function VisitorShell({
 }) {
   return (
     <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-5 pb-12 pt-5 text-ink">
+      <div className="visitor-ambient" aria-hidden="true" />
       {topContent}
       <nav className={`visitor-nav flex min-h-14 w-full max-w-[720px] items-center justify-between gap-4 py-3 ${topContent ? "mt-5" : ""}`} aria-label={language === "en" ? "Site" : "Site"}>
         <Link href={languageHref("/", language)} className="flex shrink-0 items-center gap-2.5 rounded-full">
@@ -32,6 +34,7 @@ export function VisitorShell({
         </Link>
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {action}
+          <VisitorSettingsButton language={language} />
           <VisitorMenu language={language} siteName={siteName} />
         </div>
       </nav>
