@@ -29,7 +29,7 @@ export function VisitorShell({
       {topContent}
       <nav className={`visitor-nav flex min-h-14 w-full max-w-[720px] items-center justify-between gap-4 py-3 ${topContent ? "mt-5" : ""}`} aria-label={language === "en" ? "Site" : "Site"}>
         <Link href={languageHref("/", language)} className="flex shrink-0 items-center gap-2.5 rounded-full">
-          <span aria-hidden="true" className="flex size-8 items-start justify-start rounded-[11px] bg-ink p-[7px] shadow-[0_2px_8px_rgba(0,0,0,.12)]"><span className="size-[7px] rounded-full bg-ink-contrast" /></span>
+          <span aria-hidden="true" className="relative size-8 overflow-hidden rounded-[11px] bg-ink shadow-[0_2px_8px_rgba(0,0,0,.12)]"><span className="diji-loading-dot visitor-logo-dot absolute left-2 top-2 size-[7px] rounded-full bg-ink-contrast [--diji-loading-travel:9px]" /></span>
           <span className="visitor-heading text-xl font-bold tracking-[-.04em] sm:text-[22px]">{siteName}</span>
         </Link>
         <div className="ml-auto flex shrink-0 items-center gap-2">

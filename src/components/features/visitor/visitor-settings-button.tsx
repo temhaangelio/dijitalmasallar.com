@@ -21,10 +21,10 @@ export function VisitorSettingsButton({ language }: { language: VisitorLanguage 
       </button>
       <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Page settings" : "Sayfa ayarları"} closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-field bg-surface p-4"><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Language" : "Dil"}</p><LanguagePicker language={language} path={pathname} onNavigate={() => setOpen(false)} /></div>
-          <div className="rounded-field bg-surface p-4"><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Theme" : "Tema"}</p><ThemePicker language={language} /></div>
-          <div className="rounded-field bg-surface p-4"><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Font" : "Yazı tipi"}</p><FontPicker language={language} /></div>
-          <div className="rounded-field bg-surface p-4"><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Font size" : "Yazı boyutu"}</p><FontSizePicker language={language} /></div>
+          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Language" : "Dil"}</p><LanguagePicker language={language} path={pathname} onNavigate={() => setOpen(false)} /></div>
+          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Theme" : "Tema"}</p><ThemePicker language={language} /></div>
+          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Font" : "Yazı tipi"}</p><FontPicker language={language} /></div>
+          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Font size" : "Yazı boyutu"}</p><FontSizePicker language={language} /></div>
         </div>
       </VisitorBottomSheet>
     </>

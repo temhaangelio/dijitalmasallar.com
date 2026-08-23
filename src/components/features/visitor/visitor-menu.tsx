@@ -25,10 +25,10 @@ export function VisitorMenu({ language, siteName }: { language: VisitorLanguage;
 
       <VisitorBottomSheet open={open} onOpenChange={setOpen} title={siteName} closeLabel={isEnglish ? "Close menu" : "Menüyü kapat"}>
         <nav className="grid gap-2 sm:grid-cols-2" aria-label={isEnglish ? "Main navigation" : "Ana navigasyon"}>
-          {items.map((item, index) => (
-            <Link key={item.href} href={languageHref(item.href, language)} onClick={() => setOpen(false)} className="visitor-heading group flex min-h-20 items-center justify-between rounded-field bg-surface px-5 py-4 text-[24px] font-semibold tracking-[-.04em] transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft sm:min-h-24 sm:text-[28px]">
+          {items.map((item) => (
+            <Link key={item.href} href={languageHref(item.href, language)} onClick={() => setOpen(false)} className="visitor-heading group relative flex min-h-20 items-center justify-between rounded-field bg-surface px-5 py-4 text-[24px] font-semibold tracking-[-.04em] transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft sm:min-h-24 sm:text-[28px]">
+              <span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" />
               <span>{item[language]}</span>
-              <span className="visitor-muted text-[10px] font-bold tabular-nums tracking-[.14em] text-faint">0{index + 1}</span>
             </Link>
           ))}
         </nav>
