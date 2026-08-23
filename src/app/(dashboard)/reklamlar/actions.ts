@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
+import { isUuid } from "@/lib/utils";
 
 type ActionResult = { success: boolean; message: string };
 const acceptedImages = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
@@ -54,7 +55,7 @@ export async function createAdAction(formData: FormData): Promise<ActionResult> 
 }
 
 export async function updateAdLanguageAction(id: string, language: "tr" | "en"): Promise<ActionResult> {
-  if (!/^[0-9a-f-]{36}$/i.test(id) || (language !== "tr" && language !== "en")) return { success: false, message: "Geçersiz reklam dili." };
+  if (!isUuid(id) || (language !== "tr" && language !== "en")) return { success: false, message: "Geçersiz reklam dili." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
   const { error } = await access.admin.from("ad_units").update({ language, label: language === "en" ? "AD" : "REKLAM", updated_at: new Date().toISOString() }).eq("id", id);
@@ -64,7 +65,7 @@ export async function updateAdLanguageAction(id: string, language: "tr" | "en"):
 }
 
 export async function toggleAdAction(id: string, active: boolean): Promise<ActionResult> {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return { success: false, message: "Geçersiz reklam." };
+  if (!isUuid(id)) return { success: false, message: "Geçersiz reklam." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
   const { error } = await access.admin.from("ad_units").update({ active, updated_at: new Date().toISOString() }).eq("id", id);
@@ -74,7 +75,7 @@ export async function toggleAdAction(id: string, active: boolean): Promise<Actio
 }
 
 export async function deleteAdAction(id: string): Promise<ActionResult> {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return { success: false, message: "Geçersiz reklam." };
+  if (!isUuid(id)) return { success: false, message: "Geçersiz reklam." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
   const { data } = await access.admin.from("ad_units").select("image_url").eq("id", id).maybeSingle();

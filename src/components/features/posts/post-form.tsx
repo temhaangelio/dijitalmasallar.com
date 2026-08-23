@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { showToast } from "@/components/ui/toast";
 import { postSchema, type PostFormValues } from "@/lib/validations/post";
+import { isOptimizableImage } from "@/lib/images";
 import type { Post } from "@/types/database";
 
 function localDateTime(value: string | null) {
@@ -63,7 +65,6 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   }, [editing, setValue]);
 
   function rememberVisibility(next: Partial<Pick<PostFormValues, "showTitle" | "showExcerpt">>) {
-    if (editing) return;
     try {
       const current = JSON.parse(localStorage.getItem(visibilityPreferenceKey) ?? "{}") as Partial<Pick<PostFormValues, "showTitle" | "showExcerpt">>;
       localStorage.setItem(visibilityPreferenceKey, JSON.stringify({ ...current, ...next }));
@@ -96,9 +97,9 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           <div>
             <h2 className="section-title">İçerik</h2>
           </div>
-          <div role="tablist" aria-label="İçerik dili" className="grid grid-cols-2 gap-1.5 rounded-2xl bg-[#f1f1f1] p-1.5 sm:w-64">
+          <div role="tablist" aria-label="İçerik dili" className="grid grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64">
             {(["tr", "en"] as const).map((language) => (
-              <button key={language} type="button" role="tab" aria-selected={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`h-10 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-black text-white shadow-sm" : "text-[#666] hover:bg-white hover:text-black"}`}>
+              <button key={language} type="button" role="tab" aria-selected={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`h-10 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-white hover:text-ink"}`}>
                 {language === "tr" ? "Türkçe" : "English"}
               </button>
             ))}
@@ -121,17 +122,20 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           <FormField label="Kaynak adı (isteğe bağlı)" htmlFor="sourceName" error={errors.sourceName?.message}><Input id="sourceName" placeholder="Örn. OpenAI" {...register("sourceName")} /></FormField>
           <FormField label="Kaynak bağlantısı" htmlFor="sourceUrl" error={errors.sourceUrl?.message}><Input id="sourceUrl" type="url" placeholder="https://..." {...register("sourceUrl")} /></FormField>
           <div>
-            <h3 className="mb-2 text-sm font-semibold">Kapak görseli <span className="font-normal text-[#a1a1a1]">(isteğe bağlı)</span></h3>
-            {sharedPost?.cover_path && !removeCover && !coverImage ? <div className="mb-3 overflow-hidden rounded-2xl bg-[#f1f1f1]"><div role="img" aria-label="Mevcut kapak görseli" className="aspect-[4/3] bg-cover bg-center" style={{ backgroundImage: `url(${JSON.stringify(sharedPost.cover_path)})` }} /><button type="button" onClick={() => setRemoveCover(true)} className="w-full px-4 py-3 text-left text-sm font-semibold text-[#b42318] hover:bg-[#fff1f0]">Mevcut görseli kaldır</button></div> : null}
+            <h3 className="mb-2 text-sm font-semibold">Kapak görseli <span className="font-normal text-muted">(isteğe bağlı)</span></h3>
+            {sharedPost?.cover_path && !removeCover && !coverImage ? <div className="mb-3 overflow-hidden rounded-field bg-surface-3"><div className="relative aspect-[4/3]">{isOptimizableImage(sharedPost.cover_path)
+              ? <Image src={sharedPost.cover_path} alt="Mevcut kapak görseli" fill sizes="360px" className="object-cover" />
+              // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
+              : <img src={sharedPost.cover_path} alt="Mevcut kapak görseli" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}</div><button type="button" onClick={() => setRemoveCover(true)} className="w-full px-4 py-3 text-left text-sm font-semibold text-danger hover:bg-danger-surface">Mevcut görseli kaldır</button></div> : null}
             <FileUpload onChange={(file) => { setCoverImage(file); if (file) setRemoveCover(false); }} label={sharedPost?.cover_path && !removeCover ? "Kapak görselini değiştir" : "Kapak görseli seç"} />
-            {removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(false)} className="mt-2 text-xs font-semibold text-[#777] hover:text-black">Mevcut görseli geri getir</button> : null}
-            <p className="mt-2 text-xs leading-5 text-[#a1a1a1]">JPG, PNG veya WebP · en fazla 5 MB</p>
+            {removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(false)} className="mt-2 text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
+            <p className="mt-2 text-xs leading-5 text-muted">JPG, PNG veya WebP · en fazla 5 MB</p>
           </div>
           <div>
             <h3 className="mb-2 text-sm font-semibold">Ziyaretçi görünümü</h3>
-            <div className="divide-y divide-[#e8e8e8] rounded-2xl bg-[#f5f5f5] px-4">
-              <div className="flex items-center justify-between gap-4 py-4"><div><strong className="block text-sm">Başlığı göster</strong><small className="mt-1 block text-[#a1a1a1]">Yazı başlığı ziyaretçi kartında görünür.</small></div><Controller name="showTitle" control={control} render={({ field }) => <Switch label="Başlığı ziyaretçiye göster" checked={field.value} onCheckedChange={(checked) => { if (!checked) { setValue("tr.title", "", { shouldDirty: true }); setValue("en.title", "", { shouldDirty: true }); } field.onChange(checked); rememberVisibility({ showTitle: checked }); }} />} /></div>
-              <div className="flex items-center justify-between gap-4 py-4"><div><strong className="block text-sm">Özeti göster</strong><small className="mt-1 block text-[#a1a1a1]">Kısa özet ziyaretçi kartında görünür.</small></div><Controller name="showExcerpt" control={control} render={({ field }) => <Switch label="Özeti ziyaretçiye göster" checked={field.value} onCheckedChange={(checked) => { if (!checked) { setValue("tr.excerpt", "", { shouldDirty: true }); setValue("en.excerpt", "", { shouldDirty: true }); } field.onChange(checked); rememberVisibility({ showExcerpt: checked }); }} />} /></div>
+            <div className="divide-y divide-line rounded-field bg-surface-2 px-4">
+              <div className="flex items-center justify-between gap-4 py-4"><div><strong className="block text-sm">Başlığı göster</strong><small className="mt-1 block text-muted">Yazı başlığı ziyaretçi kartında görünür.</small></div><Controller name="showTitle" control={control} render={({ field }) => <Switch label="Başlığı ziyaretçiye göster" checked={field.value} onCheckedChange={(checked) => { if (!checked) { setValue("tr.title", "", { shouldDirty: true }); setValue("en.title", "", { shouldDirty: true }); } field.onChange(checked); rememberVisibility({ showTitle: checked }); }} />} /></div>
+              <div className="flex items-center justify-between gap-4 py-4"><div><strong className="block text-sm">Özeti göster</strong><small className="mt-1 block text-muted">Kısa özet ziyaretçi kartında görünür.</small></div><Controller name="showExcerpt" control={control} render={({ field }) => <Switch label="Özeti ziyaretçiye göster" checked={field.value} onCheckedChange={(checked) => { if (!checked) { setValue("tr.excerpt", "", { shouldDirty: true }); setValue("en.excerpt", "", { shouldDirty: true }); } field.onChange(checked); rememberVisibility({ showExcerpt: checked }); }} />} /></div>
             </div>
           </div>
           <FormField label="Durum" htmlFor="status" error={errors.status?.message}>

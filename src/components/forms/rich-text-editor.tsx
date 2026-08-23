@@ -88,8 +88,8 @@ export function RichTextEditor({ id, name, value, onChange, onBlur }: RichTextEd
   function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) { event.preventDefault(); document.execCommand("insertText", false, event.clipboardData.getData("text/plain")); syncValue(); }
 
   return (
-    <div className={cn("relative overflow-hidden rounded-2xl border border-transparent bg-[#f5f5f5] transition focus-within:border-black focus-within:bg-white", fullscreen && "fixed inset-0 z-[200] rounded-none border-0 bg-white") }>
-      <div role="toolbar" aria-label="Metin biçimlendirme" className="absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] items-center gap-0.5 overflow-x-auto rounded-full bg-[#171717] px-2 py-1.5 shadow-[0_10px_30px_rgba(0,0,0,.18)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className={cn("relative overflow-hidden rounded-field border border-transparent bg-surface-2 transition focus-within:border-ink focus-within:bg-white", fullscreen && "fixed inset-0 z-[200] rounded-none border-0 bg-white") }>
+      <div role="toolbar" aria-label="Metin biçimlendirme" className="absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] items-center gap-0.5 overflow-x-auto rounded-full bg-ink px-2 py-1.5 shadow-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ToolButton label="Kalın" shortcut="⌘B" onPress={() => command("bold")}><Bold className="size-[17px]" /></ToolButton>
         <ToolButton label="İtalik" shortcut="⌘I" onPress={() => command("italic")}><Italic className="size-[17px]" /></ToolButton>
         <ToolButton label="Vurgula" onPress={() => command("hiliteColor", "#eaeaea")}><Highlighter className="size-[17px]" /></ToolButton>
@@ -104,7 +104,7 @@ export function RichTextEditor({ id, name, value, onChange, onBlur }: RichTextEd
         <ToolButton label={fullscreen ? "Tam ekrandan çık" : "Tam ekran"} shortcut={fullscreen ? "Esc" : undefined} onPress={() => setFullscreen((current) => !current)}>{fullscreen ? <Minimize2 className="size-[17px]" /> : <Maximize2 className="size-[17px]" />}</ToolButton>
       </div>
       <input type="hidden" name={name} value={value} readOnly />
-      <div ref={editorRef} id={id} role="textbox" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[360px] px-5 pb-5 pt-[76px] text-[16px] leading-7 text-[#272727] outline-none [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-black [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-[#e8e8e8] [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-[#eaeaea] [&_mark]:px-0.5", fullscreen && "mx-auto h-screen w-full max-w-5xl overflow-y-auto px-8 pb-20 pt-24 text-[18px] leading-8 sm:px-16")} />
+      <div ref={editorRef} id={id} role="textbox" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[360px] px-5 pb-5 pt-[76px] text-[16px] leading-7 text-ink outline-none [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-ink [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-line [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-highlight [&_mark]:px-0.5", fullscreen && "mx-auto h-screen w-full max-w-5xl overflow-y-auto px-8 pb-20 pt-24 text-[18px] leading-8 sm:px-16")} />
     </div>
   );
 }

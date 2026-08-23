@@ -39,7 +39,7 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
   });
 
   return (
-    <form onSubmit={handleSubmit(save)} className="mx-auto w-full max-w-[920px] space-y-5">
+    <form onSubmit={handleSubmit(save)} className="w-full space-y-5">
       {section === "general" ? <div className="card space-y-5">
         <h2 className="section-title">Ziyaretçi sayfası</h2>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -60,8 +60,8 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
 
       {section === "newsletter" ? <div className="card">
           <h2 className="section-title">E-bülten alanı</h2>
-          <div className="mt-5 flex items-center justify-between gap-4 border-b border-[#f1f1f1] pb-5">
-            <div><strong className="text-[15px]">Bülteni göster</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">Ziyaretçi akışında abonelik formunu gösterir.</p></div>
+          <div className="mt-5 flex items-center justify-between gap-4 border-b border-line pb-5">
+            <div><strong className="text-[15px]">Bülteni göster</strong><p className="mt-1 text-[13px] text-muted">Ziyaretçi akışında abonelik formunu gösterir.</p></div>
             <Switch label="Bülteni göster" checked={newsletterEnabled} onCheckedChange={(value) => setValue("newsletterEnabled", value, { shouldDirty: true })} />
           </div>
           <div className="mt-5 space-y-5">
@@ -72,22 +72,22 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
 
       {section === "visibility" ? <div className="card">
           <h2 className="section-title">Görünürlük</h2>
-          <div className="mt-5 divide-y divide-[#f1f1f1]">
-            <div className="flex items-center justify-between gap-4 pb-4"><div><strong className="text-[15px]">Abone sayısını göster</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">Ana başlığın altında gerçek aktif abone sayısı görünür.</p></div><Switch label="Abone sayısını göster" checked={showSubscriberCount} onCheckedChange={(value) => setValue("showSubscriberCount", value, { shouldDirty: true })} /></div>
-            <div className="flex items-center justify-between gap-4 pt-4"><div><strong className="text-[15px]">Bakım modu</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">Ziyaretçilere geçici bakım ekranı gösterir.</p></div><Switch label="Bakım modu" checked={maintenanceMode} onCheckedChange={(value) => setValue("maintenanceMode", value, { shouldDirty: true })} /></div>
+          <div className="mt-5 divide-y divide-line">
+            <div className="flex items-center justify-between gap-4 pb-4"><div><strong className="text-[15px]">Abone sayısını göster</strong><p className="mt-1 text-[13px] text-muted">Ana başlığın altında gerçek aktif abone sayısı görünür.</p></div><Switch label="Abone sayısını göster" checked={showSubscriberCount} onCheckedChange={(value) => setValue("showSubscriberCount", value, { shouldDirty: true })} /></div>
+            <div className="flex items-center justify-between gap-4 pt-4"><div><strong className="text-[15px]">Bakım modu</strong><p className="mt-1 text-[13px] text-muted">Ziyaretçilere geçici bakım ekranı gösterir.</p></div><Switch label="Bakım modu" checked={maintenanceMode} onCheckedChange={(value) => setValue("maintenanceMode", value, { shouldDirty: true })} /></div>
           </div>
       </div> : null}
 
       {section === "modules" ? <div className="card">
           <h2 className="section-title">Panel modülleri</h2>
-          <p className="mt-2 text-sm leading-6 text-[#a1a1a1]">Kapalı modüller menüden kaldırılır ve doğrudan erişime kapanır.</p>
-          <div className="mt-5 divide-y divide-[#f1f1f1]">
+          <p className="mt-2 text-sm leading-6 text-muted">Kapalı modüller menüden kaldırılır ve doğrudan erişime kapanır.</p>
+          <div className="mt-5 divide-y divide-line">
             {[
               ["Yazılar", "İçerik ekleme ve yönetme ekranları", "modulePosts", modulePosts],
               ["E-bülten", "Bülten ve abone yönetimi", "moduleNewsletter", moduleNewsletter],
               ["Reklamlar", "Reklam ekleme ve yayınlama", "moduleAds", moduleAds],
               ["İstatistik", "Vercel Analytics raporları", "moduleAnalytics", moduleAnalytics],
-            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics", value, { shouldDirty: true })} /></div>)}
+            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-muted">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics", value, { shouldDirty: true })} /></div>)}
           </div>
       </div> : null}
 

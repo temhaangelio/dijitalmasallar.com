@@ -2,32 +2,16 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/env";
 import { demoPosts } from "@/lib/constants/demo-data";
+import { parsePostContent } from "@/lib/post-content";
+import { isUuid } from "@/lib/utils";
 import type { Post } from "@/types/database";
 
 type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; category: string; source_name: string | null; source_url: string | null; cover_path: string | null; featured: boolean; show_title: boolean; show_excerpt: boolean; created_at: string; author_id: string | null };
 const postColumns = "id,content_tr,content_en,legacy_english_id,category,source_name,source_url,cover_path,featured,show_title,show_excerpt,created_at,author_id";
 export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc" | "category-asc";
 
-function stripMarkdown(value: string) {
-  return value.replace(/!\[[^\]]*\]\([^)]+\)/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/^#{1,3}\s+/gm, "").replace(/[*_`=]/g, "").replace(/\s+/g, " ").trim();
-}
-
-function parseContent(value: string) {
-  if (value.startsWith("# ")) {
-    const [heading, excerpt = "", ...bodyParts] = value.split("\n\n");
-    if (bodyParts.length) return { title: heading.slice(2).trim(), excerpt: excerpt.trim(), body: bodyParts.join("\n\n").trim() };
-  }
-  const clean = stripMarkdown(value);
-  const title = clean.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || clean.slice(0, 110);
-  return {
-    title: title.length > 110 ? `${title.slice(0, 107).trimEnd()}…` : title,
-    excerpt: clean.length > 180 ? `${clean.slice(0, 177).trimEnd()}…` : clean,
-    body: value,
-  };
-}
-
 function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
-  const content = parseContent(language === "en" ? row.content_en : row.content_tr);
+  const content = parsePostContent(language === "en" ? row.content_en : row.content_tr);
   const scheduled = new Date(row.created_at).getTime() > Date.now();
   return {
     id: row.id,
@@ -71,72 +55,96 @@ export async function getPosts(page = 1, pageSize = 20, language: "tr" | "en" = 
   }
 }
 
-export async function getPublishedPostCount() {
-  if (!isSupabaseConfigured()) return demoPosts.filter((post) => post.status === "published").length;
+export type PostsPageResult = { posts: Post[]; total: number; page: number; totalPages: number };
+
+const postSorts: readonly PostSort[] = ["newest", "oldest", "title-asc", "title-desc", "category-asc"];
+
+function demoPage(page: number, pageSize: number, language: "tr" | "en"): PostsPageResult {
+  const localizedPosts = demoPosts.filter((post) => post.language === language);
+  const totalPages = Math.max(Math.ceil(localizedPosts.length / pageSize), 1);
+  const currentPage = Math.min(page, totalPages);
+  return { posts: localizedPosts.slice((currentPage - 1) * pageSize, currentPage * pageSize), total: localizedPosts.length, page: currentPage, totalPages };
+}
+
+const titleColumn = { tr: "content_tr", en: "content_en" } as const;
+
+/**
+ * Titles are derived in JavaScript from the markdown body, so the database cannot sort by them
+ * directly. Ordering on the content column is the closest equivalent: rows that carry a title start
+ * with `# <title>`, so they sort the same way. The previous implementation ordered by `content`,
+ * a column dropped in the translation-merge migration, which made every title sort fail.
+ */
+async function fetchAdminPostRows(page: number, pageSize: number, sort: PostSort, language: "tr" | "en") {
+  const access = await getAuthorizedAdminClient();
+  if (!access) throw new Error("Admin session is unavailable.");
+  const from = (page - 1) * pageSize;
+  let query = access.admin.from("posts").select(postColumns, { count: "exact" });
+  if (sort === "oldest") query = query.order("created_at", { ascending: true });
+  else if (sort === "title-asc") query = query.order(titleColumn[language], { ascending: true });
+  else if (sort === "title-desc") query = query.order(titleColumn[language], { ascending: false });
+  else if (sort === "category-asc") query = query.order("category", { ascending: true }).order("created_at", { ascending: false });
+  else query = query.order("created_at", { ascending: false });
+  const { data, count, error } = await query.range(from, from + pageSize - 1);
+  if (error) throw error;
+  const rows = (data ?? []) as PostRow[];
+  return { rows, total: count ?? rows.length };
+}
+
+function clampPageSize(pageSize: number) { return Math.min(Math.max(Math.floor(pageSize), 1), 100); }
+function clampPage(page: number) { return Math.max(Math.floor(page), 1); }
+function safeSort(sort: PostSort): PostSort { return postSorts.includes(sort) ? sort : "newest"; }
+
+export async function getPostsPage(page = 1, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest"): Promise<PostsPageResult> {
+  const safePageSize = clampPageSize(pageSize);
+  const requestedPage = clampPage(page);
+  if (!isSupabaseConfigured()) return demoPage(requestedPage, safePageSize, language);
   try {
-    const supabase = await createClient();
-    const { count, error } = await supabase.from("posts").select("id", { count: "exact", head: true }).lte("created_at", new Date().toISOString());
+    const { rows, total } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), language);
+    const totalPages = Math.max(Math.ceil(total / safePageSize), 1);
+    if (requestedPage > totalPages) return getPostsPage(totalPages, safePageSize, language, sort);
+    return { posts: rows.map((row) => mapPost(row, language)), total, page: requestedPage, totalPages };
+  } catch {
+    return demoPage(requestedPage, safePageSize, language);
+  }
+}
+
+/**
+ * Turkish and English live in two columns of the same row, so one query serves both tabs of the
+ * posts table. Fetching each language separately doubled the round-trips and the exact-count scans.
+ */
+export async function getBilingualPostsPage(page = 1, pageSize = 20, sort: PostSort = "newest"): Promise<Record<"tr" | "en", PostsPageResult>> {
+  const safePageSize = clampPageSize(pageSize);
+  const requestedPage = clampPage(page);
+  if (!isSupabaseConfigured()) return { tr: demoPage(requestedPage, safePageSize, "tr"), en: demoPage(requestedPage, safePageSize, "en") };
+  try {
+    const { rows, total } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), "tr");
+    const totalPages = Math.max(Math.ceil(total / safePageSize), 1);
+    if (requestedPage > totalPages) return getBilingualPostsPage(totalPages, safePageSize, sort);
+    const shared = { total, page: requestedPage, totalPages };
+    return {
+      tr: { posts: rows.map((row) => mapPost(row, "tr")), ...shared },
+      en: { posts: rows.map((row) => mapPost(row, "en")), ...shared },
+    };
+  } catch {
+    return { tr: demoPage(requestedPage, safePageSize, "tr"), en: demoPage(requestedPage, safePageSize, "en") };
+  }
+}
+
+/** Powers the accurate "Planlı" tab count without pulling the scheduled rows themselves. */
+export async function getScheduledPostCount(): Promise<number> {
+  if (!isSupabaseConfigured()) return demoPosts.filter((post) => post.status === "scheduled").length;
+  try {
+    const access = await getAuthorizedAdminClient();
+    if (!access) return 0;
+    const { count, error } = await access.admin.from("posts").select("id", { count: "exact", head: true }).gt("created_at", new Date().toISOString());
     return error ? 0 : count ?? 0;
   } catch {
     return 0;
   }
 }
 
-export async function getPostsPage(page = 1, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest"): Promise<{ posts: Post[]; total: number; page: number; totalPages: number }> {
-  const safePageSize = Math.min(Math.max(Math.floor(pageSize), 1), 100);
-  const requestedPage = Math.max(Math.floor(page), 1);
-  if (!isSupabaseConfigured()) {
-    const localizedPosts = demoPosts.filter((post) => post.language === language);
-    const totalPages = Math.max(Math.ceil(localizedPosts.length / safePageSize), 1);
-    const currentPage = Math.min(requestedPage, totalPages);
-    return {
-      posts: localizedPosts.slice((currentPage - 1) * safePageSize, currentPage * safePageSize),
-      total: localizedPosts.length,
-      page: currentPage,
-      totalPages,
-    };
-  }
-  try {
-    const access = await getAuthorizedAdminClient();
-    if (!access) throw new Error("Admin session is unavailable.");
-    const from = (requestedPage - 1) * safePageSize;
-    let query = access.admin
-      .from("posts")
-      .select(postColumns, { count: "exact" });
-    if (sort === "oldest") query = query.order("created_at", { ascending: true });
-    else if (sort === "title-asc") query = query.order("content", { ascending: true });
-    else if (sort === "title-desc") query = query.order("content", { ascending: false });
-    else if (sort === "category-asc") query = query.order("category", { ascending: true }).order("created_at", { ascending: false });
-    else query = query.order("created_at", { ascending: false });
-    const { data, count, error } = await query.range(from, from + safePageSize - 1);
-    if (error) throw error;
-    const total = count ?? data.length;
-    const totalPages = Math.max(Math.ceil(total / safePageSize), 1);
-    if (requestedPage > totalPages) return getPostsPage(totalPages, safePageSize, language, sort);
-    return { posts: (data as PostRow[]).map((row) => mapPost(row, language)), total, page: requestedPage, totalPages };
-  } catch {
-    const localizedPosts = demoPosts.filter((post) => post.language === language);
-    const totalPages = Math.max(Math.ceil(localizedPosts.length / safePageSize), 1);
-    const currentPage = Math.min(requestedPage, totalPages);
-    return { posts: localizedPosts.slice((currentPage - 1) * safePageSize, currentPage * safePageSize), total: localizedPosts.length, page: currentPage, totalPages };
-  }
-}
-
-export async function getPostById(id: string): Promise<Post | null> {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-  try {
-    const access = await getAuthorizedAdminClient();
-    if (!access) return null;
-    const { data, error } = await access.admin.from("posts").select(postColumns).or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();
-    if (error || !data) return null;
-    return mapPost(data as PostRow);
-  } catch {
-    return null;
-  }
-}
-
 export async function getPostTranslationsById(id: string): Promise<Partial<Record<"tr" | "en", Post>> | null> {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  if (!isUuid(id)) return null;
   try {
     const access = await getAuthorizedAdminClient();
     if (!access) return null;
@@ -154,7 +162,7 @@ export async function getPostTranslationsById(id: string): Promise<Partial<Recor
 }
 
 export async function getPublishedPostById(id: string, language?: "tr" | "en"): Promise<Post | null> {
-  if (!/^[0-9a-f-]{36}$/i.test(id) || !isSupabaseConfigured()) return null;
+  if (!isUuid(id) || !isSupabaseConfigured()) return null;
   try {
     const supabase = await createClient();
     const { data, error } = await supabase

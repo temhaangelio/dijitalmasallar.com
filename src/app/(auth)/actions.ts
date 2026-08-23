@@ -1,6 +1,6 @@
 "use server";
 
-import { getAppUrl, isSupabaseConfigured, safeNextPath } from "@/lib/env";
+import { getAppUrl, isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { emailSchema, loginSchema, resetPasswordSchema } from "@/lib/validations/auth";
 import { redirect } from "next/navigation";
@@ -27,7 +27,17 @@ export async function forgotPasswordAction(input: unknown): Promise<AuthResult> 
   if (!parsed.success) return { success: false, message: parsed.error.issues[0]?.message ?? "E-posta adresini kontrol edin." };
   if (!isSupabaseConfigured()) return { success: false, message: "Supabase bağlantısı henüz yapılandırılmamış." };
   const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(parsed.data, { redirectTo: `${getAppUrl()}/auth/callback?next=${encodeURIComponent("/sifre-yenile")}` });
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
+    redirectTo: `${getAppUrl()}/auth/callback?next=${encodeURIComponent("/sifre-yenile")}`,
+  });
+  if (error) {
+    console.error("[auth/forgot-password] Reset request failed", {
+      code: error.code,
+      status: error.status,
+      message: error.message,
+    });
+    return { success: false, message: "Şifre yenileme bağlantısı gönderilemedi. Lütfen daha sonra tekrar deneyin." };
+  }
   return { success: true, message: "Hesap bulunursa şifre yenileme bağlantısı gönderildi." };
 }
 
@@ -41,4 +51,3 @@ export async function resetPasswordAction(input: unknown): Promise<AuthResult> {
 }
 
 export async function logoutAction() { if (isSupabaseConfigured()) { const supabase = await createClient(); await supabase.auth.signOut(); } redirect("/giris"); }
-export async function resolveNextPath(value: string | null) { return safeNextPath(value); }

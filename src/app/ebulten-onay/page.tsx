@@ -9,7 +9,7 @@ export default async function NewsletterResultPage({ searchParams }: { searchPar
       note={success ? "Bundan sonraki teknoloji seçkileri e-posta adresinize gelecek." : "Bağlantının süresi dolmuş olabilir. Ana sayfadan yeniden abone olabilirsiniz."}
       footer={<Link className="font-semibold underline" href="/">Ana sayfaya dön</Link>}
     >
-      <div className={`rounded-2xl p-4 text-sm ${success ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>
+      <div className={`rounded-field p-4 text-sm ${success ? "bg-success-surface text-success" : "bg-warning-surface text-warning"}`}>
         {success ? "Her şey hazır." : "Yeni bir doğrulama bağlantısı isteyin."}
       </div>
     </AuthShell>

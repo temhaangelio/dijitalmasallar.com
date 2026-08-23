@@ -17,9 +17,26 @@ function dayLabel(value: string, days: AnalyticsRange) {
   return new Intl.DateTimeFormat("tr-TR", days === 7 ? { weekday: "short" } : { day: "numeric", month: "short" }).format(new Date(`${value}T12:00:00Z`));
 }
 
-export function AnalyticsDashboard({ analytics, range }: { analytics: AnalyticsData | null; range: AnalyticsRange }) {
+export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { analytics: AnalyticsData | null; range: AnalyticsRange; missingEnv?: string[] }) {
   const ranges: AnalyticsRange[] = [7, 30];
-  if (!analytics) return <ErrorState message="Vercel istatistikleri şu anda alınamadı. Erişim anahtarını ve proje ayarlarını kontrol edin." />;
+  if (!analytics) {
+    return (
+      <Card>
+        <ErrorState
+          message={missingEnv.length
+            ? `Vercel Analytics yapılandırılmamış. Eksik ortam değişkeni: ${missingEnv.join(", ")}.`
+            : "Vercel istatistikleri şu anda alınamadı. Erişim anahtarı geçerli görünmüyor veya Vercel API'sine ulaşılamıyor."}
+        />
+        {missingEnv.length ? (
+          <p className="mt-4 text-sm leading-6 text-muted">
+            Bu değerleri <code className="rounded bg-surface-2 px-1.5 py-0.5">.env.local</code> dosyasına ve Vercel proje ayarlarındaki
+            Environment Variables bölümüne ekleyin. Proje ve takım kimliklerini Vercel panelinde
+            Project Settings → General ve Team Settings → General altında bulabilirsiniz.
+          </p>
+        ) : null}
+      </Card>
+    );
+  }
 
   const maxViews = Math.max(...analytics.daily.map((day) => day.pageviews), 1);
   const yMax = Math.ceil(maxViews / 10) * 10;
@@ -30,7 +47,7 @@ export function AnalyticsDashboard({ analytics, range }: { analytics: AnalyticsD
 
   return <>
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <p className="text-[15px] font-medium text-[#a1a1a1]">Son {range} gün · {number.format(analytics.pageviews)} görüntüleme · {refreshed} itibarıyla</p>
+      <p className="text-[15px] font-medium text-muted">Son {range} gün · {number.format(analytics.pageviews)} görüntüleme · {refreshed} itibarıyla</p>
       <div className="flex gap-2">{ranges.map((days) => <Link key={days} href={days === 30 ? "/istatistik" : `/istatistik?aralik=${days}`} className={buttonVariants({ variant: days === range ? "primary" : "outline", size: "sm" })}>{days} gün</Link>)}</div>
     </div>
 
@@ -40,23 +57,23 @@ export function AnalyticsDashboard({ analytics, range }: { analytics: AnalyticsD
         ["Tekil okur", number.format(analytics.visitors), changeLabel(analytics.visitorsChange)],
         ["Ziyaretçi başına", pagePerVisitor.toFixed(1).replace(".", ","), "sayfa görüntüleme"],
         ["Günlük ortalama", number.format(Math.round(dailyAverage)), "görüntüleme"],
-      ].map(([label, value, note]) => <Card key={label} className="flex h-[132px] flex-col justify-between"><strong>{label}</strong><div><span className="text-[40px] font-bold leading-none tracking-[-.05em]">{value}</span><small className="ml-2 text-[#a1a1a1]">{note}</small></div></Card>)}
+      ].map(([label, value, note]) => <Card key={label} className="flex h-[132px] flex-col justify-between"><strong>{label}</strong><div><span className="text-[40px] font-bold leading-none tracking-[-.05em]">{value}</span><small className="ml-2 text-muted">{note}</small></div></Card>)}
     </div>
 
     <div className="mt-5 grid gap-5 xl:grid-cols-12">
       <Card className="xl:col-span-8">
-        <div className="flex justify-between"><h2 className="section-title">Günlük görüntüleme</h2><span className="text-[#a1a1a1]">Son {range} gün</span></div>
+        <div className="flex justify-between"><h2 className="section-title">Günlük görüntüleme</h2><span className="text-muted">Son {range} gün</span></div>
         <div className="mt-8 flex h-[270px] gap-3">
-          <div className="flex w-10 shrink-0 flex-col justify-between pb-7 text-right text-xs font-medium tabular-nums text-[#a1a1a1]">{yTicks.map((tick) => <span key={tick}>{number.format(tick)}</span>)}</div>
+          <div className="flex w-10 shrink-0 flex-col justify-between pb-7 text-right text-xs font-medium tabular-nums text-muted">{yTicks.map((tick) => <span key={tick}>{number.format(tick)}</span>)}</div>
           <div className="min-w-0 flex-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="relative flex h-full min-w-[620px] items-end gap-1.5 border-b border-[#dedede]">
-              <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 grid h-[calc(100%-28px)] grid-rows-4"><span className="border-t border-[#ededed]" /><span className="border-t border-[#ededed]" /><span className="border-t border-[#ededed]" /><span className="border-y border-[#ededed]" /></div>
+            <div className="relative flex h-full min-w-[620px] items-end gap-1.5 border-b border-line-strong">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 grid h-[calc(100%-28px)] grid-rows-4"><span className="border-t border-line" /><span className="border-t border-line" /><span className="border-t border-line" /><span className="border-y border-line" /></div>
               {analytics.daily.map((day, index) => {
                 const height = day.pageviews === 0 ? 2 : Math.max((day.pageviews / yMax) * 100, 4);
                 const showLabel = range === 7 || index % 5 === 0 || index === analytics.daily.length - 1;
                 return <div key={day.date} className="group relative z-[1] flex h-[calc(100%-28px)] min-w-0 flex-1 items-end" title={`${dayLabel(day.date, range)}: ${number.format(day.pageviews)} görüntüleme, ${number.format(day.visitors)} okur`}>
-                  <span className="relative w-full rounded-t bg-black transition-opacity group-hover:opacity-70" style={{ height: `${height}%` }}><span className={cn("absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] font-bold tabular-nums", !showLabel && "sr-only")}>{number.format(day.pageviews)}</span></span>
-                  <span className={cn("absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-[#a1a1a1]", !showLabel && "sr-only")}>{dayLabel(day.date, range)}</span>
+                  <span className="relative w-full rounded-t bg-ink transition-opacity group-hover:opacity-70" style={{ height: `${height}%` }}><span className={cn("absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] font-bold tabular-nums", !showLabel && "sr-only")}>{number.format(day.pageviews)}</span></span>
+                  <span className={cn("absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-muted", !showLabel && "sr-only")}>{dayLabel(day.date, range)}</span>
                 </div>;
               })}
             </div>
@@ -66,17 +83,17 @@ export function AnalyticsDashboard({ analytics, range }: { analytics: AnalyticsD
 
       <Card className="xl:col-span-4">
         <h2 className="section-title">Trafik kaynakları</h2>
-        <div className="mt-7 space-y-5">{analytics.sources.map((source) => <div key={source.label}><div className="mb-2 flex justify-between gap-3 text-sm font-semibold"><span className="truncate">{source.label}</span><span>%{Math.round(source.percentage)}</span></div><div className="h-2 rounded-full bg-[#ececec]"><div className="h-full rounded-full bg-black" style={{ width: `${Math.max(source.percentage, 1)}%` }} /></div></div>)}</div>
+        <div className="mt-7 space-y-5">{analytics.sources.map((source) => <div key={source.label}><div className="mb-2 flex justify-between gap-3 text-sm font-semibold"><span className="truncate">{source.label}</span><span>%{Math.round(source.percentage)}</span></div><div className="h-2 rounded-full bg-line"><div className="h-full rounded-full bg-ink" style={{ width: `${Math.max(source.percentage, 1)}%` }} /></div></div>)}</div>
       </Card>
 
       <Card className="xl:col-span-8">
-        <div className="flex justify-between"><h2 className="section-title">En çok ziyaret edilenler</h2><span className="text-[#a1a1a1]">{range} gün</span></div>
-        <div className="mt-5 divide-y divide-[#f1f1f1]">{analytics.topPages.map((page, index) => <div key={page.path} className="grid grid-cols-[36px_minmax(0,1fr)_80px_90px] gap-3 py-3"><span className="font-semibold text-[#a1a1a1]">{String(index + 1).padStart(2, "0")}</span><strong className="truncate">{page.path === "/" ? "Ana sayfa" : page.path}</strong><span className="text-right text-[#a1a1a1]">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)}</span></div>)}</div>
+        <div className="flex justify-between"><h2 className="section-title">En çok ziyaret edilenler</h2><span className="text-muted">{range} gün</span></div>
+        <div className="mt-5 divide-y divide-line">{analytics.topPages.map((page, index) => <div key={page.path} className="grid grid-cols-[36px_minmax(0,1fr)_80px_90px] gap-3 py-3"><span className="font-semibold text-muted">{String(index + 1).padStart(2, "0")}</span><strong className="truncate">{page.path === "/" ? "Ana sayfa" : page.path}</strong><span className="text-right text-muted">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)}</span></div>)}</div>
       </Card>
 
       <Card className="xl:col-span-4">
         <h2 className="section-title">Okur dağılımı</h2>
-        <div className="mt-7 space-y-5">{analytics.countries.map((country) => <div key={country.code} className="flex items-center justify-between"><span className="font-semibold">{country.label}</span><span className="text-[#a1a1a1]">%{Math.round(country.percentage)}</span></div>)}</div>
+        <div className="mt-7 space-y-5">{analytics.countries.map((country) => <div key={country.code} className="flex items-center justify-between"><span className="font-semibold">{country.label}</span><span className="text-muted">%{Math.round(country.percentage)}</span></div>)}</div>
       </Card>
     </div>
   </>;

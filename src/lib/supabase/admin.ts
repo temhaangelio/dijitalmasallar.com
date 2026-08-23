@@ -11,24 +11,24 @@ export function createAdminClient() {
   return createSupabaseClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-export async function checkDatabaseHealth() {
-  try {
-    const { error } = await createAdminClient().from("posts").select("id", { head: true, count: "exact" }).limit(1);
-    return !error;
-  } catch {
-    return false;
-  }
-}
-
 export const getAuthorizedAdminClient = cache(async () => {
   try {
     const sessionClient = await createClient();
-    const [{ data: userData }, { data: isAdmin }] = await Promise.all([
-      sessionClient.auth.getUser(),
-      sessionClient.rpc("is_admin"),
-    ]);
-    if (!userData.user?.email || isAdmin !== true) return null;
-    return { admin: createAdminClient(), user: userData.user };
+    const { data: claimsData, error: claimsError } = await sessionClient.auth.getClaims();
+    const claims = claimsData?.claims;
+    if (claimsError || !claims?.sub || typeof claims.email !== "string") return null;
+
+    const { data: isAdmin, error: roleError } = await sessionClient.rpc("is_admin");
+    if (roleError || isAdmin !== true) return null;
+
+    return {
+      admin: createAdminClient(),
+      user: {
+        id: claims.sub,
+        email: claims.email,
+        user_metadata: claims.user_metadata ?? {},
+      },
+    };
   } catch {
     return null;
   }

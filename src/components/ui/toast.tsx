@@ -5,12 +5,34 @@ import { Toaster, toast as sonnerToast } from "sonner";
 
 type ToastVariant = "success" | "error" | "info";
 
+const titles: Record<ToastVariant, string> = {
+  success: "İşlem tamamlandı",
+  error: "İşlem tamamlanamadı",
+  info: "Bilgilendirme",
+};
+
+/** Deliberately dark in both themes: the toast reads as an overlay, not as part of the page. */
 function ToastCard({ id, message, variant }: { id: string | number; message: string; variant: ToastVariant }) {
-  return <div role={variant === "error" ? "alert" : "status"} className="flex w-[min(390px,calc(100vw-32px))] items-start gap-3 rounded-[20px] border border-black/10 bg-white p-3.5 text-[#0a0a0a] shadow-[0_18px_50px_rgba(0,0,0,.16)]">
-    <span className="brand-mark !size-10 shrink-0 !rounded-[12px]" aria-hidden="true" />
-    <div className="min-w-0 flex-1 pt-0.5"><strong className="block text-[13px]">{variant === "success" ? "İşlem tamamlandı" : variant === "error" ? "İşlem tamamlanamadı" : "Bilgilendirme"}</strong><p className="mt-1 text-[13px] leading-5 text-[#666]">{message}</p></div>
-    <button type="button" onClick={() => sonnerToast.dismiss(id)} aria-label="Bildirimi kapat" className="grid size-8 shrink-0 place-items-center rounded-full text-[#999] hover:bg-[#f1f1f1] hover:text-black"><X size={15} /></button>
-  </div>;
+  return (
+    <div
+      role={variant === "error" ? "alert" : "status"}
+      className="on-dark flex w-[min(390px,calc(100vw-32px))] items-start gap-3 rounded-panel border border-white/10 bg-ink p-3.5 text-white shadow-modal"
+    >
+      <span className="brand-mark brand-mark-inverse !size-10 shrink-0 !rounded-chip" aria-hidden="true" />
+      <div className="min-w-0 flex-1 pt-0.5">
+        <strong className="block text-[13px] text-white">{titles[variant]}</strong>
+        <p className="mt-1 text-[13px] leading-5 text-on-dark">{message}</p>
+      </div>
+      <button
+        type="button"
+        onClick={() => sonnerToast.dismiss(id)}
+        aria-label="Bildirimi kapat"
+        className="grid size-8 shrink-0 place-items-center rounded-full text-on-dark transition-colors hover:bg-white/10 hover:text-white"
+      >
+        <X size={15} aria-hidden="true" />
+      </button>
+    </div>
+  );
 }
 
 export function showToast(message: string, variant: ToastVariant = "info") {

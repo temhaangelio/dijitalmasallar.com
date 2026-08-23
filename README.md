@@ -28,6 +28,17 @@ Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını payla�
 - `newsletter_subscribers`: double opt-in bülten aboneliği ve canlı abone sayıları
 - `site_settings`: diji.news’e ait `diji_*` anahtarlı yayın ayarları
 
+### Migration ve RLS
+
+- `supabase/migrations/` — uygulanmaya hazır, eklemeli migration'lar. En yenisi
+  `20260823210000_query_indexes.sql`: uygulamanın gerçekten çalıştırdığı sorgular için dört indeks
+  ekler. Hiçbir sütun, kısıt, politika veya satıra dokunmaz; geri alma komutları dosyanın sonundadır.
+- `supabase/audit/rls-audit.sql` — yalnızca `select` çalıştıran, RLS ve yetki denetim betiği.
+  Aşağıdaki iki soruyu bu depo cevaplayamaz, çünkü paylaşılan şemadaki tabloların `create`
+  migration'ı burada yok: tablolarda RLS açık mı, `is_admin()` fonksiyonunun `search_path`'i sabit mi?
+- `supabase/proposed/` — **otomatik uygulanmaz.** Önerilen RLS sıkılaştırması burada bekler; önce
+  denetim betiğini çalıştırıp çıktıyla karşılaştırın. Ayrıntılar `supabase/proposed/README.md` içinde.
+
 Yetkilendirme mevcut `is_admin()` RPC’si ve tablo RLS kurallarıyla uygulanır. `SUPABASE_SERVICE_ROLE_KEY` yalnızca sunucu tarafındaki modüllerde kullanılır; `NEXT_PUBLIC_` öneki verilmez ve tarayıcı paketine girmez. Depodaki `diji_` önekli migration, ileride tamamen bağımsız bir Supabase projesine ayrılmak istenirse başlangıç referansı olarak tutulur; paylaşılan production projesine uygulanmamalıdır.
 
 ## Ortam değişkenleri
@@ -55,13 +66,59 @@ https://your-domain.com/auth/callback
 
 Uygulama e-posta doğrulama ve şifre yenileme dönüşlerinde `/auth/callback` Route Handler’ını kullanır. Uygulama dışına yönlendiren `next` değerleri reddedilir.
 
+## Tasarım sistemi
+
+Tüm renk, köşe yuvarlaklığı ve gölge değerleri `src/app/globals.css` içindeki `@theme` bloğunda
+tanımlıdır; bileşenler bunları `text-muted`, `bg-surface-2`, `rounded-card`, `shadow-pop` gibi
+yardımcı sınıflarla kullanır. JSX içinde doğrudan hex değeri yazılmaz — istisna, canvas üzerine
+çizim yapan `post-image-generator` bileşenidir.
+
+Gri metin tonları göz kararıyla değil, WCAG kontrast oranına göre seçilmiştir:
+
+| Token | Değer | Beyaz üzerinde | Sayfa zemininde (`#efefef`) |
+|---|---|---|---|
+| `--color-muted` | `#6a6a6a` | 5.41:1 (AA) | 4.70:1 (AA) |
+| `--color-faint` | `#8a8a8a` | 3.45:1 (AA large) | 3.00:1 (AA large) |
+| `--color-on-dark` | `#a1a1a1` | — | 7.66:1 (siyah panel üzerinde) |
+
+İkincil metnin tonunu değiştirmek isterseniz tek yapmanız gereken `--color-muted` değerini
+güncellemektir.
+
+### Koyu tema
+
+Ziyaretçi sayfalarında Açık / Koyu / Sistem seçimi `/hakkinda` sayfasındaki **Sayfa ayarları**
+bölümünden yapılır; tercih `localStorage` içinde `diji-news-theme` anahtarıyla saklanır. Kök
+`layout.tsx` içindeki satır içi `ThemeScript`, ilk boyamadan önce `<html>` üzerine
+`data-visitor-theme` özniteliğini yazar; böylece koyu temada açık renk bir sıçrama olmaz.
+
+Koyu token'lar **yalnızca `.visitor-page` içinde** geçerlidir. Yönetim panelinde hâlâ çok sayıda
+düz `bg-white` / `text-white` var; token'ları global çevirmek yarı ters çevrilmiş, okunamayan bir
+panel üretirdi. Panelin koyu teması ayrı bir iş olarak duruyor.
+
+`--color-ink-contrast` token'ı bu yüzden var: `bg-ink text-ink-contrast` kalıbı her iki temada da
+okunur kalır — açık temada siyah zemin/beyaz yazı, koyu temada açık zemin/koyu yazı.
+
 ## Kalite kontrolleri
 
 ```bash
 npm run lint
 npm run typecheck
+npm test
 npm run build
 ```
+
+Testler Node'un yerleşik test koşucusuyla çalışır; ek bir bağımlılık gerektirmez. Kapsam, saf
+mantığa odaklanır: açık yönlendirme koruması (`safeNextPath`), UUID ve görsel host doğrulaması,
+yazı içeriği ayrıştırma ve tüm Zod şemaları.
+
+## Güvenlik başlıkları
+
+`next.config.ts` her yanıta `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+`Permissions-Policy`, `Cross-Origin-Opener-Policy`, `Strict-Transport-Security` ve
+`frame-ancestors` / `base-uri` / `object-src` / `form-action` yönergelerini içeren bir CSP ekler;
+`X-Powered-By` kapatılmıştır. `script-src` bilinçli olarak CSP'ye dahil edilmemiştir: Next'in satır
+içi bootstrap script'leri istek başına nonce gerektirir, yarım bir politika ise güvenlik sağlamadan
+uygulamayı bozar.
 
 ## Vercel’e bağlama
 

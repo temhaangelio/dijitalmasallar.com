@@ -28,17 +28,17 @@ export default async function ProfilePage() {
       <div className="grid gap-5 xl:grid-cols-12">
         <Card className="xl:col-span-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-            <div className="grid size-24 shrink-0 place-items-center rounded-[30px] bg-black text-[28px] font-bold !text-white">{initials(profile.full_name)}</div>
+            <div className="grid size-24 shrink-0 place-items-center rounded-[30px] bg-ink text-[28px] font-bold !text-white">{initials(profile.full_name)}</div>
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-3"><h2 className="text-[30px] font-bold tracking-[-.045em]">{profile.full_name}</h2><Badge className="bg-black !text-white">Yönetici</Badge></div>
-              <p className="mt-2 flex items-center gap-2 text-[#777]"><Mail className="size-4" />{profile.email}</p>
-              <p className="mt-3 text-sm leading-relaxed text-[#a1a1a1]">Bu bilgiler aktif Supabase hesabınızdan alınır.</p>
+              <div className="flex flex-wrap items-center gap-3"><h2 className="text-[30px] font-bold tracking-[-.045em]">{profile.full_name}</h2><Badge variant="solid">Yönetici</Badge></div>
+              <p className="mt-2 flex items-center gap-2 text-muted"><Mail className="size-4" />{profile.email}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted">Bu bilgiler aktif Supabase hesabınızdan alınır.</p>
             </div>
           </div>
-          <div className="mt-8 grid gap-3 border-t border-[#f1f1f1] pt-6 sm:grid-cols-3">
-            <div className="rounded-2xl bg-[#f7f7f7] p-4"><FileText className="mb-5 size-5 text-[#777]" /><small className="text-[#a1a1a1]">Yazılarım</small><strong className="mt-1 block text-2xl">{profile.post_count}</strong></div>
-            <div className="rounded-2xl bg-[#f7f7f7] p-4"><CalendarDays className="mb-5 size-5 text-[#777]" /><small className="text-[#a1a1a1]">Hesap oluşturma</small><strong className="mt-1 block text-sm">{formatDate(profile.created_at)}</strong></div>
-            <div className="rounded-2xl bg-[#f7f7f7] p-4"><ShieldCheck className="mb-5 size-5 text-[#777]" /><small className="text-[#a1a1a1]">Son giriş</small><strong className="mt-1 block text-sm">{lastSignIn}</strong></div>
+          <div className="mt-8 grid gap-3 border-t border-line pt-6 sm:grid-cols-3">
+            <div className="rounded-field bg-surface-2 p-4"><FileText className="mb-5 size-5 text-muted" /><small className="text-muted">Yazılarım</small><strong className="mt-1 block text-2xl">{profile.post_count}</strong></div>
+            <div className="rounded-field bg-surface-2 p-4"><CalendarDays className="mb-5 size-5 text-muted" /><small className="text-muted">Hesap oluşturma</small><strong className="mt-1 block text-sm">{formatDate(profile.created_at)}</strong></div>
+            <div className="rounded-field bg-surface-2 p-4"><ShieldCheck className="mb-5 size-5 text-muted" /><small className="text-muted">Son giriş</small><strong className="mt-1 block text-sm">{lastSignIn}</strong></div>
           </div>
         </Card>
 
@@ -48,13 +48,13 @@ export default async function ProfilePage() {
           </Card>
           <Card>
             <h2 className="section-title">Hesap</h2>
-            <div className="mt-5 divide-y divide-[#f1f1f1]"><div className="flex items-center justify-between gap-4 py-4 first:pt-0"><span className="text-sm text-[#777]">Yetki</span><strong className="text-sm">Yönetici</strong></div><div className="flex items-center justify-between gap-4 py-4"><span className="text-sm text-[#777]">Hesap durumu</span><span className="inline-flex items-center gap-2 text-sm font-semibold"><span className="size-2 rounded-full bg-emerald-500" />Aktif</span></div></div>
+            <div className="mt-5 divide-y divide-line"><div className="flex items-center justify-between gap-4 py-4 first:pt-0"><span className="text-sm text-muted">Yetki</span><strong className="text-sm">Yönetici</strong></div><div className="flex items-center justify-between gap-4 py-4"><span className="text-sm text-muted">Hesap durumu</span><span className="inline-flex items-center gap-2 text-sm font-semibold"><span className="size-2 rounded-full bg-success-surface0" />Aktif</span></div></div>
           </Card>
           <Card>
             <h2 className="text-lg font-bold">Oturum</h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-[#a1a1a1]">Bu cihazdaki yönetim paneli oturumunuzu güvenli biçimde kapatır.</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted">Bu cihazdaki yönetim paneli oturumunuzu güvenli biçimde kapatır.</p>
             <form action={logoutAction} className="mt-5">
-              <Button type="submit" variant="destructive" className="w-full"><LogOut className="mr-2 size-4" />Çıkış yap</Button>
+              <Button type="submit" variant="destructive" className="w-full"><LogOut className="size-4" aria-hidden="true" />Çıkış yap</Button>
             </form>
           </Card>
         </div>

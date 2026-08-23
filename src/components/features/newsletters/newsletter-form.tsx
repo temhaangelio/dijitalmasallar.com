@@ -35,10 +35,10 @@ export function NewsletterForm({ activeSubscribers }: { activeSubscribers: numbe
       </div>
       <aside className="space-y-5"><div className="card space-y-5">
         <h2 className="section-title">Gönderim</h2>
-        <div className="rounded-2xl bg-[#f5f5f5] p-4"><span className="text-sm text-[#767676]">Aktif alıcı</span><strong className="mt-1 block text-3xl tracking-[-.04em]">{activeSubscribers.toLocaleString("tr-TR")}</strong></div>
+        <div className="rounded-field bg-surface-2 p-4"><span className="text-sm text-muted">Aktif alıcı</span><strong className="mt-1 block text-3xl tracking-[-.04em]">{activeSubscribers.toLocaleString("tr-TR")}</strong></div>
         <FormField label="Durum" htmlFor="status" error={errors.status?.message}><Select id="status" {...register("status")}><option value="draft">Taslak olarak kaydet</option><option value="scheduled">Gönderimi planla</option></Select></FormField>
         {status === "scheduled" ? <FormField label="Gönderim tarihi" htmlFor="scheduledAt" error={errors.scheduledAt?.message}><Input id="scheduledAt" type="datetime-local" {...register("scheduledAt")} /></FormField> : null}
-        <p className="text-[13px] leading-relaxed text-[#a1a1a1]">Bülten kaydı Supabase’e kaydedilir. Planlı kayıtlar seçtiğiniz gönderim zamanıyla listelenir.</p>
+        <p className="text-[13px] leading-relaxed text-muted">Bülten kaydı Supabase’e kaydedilir. Planlı kayıtlar seçtiğiniz gönderim zamanıyla listelenir.</p>
         <div className="grid grid-cols-2 gap-2"><Link href="/e-bulten" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link><Button disabled={pending}>{pending ? "Kaydediliyor…" : status === "scheduled" ? "Bülteni planla" : "Taslağı kaydet"}</Button></div>
       </div></aside>
     </form>

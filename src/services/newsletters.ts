@@ -3,7 +3,13 @@ import type { Newsletter } from "@/types/database";
 
 export type NewsletterStats = { active: number; pending: number; unsubscribed: number; sent: number; openRate: number; clickRate: number };
 export type NewsletterSubscriber = { id: string; email: string; status: "active" | "pending" | "unsubscribed"; source: string | null; created_at: string; confirmed_at: string | null };
-export type NewsletterDashboard = { newsletters: Newsletter[]; subscribers: NewsletterSubscriber[]; stats: NewsletterStats };
+/** The dashboard only lists campaigns, so the full `content` body never leaves the database. */
+export type NewsletterSummary = Pick<Newsletter, "id" | "subject" | "preview_text" | "issue_number" | "status" | "scheduled_at" | "sent_at" | "recipient_count" | "open_count" | "click_count" | "created_at">;
+export type NewsletterDashboard = { newsletters: NewsletterSummary[]; subscribers: NewsletterSubscriber[]; stats: NewsletterStats };
+
+/** Both dashboard lists are display-only, so they are capped instead of streaming the whole table. */
+const campaignLimit = 100;
+const subscriberLimit = 100;
 
 export async function getActiveSubscriberCount() {
   try {
@@ -21,12 +27,12 @@ export async function getNewsletterDashboard(): Promise<NewsletterDashboard> {
     if (!access) return empty;
     const statuses = ["active", "pending", "unsubscribed"] as const;
     const [campaignResult, subscribersResult, ...subscriberResults] = await Promise.all([
-      access.admin.from("newsletter_campaigns").select("id,subject,preview_text,issue_number,content,status,scheduled_at,sent_at,recipient_count,open_count,click_count,unsubscribe_count,created_by,created_at,updated_at").order("issue_number", { ascending: false }),
-      access.admin.from("newsletter_subscribers").select("id,email,status,source,created_at,confirmed_at").order("created_at", { ascending: false }),
+      access.admin.from("newsletter_campaigns").select("id,subject,preview_text,issue_number,status,scheduled_at,sent_at,recipient_count,open_count,click_count,created_at").order("issue_number", { ascending: false }).limit(campaignLimit),
+      access.admin.from("newsletter_subscribers").select("id,email,status,source,created_at,confirmed_at").order("created_at", { ascending: false }).limit(subscriberLimit),
       ...statuses.map((status) => access.admin.from("newsletter_subscribers").select("id", { count: "exact", head: true }).eq("status", status)),
     ]);
     if (campaignResult.error || subscribersResult.error) throw campaignResult.error ?? subscribersResult.error;
-    const newsletters = (campaignResult.data ?? []) as Newsletter[];
+    const newsletters = (campaignResult.data ?? []) as NewsletterSummary[];
     const sent = newsletters.filter((newsletter) => newsletter.status === "sent");
     const recipients = sent.reduce((sum, newsletter) => sum + newsletter.recipient_count, 0);
     const opens = sent.reduce((sum, newsletter) => sum + newsletter.open_count, 0);

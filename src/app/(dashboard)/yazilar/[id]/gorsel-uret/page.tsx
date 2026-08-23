@@ -21,7 +21,7 @@ export default async function GeneratePostImagePage({ params }: { params: Promis
         <PageHeader
           title="Görsel üret"
           note="Yazıyı Instagram’da paylaşılabilir bir 4:3 karta dönüştürün"
-          actions={<Link href="/yazilar" className={buttonVariants({ variant: "outline" })}><ArrowLeft className="mr-2 size-4" />Yazılara dön</Link>}
+          actions={<Link href="/yazilar" className={buttonVariants({ variant: "outline" })}><ArrowLeft className="size-4" aria-hidden="true" />Yazılara dön</Link>}
         />
         <PostImageGenerator title={post.title} body={post.body} sourceName={post.source_name ?? ""} siteName={settings.siteName} imageUrl={post.cover_path} />
       </div>

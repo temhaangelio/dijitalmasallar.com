@@ -13,7 +13,7 @@ export default async function NewsletterConfirmationPage({ params }: { params: P
       {valid && (
         <form action="/api/newsletter/confirm" method="post">
           <input type="hidden" name="token" value={token} />
-          <button className="h-12 w-full rounded-full bg-black px-6 text-sm font-semibold text-white" type="submit">Aboneliği onayla</button>
+          <button className="h-12 w-full rounded-full bg-ink px-6 text-sm font-semibold text-white" type="submit">Aboneliği onayla</button>
         </form>
       )}
     </AuthShell>

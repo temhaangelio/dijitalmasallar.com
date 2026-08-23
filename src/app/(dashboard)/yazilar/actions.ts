@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
+import { isUuid } from "@/lib/utils";
 import { postSchema } from "@/lib/validations/post";
 import { getPostsPage, type PostSort } from "@/services/posts";
 
@@ -64,8 +65,9 @@ export async function createPostAction(input: unknown, image: File | null = null
   });
   if (error) {
     if (cover.path) await access.admin.storage.from("diji-post-media").remove([cover.path]);
-    console.error("Supabase post insert failed", error);
-    return { success: false, message: error.hint || error.message || "Yazı kaydedilemedi. Lütfen tekrar deneyin." };
+    // Database hints name columns and constraints, so they stay in the server log.
+    console.error("Supabase post insert failed", { code: error.code, message: error.message });
+    return { success: false, message: "Yazı kaydedilemedi. Lütfen tekrar deneyin." };
   }
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath("/dashboard");
   return { success: true, message: "Yazı kaydedildi." };
@@ -73,7 +75,7 @@ export async function createPostAction(input: unknown, image: File | null = null
 
 export async function updatePostAction(id: string, input: unknown, image: File | null = null, removeCover = false) {
   const parsed = postSchema.safeParse(input);
-  if (!parsed.success || !/^[0-9a-f-]{36}$/i.test(id)) return { success: false, message: "Geçersiz yazı bilgisi." };
+  if (!parsed.success || !isUuid(id)) return { success: false, message: "Geçersiz yazı bilgisi." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
   const { data: current } = await access.admin.from("posts").select("id,created_at,cover_path").or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();
@@ -95,8 +97,8 @@ export async function updatePostAction(id: string, input: unknown, image: File |
   }).eq("id", current.id);
   if (error) {
     if (cover.path) await access.admin.storage.from("diji-post-media").remove([cover.path]);
-    console.error("Supabase post update failed", error);
-    return { success: false, message: error.hint || error.message || "Yazı güncellenemedi." };
+    console.error("Supabase post update failed", { code: error.code, message: error.message });
+    return { success: false, message: "Yazı güncellenemedi. Lütfen tekrar deneyin." };
   }
   if ((cover.url || removeCover) && current.cover_path) {
     const oldPath = storagePathFromUrl(current.cover_path);
@@ -107,7 +109,7 @@ export async function updatePostAction(id: string, input: unknown, image: File |
 }
 
 export async function deletePostAction(id: string) {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return { success: false, message: "Geçersiz yazı." };
+  if (!isUuid(id)) return { success: false, message: "Geçersiz yazı." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
   const { data: current } = await access.admin.from("posts").select("id,cover_path").or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();

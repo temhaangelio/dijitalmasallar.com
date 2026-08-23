@@ -1,5 +1,3 @@
-import { PostsPageLoading } from "@/components/features/posts/posts-page-loading";
+import { PostsPageLoading } from "@/components/feedback/route-skeletons";
 
-export default function Loading() {
-  return <PostsPageLoading />;
-}
+export default function Loading() { return <PostsPageLoading />; }

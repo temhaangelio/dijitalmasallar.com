@@ -1,4 +1,4 @@
-import type { Post, Profile } from "@/types/database";
+import type { Post } from "@/types/database";
 
 export const demoPosts: Post[] = [
   { id: "1", author_id: "1", title: "Yapay zekâ ile yazı taslağı hazırlamak", slug: "yapay-zeka-ile-yazi-taslagi", excerpt: "Üretken yapay zekâ ile editoryal taslak hazırlamanın sade yolu.", body: "Taslak içerik", category: "Üretkenlik", status: "published", cover_path: null, published_at: "2026-08-22T09:00:00Z", scheduled_at: null, reads: 1204, created_at: "2026-08-22T07:00:00Z", updated_at: "2026-08-22T07:00:00Z" },
@@ -8,13 +8,4 @@ export const demoPosts: Post[] = [
   { id: "5", author_id: "1", title: "Sade tasarımın maliyeti", slug: "sade-tasarimin-maliyeti", excerpt: "Sadelik görünenden daha çok karar ister.", body: "Yayın içeriği", category: "Tasarım", status: "published", cover_path: null, published_at: "2026-08-16T08:00:00Z", scheduled_at: null, reads: 4812, created_at: "2026-08-16T08:00:00Z", updated_at: "2026-08-16T08:00:00Z" },
   { id: "6", author_id: "2", title: "Arşivi yeniden düzenledik", slug: "arsivi-yeniden-duzenledik", excerpt: "Arşiv artık konulara göre düzenleniyor.", body: "Yayın içeriği", category: "Duyuru", status: "published", cover_path: null, published_at: "2026-08-14T08:00:00Z", scheduled_at: null, reads: 1578, created_at: "2026-08-14T08:00:00Z", updated_at: "2026-08-14T08:00:00Z" },
   { id: "7", author_id: "4", title: "Okuma süresi hesaplama yöntemi", slug: "okuma-suresi-hesaplama", excerpt: "Kısa ve uzun içerikler için okuma süresi.", body: "Planlı içerik", category: "Teknik", status: "scheduled", cover_path: null, published_at: null, scheduled_at: "2026-08-24T08:00:00Z", reads: 0, created_at: "2026-08-12T08:00:00Z", updated_at: "2026-08-12T08:00:00Z" },
-];
-
-export const demoProfiles: (Profile & { email: string; post_count: number; last_seen: string })[] = [
-  { id: "1", full_name: "Mert Kaya", email: "mert@diji.news", avatar_path: null, role: "admin", post_count: 18, last_seen: "4 dk önce", created_at: "2026-01-01", updated_at: "2026-08-22" },
-  { id: "2", full_name: "Selin Demir", email: "selin@diji.news", avatar_path: null, role: "admin", post_count: 12, last_seen: "1 sa önce", created_at: "2026-01-01", updated_at: "2026-08-22" },
-  { id: "3", full_name: "Ayşe Tuna", email: "ayse@diji.news", avatar_path: null, role: "editor", post_count: 9, last_seen: "Bugün 09:10", created_at: "2026-01-01", updated_at: "2026-08-22" },
-  { id: "4", full_name: "Ahmet Yıldız", email: "ahmet@diji.news", avatar_path: null, role: "editor", post_count: 5, last_seen: "Dün", created_at: "2026-01-01", updated_at: "2026-08-22" },
-  { id: "5", full_name: "Ece Aydın", email: "ece@diji.news", avatar_path: null, role: "editor", post_count: 3, last_seen: "3 gün önce", created_at: "2026-01-01", updated_at: "2026-08-22" },
-  { id: "6", full_name: "Kerem Şahin", email: "kerem@diji.news", avatar_path: null, role: "writer", post_count: 1, last_seen: "1 hafta önce", created_at: "2026-01-01", updated_at: "2026-08-22" },
 ];

@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, ImagePlus, RotateCcw, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { FormField } from "@/components/forms/form-field";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark" | "warm";
 type FontId = "modern" | "editorial" | "clean" | "rounded" | "mono";
@@ -154,16 +159,66 @@ export function PostImageGenerator({ title, body, sourceName, siteName, imageUrl
   }
 
   return <div className="grid gap-5 lg:grid-cols-[minmax(300px,.72fr)_minmax(0,1.28fr)]">
-    <section className="card h-fit">
-      <h2 className="text-xl font-bold tracking-[-.035em]">Kart ayarları</h2><p className="mt-2 text-sm leading-6 text-[#777]">Metin yazıdan otomatik alındı. Kartta görünecek kısmı düzenleyebilirsiniz.</p>
-      <label htmlFor="card-text" className="mt-6 block text-sm font-semibold">Kart metni</label><textarea id="card-text" value={text} onChange={(event) => setText(event.target.value)} maxLength={520} rows={8} className="mt-2 w-full resize-y rounded-[20px] border border-[#dedede] bg-white p-4 text-[15px] leading-6 outline-none transition focus:border-black" /><div className="mt-2 text-right text-xs text-[#999]">{text.length}/520</div>
-      <label htmlFor="card-source" className="mt-5 block text-sm font-semibold">Kaynak</label><input id="card-source" value={source} onChange={(event) => setSource(event.target.value)} maxLength={80} className="mt-2 h-12 w-full rounded-full border border-[#dedede] bg-white px-4 text-[15px] outline-none transition focus:border-black" />
-      <label htmlFor="card-format" className="mt-5 block text-sm font-semibold">Boyut</label><select id="card-format" value={formatId} onChange={(event) => setFormatId(event.target.value)} className="mt-2 h-12 w-full rounded-full border border-[#dedede] bg-white px-4 text-[15px] font-semibold outline-none focus:border-black">{formats.map((item) => <option key={item.id} value={item.id}>{item.label} · {item.width} × {item.height} · {item.ratio}</option>)}</select>
-      <label htmlFor="card-font" className="mt-5 block text-sm font-semibold">Yazı tipi</label><select id="card-font" value={fontId} onChange={(event) => setFontId(event.target.value as FontId)} className="mt-2 h-12 w-full rounded-full border border-[#dedede] bg-white px-4 text-[15px] font-semibold outline-none focus:border-black">{(Object.keys(fonts) as FontId[]).map((value) => <option key={value} value={value} style={{ fontFamily: fonts[value].family }}>{fonts[value].label}</option>)}</select>
-      <span className="mt-5 block text-sm font-semibold">Tema</span><div className="mt-2 grid grid-cols-3 gap-2">{(Object.keys(themes) as Theme[]).map((value) => <button key={value} type="button" onClick={() => setTheme(value)} className={`h-11 rounded-full text-sm font-semibold transition ${theme === value ? "bg-black text-white" : "bg-[#f1f1f1] text-black hover:bg-[#e7e7e7]"}`}>{themes[value].label}</button>)}</div>
-      <span className="mt-5 block text-sm font-semibold">Görsel</span><div className="mt-2 flex gap-2"><label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-full bg-[#f1f1f1] px-5 text-sm font-semibold hover:bg-[#e7e7e7]"><ImagePlus className="mr-2 size-4" />{imageUrl ? "Görseli değiştir" : "Görsel ekle"}<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(event) => selectImage(event.target.files?.[0])} /></label>{imageUrl ? <Button type="button" variant="ghost" onClick={removeImage}><X className="mr-2 size-4" />Kaldır</Button> : null}</div>
-      <Button type="button" variant="ghost" onClick={reset} className="mt-6 w-full"><RotateCcw className="mr-2 size-4" />Başlangıca dön</Button>
+    <section className="card h-fit space-y-5">
+      <div>
+        <h2 className="section-title text-xl">Kart ayarları</h2>
+        <p className="mt-2 text-sm leading-6 text-muted">Metin yazıdan otomatik alındı. Kartta görünecek kısmı düzenleyebilirsiniz.</p>
+      </div>
+
+      <FormField label="Kart metni" htmlFor="card-text" hint={`${text.length}/520 karakter`}>
+        <Textarea id="card-text" value={text} onChange={(event) => setText(event.target.value)} maxLength={520} rows={8} className="min-h-44 leading-6" />
+      </FormField>
+
+      <FormField label="Kaynak" htmlFor="card-source">
+        <Input id="card-source" value={source} onChange={(event) => setSource(event.target.value)} maxLength={80} />
+      </FormField>
+
+      <FormField label="Boyut" htmlFor="card-format">
+        <Select id="card-format" value={formatId} onChange={(event) => setFormatId(event.target.value)}>
+          {formats.map((item) => <option key={item.id} value={item.id}>{item.label} · {item.width} × {item.height} · {item.ratio}</option>)}
+        </Select>
+      </FormField>
+
+      <FormField label="Yazı tipi" htmlFor="card-font">
+        <Select id="card-font" value={fontId} onChange={(event) => setFontId(event.target.value as FontId)}>
+          {(Object.keys(fonts) as FontId[]).map((value) => <option key={value} value={value} style={{ fontFamily: fonts[value].family }}>{fonts[value].label}</option>)}
+        </Select>
+      </FormField>
+
+      <fieldset className="border-0 p-0">
+        <legend className="mb-2 block text-sm font-semibold text-ink">Tema</legend>
+        <div className="grid grid-cols-3 gap-2">
+          {(Object.keys(themes) as Theme[]).map((value) => (
+            <button key={value} type="button" aria-pressed={theme === value} onClick={() => setTheme(value)} className={`h-11 rounded-full text-sm font-semibold transition-colors ${theme === value ? "bg-ink text-white" : "bg-surface-3 text-ink hover:bg-line"}`}>{themes[value].label}</button>
+          ))}
+        </div>
+      </fieldset>
+
+      <div>
+        <span className="mb-2 block text-sm font-semibold text-ink">Görsel</span>
+        <div className="flex flex-wrap gap-2">
+          <label className={cn(buttonVariants({ variant: "secondary" }), "cursor-pointer")}>
+            <ImagePlus className="size-4" aria-hidden="true" />{imageUrl ? "Görseli değiştir" : "Görsel ekle"}
+            <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(event) => selectImage(event.target.files?.[0])} />
+          </label>
+          {imageUrl ? <Button type="button" variant="ghost" onClick={removeImage}><X className="size-4" aria-hidden="true" />Kaldır</Button> : null}
+        </div>
+      </div>
+
+      <Button type="button" variant="ghost" onClick={reset} className="w-full"><RotateCcw className="size-4" aria-hidden="true" />Başlangıca dön</Button>
     </section>
-    <section className="card"><div className="mb-5 flex items-center justify-between gap-4"><div><h2 className="text-xl font-bold tracking-[-.035em]">Önizleme</h2><p className="mt-1 text-sm text-[#999]">{format.width} × {format.height} px · {format.ratio} · {format.label}</p></div><Button type="button" variant="outline" onClick={download}><Download className="mr-2 size-4" />PNG indir</Button></div><div className="mx-auto max-h-[75vh] max-w-full overflow-hidden rounded-[24px] bg-[#e8e8e8]" style={{ aspectRatio: `${format.width} / ${format.height}` }}><canvas ref={canvasRef} width={format.width} height={format.height} aria-label={`${format.label} önizlemesi`} className="block size-full" /></div></section>
+
+    <section className="card">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="section-title text-xl">Önizleme</h2>
+          <p className="mt-1 text-sm text-muted">{format.width} × {format.height} px · {format.ratio} · {format.label}</p>
+        </div>
+        <Button type="button" variant="outline" onClick={download}><Download className="size-4" aria-hidden="true" />PNG indir</Button>
+      </div>
+      <div className="mx-auto max-h-[75vh] max-w-full overflow-hidden rounded-panel bg-line" style={{ aspectRatio: `${format.width} / ${format.height}` }}>
+        <canvas ref={canvasRef} width={format.width} height={format.height} aria-label={`${format.label} önizlemesi`} className="block size-full" />
+      </div>
+    </section>
   </div>;
 }

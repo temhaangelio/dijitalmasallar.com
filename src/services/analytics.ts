@@ -18,8 +18,6 @@ export type AnalyticsData = {
 };
 
 const API_URL = "https://api.vercel.com/v1/query/web-analytics/visits/aggregate";
-const DEFAULT_PROJECT_ID = "prj_kvFKqpnVIRDzs6CNUkHUWuR7j6wX";
-const DEFAULT_TEAM_ID = "team_cTqEVmnoxddvk7Srj1cf6gDO";
 
 function dateOnly(date: Date) { return date.toISOString().slice(0, 10); }
 function addDays(date: Date, amount: number) { const next = new Date(date); next.setUTCDate(next.getUTCDate() + amount); return next; }
@@ -36,11 +34,21 @@ function sum(rows: VisitRow[], field: "pageviews" | "visitors") { return rows.re
 function change(current: number, previous: number) { if (previous === 0) return current === 0 ? 0 : null; return ((current - previous) / previous) * 100; }
 function sourceLabel(value: string) { if (!value) return "Doğrudan"; if (value === "Others") return "Diğer"; return value.replace(/^www\./, ""); }
 
+const requiredEnv = ["VERCEL_ANALYTICS_TOKEN", "VERCEL_ANALYTICS_PROJECT_ID", "VERCEL_ANALYTICS_TEAM_ID"] as const;
+
+/**
+ * Names the variables that are missing so the UI can say which one to add, instead of blaming the
+ * access token for what is usually an unset project or team id.
+ */
+export function missingAnalyticsEnv(): string[] {
+  return requiredEnv.filter((name) => !process.env[name]?.trim());
+}
+
 export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData | null> {
   const token = process.env.VERCEL_ANALYTICS_TOKEN;
-  const projectId = process.env.VERCEL_ANALYTICS_PROJECT_ID ?? DEFAULT_PROJECT_ID;
-  const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID ?? DEFAULT_TEAM_ID;
-  if (!token) return null;
+  const projectId = process.env.VERCEL_ANALYTICS_PROJECT_ID;
+  const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID;
+  if (!token || !projectId || !teamId) return null;
   try {
     const now = new Date();
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));

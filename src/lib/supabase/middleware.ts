@@ -20,7 +20,8 @@ export async function updateSession(request: NextRequest) {
       },
     },
   });
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims;
   const pathname = request.nextUrl.pathname;
   if (!user && protectedPaths.some((path) => pathname.startsWith(path))) {
     const login = request.nextUrl.clone();

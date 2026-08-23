@@ -19,11 +19,13 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
   try {
     const access = await getAuthorizedAdminClient();
     if (!access || !access.user.email) return null;
-    const [{ data: member }, { count: postCount }] = await Promise.all([
+    const [{ data: member }, { count: postCount }, { data: authData }] = await Promise.all([
       access.admin.from("admin_users").select("email,role,created_at").eq("email", access.user.email).maybeSingle(),
       access.admin.from("posts").select("id", { count: "exact", head: true }).eq("author_id", access.user.id),
+      access.admin.auth.admin.getUserById(access.user.id),
     ]);
     if (!member) return null;
+    const authUser = authData.user;
     const metadata = access.user.user_metadata ?? {};
     return {
       id: access.user.id,
@@ -31,11 +33,11 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
       full_name: String(metadata.full_name ?? metadata.name ?? access.user.email.split("@")[0]),
       avatar_path: typeof metadata.avatar_url === "string" ? metadata.avatar_url : null,
       role: member.role as ProfileRole,
-      created_at: access.user.created_at,
-      updated_at: access.user.updated_at ?? access.user.created_at,
+      created_at: authUser?.created_at ?? member.created_at,
+      updated_at: authUser?.updated_at ?? authUser?.created_at ?? member.created_at,
       email: access.user.email,
       post_count: postCount ?? 0,
-      last_seen: access.user.last_sign_in_at ?? "—",
+      last_seen: authUser?.last_sign_in_at ?? "—",
     };
   } catch {
     return null;
