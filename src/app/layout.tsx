@@ -6,9 +6,13 @@ import { ThemeScript } from "@/components/features/visitor/theme";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
+
 export const metadata: Metadata = {
   title: { default: "diji.news", template: "%s · diji.news" },
   description: "Kısa ve özgün teknoloji notları için yayın yönetim paneli.",
+  // Emits <meta name="google-site-verification"> for Search Console when the token is configured.
+  verification: googleSiteVerification ? { google: googleSiteVerification } : undefined,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
