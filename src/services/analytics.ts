@@ -22,8 +22,14 @@ const API_URL = "https://api.vercel.com/v1/query/web-analytics/visits/aggregate"
 function dateOnly(date: Date) { return date.toISOString().slice(0, 10); }
 function addDays(date: Date, amount: number) { const next = new Date(date); next.setUTCDate(next.getUTCDate() + amount); return next; }
 
-async function aggregate(token: string, projectId: string, teamId: string, since: string, until: string, by: string, limit: number) {
-  const params = new URLSearchParams({ projectId, teamId, since, until, by, limit: String(limit) });
+/**
+ * `teamId` is optional on purpose: a Hobby account has no team, and sending the parameter empty (or
+ * with someone else's id) makes Vercel reject the request. Personal-account projects are resolved
+ * from the token alone.
+ */
+async function aggregate(token: string, projectId: string, teamId: string | undefined, since: string, until: string, by: string, limit: number) {
+  const params = new URLSearchParams({ projectId, since, until, by, limit: String(limit) });
+  if (teamId) params.set("teamId", teamId);
   const response = await fetch(`${API_URL}?${params}`, { headers: { Authorization: `Bearer ${token}` }, next: { revalidate: 300 } });
   const payload = await response.json() as AggregateResponse;
   if (!response.ok || payload.error || !Array.isArray(payload.data)) throw new Error(`Vercel Analytics ${response.status}: ${payload.error?.message ?? "Veri alınamadı."}`);
@@ -34,21 +40,22 @@ function sum(rows: VisitRow[], field: "pageviews" | "visitors") { return rows.re
 function change(current: number, previous: number) { if (previous === 0) return current === 0 ? 0 : null; return ((current - previous) / previous) * 100; }
 function sourceLabel(value: string) { if (!value) return "Doğrudan"; if (value === "Others") return "Diğer"; return value.replace(/^www\./, ""); }
 
-const requiredEnv = ["VERCEL_ANALYTICS_TOKEN", "VERCEL_ANALYTICS_PROJECT_ID", "VERCEL_ANALYTICS_TEAM_ID"] as const;
+/** `VERCEL_ANALYTICS_TEAM_ID` is deliberately absent: it only applies to team-scoped projects. */
+const requiredEnv = ["VERCEL_ANALYTICS_TOKEN", "VERCEL_ANALYTICS_PROJECT_ID"] as const;
 
 /**
  * Names the variables that are missing so the UI can say which one to add, instead of blaming the
- * access token for what is usually an unset project or team id.
+ * access token for what is usually an unset project id.
  */
 export function missingAnalyticsEnv(): string[] {
   return requiredEnv.filter((name) => !process.env[name]?.trim());
 }
 
 export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData | null> {
-  const token = process.env.VERCEL_ANALYTICS_TOKEN;
-  const projectId = process.env.VERCEL_ANALYTICS_PROJECT_ID;
-  const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID;
-  if (!token || !projectId || !teamId) return null;
+  const token = process.env.VERCEL_ANALYTICS_TOKEN?.trim();
+  const projectId = process.env.VERCEL_ANALYTICS_PROJECT_ID?.trim();
+  const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID?.trim() || undefined;
+  if (!token || !projectId) return null;
   try {
     const now = new Date();
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));

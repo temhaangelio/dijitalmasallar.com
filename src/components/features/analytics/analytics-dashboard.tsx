@@ -30,8 +30,9 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
         {missingEnv.length ? (
           <p className="mt-4 text-sm leading-6 text-muted">
             Bu değerleri <code className="rounded bg-surface-2 px-1.5 py-0.5">.env.local</code> dosyasına ve Vercel proje ayarlarındaki
-            Environment Variables bölümüne ekleyin. Proje ve takım kimliklerini Vercel panelinde
-            Project Settings → General ve Team Settings → General altında bulabilirsiniz.
+            Environment Variables bölümüne ekleyin. Proje kimliğini Vercel panelinde Project Settings → General
+            altında bulabilirsiniz. <code className="rounded bg-surface-2 px-1.5 py-0.5">VERCEL_ANALYTICS_TEAM_ID</code> yalnızca
+            proje bir takıma bağlıysa gerekir; Hobby hesaplarında boş bırakın.
           </p>
         ) : null}
       </Card>
