@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail } from "lucide-react";
+import { Mail, Rss } from "lucide-react";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { ThemePicker } from "@/components/features/visitor/theme";
@@ -22,6 +22,8 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
   const isEnglish = language === "en";
   // Falls back to the one-line description so the page still reads correctly before the dedicated
   // about text has been filled in.
+  const rssHref = isEnglish ? "/rss.xml?lang=en" : "/rss.xml";
+  const rssLabel = `${settings.domain}${rssHref}`;
   const about = isEnglish
     ? settings.aboutTextEn || settings.descriptionEn
     : settings.aboutText || settings.description;
@@ -58,6 +60,22 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
               </div>
 
             </div>
+          </section>
+
+          <section className="visitor-panel rounded-panel bg-surface p-6 sm:p-9">
+            <h2 className="visitor-heading text-[24px] font-semibold tracking-[-.04em]">RSS</h2>
+            <p className="visitor-copy mt-5 text-[15px] leading-7 text-muted [text-wrap:pretty]">
+              {isEnglish
+                ? "Every note is published to an RSS feed as well. Add the address below to your reader to follow along without visiting the site."
+                : "Tüm notlar aynı anda bir RSS beslemesinde de yayımlanır. Aşağıdaki adresi okuyucunuza ekleyerek siteye uğramadan takip edebilirsiniz."}
+            </p>
+            <a
+              href={rssHref}
+              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-surface-2 px-5 text-sm font-semibold text-ink transition-colors hover:bg-line"
+            >
+              <Rss className="size-4" aria-hidden="true" />
+              {rssLabel}
+            </a>
           </section>
 
           {settings.moduleNewsletter && settings.newsletterEnabled ? (

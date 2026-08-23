@@ -294,26 +294,22 @@ export function SettingsIndexLoading() {
   );
 }
 
+/**
+ * Only the form: `ayarlar/(sections)/layout.tsx` keeps the shell, heading and tab strip mounted
+ * across tab changes, so a fallback that redrew them would make the tabs flicker.
+ */
 export function SettingsSectionLoading() {
   return (
-    <ShellSkeleton active="/ayarlar">
-      <div className="w-full" role="status" aria-label="Ayarlar yükleniyor">
-        <Skeleton className="mb-4 h-5 w-32" />
-        <PageHeaderSkeleton />
-        <div className="mb-5 flex w-full gap-2 rounded-panel bg-surface p-2">
-          {[0, 1, 2, 3].map((index) => <Skeleton key={index} className="h-11 flex-1 rounded-field" />)}
-        </div>
-        <div className="w-full space-y-5">
-          <div className="card space-y-5">
-            <Skeleton className="h-7 w-48" />
-            <div className="grid gap-5 sm:grid-cols-2"><Field /><Field /></div>
-            <div className="grid gap-5 sm:grid-cols-2"><Field height="h-28" /><Field height="h-28" /></div>
-            <Field />
-          </div>
-          <div className="flex justify-end gap-2"><Skeleton className="h-11 w-24 rounded-full" /><Skeleton className="h-11 w-24 rounded-full" /></div>
-        </div>
+    <div className="w-full space-y-5" role="status" aria-label="Ayarlar yükleniyor">
+      <div className="card space-y-5">
+        <Skeleton className="h-7 w-48" />
+        <div className="grid gap-5 sm:grid-cols-2"><Field /><Field /></div>
+        <div className="grid gap-5 sm:grid-cols-2"><Field height="h-28" /><Field height="h-28" /></div>
+        <div className="grid gap-5 sm:grid-cols-2"><Field height="h-36" /><Field height="h-36" /></div>
+        <Field />
       </div>
-    </ShellSkeleton>
+      <div className="flex justify-end gap-2"><Skeleton className="h-11 w-24 rounded-full" /><Skeleton className="h-11 w-24 rounded-full" /></div>
+    </div>
   );
 }
 

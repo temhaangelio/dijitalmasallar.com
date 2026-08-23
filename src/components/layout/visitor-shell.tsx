@@ -55,9 +55,9 @@ export function VisitorBackLink({ language, label }: { language: VisitorLanguage
 
 export function VisitorFooter({ language, siteName }: { language: VisitorLanguage; siteName: string }) {
   return (
-    <footer className="visitor-footer visitor-muted mt-2 border-t border-line-strong px-2 pt-7 text-[13px] font-medium text-muted">
+    <footer className="visitor-footer visitor-muted mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong px-2 pt-7 text-[13px] font-medium text-muted">
       <span>© {new Date().getFullYear()} {siteName}</span>
-      <Link href={`/hakkinda?lang=${language}`} className="ml-4 rounded-sm hover:text-ink">
+      <Link href={`/hakkinda?lang=${language}`} className="rounded-sm transition-colors hover:text-ink">
         {language === "en" ? "About & contact" : "Hakkında ve iletişim"}
       </Link>
     </footer>

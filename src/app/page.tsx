@@ -18,7 +18,11 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   // `absolute` stops the root layout template from appending a second brand name.
-  return { title: { absolute: settings.siteName }, description: settings.description };
+  return {
+    title: { absolute: settings.siteName },
+    description: settings.description,
+    alternates: { types: { "application/rss+xml": [{ url: "/rss.xml", title: settings.siteName }] } },
+  };
 }
 
 function feedContent(post: Post): ReactNode[] {
@@ -71,15 +75,15 @@ function NoteCard({ post, layout, language }: { post: Post; layout: SiteSettings
   );
 }
 
-function AdCard({ ad, priority = false }: { ad: Advertisement; priority?: boolean }) {
+function AdCard({ ad }: { ad: Advertisement }) {
   return (
     <a href={ad.target_url} target="_blank" rel="sponsored noopener noreferrer" className="group overflow-hidden rounded-panel bg-ink text-ink-contrast transition-transform hover:-translate-y-0.5">
       {ad.image_url && (
         <div className="relative h-52 bg-surface-3 sm:h-64">
           {isOptimizableImage(ad.image_url)
-            ? <Image src={ad.image_url} alt="" fill priority={priority} sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
+            ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
             // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
-            : <img src={ad.image_url} alt="" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : undefined} decoding="async" className="absolute inset-0 size-full object-cover" />}
+            : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
         </div>
       )}
       <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:justify-between">
@@ -90,15 +94,22 @@ function AdCard({ ad, priority = false }: { ad: Advertisement; priority?: boolea
   );
 }
 
+/**
+ * Ads only enter the feed once the reader is past this many notes, so the first screens stay clean.
+ * The last note is still kept ad-free, hence the `- 1`.
+ */
+const adsAfterPostCount = 20;
+
 function randomAdSlots(postCount: number, ads: Advertisement[], excludedSlots: number[] = []) {
   const slots = new Map<number, Advertisement>();
-  if (postCount < 3 || !ads.length) return slots;
+  if (postCount < adsAfterPostCount + 2 || !ads.length) return slots;
   const excluded = new Set(excludedSlots);
-  const candidates = Array.from({ length: postCount - 2 }, (_, index) => index + 1).filter((index) => !excluded.has(index));
+  const candidates = Array.from({ length: postCount - 1 - adsAfterPostCount }, (_, index) => index + adsAfterPostCount).filter((index) => !excluded.has(index));
+  if (!candidates.length) return slots;
   for (let index = candidates.length - 1; index > 0; index--) { const swap = randomInt(index + 1); [candidates[index], candidates[swap]] = [candidates[swap], candidates[index]]; }
   const shuffledAds = [...ads];
   for (let index = shuffledAds.length - 1; index > 0; index--) { const swap = randomInt(index + 1); [shuffledAds[index], shuffledAds[swap]] = [shuffledAds[swap], shuffledAds[index]]; }
-  const count = Math.min(shuffledAds.length, Math.max(1, Math.floor(postCount / 3)), candidates.length);
+  const count = Math.min(shuffledAds.length, Math.max(1, Math.floor((postCount - adsAfterPostCount) / 3)), candidates.length);
   for (let index = 0; index < count; index++) slots.set(candidates[index], shuffledAds[index]);
   return slots;
 }
@@ -129,8 +140,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="contents" key={post.id}>
             {(index === 3 || index === 5) && <div className="visitor-muted px-2 pb-2 pt-5 text-xs font-semibold tracking-[.16em] text-muted">{dateLabel(post.published_at ?? post.created_at, language)}</div>}
             <NoteCard post={post} layout={settings.feedLayout} language={language} />
-            {/* An ad can land as early as the second card, where it becomes the LCP element. */}
-            {adSlots.has(index) && <AdCard ad={adSlots.get(index)!} priority={index <= 2} />}
+            {adSlots.has(index) && <AdCard ad={adSlots.get(index)!} />}
             {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
               <NewsletterPanel title={settings.newsletterTitle} description={settings.newsletterDescription} />
             )}

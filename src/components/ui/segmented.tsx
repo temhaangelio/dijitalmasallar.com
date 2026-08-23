@@ -13,7 +13,7 @@ type Rect = { left: number; width: number };
  * The children keep their own semantics — buttons for a local choice, links for navigation — and
  * only need `data-active` plus a transparent background.
  */
-export function Segmented({ children, className }: { children: ReactNode; className?: string }) {
+export function Segmented({ children, className, role, label }: { children: ReactNode; className?: string; role?: "radiogroup" | "group" | "tablist"; label?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<Rect | null>(null);
   // Skips the entry animation so the pill does not fly in from the left on first paint.
@@ -46,7 +46,7 @@ export function Segmented({ children, className }: { children: ReactNode; classN
   }, [children]);
 
   return (
-    <div ref={containerRef} className={cn("relative flex gap-1 rounded-full bg-surface-2 p-1", className)}>
+    <div ref={containerRef} role={role} aria-label={label} className={cn("relative flex gap-1 rounded-full bg-surface-2 p-1", className)}>
       {rect ? (
         <span
           aria-hidden="true"
