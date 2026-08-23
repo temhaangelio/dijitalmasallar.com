@@ -14,7 +14,7 @@ const schema = z.object({ email: emailSchema });
  * Sits inside the black newsletter panel, so it keeps its own inverted styling instead of the shared
  * field primitives — the surrounding surface is the only reason for the deviation.
  */
-export function SubscribeForm() {
+export function SubscribeForm({ language = "tr" }: { language?: "tr" | "en" }) {
   const [pending, startTransition] = useTransition();
   const inputId = useId();
   const errorId = `${inputId}-error`;
@@ -29,12 +29,12 @@ export function SubscribeForm() {
   return (
     <form onSubmit={handleSubmit(submit)} className="on-dark min-w-0 sm:w-[320px]" noValidate>
       <div className="flex gap-2">
-        <label htmlFor={inputId} className="sr-only">E-posta adresiniz</label>
+        <label htmlFor={inputId} className="sr-only">{language === "en" ? "Your email address" : "E-posta adresiniz"}</label>
         <input
           id={inputId}
           type="email"
           autoComplete="email"
-          placeholder="e-posta adresiniz"
+          placeholder={language === "en" ? "your email address" : "e-posta adresiniz"}
           aria-invalid={errors.email ? true : undefined}
           aria-describedby={errors.email ? errorId : undefined}
           className="h-11 min-w-0 flex-1 rounded-full bg-ink-contrast/10 px-[18px] text-sm font-medium text-ink-contrast transition-colors outline-none placeholder:text-on-dark focus:bg-ink-contrast/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink-contrast aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-danger"
@@ -45,7 +45,7 @@ export function SubscribeForm() {
           disabled={pending}
           className="h-11 shrink-0 rounded-full bg-ink-contrast px-5 text-sm font-semibold text-ink transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {pending ? "…" : "Katıl"}
+          {pending ? "…" : language === "en" ? "Join" : "Katıl"}
         </button>
       </div>
       {errors.email?.message ? <p id={errorId} role="alert" className="mt-2 text-xs text-on-dark">{errors.email.message}</p> : null}

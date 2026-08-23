@@ -69,8 +69,14 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
             <Switch label="Bülteni göster" checked={newsletterEnabled} onCheckedChange={(value) => setValue("newsletterEnabled", value, { shouldDirty: true })} />
           </div>
           <div className="mt-5 space-y-5">
-            <FormField label="Bülten başlığı" htmlFor="newsletterTitle" error={errors.newsletterTitle?.message}><Input id="newsletterTitle" disabled={!newsletterEnabled} {...register("newsletterTitle")} /></FormField>
-            <FormField label="Bülten açıklaması" htmlFor="newsletterDescription" error={errors.newsletterDescription?.message}><Textarea id="newsletterDescription" disabled={!newsletterEnabled} {...register("newsletterDescription")} /></FormField>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <FormField label="Türkçe bülten başlığı" htmlFor="newsletterTitle" error={errors.newsletterTitle?.message}><Input id="newsletterTitle" disabled={!newsletterEnabled} {...register("newsletterTitle")} /></FormField>
+              <FormField label="İngilizce bülten başlığı" htmlFor="newsletterTitleEn" error={errors.newsletterTitleEn?.message}><Input id="newsletterTitleEn" disabled={!newsletterEnabled} {...register("newsletterTitleEn")} /></FormField>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <FormField label="Türkçe bülten açıklaması" htmlFor="newsletterDescription" error={errors.newsletterDescription?.message}><Textarea id="newsletterDescription" disabled={!newsletterEnabled} {...register("newsletterDescription")} /></FormField>
+              <FormField label="İngilizce bülten açıklaması" htmlFor="newsletterDescriptionEn" error={errors.newsletterDescriptionEn?.message}><Textarea id="newsletterDescriptionEn" disabled={!newsletterEnabled} {...register("newsletterDescriptionEn")} /></FormField>
+            </div>
           </div>
       </div> : null}
 

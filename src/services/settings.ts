@@ -16,7 +16,9 @@ export type SiteSettings = {
   postsPerPage: number;
   newsletterEnabled: boolean;
   newsletterTitle: string;
+  newsletterTitleEn: string;
   newsletterDescription: string;
+  newsletterDescriptionEn: string;
   showSubscriberCount: boolean;
   contactEmail: string;
   maintenanceMode: boolean;
@@ -40,7 +42,9 @@ export const defaultSiteSettings: SiteSettings = {
   postsPerPage: 7,
   newsletterEnabled: true,
   newsletterTitle: "Haftalık bülten",
+  newsletterTitleEn: "Weekly newsletter",
   newsletterDescription: "Haftanın kısa teknoloji notları, tek e-postada.",
+  newsletterDescriptionEn: "The week’s concise technology notes in one email.",
   showSubscriberCount: true,
   contactEmail: "merhaba@diji.news",
   maintenanceMode: false,
@@ -65,7 +69,9 @@ const settingKeys = {
   home_posts_per_page: "postsPerPage",
   newsletter_enabled: "newsletterEnabled",
   newsletter_title: "newsletterTitle",
+  newsletter_title_en: "newsletterTitleEn",
   newsletter_description: "newsletterDescription",
+  newsletter_description_en: "newsletterDescriptionEn",
   show_subscriber_count: "showSubscriberCount",
   contact_email: "contactEmail",
   maintenance_mode: "maintenanceMode",

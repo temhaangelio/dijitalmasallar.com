@@ -85,7 +85,13 @@ export async function updatePostAction(id: string, input: unknown, image: File |
   const wasScheduled = new Date(current.created_at).getTime() > Date.now();
   const cover = await uploadCover(access, image);
   if (cover.error) return { success: false, message: cover.error };
-  const createdAt = parsed.data.status === "scheduled" ? new Date(parsed.data.scheduledAt!).toISOString() : wasScheduled ? new Date().toISOString() : current.created_at;
+  const createdAt = parsed.data.status === "scheduled"
+    ? new Date(parsed.data.scheduledAt!).toISOString()
+    : parsed.data.publishedAt
+      ? new Date(parsed.data.publishedAt).toISOString()
+      : wasScheduled
+        ? new Date().toISOString()
+        : current.created_at;
   const { error } = await access.admin.from("posts").update({
     content_tr: `# ${parsed.data.tr.title}\n\n${parsed.data.tr.excerpt}\n\n${parsed.data.tr.body}`,
     content_en: `# ${parsed.data.en.title}\n\n${parsed.data.en.excerpt}\n\n${parsed.data.en.body}`,

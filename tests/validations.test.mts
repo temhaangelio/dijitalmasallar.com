@@ -70,6 +70,12 @@ describe("post validation", () => {
     assert.equal(postSchema.safeParse(basePost({ status: "scheduled", scheduledAt: "not-a-date" })).success, false);
   });
 
+  test("an edited published post cannot use a future publication date", () => {
+    assert.equal(postSchema.safeParse(basePost({ publishedAt: past() })).success, true);
+    assert.equal(postSchema.safeParse(basePost({ publishedAt: future() })).success, false);
+    assert.equal(postSchema.safeParse(basePost({ publishedAt: "not-a-date" })).success, false);
+  });
+
   test("title and excerpt minimums only apply while they are shown", () => {
     const hidden = basePost({ showTitle: false, showExcerpt: false, en: { title: "", excerpt: "", body: "y".repeat(60) } });
     assert.equal(postSchema.safeParse(hidden).success, true);
@@ -103,7 +109,7 @@ describe("settings validation", () => {
     description: "Türkçe açıklama metni.", descriptionEn: "English description text.",
     aboutText: "Hakkında metni en az yirmi karakter uzunluğunda olmalı.", aboutTextEn: "The about text has to be at least twenty characters long.",
     language: "tr", feedLayout: "short", postsPerPage: 7,
-    newsletterEnabled: true, newsletterTitle: "Bülten", newsletterDescription: "Haftalık notlar",
+    newsletterEnabled: true, newsletterTitle: "Bülten", newsletterTitleEn: "Newsletter", newsletterDescription: "Haftalık notlar", newsletterDescriptionEn: "Weekly notes",
     showSubscriberCount: true, contactEmail: "merhaba@diji.news", maintenanceMode: false,
     modulePosts: true, moduleNewsletter: true, moduleAds: true, moduleAnalytics: true,
   };

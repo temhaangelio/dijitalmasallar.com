@@ -49,6 +49,7 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
       showExcerpt: sharedPost ? sharedPost.show_excerpt !== false : false,
       status: sharedPost?.status === "scheduled" ? "scheduled" : "published",
       scheduledAt: localDateTime(sharedPost?.scheduled_at ?? null),
+      publishedAt: sharedPost?.status === "published" ? localDateTime(sharedPost.created_at) : "",
     },
   });
   const status = useWatch({ control, name: "status" });
@@ -114,13 +115,13 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
             render={({ field }) => <RichTextEditor key={activeLanguage} id={`${activeLanguage}-body`} name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />}
           />
         </FormField>
+        <FormField label="Kaynak bağlantısı" htmlFor="sourceUrl" error={errors.sourceUrl?.message} hint="İçeriğin özgün kaynağına ait bağlantıyı ekleyin."><Input id="sourceUrl" type="url" placeholder="https://..." {...register("sourceUrl")} /></FormField>
       </div>
       <aside className="space-y-5">
         <div className="card space-y-5">
           <h2 className="section-title">Yayın</h2>
           <FormField label="Kategori (isteğe bağlı)" htmlFor="category" error={errors.category?.message}><Input id="category" {...register("category")} /></FormField>
           <FormField label="Kaynak adı (isteğe bağlı)" htmlFor="sourceName" error={errors.sourceName?.message}><Input id="sourceName" placeholder="Örn. OpenAI" {...register("sourceName")} /></FormField>
-          <FormField label="Kaynak bağlantısı" htmlFor="sourceUrl" error={errors.sourceUrl?.message}><Input id="sourceUrl" type="url" placeholder="https://..." {...register("sourceUrl")} /></FormField>
           <div>
             <h3 className="mb-2 text-sm font-semibold">Kapak görseli <span className="font-normal text-muted">(isteğe bağlı)</span></h3>
             {sharedPost?.cover_path && !removeCover && !coverImage ? <div className="mb-3 overflow-hidden rounded-field bg-surface-3"><div className="relative aspect-[4/3]">{isOptimizableImage(sharedPost.cover_path)
@@ -141,6 +142,7 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           <FormField label="Durum" htmlFor="status" error={errors.status?.message}>
             <Select id="status" {...register("status")}><option value="published">Şimdi yayınla</option><option value="scheduled">Planlı</option></Select>
           </FormField>
+          {editing && status === "published" && <FormField label="Yayın tarihi" htmlFor="publishedAt" error={errors.publishedAt?.message} hint="Akış sıralaması bu tarih ve saate göre güncellenir."><Input id="publishedAt" type="datetime-local" {...register("publishedAt")} /></FormField>}
           {status === "scheduled" && <FormField label="Yayın tarihi" htmlFor="scheduledAt" error={errors.scheduledAt?.message}><Input id="scheduledAt" type="datetime-local" {...register("scheduledAt")} /></FormField>}
           <div className="grid grid-cols-2 gap-2">
             <Link href="/yazilar" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link>

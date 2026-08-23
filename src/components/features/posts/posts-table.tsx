@@ -88,6 +88,8 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
 
   const hasMore = posts.length < resultTotal;
   const busy = isChangingLanguage || isSorting || isSearching;
+  const visibleColumnCount = Object.values(visibleColumns).filter(Boolean).length;
+  const tableWidth = visibleColumnCount <= 2 ? "min-w-[560px]" : visibleColumnCount <= 4 ? "min-w-[680px]" : "min-w-[820px]";
 
   function toggleColumn(column: OptionalColumn) {
     setVisibleColumns((current) => {
@@ -176,31 +178,33 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
 
           {posts.length ? (
             <TableWrap>
-              <Table>
+              <Table className={tableWidth}>
                 <thead>
                   <tr>
-                    <Th className="w-[48%]">Yazı</Th>
-                    {visibleColumns.language && <Th>{columnLabels.language}</Th>}
-                    {visibleColumns.category && <Th>{columnLabels.category}</Th>}
-                    {visibleColumns.status && <Th>{columnLabels.status}</Th>}
-                    {visibleColumns.reads && <Th className="text-right">{columnLabels.reads}</Th>}
-                    {visibleColumns.date && <Th className="text-right">{columnLabels.date}</Th>}
-                    <Th><span className="sr-only">İşlemler</span></Th>
+                    <Th className="w-full">Yazı</Th>
+                    {visibleColumns.language && <Th className="w-px whitespace-nowrap">{columnLabels.language}</Th>}
+                    {visibleColumns.category && <Th className="w-px whitespace-nowrap">{columnLabels.category}</Th>}
+                    {visibleColumns.status && <Th className="w-px whitespace-nowrap">{columnLabels.status}</Th>}
+                    {visibleColumns.reads && <Th className="w-px whitespace-nowrap text-right">{columnLabels.reads}</Th>}
+                    {visibleColumns.date && <Th className="w-px whitespace-nowrap text-right">{columnLabels.date}</Th>}
+                    <Th className="w-px"><span className="sr-only">İşlemler</span></Th>
                   </tr>
                 </thead>
                 <tbody>
                   {posts.map((post) => (
                     <tr key={post.id} className="transition-colors hover:bg-surface-2">
                       <Td className="align-top">
-                        <Link href={`/yazilar/${post.id}/duzenle`} className="block rounded-sm text-base font-bold tracking-[-.022em] hover:underline">{post.title}</Link>
-                        <div className="mt-3"><MarkdownPreview value={post.body} compact /></div>
+                        <Link href={`/yazilar/${post.id}/duzenle`} className="group block rounded-sm">
+                          {post.title ? <span className="block text-base font-bold tracking-[-.022em] group-hover:underline">{post.title}</span> : null}
+                          <div className={post.title ? "mt-3" : ""}><MarkdownPreview value={post.body} compact /></div>
+                        </Link>
                       </Td>
-                      {visibleColumns.language && <Td><Badge><abbr title={languageLabels[post.language === "en" ? "en" : "tr"]} className="no-underline">{post.language === "en" ? "EN" : "TR"}</abbr></Badge></Td>}
-                      {visibleColumns.category && <Td>{post.category || "—"}</Td>}
-                      {visibleColumns.status && <Td><Badge variant={statusVariants[post.status]}>{labels[post.status]}</Badge></Td>}
-                      {visibleColumns.reads && <Td className="text-right font-semibold tabular-nums">{post.reads ? post.reads.toLocaleString("tr-TR") : "—"}</Td>}
-                      {visibleColumns.date && <Td className="text-right text-muted tabular-nums">{new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short" }).format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}</Td>}
-                      <Td>
+                      {visibleColumns.language && <Td className="w-px whitespace-nowrap"><Badge><abbr title={languageLabels[post.language === "en" ? "en" : "tr"]} className="no-underline">{post.language === "en" ? "EN" : "TR"}</abbr></Badge></Td>}
+                      {visibleColumns.category && <Td className="w-px whitespace-nowrap">{post.category || "—"}</Td>}
+                      {visibleColumns.status && <Td className="w-px whitespace-nowrap"><Badge variant={statusVariants[post.status]}>{labels[post.status]}</Badge></Td>}
+                      {visibleColumns.reads && <Td className="w-px whitespace-nowrap text-right font-semibold tabular-nums">{post.reads ? post.reads.toLocaleString("tr-TR") : "—"}</Td>}
+                      {visibleColumns.date && <Td className="w-px whitespace-nowrap text-right text-muted tabular-nums">{new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}</Td>}
+                      <Td className="w-px">
                         <div className="flex justify-end">
                           <ActionMenu
                             label={`${post.title} işlemleri`}

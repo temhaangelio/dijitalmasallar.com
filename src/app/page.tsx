@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { LoadMoreButton } from "@/components/features/visitor/load-more-button";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { LiveNewsBand } from "@/components/features/visitor/live-news-band";
-import { VisitorAboutLink, VisitorFooter, VisitorShell } from "@/components/layout/visitor-shell";
+import { VisitorFooter, VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
@@ -136,32 +136,32 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const adSlots = randomAdSlots(posts.length, ads, newsletterSlot >= 0 ? [newsletterSlot] : []);
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName} action={<VisitorAboutLink language={language} />} topContent={<LiveNewsBand posts={posts} language={language} />}>
+    <VisitorShell language={language} siteName={settings.siteName} topContent={<LiveNewsBand posts={posts} language={language} />}>
 
       <header className="flex w-full max-w-[720px] flex-col items-center px-4 pb-16 pt-16 text-center sm:pb-20 sm:pt-20">
         <h1 className="visitor-heading m-0 max-w-[600px] text-[30px] font-semibold leading-[1.3] tracking-[-.04em] [text-wrap:balance] sm:text-[36px] sm:leading-[1.28]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
       </header>
 
       <main className="flex w-full max-w-[720px] flex-col">
-        <div className="relative before:absolute before:bottom-5 before:left-[65px] before:top-2 before:w-px before:bg-line-strong sm:before:-left-[23px]">
+        <div className="relative before:absolute before:bottom-5 before:left-[11px] before:top-2 before:w-px before:bg-line-strong sm:before:-left-[23px]">
         {posts.length ? posts.map((post, index) => {
           const publishedAt = post.published_at ?? post.created_at;
           const startsNewDay = index === 0 || dateKey(publishedAt) !== dateKey(posts[index - 1].published_at ?? posts[index - 1].created_at);
           return (
           <div className="pb-5" key={post.id}>
             {startsNewDay && (
-              <div className={`visitor-muted mb-5 flex items-center gap-3 pl-[84px] sm:pl-0 ${index === 0 ? "pt-1" : "pt-7"}`}>
+              <div className={`visitor-muted mb-5 flex items-center gap-3 pl-8 sm:pl-0 ${index === 0 ? "pt-1" : "pt-7"}`}>
                 <span className="shrink-0 rounded-full border border-line-strong bg-canvas px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.13em] text-ink-2 shadow-[0_1px_2px_rgba(0,0,0,.03)]">{dateLabel(publishedAt, language)}</span>
                 <span className="h-px min-w-6 flex-1 bg-line-strong" aria-hidden="true" />
               </div>
             )}
-            <div className="relative pl-[84px] sm:pl-0">
-              <time dateTime={publishedAt} title={dateLabel(publishedAt, language)} className="visitor-muted absolute left-0 top-5 w-[50px] text-right font-mono text-[12px] font-semibold tabular-nums tracking-[.06em] text-muted sm:-left-[104px] sm:w-[64px]">{timeLabel(publishedAt, language)}</time>
-              <span className="absolute left-[60px] top-[23px] z-10 size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] sm:-left-7" aria-hidden="true" />
+            <div className="relative pl-8 sm:pl-0">
+              <time dateTime={publishedAt} title={dateLabel(publishedAt, language)} className="visitor-muted relative z-10 mb-2 inline-flex bg-canvas font-mono text-[12px] font-semibold tabular-nums tracking-[.06em] text-muted sm:absolute sm:-left-[104px] sm:top-5 sm:mb-0 sm:w-[64px] sm:justify-end">{timeLabel(publishedAt, language)}</time>
+              <span className="absolute left-[6px] top-[3px] z-10 size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] sm:-left-7 sm:top-[23px]" aria-hidden="true" />
               <NoteCard post={post} layout={settings.feedLayout} language={language} />
               {adSlots.has(index) && <div className="mt-3"><AdCard ad={adSlots.get(index)!} /></div>}
               {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
-                <div className="mt-3"><NewsletterPanel title={settings.newsletterTitle} description={settings.newsletterDescription} /></div>
+                <div className="mt-3"><NewsletterPanel title={language === "en" ? settings.newsletterTitleEn : settings.newsletterTitle} description={language === "en" ? settings.newsletterDescriptionEn : settings.newsletterDescription} language={language} /></div>
               )}
             </div>
           </div>
