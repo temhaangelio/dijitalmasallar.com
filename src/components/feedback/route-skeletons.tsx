@@ -343,33 +343,3 @@ export function EditorLoading({ active, asideFields }: { active: string; asideFi
     </ShellSkeleton>
   );
 }
-
-/* ------------------------------------------- /yazilar/[id]/gorsel-uret */
-
-export function ImageGeneratorLoading() {
-  return (
-    <ShellSkeleton active="/yazilar">
-      <div className="mx-auto w-full max-w-[1180px]" role="status" aria-label="Görsel üreteci yükleniyor">
-        <PageHeaderSkeleton actionWidth="w-40" />
-        <div className="grid gap-5 lg:grid-cols-[minmax(300px,.72fr)_minmax(0,1.28fr)]">
-          <div className="card h-fit space-y-5">
-            <div><Skeleton className="h-6 w-36" /><Skeleton className="mt-2 h-4 w-full" /></div>
-            <Field height="h-44" />
-            <Field />
-            <Field />
-            <Field />
-            <div><Skeleton className="mb-2 h-4 w-16" /><div className="grid grid-cols-3 gap-2"><Skeleton className="h-11 rounded-full" /><Skeleton className="h-11 rounded-full" /><Skeleton className="h-11 rounded-full" /></div></div>
-            <Skeleton className="h-11 w-full rounded-full" />
-          </div>
-          <div className="card">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div><Skeleton className="h-6 w-28" /><Skeleton className="mt-2 h-4 w-56" /></div>
-              <Skeleton className="h-11 w-32 rounded-full" />
-            </div>
-            <Skeleton className="mx-auto aspect-[4/5] max-h-[75vh] w-full rounded-panel" />
-          </div>
-        </div>
-      </div>
-    </ShellSkeleton>
-  );
-}

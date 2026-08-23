@@ -26,12 +26,12 @@ export function MarkdownPreview({ value, compact = false }: { value: string; com
   if (!value.trim()) return <p className="text-muted">Biçimlendirilmiş ön izleme burada görünecek.</p>;
 
   return (
-    <div className={`${compact ? "space-y-2 text-[14px] leading-6 text-muted" : "space-y-4 text-[16px] leading-7 text-ink"} break-words`}>
+    <div className={`${compact ? "space-y-2 text-[16px] leading-7 text-muted" : "space-y-4 text-[16px] leading-7 text-ink"} break-words`}>
       {lines.map((line, index) => {
         const key = `line-${index}`;
         if (!line.trim()) return <div key={key} className="h-1" aria-hidden="true" />;
-        if (line.startsWith("## ")) return <h2 key={key} className={`${compact ? "text-base" : "pt-2 text-2xl"} font-bold tracking-[-.035em] text-ink`}>{renderInline(line.slice(3), key)}</h2>;
-        if (line.startsWith("# ")) return <h1 key={key} className={`${compact ? "text-lg" : "pt-2 text-3xl"} font-bold tracking-[-.045em] text-ink`}>{renderInline(line.slice(2), key)}</h1>;
+        if (line.startsWith("## ")) return <h2 key={key} className={`${compact ? "text-lg" : "pt-2 text-2xl"} font-bold tracking-[-.035em] text-ink`}>{renderInline(line.slice(3), key)}</h2>;
+        if (line.startsWith("# ")) return <h1 key={key} className={`${compact ? "text-xl" : "pt-2 text-3xl"} font-bold tracking-[-.045em] text-ink`}>{renderInline(line.slice(2), key)}</h1>;
         if (line.startsWith("> ")) return <blockquote key={key} className="border-l-2 border-ink pl-4 italic text-muted">{renderInline(line.slice(2), key)}</blockquote>;
         return <p key={key}>{renderInline(line, key)}</p>;
       })}

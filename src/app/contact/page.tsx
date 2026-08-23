@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
 import { Mail } from "lucide-react";
 import { VisitorShell } from "@/components/layout/visitor-shell";
-import { resolveVisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
-export const metadata: Metadata = { title: "İletişim" };
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+  const language = resolveVisitorLanguage((await searchParams).lang);
+  const settings = await getSiteSettings();
+  const isEnglish = language === "en";
+  return {
+    title: { absolute: `${isEnglish ? "Contact" : "İletişim"} · ${settings.siteName}` },
+    description: isEnglish ? "Contact diji.news for questions, suggestions, and collaborations." : "Soru, öneri ve iş birlikleri için diji.news ile iletişime geçin.",
+    alternates: { canonical: languageHref("/contact", language), languages: { en: "/contact", tr: "/contact?lang=tr", "x-default": "/contact" } },
+  };
+}
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {
   const query = await searchParams;

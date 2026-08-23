@@ -13,7 +13,7 @@ const languages: { value: VisitorLanguage; label: string }[] = [
  * Plain links rather than a client-side switch: the language already travels through the `?lang`
  * query parameter on every internal link, so the server keeps deciding what to render.
  */
-export function LanguagePicker({ language, path = "/about" }: { language: VisitorLanguage; path?: string }) {
+export function LanguagePicker({ language, path = "/about", onNavigate }: { language: VisitorLanguage; path?: string; onNavigate?: () => void }) {
   return (
     <Segmented className="w-fit" role="group" label={language === "en" ? "Language" : "Dil"}>
       {languages.map((item) => {
@@ -23,6 +23,7 @@ export function LanguagePicker({ language, path = "/about" }: { language: Visito
             key={item.value}
             href={languageHref(path, item.value)}
             hrefLang={item.value}
+            onClick={onNavigate}
             aria-current={selected ? "true" : undefined}
             data-active={selected}
             className={segmentClassName(selected)}

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ImagePlus, LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
+import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
 import { deletePostAction, loadMorePostsAction } from "@/app/(dashboard)/yazilar/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
@@ -195,8 +195,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
                     <tr key={post.id} className="transition-colors hover:bg-surface-2">
                       <Td className="align-top">
                         <Link href={`/yazilar/${post.id}/duzenle`} className="group block rounded-sm">
-                          {post.title ? <span className="block text-base font-bold tracking-[-.022em] group-hover:underline">{post.title}</span> : null}
-                          <div className={post.title ? "mt-3" : ""}><MarkdownPreview value={post.body} compact /></div>
+                          <MarkdownPreview value={post.body} compact />
                         </Link>
                       </Td>
                       {visibleColumns.language && <Td className="w-px whitespace-nowrap"><Badge><abbr title={languageLabels[post.language === "en" ? "en" : "tr"]} className="no-underline">{post.language === "en" ? "EN" : "TR"}</abbr></Badge></Td>}
@@ -207,10 +206,9 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
                       <Td className="w-px">
                         <div className="flex justify-end">
                           <ActionMenu
-                            label={`${post.title} işlemleri`}
+                            label="Yazı işlemleri"
                             items={[
                               { label: "Düzenle", href: `/yazilar/${post.id}/duzenle`, icon: <Pencil size={15} aria-hidden="true" /> },
-                              { label: "Görsel üret", href: `/yazilar/${post.id}/gorsel-uret`, icon: <ImagePlus size={15} aria-hidden="true" /> },
                               { label: "Sil", destructive: true, icon: <Trash2 size={15} aria-hidden="true" />, onSelect: () => { setDeleteError(null); setPostToDelete(post); } },
                             ]}
                           />
@@ -239,7 +237,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
       <ConfirmDialog
         open={Boolean(postToDelete)}
         title="Yazı silinsin mi?"
-        description={postToDelete ? `“${postToDelete.title}” kalıcı olarak silinecek. Bu işlem geri alınamaz.` : "Bu işlem geri alınamaz."}
+        description="Bu yazı kalıcı olarak silinecek. Bu işlem geri alınamaz."
         confirmLabel="Yazıyı sil"
         variant="destructive"
         error={deleteError}

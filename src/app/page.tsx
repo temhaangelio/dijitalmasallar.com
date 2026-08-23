@@ -11,19 +11,38 @@ import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
 import { sourceLabel } from "@/lib/source-label";
+import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
 import { languageHref, resolveVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
 import type { ReactNode } from "react";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+  const language = resolveVisitorLanguage((await searchParams).lang);
   const settings = await getSiteSettings();
+  const baseUrl = siteUrl(settings.domain);
+  const description = language === "en" ? settings.descriptionEn : settings.description;
+  const canonical = languageHref("/", language);
   // `absolute` stops the root layout template from appending a second brand name.
   return {
     title: { absolute: settings.siteName },
-    description: settings.description,
-    alternates: { types: { "application/rss+xml": [{ url: "/rss.xml", title: settings.siteName }] } },
+    description,
+    alternates: {
+      canonical,
+      languages: { en: "/", tr: "/?lang=tr", "x-default": "/" },
+      types: { "application/rss+xml": [{ url: languageHref("/rss.xml", language), title: settings.siteName }] },
+    },
+    openGraph: {
+      type: "website",
+      siteName: settings.siteName,
+      title: settings.siteName,
+      description,
+      url: absoluteUrl(baseUrl, canonical),
+      locale: language === "en" ? "en_US" : "tr_TR",
+      alternateLocale: [language === "en" ? "tr_TR" : "en_US"],
+    },
+    twitter: { card: "summary", title: settings.siteName, description },
   };
 }
 
@@ -134,9 +153,51 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const posts = publishedPosts.slice(0, visiblePostCount);
   const newsletterSlot = settings.moduleNewsletter && settings.newsletterEnabled ? Math.min(3, posts.length - 1) : -1;
   const adSlots = randomAdSlots(posts.length, ads, newsletterSlot >= 0 ? [newsletterSlot] : []);
+  const baseUrl = siteUrl(settings.domain);
+  const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "NewsMediaOrganization",
+        "@id": `${baseUrl}/#organization`,
+        name: settings.siteName,
+        url: baseUrl,
+        description: language === "en" ? settings.descriptionEn : settings.description,
+        email: settings.contactEmail,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${baseUrl}/#website`,
+        name: settings.siteName,
+        url: homeUrl,
+        inLanguage: language,
+        publisher: { "@id": `${baseUrl}/#organization` },
+      },
+      {
+        "@type": "CollectionPage",
+        "@id": `${homeUrl}#webpage`,
+        url: homeUrl,
+        name: settings.siteName,
+        description: language === "en" ? settings.descriptionEn : settings.description,
+        inLanguage: language,
+        isPartOf: { "@id": `${baseUrl}/#website` },
+        mainEntity: {
+          "@type": "ItemList",
+          itemListElement: posts.map((post, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: postHeadline(post),
+            url: absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, language)),
+          })),
+        },
+      },
+    ],
+  };
 
   return (
     <VisitorShell language={language} siteName={settings.siteName} topContent={<LiveNewsBand posts={posts} language={language} />}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <header className="flex w-full max-w-[720px] flex-col items-center px-4 pb-16 pt-16 text-center sm:pb-20 sm:pt-20">
         <h1 className="visitor-heading m-0 max-w-[600px] text-[30px] font-semibold leading-[1.3] tracking-[-.04em] [text-wrap:balance] sm:text-[36px] sm:leading-[1.28]">{language === "en" ? settings.descriptionEn : settings.description}</h1>

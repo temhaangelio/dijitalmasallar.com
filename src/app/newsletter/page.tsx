@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { VisitorShell } from "@/components/layout/visitor-shell";
-import { resolveVisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+  const language = resolveVisitorLanguage((await searchParams).lang);
   const settings = await getSiteSettings();
-  return { title: { absolute: `E-bülten · ${settings.siteName}` }, description: settings.newsletterDescription };
+  const isEnglish = language === "en";
+  return {
+    title: { absolute: `${isEnglish ? "Newsletter" : "E-bülten"} · ${settings.siteName}` },
+    description: isEnglish ? settings.newsletterDescriptionEn : settings.newsletterDescription,
+    alternates: { canonical: languageHref("/newsletter", language), languages: { en: "/newsletter", tr: "/newsletter?lang=tr", "x-default": "/newsletter" } },
+  };
 }
 
 export default async function NewsletterPage({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {

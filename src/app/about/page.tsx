@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { Rss } from "lucide-react";
 import { VisitorShell } from "@/components/layout/visitor-shell";
-import { resolveVisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+  const language = resolveVisitorLanguage((await searchParams).lang);
   const settings = await getSiteSettings();
-  return { title: { absolute: `Hakkında · ${settings.siteName}` }, description: settings.description };
+  const isEnglish = language === "en";
+  return {
+    title: { absolute: `${isEnglish ? "About" : "Hakkında"} · ${settings.siteName}` },
+    description: isEnglish ? settings.descriptionEn : settings.description,
+    alternates: { canonical: languageHref("/about", language), languages: { en: "/about", tr: "/about?lang=tr", "x-default": "/about" } },
+  };
 }
 
 export default async function AboutPage({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {

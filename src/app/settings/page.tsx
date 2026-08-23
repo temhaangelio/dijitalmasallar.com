@@ -6,7 +6,7 @@ import { VisitorShell } from "@/components/layout/visitor-shell";
 import { resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
-export const metadata: Metadata = { title: "Sayfa ayarları" };
+export const metadata: Metadata = { title: "Sayfa ayarları", robots: { index: false, follow: true } };
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {
   const query = await searchParams;

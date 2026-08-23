@@ -6,6 +6,7 @@ import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorBackLink, VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref } from "@/lib/visitor-language";
 import { sourceLabel } from "@/lib/source-label";
+import { absoluteUrl, jsonLd, postDescription, postHeadline, siteUrl } from "@/lib/seo";
 import { getNextPublishedPost, getPublishedPostById } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -35,9 +36,38 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   const requestedLanguage = lang === "en" || lang === "tr" ? lang : undefined;
   const [post, settings] = await Promise.all([getPublishedPostById(id, requestedLanguage), getSiteSettings()]);
   if (!post) return {};
+  const language = post.language === "en" ? "en" : "tr";
+  const baseUrl = siteUrl(settings.domain);
+  const path = `/haber/${post.id}`;
+  const canonical = languageHref(path, language);
+  const title = postHeadline(post);
+  const description = postDescription(post);
+  const publishedAt = post.published_at ?? post.created_at;
   return {
-    title: { absolute: `${cleanMetadataText(post.title)} · ${settings.siteName}` },
-    description: cleanMetadataText(post.excerpt).slice(0, 160),
+    title: { absolute: `${title} · ${settings.siteName}` },
+    description,
+    alternates: {
+      canonical,
+      languages: { en: path, tr: `${path}?lang=tr`, "x-default": path },
+    },
+    openGraph: {
+      type: "article",
+      siteName: settings.siteName,
+      title,
+      description,
+      url: absoluteUrl(baseUrl, canonical),
+      locale: language === "en" ? "en_US" : "tr_TR",
+      publishedTime: publishedAt,
+      modifiedTime: post.updated_at,
+      authors: [settings.siteName],
+      images: post.cover_path ? [{ url: post.cover_path, alt: title }] : undefined,
+    },
+    twitter: {
+      card: post.cover_path ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: post.cover_path ? [post.cover_path] : undefined,
+    },
   };
 }
 
@@ -61,9 +91,31 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
   const publishedAt = post.published_at ?? post.created_at;
   const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
   const nextPost = await getNextPublishedPost(post.created_at, language);
+  const baseUrl = siteUrl(settings.domain);
+  const canonicalUrl = absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, language));
+  const headline = postHeadline(post);
+  const description = postDescription(post);
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "@id": `${canonicalUrl}#article`,
+    headline,
+    description,
+    articleBody: cleanMetadataText(post.body),
+    datePublished: publishedAt,
+    dateModified: post.updated_at,
+    inLanguage: language,
+    isAccessibleForFree: true,
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
+    author: { "@type": "Organization", name: settings.siteName, url: baseUrl },
+    publisher: { "@type": "NewsMediaOrganization", "@id": `${baseUrl}/#organization`, name: settings.siteName, url: baseUrl },
+    image: post.cover_path ? [post.cover_path] : undefined,
+    isBasedOn: post.source_url || undefined,
+  };
 
   return (
     <VisitorShell language={language} siteName={settings.siteName} action={<VisitorBackLink language={language} label={language === "en" ? "Back" : "Geri dön"} />}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[720px] pt-10">
         <article className="visitor-panel rounded-panel border border-line bg-surface p-6 sm:p-9">

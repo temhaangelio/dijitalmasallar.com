@@ -4,14 +4,35 @@ import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
 import { FontScript, FontSizeScript } from "@/components/features/visitor/font";
 import { ThemeScript } from "@/components/features/visitor/theme";
+import { siteUrl } from "@/lib/seo";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: { default: "diji.news", template: "%s · diji.news" },
-  description: "Kısa ve özgün teknoloji notları için yayın yönetim paneli.",
+  description: "Teknoloji, yapay zekâ, bilim ve dijital kültür odaklı kısa ve güncel haber notları.",
+  applicationName: "diji.news",
+  category: "technology",
+  creator: "diji.news",
+  publisher: "diji.news",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+  openGraph: {
+    type: "website",
+    siteName: "diji.news",
+    title: "diji.news",
+    description: "Teknoloji, yapay zekâ, bilim ve dijital kültür odaklı kısa ve güncel haber notları.",
+    url: "/",
+    locale: "en_US",
+    alternateLocale: ["tr_TR"],
+  },
+  twitter: { card: "summary", title: "diji.news", description: "Kısa ve güncel teknoloji, yapay zekâ, bilim ve dijital kültür notları." },
   // Emits <meta name="google-site-verification"> for Search Console when the token is configured.
   verification: googleSiteVerification ? { google: googleSiteVerification } : undefined,
 };
