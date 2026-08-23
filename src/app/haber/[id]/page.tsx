@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
-import { VisitorThemeSync } from "@/components/features/visitor/visitor-preferences";
 import { getNextPublishedPost, getPublishedPostById } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -61,7 +60,6 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
 
   return (
     <div className="visitor-page flex min-h-screen flex-col items-center bg-[#efefef] px-5 pb-12 pt-5 text-[#0a0a0a]">
-      <VisitorThemeSync />
       <nav className="visitor-nav flex w-full max-w-[720px] items-center justify-between gap-4 py-2.5">
         <Link href={`/?lang=${language}`} className="flex shrink-0 items-center gap-2.5">
           <span className="flex size-[30px] items-start justify-start rounded-[10px] bg-[#0a0a0a] p-[7px]"><span className="size-[7px] rounded-full bg-white" /></span>

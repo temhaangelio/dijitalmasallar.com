@@ -1,11 +1,31 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { postSchema } from "@/lib/validations/post";
 import { getPostsPage, type PostSort } from "@/services/posts";
 
 const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc", "category-asc"];
+const acceptedImages = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+function storagePathFromUrl(value: string | null) {
+  if (!value) return null;
+  const marker = "/storage/v1/object/public/diji-post-media/";
+  const index = value.indexOf(marker);
+  return index === -1 ? null : decodeURIComponent(value.slice(index + marker.length));
+}
+
+async function uploadCover(access: NonNullable<Awaited<ReturnType<typeof getAuthorizedAdminClient>>>, image: File | null) {
+  if (!image || image.size === 0) return { url: null, path: null, error: null };
+  if (!acceptedImages.has(image.type)) return { url: null, path: null, error: "Görsel JPG, PNG veya WebP olmalı." };
+  if (image.size > 5 * 1024 * 1024) return { url: null, path: null, error: "Görsel 5 MB’dan küçük olmalı." };
+  const extension = image.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "webp";
+  const path = `${access.user.id}/${randomUUID()}.${extension}`;
+  const { error } = await access.admin.storage.from("diji-post-media").upload(path, image, { contentType: image.type, upsert: false });
+  if (error) return { url: null, path: null, error: "Kapak görseli yüklenemedi." };
+  return { url: access.admin.storage.from("diji-post-media").getPublicUrl(path).data.publicUrl, path, error: null };
+}
 
 export async function loadMorePostsAction(page: number, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest") {
   const safePage = Number.isInteger(page) && page >= 1 ? page : 1;
@@ -22,11 +42,13 @@ export async function loadMorePostsAction(page: number, pageSize = 20, language:
   }
 }
 
-export async function createPostAction(input: unknown) {
+export async function createPostAction(input: unknown, image: File | null = null) {
   const parsed = postSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: parsed.error.issues[0]?.message ?? "Yazıyı kontrol edin." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
+  const cover = await uploadCover(access, image);
+  if (cover.error) return { success: false, message: cover.error };
   const createdAt = parsed.data.status === "scheduled" ? new Date(parsed.data.scheduledAt!).toISOString() : new Date().toISOString();
   const { error } = await access.admin.from("posts").insert({
     content_tr: `# ${parsed.data.tr.title}\n\n${parsed.data.tr.excerpt}\n\n${parsed.data.tr.body}`,
@@ -34,24 +56,31 @@ export async function createPostAction(input: unknown) {
     category: parsed.data.category,
     source_name: parsed.data.sourceName,
     source_url: parsed.data.sourceUrl,
+    cover_path: cover.url,
     show_title: parsed.data.showTitle,
     show_excerpt: parsed.data.showExcerpt,
     author_id: access.user.id,
     created_at: createdAt,
   });
-  if (error) return { success: false, message: "Yazı kaydedilemedi. Lütfen tekrar deneyin." };
+  if (error) {
+    if (cover.path) await access.admin.storage.from("diji-post-media").remove([cover.path]);
+    console.error("Supabase post insert failed", error);
+    return { success: false, message: error.hint || error.message || "Yazı kaydedilemedi. Lütfen tekrar deneyin." };
+  }
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath("/dashboard");
   return { success: true, message: "Yazı kaydedildi." };
 }
 
-export async function updatePostAction(id: string, input: unknown) {
+export async function updatePostAction(id: string, input: unknown, image: File | null = null, removeCover = false) {
   const parsed = postSchema.safeParse(input);
   if (!parsed.success || !/^[0-9a-f-]{36}$/i.test(id)) return { success: false, message: "Geçersiz yazı bilgisi." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
-  const { data: current } = await access.admin.from("posts").select("id,created_at").or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();
+  const { data: current } = await access.admin.from("posts").select("id,created_at,cover_path").or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();
   if (!current) return { success: false, message: "Yazı bulunamadı." };
   const wasScheduled = new Date(current.created_at).getTime() > Date.now();
+  const cover = await uploadCover(access, image);
+  if (cover.error) return { success: false, message: cover.error };
   const createdAt = parsed.data.status === "scheduled" ? new Date(parsed.data.scheduledAt!).toISOString() : wasScheduled ? new Date().toISOString() : current.created_at;
   const { error } = await access.admin.from("posts").update({
     content_tr: `# ${parsed.data.tr.title}\n\n${parsed.data.tr.excerpt}\n\n${parsed.data.tr.body}`,
@@ -59,11 +88,20 @@ export async function updatePostAction(id: string, input: unknown) {
     category: parsed.data.category,
     source_name: parsed.data.sourceName,
     source_url: parsed.data.sourceUrl,
+    cover_path: cover.url ?? (removeCover ? null : current.cover_path),
     show_title: parsed.data.showTitle,
     show_excerpt: parsed.data.showExcerpt,
     created_at: createdAt,
   }).eq("id", current.id);
-  if (error) return { success: false, message: "Yazı güncellenemedi." };
+  if (error) {
+    if (cover.path) await access.admin.storage.from("diji-post-media").remove([cover.path]);
+    console.error("Supabase post update failed", error);
+    return { success: false, message: error.hint || error.message || "Yazı güncellenemedi." };
+  }
+  if ((cover.url || removeCover) && current.cover_path) {
+    const oldPath = storagePathFromUrl(current.cover_path);
+    if (oldPath) await access.admin.storage.from("diji-post-media").remove([oldPath]);
+  }
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath(`/yazilar/${id}/duzenle`); revalidatePath("/dashboard");
   return { success: true, message: "Yazı güncellendi." };
 }
@@ -72,9 +110,11 @@ export async function deletePostAction(id: string) {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return { success: false, message: "Geçersiz yazı." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
-  const { data: current } = await access.admin.from("posts").select("id").or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();
+  const { data: current } = await access.admin.from("posts").select("id,cover_path").or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();
   if (!current) return { success: false, message: "Yazı bulunamadı." };
   const { error } = await access.admin.from("posts").delete().eq("id", current.id);
   if (error) return { success: false, message: "Yazı silinemedi." };
+  const coverPath = storagePathFromUrl(current.cover_path);
+  if (coverPath) await access.admin.storage.from("diji-post-media").remove([coverPath]);
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath("/dashboard"); return { success: true, message: "Yazı silindi." };
 }

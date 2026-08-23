@@ -14,5 +14,9 @@ export const settingsSchema = z.object({
   showSubscriberCount: z.boolean(),
   contactEmail: z.string().trim().email("Geçerli bir iletişim adresi girin."),
   maintenanceMode: z.boolean(),
+  modulePosts: z.boolean(),
+  moduleNewsletter: z.boolean(),
+  moduleAds: z.boolean(),
+  moduleAnalytics: z.boolean(),
 });
 export type SettingsFormValues = z.infer<typeof settingsSchema>;

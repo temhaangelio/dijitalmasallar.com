@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { saveSettingsAction } from "@/app/(dashboard)/ayarlar/actions";
 import { FormField } from "@/components/forms/form-field";
@@ -10,31 +10,37 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { showToast } from "@/components/ui/toast";
 import { settingsSchema, type SettingsFormValues } from "@/lib/validations/settings";
 import type { SiteSettings } from "@/services/settings";
 
-export function SettingsForm({ initialValues }: { initialValues: SiteSettings }) {
+type SettingsSection = "general" | "newsletter" | "visibility" | "modules";
+
+export function SettingsForm({ initialValues, section }: { initialValues: SiteSettings; section: SettingsSection }) {
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const values: SettingsFormValues = { ...initialValues };
   const { register, control, handleSubmit, reset, setValue, formState: { errors, isDirty } } = useForm<SettingsFormValues>({ resolver: zodResolver(settingsSchema), defaultValues: values });
   const newsletterEnabled = useWatch({ control, name: "newsletterEnabled" });
   const showSubscriberCount = useWatch({ control, name: "showSubscriberCount" });
   const maintenanceMode = useWatch({ control, name: "maintenanceMode" });
+  const modulePosts = useWatch({ control, name: "modulePosts" });
+  const moduleNewsletter = useWatch({ control, name: "moduleNewsletter" });
+  const moduleAds = useWatch({ control, name: "moduleAds" });
+  const moduleAnalytics = useWatch({ control, name: "moduleAnalytics" });
 
   const save = (formValues: SettingsFormValues) => startTransition(async () => {
     try {
       const result = await saveSettingsAction(formValues);
-      setMessage({ ok: result.success, text: result.message });
+      showToast(result.message, result.success ? "success" : "error");
       if (result.success) reset(formValues);
     } catch {
-      setMessage({ ok: false, text: "Ayarlar şu anda kaydedilemedi." });
+      showToast("Ayarlar şu anda kaydedilemedi.", "error");
     }
   });
 
   return (
-    <form onSubmit={handleSubmit(save)} className="grid gap-5 xl:grid-cols-12">
-      <div className="card space-y-5 xl:col-span-7">
+    <form onSubmit={handleSubmit(save)} className="mx-auto w-full max-w-[920px] space-y-5">
+      {section === "general" ? <div className="card space-y-5">
         <h2 className="section-title">Ziyaretçi sayfası</h2>
         <div className="grid gap-5 sm:grid-cols-2">
           <FormField label="Site adı" htmlFor="siteName" error={errors.siteName?.message}><Input id="siteName" {...register("siteName")} /></FormField>
@@ -50,10 +56,9 @@ export function SettingsForm({ initialValues }: { initialValues: SiteSettings })
           <FormField label="Yazı akışı biçimi" htmlFor="feedLayout"><Select id="feedLayout" {...register("feedLayout")}><option value="short">Kısa akış</option><option value="card">Kart</option><option value="classic">Klasik liste</option></Select></FormField>
         </div>
         <FormField label="İletişim e-postası" htmlFor="contactEmail" error={errors.contactEmail?.message}><Input id="contactEmail" type="email" {...register("contactEmail")} /></FormField>
-      </div>
+      </div> : null}
 
-      <div className="space-y-5 xl:col-span-5">
-        <div className="card">
+      {section === "newsletter" ? <div className="card">
           <h2 className="section-title">E-bülten alanı</h2>
           <div className="mt-5 flex items-center justify-between gap-4 border-b border-[#f1f1f1] pb-5">
             <div><strong className="text-[15px]">Bülteni göster</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">Ziyaretçi akışında abonelik formunu gösterir.</p></div>
@@ -63,19 +68,30 @@ export function SettingsForm({ initialValues }: { initialValues: SiteSettings })
             <FormField label="Bülten başlığı" htmlFor="newsletterTitle" error={errors.newsletterTitle?.message}><Input id="newsletterTitle" disabled={!newsletterEnabled} {...register("newsletterTitle")} /></FormField>
             <FormField label="Bülten açıklaması" htmlFor="newsletterDescription" error={errors.newsletterDescription?.message}><Textarea id="newsletterDescription" disabled={!newsletterEnabled} {...register("newsletterDescription")} /></FormField>
           </div>
-        </div>
+      </div> : null}
 
-        <div className="card">
+      {section === "visibility" ? <div className="card">
           <h2 className="section-title">Görünürlük</h2>
           <div className="mt-5 divide-y divide-[#f1f1f1]">
             <div className="flex items-center justify-between gap-4 pb-4"><div><strong className="text-[15px]">Abone sayısını göster</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">Ana başlığın altında gerçek aktif abone sayısı görünür.</p></div><Switch label="Abone sayısını göster" checked={showSubscriberCount} onCheckedChange={(value) => setValue("showSubscriberCount", value, { shouldDirty: true })} /></div>
             <div className="flex items-center justify-between gap-4 pt-4"><div><strong className="text-[15px]">Bakım modu</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">Ziyaretçilere geçici bakım ekranı gösterir.</p></div><Switch label="Bakım modu" checked={maintenanceMode} onCheckedChange={(value) => setValue("maintenanceMode", value, { shouldDirty: true })} /></div>
           </div>
-        </div>
+      </div> : null}
 
-        {message && <p aria-live="polite" className={`rounded-2xl p-4 text-sm ${message.ok ? "bg-emerald-50 text-emerald-800" : "bg-[#fff1f0] text-[#b42318]"}`}>{message.text}</p>}
-        <div className="flex justify-end gap-2"><Button type="button" variant="secondary" disabled={!isDirty || pending} onClick={() => { reset(values); setMessage(null); }}>Vazgeç</Button><Button disabled={!isDirty || pending}>{pending ? "Kaydediliyor…" : "Kaydet"}</Button></div>
-      </div>
+      {section === "modules" ? <div className="card">
+          <h2 className="section-title">Panel modülleri</h2>
+          <p className="mt-2 text-sm leading-6 text-[#a1a1a1]">Kapalı modüller menüden kaldırılır ve doğrudan erişime kapanır.</p>
+          <div className="mt-5 divide-y divide-[#f1f1f1]">
+            {[
+              ["Yazılar", "İçerik ekleme ve yönetme ekranları", "modulePosts", modulePosts],
+              ["E-bülten", "Bülten ve abone yönetimi", "moduleNewsletter", moduleNewsletter],
+              ["Reklamlar", "Reklam ekleme ve yayınlama", "moduleAds", moduleAds],
+              ["İstatistik", "Vercel Analytics raporları", "moduleAnalytics", moduleAnalytics],
+            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-[#a1a1a1]">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics", value, { shouldDirty: true })} /></div>)}
+          </div>
+      </div> : null}
+
+      <div className="flex justify-end gap-2"><Button type="button" variant="secondary" disabled={!isDirty || pending} onClick={() => reset(values)}>Vazgeç</Button><Button disabled={!isDirty || pending}>{pending ? "Kaydediliyor…" : "Kaydet"}</Button></div>
     </form>
   );
 }

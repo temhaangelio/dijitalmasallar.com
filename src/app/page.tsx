@@ -2,12 +2,12 @@ import Link from "next/link";
 import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
 import { SubscribeForm } from "@/components/forms/subscribe-form";
-import { VisitorThemeSync } from "@/components/features/visitor/visitor-preferences";
 import { LoadMoreButton } from "@/components/features/visitor/load-more-button";
 import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
 import { getVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
+import { getPublishedPages, localizedPage } from "@/services/pages";
 import type { Post } from "@/types/database";
 import type { ReactNode } from "react";
 
@@ -100,16 +100,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const requestedLimit = Number.parseInt(params.limit ?? "", 10);
   const visiblePostCount = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, settings.postsPerPage), 500) : settings.postsPerPage;
   if (settings.maintenanceMode) return <main className="grid min-h-screen place-items-center bg-[#efefef] px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-2xl bg-black" /><h1 className="text-4xl font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[#777]">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
-  const [postData, ads] = await Promise.all([getPosts(1, Math.min(visiblePostCount + 1, 500), language), getActiveAds(language)]);
+  const [postData, ads, pages] = await Promise.all([getPosts(1, Math.min(visiblePostCount + 1, 500), language), settings.moduleAds ? getActiveAds(language) : Promise.resolve([]), getPublishedPages()]);
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
-  const newsletterSlot = settings.newsletterEnabled ? Math.min(3, posts.length - 1) : -1;
+  const newsletterSlot = settings.moduleNewsletter && settings.newsletterEnabled ? Math.min(3, posts.length - 1) : -1;
   const adSlots = randomAdSlots(posts.length, ads, newsletterSlot >= 0 ? [newsletterSlot] : []);
 
   return (
     <div className="visitor-page flex min-h-screen flex-col items-center bg-[#efefef] px-5 pb-12 pt-5 text-[#0a0a0a]">
-      <VisitorThemeSync />
       <nav className="visitor-nav flex w-full max-w-[720px] items-center justify-between gap-4 py-2.5">
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
           <span className="flex size-[30px] items-start justify-start rounded-[10px] bg-[#0a0a0a] p-[7px]"><span className="size-[7px] rounded-full bg-white" /></span>
@@ -117,7 +116,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </Link>
         <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <Link href={`/?lang=${language}`} className="flex h-[34px] items-center rounded-full bg-[#0a0a0a] px-3.5 text-sm font-semibold text-white">{language === "en" ? "Feed" : "Akış"}</Link>
-          <Link href={`/hakkinda?lang=${language}`} className="visitor-copy flex h-[34px] items-center rounded-full px-3.5 text-sm font-medium text-[#4a4a4a] hover:bg-[#f5f5f5]">{language === "en" ? "About" : "Hakkında"}</Link>
+          {pages.filter((page) => page.show_in_header).map((page) => <Link key={page.id} href={`/sayfa/${page.slug}?lang=${language}`} className="visitor-copy flex h-[34px] items-center rounded-full px-3.5 text-sm font-medium text-[#4a4a4a] hover:bg-[#f5f5f5]">{localizedPage(page, language).title}</Link>)}
         </div>
       </nav>
 
@@ -131,7 +130,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             {(index === 3 || index === 5) && <div className="visitor-muted px-2 pb-2 pt-5 text-xs font-semibold tracking-[.16em] text-[#a1a1a1]">{dateLabel(post.published_at ?? post.created_at, language)}</div>}
             <NoteCard post={post} layout={settings.feedLayout} language={language} />
             {adSlots.has(index) && <AdCard ad={adSlots.get(index)!} />}
-            {settings.newsletterEnabled && index === newsletterSlot && (
+            {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
               <section className="flex flex-col items-stretch justify-between gap-5 rounded-[24px] bg-[#0a0a0a] p-6 text-white sm:flex-row sm:items-center">
                 <div className="min-w-0"><h2 className="text-xl font-bold tracking-[-.035em]">{settings.newsletterTitle}</h2><p className="mt-1.5 text-sm font-medium text-[#a1a1a1] [text-wrap:pretty]">{settings.newsletterDescription}</p></div>
                 <SubscribeForm />
@@ -148,7 +147,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>}
 
         <footer className="visitor-footer visitor-muted border-t border-[#e2e2e2] px-2 pt-7 text-[13px] font-medium text-[#a1a1a1]">
-          <span>© {new Date().getFullYear()} {settings.siteName}</span>
+          <span>© {new Date().getFullYear()} {settings.siteName}</span><span className="ml-4 inline-flex gap-3">{pages.filter((page) => page.show_in_footer).map((page) => <Link key={page.id} href={`/sayfa/${page.slug}?lang=${language}`}>{localizedPage(page, language).title}</Link>)}</span>
         </footer>
       </main>
     </div>

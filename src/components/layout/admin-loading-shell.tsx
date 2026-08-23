@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const items = [["Dashboard", "/dashboard"], ["Yazılar", "/yazilar"], ["E-bülten", "/e-bulten"], ["Reklamlar", "/reklamlar"], ["İstatistik", "/istatistik"], ["Ayarlar", "/ayarlar"], ["Profil", "/profil"]];
+const items = [["Dashboard", "/dashboard"], ["Yazılar", "/yazilar"], ["E-bülten", "/e-bulten"], ["Reklamlar", "/reklamlar"], ["İstatistik", "/istatistik"], ["Ayarlar", "/ayarlar"]];
 
 export function AdminLoadingShell({ active, children }: { active: string; children: React.ReactNode }) {
   return (

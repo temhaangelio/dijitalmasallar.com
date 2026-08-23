@@ -4,8 +4,8 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { demoPosts } from "@/lib/constants/demo-data";
 import type { Post } from "@/types/database";
 
-type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; category: string; source_name: string | null; source_url: string | null; featured: boolean; show_title: boolean; show_excerpt: boolean; created_at: string; author_id: string | null };
-const postColumns = "id,content_tr,content_en,legacy_english_id,category,source_name,source_url,featured,show_title,show_excerpt,created_at,author_id";
+type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; category: string; source_name: string | null; source_url: string | null; cover_path: string | null; featured: boolean; show_title: boolean; show_excerpt: boolean; created_at: string; author_id: string | null };
+const postColumns = "id,content_tr,content_en,legacy_english_id,category,source_name,source_url,cover_path,featured,show_title,show_excerpt,created_at,author_id";
 export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc" | "category-asc";
 
 function stripMarkdown(value: string) {
@@ -13,8 +13,10 @@ function stripMarkdown(value: string) {
 }
 
 function parseContent(value: string) {
-  const structured = value.match(/^#\s+([^\n]+)\n\n([^\n]+)\n\n([\s\S]+)$/);
-  if (structured) return { title: structured[1].trim(), excerpt: structured[2].trim(), body: structured[3].trim() };
+  if (value.startsWith("# ")) {
+    const [heading, excerpt = "", ...bodyParts] = value.split("\n\n");
+    if (bodyParts.length) return { title: heading.slice(2).trim(), excerpt: excerpt.trim(), body: bodyParts.join("\n\n").trim() };
+  }
   const clean = stripMarkdown(value);
   const title = clean.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || clean.slice(0, 110);
   return {
@@ -37,7 +39,7 @@ function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
     category: row.category,
     language,
     status: scheduled ? "scheduled" : "published",
-    cover_path: null,
+    cover_path: row.cover_path,
     source_name: row.source_name,
     source_url: row.source_url,
     published_at: scheduled ? null : row.created_at,

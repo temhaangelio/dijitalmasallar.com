@@ -1,10 +1,7 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { SettingsForm } from "@/components/features/settings/settings-form";
-import { getSiteSettings } from "@/services/settings";
+import { SettingsNavigation } from "@/components/features/settings/settings-navigation";
 
-export default async function SettingsPage() {
-  const settings = await getSiteSettings();
-  const note = settings.updatedAt ? `Son kayıt ${new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(settings.updatedAt))}` : "Site ve ziyaretçi görünümü ayarları";
-  return <AppShell active="/ayarlar"><PageHeader title="Ayarlar" note={note} /><SettingsForm initialValues={settings} /></AppShell>;
+export default function SettingsPage() {
+  return <AppShell active="/ayarlar"><div className="mx-auto w-full max-w-[1200px]"><PageHeader title="Ayarlar" note="Yapılandırmak istediğiniz alanı seçin" /><SettingsNavigation /></div></AppShell>;
 }

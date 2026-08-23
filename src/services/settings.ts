@@ -18,6 +18,10 @@ export type SiteSettings = {
   showSubscriberCount: boolean;
   contactEmail: string;
   maintenanceMode: boolean;
+  modulePosts: boolean;
+  moduleNewsletter: boolean;
+  moduleAds: boolean;
+  moduleAnalytics: boolean;
   updatedAt: string | null;
 };
 
@@ -36,6 +40,10 @@ export const defaultSiteSettings: SiteSettings = {
   showSubscriberCount: true,
   contactEmail: "merhaba@diji.news",
   maintenanceMode: false,
+  modulePosts: true,
+  moduleNewsletter: true,
+  moduleAds: true,
+  moduleAnalytics: true,
   updatedAt: null,
 };
 
@@ -55,6 +63,10 @@ const settingKeys = {
   show_subscriber_count: "showSubscriberCount",
   contact_email: "contactEmail",
   maintenance_mode: "maintenanceMode",
+  module_posts: "modulePosts",
+  module_newsletter: "moduleNewsletter",
+  module_ads: "moduleAds",
+  module_analytics: "moduleAnalytics",
 } as const;
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {

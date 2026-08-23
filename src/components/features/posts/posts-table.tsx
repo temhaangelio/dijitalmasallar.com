@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDownUp, Columns3, LoaderCircle, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowDownUp, Columns3, ImagePlus, LoaderCircle, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { deletePostAction, loadMorePostsAction } from "@/app/(dashboard)/yazilar/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { PageLoading } from "@/components/feedback/page-loading";
@@ -162,7 +162,11 @@ export function PostsTable({ initialPosts, total, language, initialLanguageData,
           </div>
         </div>
         <div className="relative">
-        {(isChangingLanguage || isSorting) ? <div className="absolute inset-x-0 top-0 z-20 h-[420px]"><PageLoading variant="admin" label="" embedded /></div> : null}
+        {(isChangingLanguage || isSorting) ? (
+          <div className="fixed inset-0 z-[200] overflow-auto bg-[#efefef]">
+            <PageLoading variant="admin" label="Panel hazırlanıyor" />
+          </div>
+        ) : null}
         {filtered.length ? (
           <TableWrap>
             <Table>
@@ -182,6 +186,7 @@ export function PostsTable({ initialPosts, total, language, initialLanguageData,
                           label={`${post.title} işlemleri`}
                           items={[
                             { label: "Düzenle", href: `/yazilar/${post.id}/duzenle`, icon: <Pencil size={15} /> },
+                            { label: "Görsel üret", href: `/yazilar/${post.id}/gorsel-uret`, icon: <ImagePlus size={15} /> },
                             { label: "Sil", destructive: true, icon: <Trash2 size={15} />, onSelect: () => { setDeleteError(null); setPostToDelete(post); } },
                           ]}
                         />

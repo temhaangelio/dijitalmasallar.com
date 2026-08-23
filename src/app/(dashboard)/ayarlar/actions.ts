@@ -26,12 +26,14 @@ export async function saveSettingsAction(input: unknown) {
     ["show_subscriber_count", parsed.data.showSubscriberCount],
     ["contact_email", parsed.data.contactEmail],
     ["maintenance_mode", parsed.data.maintenanceMode],
+    ["module_posts", parsed.data.modulePosts],
+    ["module_newsletter", parsed.data.moduleNewsletter],
+    ["module_ads", parsed.data.moduleAds],
+    ["module_analytics", parsed.data.moduleAnalytics],
   ].map(([key, value]) => ({ key, value }));
   const { error } = await access.admin.from("site_settings").upsert(entries, { onConflict: "key" });
   if (error) return { success: false, message: "Ayarlar kaydedilemedi." };
 
-  revalidatePath("/ayarlar");
-  revalidatePath("/");
-  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   return { success: true, message: "Ayarlar kaydedildi." };
 }

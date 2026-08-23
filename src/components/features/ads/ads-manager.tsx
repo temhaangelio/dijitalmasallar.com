@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { showToast } from "@/components/ui/toast";
 import type { Advertisement } from "@/services/ads";
 
 function hostname(value: string) { try { return new URL(value).hostname; } catch { return value; } }
@@ -24,7 +25,6 @@ export function AdsManager({ ads }: { ads: Advertisement[] }) {
   const [image, setImage] = useState<File | null>(null);
   const [active, setActive] = useState(true);
   const [uploadKey, setUploadKey] = useState(0);
-  const [message, setMessage] = useState<string | null>(null);
   const [adToDelete, setAdToDelete] = useState<Advertisement | null>(null);
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -35,7 +35,7 @@ export function AdsManager({ ads }: { ads: Advertisement[] }) {
     if (image) formData.set("image", image);
     startTransition(async () => {
       const result = await createAdAction(formData);
-      setMessage(result.message);
+      showToast(result.message, result.success ? "success" : "error");
       if (result.success) {
         form.reset(); setImage(null); setActive(true); setUploadKey((value) => value + 1); router.refresh();
       }
@@ -43,17 +43,17 @@ export function AdsManager({ ads }: { ads: Advertisement[] }) {
   }
 
   function toggle(ad: Advertisement, checked: boolean) {
-    startTransition(async () => { const result = await toggleAdAction(ad.id, checked); setMessage(result.message); if (result.success) router.refresh(); });
+    startTransition(async () => { const result = await toggleAdAction(ad.id, checked); showToast(result.message, result.success ? "success" : "error"); if (result.success) router.refresh(); });
   }
 
   function updateLanguage(ad: Advertisement, language: "tr" | "en") {
-    startTransition(async () => { const result = await updateAdLanguageAction(ad.id, language); setMessage(result.message); if (result.success) router.refresh(); });
+    startTransition(async () => { const result = await updateAdLanguageAction(ad.id, language); showToast(result.message, result.success ? "success" : "error"); if (result.success) router.refresh(); });
   }
 
   async function removeSelected() {
     if (!adToDelete) return false;
     const result = await deleteAdAction(adToDelete.id);
-    setMessage(result.message);
+    showToast(result.message, result.success ? "success" : "error");
     if (result.success) router.refresh();
     return result.success;
   }
@@ -73,7 +73,6 @@ export function AdsManager({ ads }: { ads: Advertisement[] }) {
           <FormField label="Gösterileceği dil" htmlFor="ad-language" hint="Reklam yalnızca seçilen dildeki ziyaretçi akışında gösterilir."><Select id="ad-language" name="language" defaultValue="tr"><option value="tr">Türkçe</option><option value="en">English</option></Select></FormField>
           <FormField label="Reklam görseli" htmlFor="ad-image" hint="İsteğe bağlı · JPG, PNG veya WebP · en fazla 5 MB"><FileUpload key={uploadKey} onChange={setImage} label="Reklam görseli seç" /></FormField>
           <div className="flex items-center justify-between rounded-2xl bg-[#f7f7f7] p-4"><div><strong className="block text-sm">Hemen yayınla</strong><small className="mt-1 block text-[#a1a1a1]">Kapatırsanız reklam taslak olarak saklanır.</small></div><Switch checked={active} onCheckedChange={setActive} label="Reklamı hemen yayınla" /></div>
-          {message && <p aria-live="polite" className="rounded-2xl bg-[#f5f5f5] p-3 text-sm">{message}</p>}
           <Button type="submit" disabled={pending} className="w-full">{pending ? "Kaydediliyor…" : "Reklamı ekle"}</Button>
         </form>
       </Card>
