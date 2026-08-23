@@ -22,20 +22,37 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
   const isEnglish = language === "en";
   const rssHref = isEnglish ? "/rss.xml" : "/rss.xml?lang=tr";
   const about = isEnglish ? settings.aboutTextEn || settings.descriptionEn : settings.aboutText || settings.description;
+  const paragraphs = about.split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
 
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
-      <main className="w-full max-w-[720px] pb-10 pt-14 sm:pt-20">
-        <section className="visitor-panel rounded-panel bg-surface p-6 sm:p-10">
-          <p className="visitor-muted text-[11px] font-bold uppercase tracking-[.14em] text-muted">{isEnglish ? "About us" : "Biz kimiz"}</p>
-          <h1 className="visitor-heading mt-4 text-[32px] font-semibold leading-tight tracking-[-.045em] sm:text-[40px]">{isEnglish ? "About" : "Hakkında"}</h1>
-          <p className="visitor-copy mt-7 max-w-[620px] text-[18px] leading-8 text-ink [text-wrap:pretty]">{about}</p>
-          <div className="mt-10 border-t border-line pt-7">
-            <h2 className="visitor-heading text-[18px] font-semibold">RSS</h2>
-            <p className="visitor-copy mt-2 max-w-[560px] text-[15px] leading-7 text-muted">{isEnglish ? "Follow every note in your preferred RSS reader." : "Tüm notları tercih ettiğiniz RSS okuyucusundan takip edin."}</p>
-            <a href={rssHref} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-surface-2 px-5 text-sm font-semibold text-ink transition-colors hover:bg-line"><Rss className="size-4" aria-hidden="true" />{settings.domain}{rssHref}</a>
-          </div>
-        </section>
+      <main className="w-full max-w-[720px] pb-14 pt-12 sm:pb-20 sm:pt-20">
+        <article>
+          <header className="relative border-b border-line-strong pb-10 sm:pb-14">
+            <div className="mb-8 flex items-center gap-3">
+              <span className="size-2 rounded-full bg-ink" aria-hidden="true" />
+              <p className="visitor-muted text-[11px] font-bold uppercase tracking-[.18em] text-muted">{settings.siteName}</p>
+            </div>
+            <h1 className="visitor-heading max-w-[650px] text-[52px] font-semibold leading-[.95] tracking-[-.065em] sm:text-[76px]">{isEnglish ? "About" : "Hakkında"}</h1>
+          </header>
+
+          <section className="grid gap-8 border-b border-line-strong py-10 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-12 sm:py-14" aria-label={isEnglish ? "About diji.news" : "diji.news hakkında"}>
+            <p className="visitor-muted pt-1 text-[11px] font-bold uppercase tracking-[.16em] text-muted">{isEnglish ? "What we do" : "Ne yapıyoruz"}</p>
+            <div className="space-y-6">
+              {paragraphs.map((paragraph, index) => (
+                <p key={`${paragraph.slice(0, 24)}-${index}`} className="visitor-copy text-[20px] font-normal leading-[1.75] tracking-[-.018em] text-ink [text-wrap:pretty] sm:text-[22px]">{paragraph}</p>
+              ))}
+            </div>
+          </section>
+
+          <section className="flex flex-col gap-6 py-8 sm:flex-row sm:items-center sm:justify-between sm:py-10" aria-labelledby="about-rss-title">
+            <div>
+              <h2 id="about-rss-title" className="visitor-heading text-[18px] font-semibold tracking-[-.025em]">{isEnglish ? "Follow the feed" : "Akışı takip edin"}</h2>
+              <p className="visitor-muted mt-1.5 text-sm leading-6 text-muted">{isEnglish ? "Every note, directly in your RSS reader." : "Her not doğrudan RSS okuyucunuza gelsin."}</p>
+            </div>
+            <a href={rssHref} className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-line-strong bg-surface px-5 text-sm font-semibold text-ink shadow-[0_2px_8px_rgba(0,0,0,.04)] transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft"><Rss className="size-4" aria-hidden="true" />RSS</a>
+          </section>
+        </article>
       </main>
     </VisitorShell>
   );
