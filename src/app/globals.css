@@ -167,6 +167,11 @@ html[data-visitor-theme="dark"] .visitor-page {
   --focus-ring: #f2f2f2;
 }
 
+/* Visitor font preferences are intentionally scoped away from the admin panel. */
+html[data-visitor-font="modern"] .visitor-page { font-family: var(--font-geist), Arial, sans-serif; }
+html[data-visitor-font="classic"] .visitor-page { font-family: Georgia, "Times New Roman", serif; letter-spacing: -.006em; }
+html[data-visitor-font="mono"] .visitor-page { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; letter-spacing: -.02em; }
+
 @keyframes diji-loading-orbit {
   0%, 100% { transform: translate(0, 0); }
   25% { transform: translate(20px, 0); }

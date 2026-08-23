@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Mail, Rss } from "lucide-react";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
+import { FontPicker } from "@/components/features/visitor/font";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorBackLink, VisitorShell } from "@/components/layout/visitor-shell";
-import { getVisitorLanguage } from "@/lib/visitor-language";
+import { resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,11 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AboutPage({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {
   const settingsPromise = getSiteSettings();
   const query = await searchParams;
-  const [language, settings] = await Promise.all([getVisitorLanguage(query.lang), settingsPromise]);
+  const language = resolveVisitorLanguage(query.lang);
+  const settings = await settingsPromise;
   const isEnglish = language === "en";
   // Falls back to the one-line description so the page still reads correctly before the dedicated
   // about text has been filled in.
-  const rssHref = isEnglish ? "/rss.xml?lang=en" : "/rss.xml";
+  const rssHref = isEnglish ? "/rss.xml" : "/rss.xml?lang=tr";
   const rssLabel = `${settings.domain}${rssHref}`;
   const about = isEnglish
     ? settings.aboutTextEn || settings.descriptionEn
@@ -51,12 +53,20 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
                 <LanguagePicker language={language} />
               </div>
 
-              <div className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+              <div className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
                 <div className="min-w-0">
                   <strong className="visitor-copy block text-[15px]">{isEnglish ? "Theme" : "Tema"}</strong>
                   <p className="visitor-muted mt-1 text-sm text-muted">{isEnglish ? "“System” follows your device setting." : "“Sistem” cihaz ayarınızı takip eder."}</p>
                 </div>
                 <ThemePicker language={language} />
+              </div>
+
+              <div className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                <div className="min-w-0">
+                  <strong className="visitor-copy block text-[15px]">{isEnglish ? "Font" : "Yazı tipi"}</strong>
+                  <p className="visitor-muted mt-1 text-sm text-muted">{isEnglish ? "Choose the typeface used across visitor pages." : "Ziyaretçi sayfalarında kullanılacak yazı tipini seçin."}</p>
+                </div>
+                <FontPicker language={language} />
               </div>
 
             </div>

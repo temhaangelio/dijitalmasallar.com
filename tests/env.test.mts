@@ -64,3 +64,41 @@ describe("isSupabaseConfigured", () => {
     if (key) process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = key; else delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   });
 });
+
+// ---------------------------------------------------------------------------
+
+import { defaultVisitorLanguage, languageHref, resolveVisitorLanguage } from "../src/lib/visitor-language.ts";
+
+describe("resolveVisitorLanguage", () => {
+  test("English is the primary language", () => {
+    assert.equal(defaultVisitorLanguage, "en");
+    assert.equal(resolveVisitorLanguage(undefined), "en");
+    assert.equal(resolveVisitorLanguage(null), "en");
+    assert.equal(resolveVisitorLanguage(""), "en");
+    assert.equal(resolveVisitorLanguage("en"), "en");
+  });
+
+  test("only an explicit tr switches to Turkish", () => {
+    assert.equal(resolveVisitorLanguage("tr"), "tr");
+    assert.equal(resolveVisitorLanguage("TR"), "en");
+    assert.equal(resolveVisitorLanguage("de"), "en");
+  });
+});
+
+describe("languageHref", () => {
+  test("leaves the default language out of the URL", () => {
+    assert.equal(languageHref("/", "en"), "/");
+    assert.equal(languageHref("/hakkinda", "en"), "/hakkinda");
+    assert.equal(languageHref("/haber/abc", "en"), "/haber/abc");
+  });
+
+  test("marks Turkish explicitly", () => {
+    assert.equal(languageHref("/", "tr"), "/?lang=tr");
+    assert.equal(languageHref("/hakkinda", "tr"), "/hakkinda?lang=tr");
+  });
+
+  test("merges extra query values", () => {
+    assert.equal(languageHref("/", "en", { limit: 20 }), "/?limit=20");
+    assert.equal(languageHref("/", "tr", { limit: 20 }), "/?lang=tr&limit=20");
+  });
+});

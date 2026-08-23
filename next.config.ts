@@ -43,6 +43,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  async redirects() {
+    // The public routes were renamed when English became the primary language. Kept permanently so
+    // shared links and search results do not break.
+    return [{ source: "/hakkinda", destination: "/about", permanent: true }];
+  },
 };
 
 export default nextConfig;

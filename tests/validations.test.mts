@@ -101,6 +101,7 @@ describe("settings validation", () => {
   const base = {
     siteName: "diji.news", domain: "diji.news",
     description: "Türkçe açıklama metni.", descriptionEn: "English description text.",
+    aboutText: "Hakkında metni en az yirmi karakter uzunluğunda olmalı.", aboutTextEn: "The about text has to be at least twenty characters long.",
     language: "tr", feedLayout: "short", postsPerPage: 7,
     newsletterEnabled: true, newsletterTitle: "Bülten", newsletterDescription: "Haftalık notlar",
     showSubscriberCount: true, contactEmail: "merhaba@diji.news", maintenanceMode: false,
@@ -115,6 +116,11 @@ describe("settings validation", () => {
     assert.equal(settingsSchema.safeParse({ ...base, postsPerPage: 2 }).success, false);
     assert.equal(settingsSchema.safeParse({ ...base, postsPerPage: 21 }).success, false);
     assert.equal(settingsSchema.safeParse({ ...base, postsPerPage: 7.5 }).success, false);
+  });
+
+  test("rejects an about text shorter than 20 characters", () => {
+    assert.equal(settingsSchema.safeParse({ ...base, aboutText: "kısa" }).success, false);
+    assert.equal(settingsSchema.safeParse({ ...base, aboutTextEn: "short" }).success, false);
   });
 
   test("rejects unknown enum values and a malformed contact address", () => {

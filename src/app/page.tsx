@@ -9,7 +9,7 @@ import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
-import { getVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
 import type { ReactNode } from "react";
 
@@ -48,28 +48,32 @@ function feedContent(post: Post): ReactNode[] {
   return nodes.length ? nodes : [content];
 }
 
-function relativeTime(value: string, language: VisitorLanguage) {
-  const elapsed = Date.now() - new Date(value).getTime();
-  const hours = Math.max(1, Math.floor(elapsed / 3_600_000));
-  if (hours < 24) return language === "en" ? `${hours}h ago` : `${hours} saat önce`;
-  return language === "en" ? `${Math.floor(hours / 24)}d ago` : `${Math.floor(hours / 24)} gün önce`;
+function timeLabel(value: string, language: VisitorLanguage) {
+  return new Intl.DateTimeFormat(language === "en" ? "en-US" : "tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Europe/Istanbul",
+  }).format(new Date(value));
 }
 
 function dateLabel(value: string, language: VisitorLanguage) {
   const locale = language === "en" ? "en-US" : "tr-TR";
-  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", timeZone: "Europe/Istanbul" })
-    .format(new Date(value))
-    .toLocaleUpperCase(locale);
+  return new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Istanbul" }).format(new Date(value));
+}
+
+function dateKey(value: string) {
+  return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(value));
 }
 
 function NoteCard({ post, layout, language }: { post: Post; layout: SiteSettings["feedLayout"]; language: VisitorLanguage }) {
-  const layoutClass = layout === "classic" ? "rounded-none border-b border-line-strong bg-transparent px-2 py-7" : layout === "card" ? "rounded-panel border border-line bg-surface p-6 shadow-card" : "rounded-panel bg-surface p-6";
+  const layoutClass = layout === "card" ? "border border-line shadow-card" : layout === "classic" ? "border border-line-strong" : "border border-transparent";
   return (
-    <article className={`visitor-card group flex flex-col gap-3.5 transition-colors hover:bg-surface-2 ${layoutClass}`}>
-      <time dateTime={post.published_at ?? post.created_at} className="visitor-muted text-[13px] font-medium text-muted">{relativeTime(post.published_at ?? post.created_at, language)}</time>
-      <Link href={`/haber/${post.id}?lang=${post.language === "en" ? "en" : "tr"}`} className="visitor-copy m-0 text-[19px] font-normal leading-[1.6] text-ink [text-wrap:pretty] hover:opacity-70">{feedContent(post)}</Link>
-      <div className="text-[13px] font-medium">
-        {post.source_url ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source font-semibold tracking-[.04em] text-ink hover:underline">{post.source_name || (language === "en" ? "Source" : "Kaynak")}</a> : <span className="visitor-source font-semibold tracking-[.04em] text-ink">{post.source_name || (language === "en" ? "Source" : "Kaynak")}</span>}
+    <article className={`visitor-card group rounded-panel bg-surface p-5 transition duration-300 hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-soft sm:p-6 ${layoutClass}`}>
+      <Link href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")} className="visitor-copy block text-[19px] font-normal leading-[1.65] text-ink [text-wrap:pretty] transition-opacity hover:opacity-65">{feedContent(post)}</Link>
+      <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-[12px] font-semibold">
+        {post.source_url ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{post.source_name || (language === "en" ? "Source" : "Kaynak")} ↗</a> : <span className="visitor-source tracking-[.04em] text-muted">{post.source_name || (language === "en" ? "Source" : "Kaynak")}</span>}
+        <span className="text-faint transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
       </div>
     </article>
   );
@@ -117,7 +121,7 @@ function randomAdSlots(postCount: number, ads: Advertisement[], excludedSlots: n
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ lang?: string; limit?: string }> }) {
   const settings = await getSiteSettings();
   const params = await searchParams;
-  const language = await getVisitorLanguage(params.lang);
+  const language = resolveVisitorLanguage(params.lang);
   const requestedLimit = Number.parseInt(params.limit ?? "", 10);
   const visiblePostCount = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, settings.postsPerPage), 500) : settings.postsPerPage;
   if (settings.maintenanceMode) return <main className="grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-4xl font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
@@ -131,25 +135,35 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   return (
     <VisitorShell language={language} siteName={settings.siteName} action={<VisitorAboutLink language={language} />}>
 
-      <header id="hakkinda" className="flex w-full max-w-[720px] flex-col items-center gap-[18px] px-2 pb-10 pt-14 text-center">
-        <h1 className="visitor-heading m-0 max-w-[560px] text-[24px] font-semibold leading-snug tracking-[-.03em] [text-wrap:pretty]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
+      <header className="flex w-full max-w-[760px] flex-col items-center px-2 pb-10 pt-14 text-center">
+        <h1 className="visitor-heading m-0 max-w-[620px] text-[30px] font-semibold leading-[1.2] tracking-[-.045em] [text-wrap:pretty] sm:text-[36px]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
       </header>
 
-      <main className="flex w-full max-w-[720px] flex-col gap-3">
-        {posts.length ? posts.map((post, index) => (
-          <div className="contents" key={post.id}>
-            {(index === 3 || index === 5) && <div className="visitor-muted px-2 pb-2 pt-5 text-xs font-semibold tracking-[.16em] text-muted">{dateLabel(post.published_at ?? post.created_at, language)}</div>}
-            <NoteCard post={post} layout={settings.feedLayout} language={language} />
-            {adSlots.has(index) && <AdCard ad={adSlots.get(index)!} />}
-            {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
-              <NewsletterPanel title={settings.newsletterTitle} description={settings.newsletterDescription} />
-            )}
+      <main className="flex w-full max-w-[720px] flex-col">
+        <div className="relative before:absolute before:bottom-5 before:left-[65px] before:top-2 before:w-px before:bg-line-strong sm:before:-left-[23px]">
+        {posts.length ? posts.map((post, index) => {
+          const publishedAt = post.published_at ?? post.created_at;
+          const startsNewDay = index === 0 || dateKey(publishedAt) !== dateKey(posts[index - 1].published_at ?? posts[index - 1].created_at);
+          return (
+          <div className="pb-5" key={post.id}>
+            {startsNewDay && <div className="visitor-muted mb-3 pl-[84px] pt-1 text-[11px] font-bold uppercase tracking-[.13em] text-muted sm:pl-0">{dateLabel(publishedAt, language)}</div>}
+            <div className="relative pl-[84px] sm:pl-0">
+              <time dateTime={publishedAt} title={dateLabel(publishedAt, language)} className="visitor-muted absolute left-0 top-5 w-[50px] text-right font-mono text-[12px] font-semibold tabular-nums tracking-[.06em] text-muted sm:-left-[104px] sm:w-[64px]">{timeLabel(publishedAt, language)}</time>
+              <span className="absolute left-[60px] top-[23px] z-10 size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] sm:-left-7" aria-hidden="true" />
+              <NoteCard post={post} layout={settings.feedLayout} language={language} />
+              {adSlots.has(index) && <div className="mt-3"><AdCard ad={adSlots.get(index)!} /></div>}
+              {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
+                <div className="mt-3"><NewsletterPanel title={settings.newsletterTitle} description={settings.newsletterDescription} /></div>
+              )}
+            </div>
           </div>
-        )) : <div className="visitor-panel visitor-muted rounded-panel bg-surface px-6 py-12 text-center text-muted">{language === "en" ? "No English posts have been published yet." : "Henüz Türkçe yazı yayınlanmadı."}</div>}
+          );
+        }) : <div className="visitor-panel visitor-muted rounded-panel bg-surface px-6 py-12 text-center text-muted">{language === "en" ? "No English posts have been published yet." : "Henüz Türkçe yazı yayınlanmadı."}</div>}
+        </div>
 
         {hasMorePosts && <div className="flex justify-center pb-2 pt-6">
           <LoadMoreButton
-            href={`/?lang=${language}&limit=${Math.min(visiblePostCount + settings.postsPerPage, 500)}`}
+            href={languageHref("/", language, { limit: Math.min(visiblePostCount + settings.postsPerPage, 500) })}
             label={language === "en" ? "More notes" : "Daha fazla not"}
           />
         </div>}

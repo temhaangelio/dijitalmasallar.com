@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorBackLink, VisitorShell } from "@/components/layout/visitor-shell";
+import { languageHref } from "@/lib/visitor-language";
 import { getNextPublishedPost, getPublishedPostById } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -81,7 +82,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
         </article>
 
         {nextPost && (
-          <Link href={`/haber/${nextPost.id}?lang=${language}`} className="visitor-panel visitor-next group mt-3 block rounded-panel border border-line bg-surface p-6 transition-colors hover:bg-surface-2 sm:p-8">
+          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-panel visitor-next group mt-3 block rounded-panel border border-line bg-surface p-6 transition-colors hover:bg-surface-2 sm:p-8">
             <span className="visitor-muted text-[11px] font-bold tracking-[.16em] text-muted">{language === "en" ? "NEXT STORY" : "SONRAKİ HABER"}</span>
             <div className="mt-4 flex items-end justify-between gap-6">
               <p className="visitor-copy max-w-[570px] text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty]">{firstSentence(nextPost.body)}</p>

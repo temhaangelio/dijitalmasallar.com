@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Segmented, segmentClassName } from "@/components/ui/segmented";
-import type { VisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
 const languages: { value: VisitorLanguage; label: string }[] = [
   { value: "tr", label: "Türkçe" },
@@ -13,7 +13,7 @@ const languages: { value: VisitorLanguage; label: string }[] = [
  * Plain links rather than a client-side switch: the language already travels through the `?lang`
  * query parameter on every internal link, so the server keeps deciding what to render.
  */
-export function LanguagePicker({ language, path = "/hakkinda" }: { language: VisitorLanguage; path?: string }) {
+export function LanguagePicker({ language, path = "/about" }: { language: VisitorLanguage; path?: string }) {
   return (
     <Segmented className="w-fit" role="group" label={language === "en" ? "Language" : "Dil"}>
       {languages.map((item) => {
@@ -21,7 +21,7 @@ export function LanguagePicker({ language, path = "/hakkinda" }: { language: Vis
         return (
           <Link
             key={item.value}
-            href={`${path}?lang=${item.value}`}
+            href={languageHref(path, item.value)}
             hrefLang={item.value}
             aria-current={selected ? "true" : undefined}
             data-active={selected}

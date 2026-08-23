@@ -1,4 +1,5 @@
 import { getAppUrl } from "@/lib/env";
+import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -17,17 +18,16 @@ function escapeXml(value: string) {
 }
 
 export async function GET(request: Request) {
-  const requested = new URL(request.url).searchParams.get("lang");
-  const language = requested === "en" ? "en" : "tr";
+  const language = resolveVisitorLanguage(new URL(request.url).searchParams.get("lang"));
   const [settings, posts] = await Promise.all([getSiteSettings(), getPosts(1, itemLimit, language)]);
   const appUrl = getAppUrl();
-  const feedUrl = `${appUrl}/rss.xml${language === "en" ? "?lang=en" : ""}`;
+  const feedUrl = `${appUrl}${languageHref("/rss.xml", language)}`;
   const description = language === "en" ? settings.descriptionEn : settings.description;
 
   const items = posts
     .filter((post) => post.status === "published")
     .map((post) => {
-      const link = `${appUrl}/haber/${post.id}?lang=${language}`;
+      const link = `${appUrl}${languageHref(`/haber/${post.id}`, language)}`;
       const published = new Date(post.published_at ?? post.created_at).toUTCString();
       return [
         "    <item>",
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(settings.siteName)}</title>
-    <link>${escapeXml(`${appUrl}/?lang=${language}`)}</link>
+    <link>${escapeXml(`${appUrl}${languageHref("/", language)}`)}</link>
     <description>${escapeXml(description)}</description>
     <language>${language}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>

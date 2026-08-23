@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
+import { FontScript } from "@/components/features/visitor/font";
 import { ThemeScript } from "@/components/features/visitor/theme";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
@@ -22,7 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The dark tokens themselves only apply inside `.visitor-page`.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /></head>
+      <head><ThemeScript /><FontScript /></head>
       <body className={geist.variable}>{children}<AppToaster /></body>
     </html>
   );
