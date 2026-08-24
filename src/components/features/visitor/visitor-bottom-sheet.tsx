@@ -25,7 +25,7 @@ export function VisitorBottomSheet({ open, title, closeLabel, onOpenChange, chil
       <section className="visitor-sheet-panel w-full max-w-[720px] overflow-hidden rounded-t-[30px] border border-line-strong bg-canvas text-ink shadow-modal sm:rounded-[30px]" role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
         <div className="flex justify-center pb-1 pt-3 sm:hidden" aria-hidden="true"><span className="h-1 w-10 rounded-full bg-line-strong" /></div>
         <header className="flex items-center justify-between border-b border-line px-5 py-4 sm:px-6 sm:py-5">
-          <h2 id={titleId} className="visitor-heading text-[22px] font-semibold tracking-[-.04em] sm:text-[24px]">{title}</h2>
+          <h2 id={titleId} className="visitor-heading text-[length:var(--vt-h3)] font-semibold tracking-[-.04em]">{title}</h2>
           <button autoFocus type="button" onClick={() => onOpenChange(false)} aria-label={closeLabel} className="grid size-10 place-items-center rounded-full border border-line-strong bg-surface transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft">
             <X size={18} aria-hidden="true" />
           </button>

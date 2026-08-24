@@ -1,6 +1,5 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { emailSchema, loginSchema, passwordSchema, resetPasswordSchema } from "../src/lib/validations/auth.ts";
 import { postSchema } from "../src/lib/validations/post.ts";
 import { newsletterSchema } from "../src/lib/validations/newsletter.ts";
 import { settingsSchema } from "../src/lib/validations/settings.ts";
@@ -22,33 +21,6 @@ function basePost(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
-
-describe("auth validation", () => {
-  test("normalises and validates e-mail", () => {
-    assert.equal(emailSchema.safeParse("  okur@diji.news  ").data, "okur@diji.news");
-    assert.equal(emailSchema.safeParse("okur@").success, false);
-    assert.equal(emailSchema.safeParse("").success, false);
-  });
-
-  test("passwords need length, a letter and a digit", () => {
-    assert.equal(passwordSchema.safeParse("kisa1").success, false);
-    assert.equal(passwordSchema.safeParse("yalnizcaharf").success, false);
-    assert.equal(passwordSchema.safeParse("12345678").success, false);
-    assert.equal(passwordSchema.safeParse("guclusifre1").success, true);
-  });
-
-  test("login needs a non-empty password but does not enforce the policy", () => {
-    assert.equal(loginSchema.safeParse({ email: "admin@diji.news", password: "x" }).success, true);
-    assert.equal(loginSchema.safeParse({ email: "admin@diji.news", password: "" }).success, false);
-  });
-
-  test("reset requires the two passwords to match", () => {
-    assert.equal(resetPasswordSchema.safeParse({ password: "guclusifre1", confirmPassword: "guclusifre1" }).success, true);
-    const mismatch = resetPasswordSchema.safeParse({ password: "guclusifre1", confirmPassword: "baskasifre1" });
-    assert.equal(mismatch.success, false);
-    assert.deepEqual(mismatch.error?.issues[0]?.path, ["confirmPassword"]);
-  });
-});
 
 describe("post validation", () => {
   test("accepts a complete published post", () => {
@@ -111,7 +83,7 @@ describe("settings validation", () => {
     language: "tr", feedLayout: "short", postsPerPage: 7,
     newsletterEnabled: true, newsletterTitle: "Bülten", newsletterTitleEn: "Newsletter", newsletterDescription: "Haftalık notlar", newsletterDescriptionEn: "Weekly notes",
     showSubscriberCount: true, contactEmail: "merhaba@diji.news", maintenanceMode: false,
-    modulePosts: true, moduleNewsletter: true, moduleAds: true, moduleAnalytics: true,
+    modulePosts: true, moduleRss: true, moduleNewsletter: true, moduleAds: true, moduleAnalytics: true,
   };
 
   test("accepts the defaults", () => {

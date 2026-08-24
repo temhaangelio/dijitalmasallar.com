@@ -21,7 +21,9 @@ export function LanguagePicker({ language, path = "/about", onNavigate }: { lang
         return (
           <Link
             key={item.value}
-            href={languageHref(path, item.value)}
+            // Keep the default language explicit for this one navigation. The proxy records it in
+            // a cookie, then ordinary English links can go back to their clean parameter-less URLs.
+            href={item.value === "en" ? `${languageHref(path, item.value)}${path.includes("?") ? "&" : "?"}lang=en` : languageHref(path, item.value)}
             hrefLang={item.value}
             onClick={onNavigate}
             aria-current={selected ? "true" : undefined}

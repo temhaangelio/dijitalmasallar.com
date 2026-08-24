@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FontPicker, FontSizePicker } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
+import { SourceBadgePicker } from "@/components/features/visitor/source-badge-preference";
 import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorBottomSheet } from "@/components/features/visitor/visitor-bottom-sheet";
 import type { VisitorLanguage } from "@/lib/visitor-language";
@@ -21,10 +22,18 @@ export function VisitorSettingsButton({ language }: { language: VisitorLanguage 
       </button>
       <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Page settings" : "Sayfa ayarları"} closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Language" : "Dil"}</p><LanguagePicker language={language} path={pathname} onNavigate={() => setOpen(false)} /></div>
-          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Theme" : "Tema"}</p><ThemePicker language={language} /></div>
-          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Font" : "Yazı tipi"}</p><FontPicker language={language} /></div>
-          <div className="relative rounded-field bg-surface p-4"><span className="absolute right-4 top-4 size-2 rounded-full bg-ink" aria-hidden="true" /><p className="visitor-copy mb-3 text-sm font-semibold">{isEnglish ? "Font size" : "Yazı boyutu"}</p><FontSizePicker language={language} /></div>
+          {[
+            { label: isEnglish ? "Language" : "Dil", control: <LanguagePicker language={language} path={pathname} onNavigate={() => setOpen(false)} /> },
+            { label: isEnglish ? "Theme" : "Tema", control: <ThemePicker language={language} /> },
+            { label: isEnglish ? "Font" : "Yazı tipi", control: <FontPicker language={language} /> },
+            { label: isEnglish ? "Font size" : "Yazı boyutu", control: <FontSizePicker language={language} /> },
+            { label: isEnglish ? "Source badge" : "Kaynak rozeti", control: <SourceBadgePicker language={language} />, wide: true },
+          ].map((row) => (
+            <div key={row.label} className={`rounded-field border border-line bg-surface p-4 ${row.wide ? "sm:col-span-2" : ""}`}>
+              <p className="visitor-muted mb-3 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.14em] text-faint">{row.label}</p>
+              {row.control}
+            </div>
+          ))}
         </div>
       </VisitorBottomSheet>
     </>

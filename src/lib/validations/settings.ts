@@ -19,6 +19,7 @@ export const settingsSchema = z.object({
   contactEmail: z.string().trim().email("Geçerli bir iletişim adresi girin."),
   maintenanceMode: z.boolean(),
   modulePosts: z.boolean(),
+  moduleRss: z.boolean(),
   moduleNewsletter: z.boolean(),
   moduleAds: z.boolean(),
   moduleAnalytics: z.boolean(),

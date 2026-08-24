@@ -1,12 +1,14 @@
+import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, Mail, Megaphone, Rss, Settings2 } from "lucide-react";
 import { Skeleton } from "@/components/feedback/states";
 
 const items = [
-  ["Dashboard", "/dashboard"],
-  ["Yazılar", "/yazilar"],
-  ["E-bülten", "/e-bulten"],
-  ["Reklamlar", "/reklamlar"],
-  ["İstatistik", "/istatistik"],
-  ["Ayarlar", "/ayarlar"],
+  ["Dashboard", "/dashboard", LayoutDashboard],
+  ["Yazılar", "/yazilar", FileText],
+  ["RSS", "/rss", Rss],
+  ["E-bülten", "/e-bulten", Mail],
+  ["Reklamlar", "/reklamlar", Megaphone],
+  ["İstatistik", "/istatistik", ChartColumn],
+  ["Ayarlar", "/ayarlar", Settings2],
 ] as const;
 
 /**
@@ -26,15 +28,19 @@ export function ShellSkeleton({ active, children }: { active: string; children: 
           {/* The real brand mark is the one solid, fully-coloured thing on an otherwise grey page,
               so the placeholder copies its 40px box and 13px radius instead of the logo itself. */}
           <Skeleton className="size-10 shrink-0 rounded-[13px]" />
-          <Skeleton className="h-4 w-24" />
+          <Skeleton className="sidebar-expanded-only h-4 w-24" />
         </div>
         <nav className="flex flex-col gap-1">
-          {items.map(([label, href]) => (
-            <div key={href} className={`flex h-11 items-center rounded-chip px-4 text-[15px] ${active === href ? "bg-ink font-semibold text-white" : "font-medium text-ink-2"}`}>
-              {label}
+          {items.map(([label, href, Icon]) => (
+            <div key={href} className={`sidebar-item text-[15px] ${active === href ? "bg-ink font-semibold text-white" : "font-medium text-ink-2"}`}>
+              <Icon size={18} className="shrink-0" />
+              <span className="sidebar-expanded-only">{label}</span>
             </div>
           ))}
-          <div className="mt-2 flex h-11 items-center px-4 text-[15px] font-medium text-muted">Siteyi gör</div>
+          <div className="sidebar-item mt-2 text-[15px] font-medium text-muted">
+            <ArrowUpRight size={18} className="shrink-0" />
+            <span className="sidebar-expanded-only">Siteyi gör</span>
+          </div>
         </nav>
       </aside>
       <div className="min-w-0 flex-1">

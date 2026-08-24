@@ -108,6 +108,21 @@
   .brand-mark-inverse { background: var(--color-surface); }
   .brand-mark-inverse::after { background: var(--color-ink); }
   .main { min-width: 0; flex: 1; padding: 32px 40px 40px 12px; }
+
+  /*
+   * Collapsed sidebar. The attribute is stamped on <html> by `AdminSidebarScript` before the first
+   * paint, and React never renders the two states differently — which is what keeps a collapsed
+   * sidebar from flashing open on every navigation.
+   *
+   * The row's box model lives here rather than as `h-11 px-4 gap-3` at the call site on purpose:
+   * Tailwind emits its utilities into `@layer utilities`, which outranks this layer whatever the
+   * selector's specificity, so a `padding-inline: 0` here could never have beaten a `px-4` there.
+   */
+  .sidebar-item { display: flex; align-items: center; gap: 12px; height: 44px; padding-inline: 16px; border-radius: var(--radius-chip); }
+
+  html[data-admin-sidebar="collapsed"] .sidebar { width: 84px; flex-basis: 84px; padding-left: 22px; padding-right: 22px; }
+  html[data-admin-sidebar="collapsed"] .sidebar-expanded-only { display: none; }
+  html[data-admin-sidebar="collapsed"] .sidebar-item { justify-content: center; gap: 0; padding-inline: 0; }
   .page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 0 4px 24px; }
   .page-title { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -.045em; line-height: 1; }
   .page-note { margin-top: 6px; color: var(--color-muted); font-size: 15px; font-weight: 500; }
@@ -180,30 +195,53 @@ html[data-visitor-font="mono"] .visitor-page { font-family: "SFMono-Regular", Co
 html[data-visitor-font="modern"] .visitor-markdown { font-family: var(--font-geist), Arial, sans-serif; }
 html[data-visitor-font="classic"] .visitor-markdown { font-family: Georgia, "Times New Roman", serif; }
 html[data-visitor-font="mono"] .visitor-markdown { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+html[data-visitor-source-badges="hide"] .visitor-source-badge { display: none; }
 
-html[data-visitor-font-size="small"] .visitor-page { --visitor-font-scale: .9; }
+html[data-visitor-font-size="small"] .visitor-page { --visitor-font-scale: .92; }
 html[data-visitor-font-size="normal"] .visitor-page { --visitor-font-scale: 1; }
 html[data-visitor-font-size="large"] .visitor-page { --visitor-font-scale: 1.12; }
 
+/*
+ * Visitor type scale.
+ *
+ * Every piece of text on a public page picks a step from this scale instead of a literal size, for
+ * two reasons. The reader's size preference multiplies the whole scale in one place — the previous
+ * approach overrode a hand-written list of Tailwind `text-[Npx]` utilities and silently skipped
+ * every size that was not on the list, so the control did nothing on the about, contact, newsletter
+ * and article pages. And the responsive steps live here rather than as `sm:` variants scattered
+ * through the markup, so a heading's growth curve is defined once.
+ *
+ * `clamp()` interpolates on viewport width, so the large steps need no breakpoints at all. The
+ * small steps are flat: labels and metadata should not grow with the window.
+ */
+.visitor-page {
+  --vt-eyebrow: calc(11px * var(--visitor-font-scale, 1));
+  --vt-meta: calc(12px * var(--visitor-font-scale, 1));
+  --vt-ui: calc(13px * var(--visitor-font-scale, 1));
+  --vt-small: calc(15px * var(--visitor-font-scale, 1));
+  --vt-body: calc(clamp(18px, 17.1px + .28vw, 19px) * var(--visitor-font-scale, 1));
+  --vt-lead: calc(clamp(19px, 17px + .55vw, 21px) * var(--visitor-font-scale, 1));
+  --vt-h4: calc(clamp(18px, 17.1px + .28vw, 20px) * var(--visitor-font-scale, 1));
+  --vt-h3: calc(clamp(22px, 19.5px + .8vw, 26px) * var(--visitor-font-scale, 1));
+  --vt-h2: calc(clamp(27px, 22px + 1.6vw, 34px) * var(--visitor-font-scale, 1));
+  --vt-h1: calc(clamp(32px, 25px + 2.2vw, 42px) * var(--visitor-font-scale, 1));
+  --vt-display: calc(clamp(44px, 22px + 7vw, 72px) * var(--visitor-font-scale, 1));
+}
+
+/* Shared form and control primitives are used inside visitor panels too, and they size themselves
+   with Tailwind's named steps rather than the scale above. These two keep them in step with the
+   reader preference; anything larger inside a visitor page uses a `--vt-*` step directly. */
 html[data-visitor-font-size] .visitor-page .text-xs { font-size: calc(.75rem * var(--visitor-font-scale)); }
 html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-base { font-size: calc(1rem * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[10px\] { font-size: calc(10px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[11px\] { font-size: calc(11px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[12px\] { font-size: calc(12px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[13px\] { font-size: calc(13px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[15px\] { font-size: calc(15px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[18px\] { font-size: calc(18px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[19px\] { font-size: calc(19px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[24px\] { font-size: calc(24px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[30px\] { font-size: calc(30px * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-\[36px\] { font-size: calc(36px * var(--visitor-font-scale)); }
 
-/* Article markdown has its own typography, so it follows the reader scale directly instead of
-   relying on Tailwind's fixed text-size utility emitted by the shared preview component. */
-.visitor-page .visitor-markdown > div { font-size: calc(19px * var(--visitor-font-scale, 1)); font-weight: 400; line-height: 1.65; }
-.visitor-page .visitor-markdown h1 { font-size: calc(30px * var(--visitor-font-scale, 1)); }
-.visitor-page .visitor-markdown h2 { font-size: calc(24px * var(--visitor-font-scale, 1)); }
+/* Article markdown is rendered through the shared preview component, so its typography is bound
+   here instead of at the call site. */
+.visitor-page .visitor-markdown > div { font-size: var(--vt-body); font-weight: 400; line-height: 1.7; }
+.visitor-page .visitor-markdown h1 { font-size: var(--vt-h2); letter-spacing: -.04em; }
+.visitor-page .visitor-markdown h2 { font-size: var(--vt-h3); letter-spacing: -.03em; }
+.visitor-page .visitor-markdown h1 + *, .visitor-page .visitor-markdown h2 + * { margin-top: .35em; }
+.visitor-page .visitor-markdown a { text-decoration-color: var(--color-line-strong); transition: text-decoration-color .2s; }
+.visitor-page .visitor-markdown a:hover { text-decoration-color: currentcolor; }
 
 @keyframes diji-loading-orbit {
   0%, 100% { transform: translate(0, 0); }
@@ -268,6 +306,36 @@ html[data-visitor-font-size] .visitor-page .text-\[36px\] { font-size: calc(36px
     filter: blur(18px);
     background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-surface) 88%, transparent) 0, transparent 70%);
   }
+  /* Selection follows the theme instead of the browser's blue, which clashed with the greyscale. */
+  .visitor-page ::selection { background: var(--color-highlight); color: var(--color-ink); }
+
+  /*
+   * Feed timeline. Desktop only: on a phone the rail and its timestamp gutter cost 32px of the
+   * card's measure and pushed every note off-centre, so the timestamp moves inline above the card
+   * instead and the notes run edge to edge.
+   *
+   * The rail fades out at both ends rather than stopping dead, so it reads as a continuing thread.
+   */
+  .visitor-timeline { position: relative; }
+  .visitor-timeline::before {
+    content: "";
+    position: absolute;
+    top: 4px;
+    bottom: 24px;
+    left: -23px;
+    width: 1px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--color-line-strong) 56px, var(--color-line-strong) calc(100% - 96px), transparent);
+  }
+  @media (max-width: 639px) { .visitor-timeline::before { content: none; } }
+
+  /* The ticker text slides in and out of a soft edge; it used to be cut off by a hard shadow
+     bleeding out of the "Live" chip. */
+  .live-news-viewport {
+    mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 72px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 72px), transparent 100%);
+  }
+
   .visitor-sheet-backdrop { animation: visitor-sheet-backdrop-in .22s ease-out both; }
   .visitor-sheet-panel { animation: visitor-sheet-panel-in .3s cubic-bezier(.2,.8,.2,1) both; }
   .visitor-highlight { background: var(--color-highlight); }

@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useId, useState, useSyncExternalStore, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { createPostAction, updatePostAction } from "@/app/(dashboard)/yazilar/actions";
 import { FormField } from "@/components/forms/form-field";
@@ -29,6 +30,45 @@ function localDateTime(value: string | null) {
 type PostTranslations = Partial<Record<"tr" | "en", Post>>;
 const visibilityPreferenceKey = "diji-news-new-post-visibility";
 
+/*
+ * Whether the publish panel is open is a preference that should survive navigating between the new
+ * and edit screens, so it lives in localStorage. It is read through `useSyncExternalStore` rather
+ * than an effect for the usual reason: localStorage is an external store, and the server render has
+ * to start from a known value.
+ */
+const panelPreferenceKey = "diji-news-post-publish-panel";
+const panelListeners = new Set<() => void>();
+
+function subscribeToPanel(onChange: () => void) {
+  panelListeners.add(onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    panelListeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function readPanelOpen() {
+  try {
+    return localStorage.getItem(panelPreferenceKey) !== "closed";
+  } catch {
+    return true;
+  }
+}
+
+/** The server cannot know the preference, so it renders the panel open and React reconciles. */
+function readPanelOpenOnServer() {
+  return true;
+}
+
+function setPanelOpen(open: boolean) {
+  try { localStorage.setItem(panelPreferenceKey, open ? "open" : "closed"); } catch { /* Storage may be unavailable. */ }
+  panelListeners.forEach((listener) => listener());
+}
+
+/** Fields that live in the publish panel, so a validation failure there can reopen it. */
+const panelFields = ["category", "sourceName", "status", "scheduledAt", "publishedAt"] as const;
+
 export function PostForm({ posts }: { posts?: PostTranslations }) {
   const router = useRouter();
   const [activeLanguage, setActiveLanguage] = useState<"tr" | "en">("tr");
@@ -52,6 +92,8 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
       publishedAt: sharedPost?.status === "published" ? localDateTime(sharedPost.created_at) : "",
     },
   });
+  const panelOpen = useSyncExternalStore(subscribeToPanel, readPanelOpen, readPanelOpenOnServer);
+  const panelId = useId();
   const status = useWatch({ control, name: "status" });
   const showTitle = useWatch({ control, name: "showTitle" });
   const showExcerpt = useWatch({ control, name: "showExcerpt" });
@@ -89,21 +131,35 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   const onInvalid = (formErrors: typeof errors) => {
     if (formErrors.tr) setActiveLanguage("tr");
     else if (formErrors.en) setActiveLanguage("en");
+    // An error the author cannot see is an error they cannot fix.
+    if (panelFields.some((field) => formErrors[field])) setPanelOpen(true);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]" noValidate>
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5" noValidate>
+      <div className={`grid gap-5 ${panelOpen ? "xl:grid-cols-[minmax(0,1fr)_360px]" : ""}`}>
       <div className="card space-y-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="section-title">İçerik</h2>
-          </div>
-          <div role="tablist" aria-label="İçerik dili" className="grid grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64">
-            {(["tr", "en"] as const).map((language) => (
-              <button key={language} type="button" role="tab" aria-selected={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`h-10 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-white hover:text-ink"}`}>
-                {language === "tr" ? "Türkçe" : "English"}
-              </button>
-            ))}
+          <h2 className="section-title">İçerik</h2>
+          <div className="flex items-center gap-2">
+            <div role="tablist" aria-label="İçerik dili" className="grid flex-1 grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64 sm:flex-none">
+              {(["tr", "en"] as const).map((language) => (
+                <button key={language} type="button" role="tab" aria-selected={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`h-10 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-white hover:text-ink"}`}>
+                  {language === "tr" ? "Türkçe" : "English"}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setPanelOpen(!panelOpen)}
+              aria-expanded={panelOpen}
+              aria-controls={panelId}
+              title={panelOpen ? "Yayın panelini gizle" : "Yayın panelini göster"}
+              className={`grid size-11 shrink-0 place-items-center rounded-field transition-colors ${panelOpen ? "bg-surface-3 text-ink hover:bg-line" : "text-muted hover:bg-surface-2 hover:text-ink"}`}
+            >
+              <span className="sr-only">{panelOpen ? "Yayın panelini gizle" : "Yayın panelini göster"}</span>
+              {panelOpen ? <PanelRightClose size={19} aria-hidden="true" /> : <PanelRightOpen size={19} aria-hidden="true" />}
+            </button>
           </div>
         </div>
         {showTitle ? <FormField label={activeLanguage === "tr" ? "Türkçe başlık (isteğe bağlı)" : "English title"} htmlFor={`${activeLanguage}-title`} error={errors[activeLanguage]?.title?.message}><Input id={`${activeLanguage}-title`} {...register(`${activeLanguage}.title`)} /></FormField> : null}
@@ -117,7 +173,7 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
         </FormField>
         <FormField label="Kaynak bağlantısı" htmlFor="sourceUrl" error={errors.sourceUrl?.message} hint="İçeriğin özgün kaynağına ait bağlantıyı ekleyin."><Input id="sourceUrl" type="url" placeholder="https://..." {...register("sourceUrl")} /></FormField>
       </div>
-      <aside className="space-y-5">
+      {panelOpen && <aside id={panelId} className="space-y-5">
         <div className="card space-y-5">
           <h2 className="section-title">Yayın</h2>
           <FormField label="Kategori (isteğe bağlı)" htmlFor="category" error={errors.category?.message}><Input id="category" {...register("category")} /></FormField>
@@ -144,12 +200,14 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           </FormField>
           {editing && status === "published" && <FormField label="Yayın tarihi" htmlFor="publishedAt" error={errors.publishedAt?.message} hint="Akış sıralaması bu tarih ve saate göre güncellenir."><Input id="publishedAt" type="datetime-local" {...register("publishedAt")} /></FormField>}
           {status === "scheduled" && <FormField label="Yayın tarihi" htmlFor="scheduledAt" error={errors.scheduledAt?.message}><Input id="scheduledAt" type="datetime-local" {...register("scheduledAt")} /></FormField>}
-          <div className="grid grid-cols-2 gap-2">
-            <Link href="/yazilar" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link>
-            <Button disabled={pending}>{pending ? (editing ? "Güncelleniyor…" : "Kaydediliyor…") : (editing ? "Değişiklikleri kaydet" : "Yazıyı kaydet")}</Button>
-          </div>
         </div>
-      </aside>
+      </aside>}
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Link href="/yazilar" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link>
+        <Button disabled={pending}>{pending ? (editing ? "Güncelleniyor…" : "Kaydediliyor…") : (editing ? "Değişiklikleri kaydet" : "Yazıyı kaydet")}</Button>
+      </div>
     </form>
   );
 }

@@ -23,6 +23,7 @@ export type SiteSettings = {
   contactEmail: string;
   maintenanceMode: boolean;
   modulePosts: boolean;
+  moduleRss: boolean;
   moduleNewsletter: boolean;
   moduleAds: boolean;
   moduleAnalytics: boolean;
@@ -49,6 +50,7 @@ export const defaultSiteSettings: SiteSettings = {
   contactEmail: "merhaba@diji.news",
   maintenanceMode: false,
   modulePosts: true,
+  moduleRss: true,
   moduleNewsletter: true,
   moduleAds: true,
   moduleAnalytics: true,
@@ -76,6 +78,7 @@ const settingKeys = {
   contact_email: "contactEmail",
   maintenance_mode: "maintenanceMode",
   module_posts: "modulePosts",
+  module_rss: "moduleRss",
   module_newsletter: "moduleNewsletter",
   module_ads: "moduleAds",
   module_analytics: "moduleAnalytics",

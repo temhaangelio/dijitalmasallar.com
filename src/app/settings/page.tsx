@@ -21,7 +21,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   ];
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
-      <main className="w-full max-w-[720px] pb-10 pt-14 sm:pt-20"><section className="visitor-panel rounded-panel bg-surface p-6 sm:p-10"><h1 className="visitor-heading text-[32px] font-semibold tracking-[-.045em] sm:text-[40px]">{isEnglish ? "Page settings" : "Sayfa ayarları"}</h1><div className="mt-8 divide-y divide-line">{rows.map((row) => <div key={row.title} className="flex flex-col gap-4 py-6 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8"><div className="min-w-0"><strong className="visitor-copy block text-[15px]">{row.title}</strong><p className="visitor-muted mt-1 text-sm leading-6 text-muted">{row.description}</p></div>{row.control}</div>)}</div></section></main>
+      <main className="w-full max-w-[720px] pt-12 sm:pt-16">
+        <section className="visitor-panel rounded-panel border border-line bg-surface p-6 sm:p-10">
+          <h1 className="visitor-heading text-[length:var(--vt-h1)] font-semibold tracking-[-.045em]">{isEnglish ? "Page settings" : "Sayfa ayarları"}</h1>
+          <div className="mt-8 divide-y divide-line">
+            {rows.map((row) => (
+              <div key={row.title} className="flex flex-col gap-4 py-6 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                <div className="min-w-0">
+                  <strong className="visitor-copy block text-[length:var(--vt-small)] font-semibold">{row.title}</strong>
+                  <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-6 text-muted">{row.description}</p>
+                </div>
+                {row.control}
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
     </VisitorShell>
   );
 }

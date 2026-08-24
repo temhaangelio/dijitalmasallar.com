@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
 import { LoadMoreButton } from "@/components/features/visitor/load-more-button";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { LiveNewsBand } from "@/components/features/visitor/live-news-band";
-import { VisitorFooter, VisitorShell } from "@/components/layout/visitor-shell";
+import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
@@ -62,7 +63,7 @@ function feedContent(post: Post): ReactNode[] {
   while ((match = pattern.exec(content)) !== null) {
     if (match.index > cursor) nodes.push(content.slice(cursor, match.index));
     if (match[1]) nodes.push(<del key={`strike-${match.index}`}>{match[1]}</del>);
-    else nodes.push(<mark key={`highlight-${match.index}`} className="visitor-highlight rounded-[3px] px-0.5 text-inherit">{match[2]}</mark>);
+    else nodes.push(<mark key={`highlight-${match.index}`} className="visitor-highlight rounded-[3px] px-1 py-0.5 text-inherit">{match[2]}</mark>);
     cursor = match.index + match[0].length;
   }
   if (cursor < content.length) nodes.push(content.slice(cursor));
@@ -87,15 +88,37 @@ function dateKey(value: string) {
   return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(value));
 }
 
+function sourceInitials(value: string, language: VisitorLanguage) {
+  const name = value.split(".")[0].trim();
+  const words = name.split(/[\s_-]+/).filter(Boolean);
+  const initials = words.length > 1
+    ? words.slice(0, 2).map((word) => word[0]).join("")
+    : name.match(/[A-ZÇĞİÖŞÜ]/g)?.slice(0, 2).join("") || name.slice(0, 2);
+  return initials.toLocaleUpperCase(language === "en" ? "en-US" : "tr-TR");
+}
+
 function NoteCard({ post, layout, language }: { post: Post; layout: SiteSettings["feedLayout"]; language: VisitorLanguage }) {
-  const layoutClass = layout === "card" ? "border border-line shadow-card" : layout === "classic" ? "border border-line-strong" : "border border-transparent";
+  const layoutClass = layout === "card" ? "border-line shadow-card" : layout === "classic" ? "border-line-strong" : "border-transparent";
   const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
   return (
-    <article className={`visitor-card group rounded-panel bg-surface p-5 transition duration-300 hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-soft sm:p-6 ${layoutClass}`}>
-      <Link href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")} className="visitor-copy block text-[19px] font-normal leading-[1.65] text-ink [text-wrap:pretty] transition-opacity hover:opacity-65">{feedContent(post)}</Link>
-      <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-[12px] font-semibold">
-        {post.source_url ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source font-normal tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a> : <span className="visitor-source font-normal tracking-[.04em] text-muted">{displayedSource}</span>}
-        <span className="text-faint transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+    <article className={`visitor-card group relative rounded-panel border bg-surface p-5 transition duration-300 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-soft sm:p-6 ${layoutClass}`}>
+      {/*
+        The note link stretches over the whole card through its own `::before`, so the meta row is
+        part of the target too. Reading the note no longer dims the text on hover — the lift, the
+        border and the arrow carry the affordance, and the copy stays at full contrast while the
+        pointer rests on it.
+      */}
+      <Link
+        href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")}
+        className="visitor-copy block text-[length:var(--vt-body)] font-normal leading-[1.7] text-ink [text-wrap:pretty] before:absolute before:inset-0 before:rounded-panel before:content-['']"
+      >
+        {feedContent(post)}
+      </Link>
+      <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4 text-[length:var(--vt-meta)]">
+        {post.source_url
+          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source relative z-10 inline-flex items-center gap-2.5 tracking-[.04em] text-muted transition-colors hover:text-ink"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceInitials(displayedSource, language)}</span><span>{displayedSource}</span></a>
+          : <span className="visitor-source inline-flex items-center gap-2.5 tracking-[.04em] text-faint"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceInitials(displayedSource, language)}</span><span>{displayedSource}</span></span>}
+        <span className="shrink-0 text-faint transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={15} /></span>
       </div>
     </article>
   );
@@ -113,8 +136,8 @@ function AdCard({ ad }: { ad: Advertisement }) {
         </div>
       )}
       <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0"><span className="text-[11px] font-bold tracking-[.16em] text-on-dark">{ad.label}</span><h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">{ad.title}</h2><p className="mt-2 max-w-[520px] text-sm font-medium leading-relaxed text-on-dark">{ad.description}</p></div>
-        <span className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-ink-contrast px-5 text-sm font-bold text-ink">{ad.cta_label} ↗</span>
+        <div className="min-w-0"><span className="text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.16em] text-on-dark">{ad.label}</span><h2 className="mt-2 text-[length:var(--vt-h3)] font-bold tracking-[-.04em]">{ad.title}</h2><p className="mt-2 max-w-[520px] text-[length:var(--vt-small)] font-medium leading-relaxed text-on-dark [text-wrap:pretty]">{ad.description}</p></div>
+        <span className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-ink-contrast px-5 text-[length:var(--vt-ui)] font-bold text-ink">{ad.cta_label} ↗</span>
       </div>
     </a>
   );
@@ -146,7 +169,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const language = resolveVisitorLanguage(params.lang);
   const requestedLimit = Number.parseInt(params.limit ?? "", 10);
   const visiblePostCount = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, settings.postsPerPage), 500) : settings.postsPerPage;
-  if (settings.maintenanceMode) return <main className="grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-4xl font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
+  if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
   const [postData, ads] = await Promise.all([getPosts(1, Math.min(visiblePostCount + 1, 500), language), settings.moduleAds ? getActiveAds(language) : Promise.resolve([])]);
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = publishedPosts.length > visiblePostCount;
@@ -199,26 +222,32 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <VisitorShell language={language} siteName={settings.siteName} topContent={<LiveNewsBand posts={posts} language={language} />}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
-      <header className="flex w-full max-w-[720px] flex-col items-center px-4 pb-16 pt-16 text-center sm:pb-20 sm:pt-20">
-        <h1 className="visitor-intro-title visitor-heading m-0 max-w-[580px] text-[23px] font-semibold leading-[1.4] tracking-[-.03em] [text-wrap:balance] sm:text-[28px] sm:leading-[1.35]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
+      <header className="flex w-full max-w-[720px] flex-col items-center px-4 pb-14 pt-16 text-center sm:pb-[76px] sm:pt-[88px]">
+        <h1 className="visitor-intro-title visitor-heading m-0 max-w-[620px] text-[length:var(--vt-h2)] font-semibold leading-[1.3] tracking-[-.035em] [text-wrap:balance]">{language === "en" ? settings.descriptionEn : settings.description}</h1>
       </header>
 
       <main className="flex w-full max-w-[720px] flex-col">
-        <div className="relative before:absolute before:bottom-5 before:left-[11px] before:top-2 before:w-px before:bg-line-strong sm:before:-left-[23px]">
+        {/*
+          The rail, the dots and the timestamp gutter all live outside the 720px column and are
+          desktop-only — see `.visitor-timeline`. On a phone that gutter used to eat 32px of the
+          card's left edge while the right edge stayed on the container padding, which left every
+          note visibly off-centre; below `sm` the timestamp sits inline above its card instead.
+        */}
+        <div className="visitor-timeline">
         {posts.length ? posts.map((post, index) => {
           const publishedAt = post.published_at ?? post.created_at;
           const startsNewDay = index === 0 || dateKey(publishedAt) !== dateKey(posts[index - 1].published_at ?? posts[index - 1].created_at);
           return (
-          <div className="pb-5" key={post.id}>
+          <div className="pb-4 sm:pb-5" key={post.id}>
             {startsNewDay && (
-              <div className={`visitor-muted mb-5 flex items-center gap-3 pl-8 sm:pl-0 ${index === 0 ? "pt-1" : "pt-7"}`}>
-                <span className="shrink-0 rounded-full border border-line-strong bg-canvas px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.13em] text-ink-2 shadow-[0_1px_2px_rgba(0,0,0,.03)]">{dateLabel(publishedAt, language)}</span>
+              <div className={`visitor-muted mb-4 flex items-center gap-3 sm:mb-5 ${index === 0 ? "pt-1" : "pt-7 sm:pt-8"}`}>
+                <span className="shrink-0 rounded-full border border-line-strong bg-canvas px-3 py-1.5 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.13em] text-ink-2 shadow-[0_1px_2px_rgba(0,0,0,.03)]">{dateLabel(publishedAt, language)}</span>
                 <span className="h-px min-w-6 flex-1 bg-line-strong" aria-hidden="true" />
               </div>
             )}
-            <div className="relative pl-8 sm:pl-0">
-              <time dateTime={publishedAt} title={dateLabel(publishedAt, language)} className="visitor-muted relative z-10 mb-2 inline-flex bg-canvas font-mono text-[12px] font-semibold tabular-nums tracking-[.06em] text-muted sm:absolute sm:-left-[104px] sm:top-5 sm:mb-0 sm:w-[64px] sm:justify-end">{timeLabel(publishedAt, language)}</time>
-              <span className="absolute left-[6px] top-[3px] z-10 size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] sm:-left-7 sm:top-[23px]" aria-hidden="true" />
+            <div className="relative">
+              <time dateTime={publishedAt} title={dateLabel(publishedAt, language)} className="visitor-muted mb-2 inline-flex font-mono text-[length:var(--vt-meta)] font-semibold tabular-nums tracking-[.06em] text-faint sm:absolute sm:-left-[104px] sm:top-5 sm:mb-0 sm:w-16 sm:justify-end">{timeLabel(publishedAt, language)}</time>
+              <span className="absolute -left-7 top-[23px] z-10 hidden size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] sm:block" aria-hidden="true" />
               <NoteCard post={post} layout={settings.feedLayout} language={language} />
               {adSlots.has(index) && <div className="mt-3"><AdCard ad={adSlots.get(index)!} /></div>}
               {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
@@ -227,17 +256,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </div>
           </div>
           );
-        }) : <div className="visitor-panel visitor-muted rounded-panel bg-surface px-6 py-12 text-center text-muted">{language === "en" ? "No English posts have been published yet." : "Henüz Türkçe yazı yayınlanmadı."}</div>}
+        }) : <div className="visitor-panel visitor-muted rounded-panel border border-line bg-surface px-6 py-14 text-center text-[length:var(--vt-small)] text-muted">{language === "en" ? "No English posts have been published yet." : "Henüz Türkçe yazı yayınlanmadı."}</div>}
         </div>
 
-        {hasMorePosts && <div className="flex justify-center pb-2 pt-6">
+        {hasMorePosts && <div className="flex justify-center pt-6">
           <LoadMoreButton
             href={languageHref("/", language, { limit: Math.min(visiblePostCount + settings.postsPerPage, 500) })}
             label={language === "en" ? "More notes" : "Daha fazla not"}
           />
         </div>}
-
-        <VisitorFooter language={language} siteName={settings.siteName} />
       </main>
     </VisitorShell>
   );

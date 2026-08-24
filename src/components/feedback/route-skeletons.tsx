@@ -23,6 +23,45 @@ function Field({ height = "h-12" }: { height?: string }) {
   );
 }
 
+/* ---------------------------------------------------------------------- /rss */
+
+export function RssPageLoading() {
+  return (
+    <ShellSkeleton active="/rss">
+      <div role="status" aria-label="RSS kaynakları yükleniyor">
+        <PageHeaderSkeleton />
+        <div className="grid items-start gap-5 lg:grid-cols-[340px_minmax(0,1fr)]">
+          <div className="card space-y-5">
+            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-12 w-full rounded-field" />
+            <div className="space-y-1">
+              {[0, 1, 2, 3].map((index) => <Skeleton key={index} className="h-11 w-full rounded-chip" />)}
+            </div>
+          </div>
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-11 w-48 rounded-full" />
+              <Skeleton className="h-9 w-32 rounded-full" />
+            </div>
+            <div className="mt-5 divide-y divide-line">
+              {[0, 1, 2, 3, 4].map((index) => (
+                <div key={index} className="flex gap-4 py-5 first:pt-0">
+                  <Skeleton className="size-8 shrink-0 rounded-full" />
+                  <div className="min-w-0 flex-1">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="mt-2 h-5 w-3/4" />
+                    <Skeleton className="mt-2 h-4 w-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ShellSkeleton>
+  );
+}
+
 /* ---------------------------------------------------------------- /dashboard */
 
 export function DashboardLoading() {

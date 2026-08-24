@@ -117,11 +117,11 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
-      <main className="w-full max-w-[720px] pt-10">
-        <article className="visitor-panel rounded-panel border border-line bg-surface p-6 sm:p-9">
-          <div className="visitor-muted mb-7 flex items-center justify-between gap-4 text-[12px] font-semibold text-muted">
+      <main className="w-full max-w-[720px] pt-8 sm:pt-10">
+        <article className="visitor-panel rounded-panel border border-line bg-surface p-6 sm:p-10">
+          <div className="visitor-muted mb-8 flex items-center justify-between gap-4 text-[length:var(--vt-meta)] font-semibold uppercase tracking-[.13em] text-faint">
             <time dateTime={publishedAt}>{dateLabel(publishedAt, language)}</time>
-            <Link href={languageHref("/", language)} aria-label={language === "en" ? "Close article" : "Haberi kapat"} className="grid size-10 place-items-center rounded-full border border-line-strong bg-surface text-ink transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft">
+            <Link href={languageHref("/", language)} aria-label={language === "en" ? "Close article" : "Haberi kapat"} className="-mr-1 grid size-10 shrink-0 place-items-center rounded-full border border-line-strong bg-surface text-ink transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft">
               <X size={18} aria-hidden="true" />
             </Link>
           </div>
@@ -129,23 +129,23 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
             <MarkdownPreview value={post.body} />
           </div>
           {(post.source_url || post.source_name) && (
-            <div className="visitor-muted mt-8 flex items-center justify-between gap-4 border-t border-line pt-5 text-[12px] text-muted">
-              <span>{language === "en" ? "Source" : "Kaynak"}</span>
+            <div className="visitor-muted mt-9 flex items-center justify-between gap-4 border-t border-line pt-5 text-[length:var(--vt-meta)]">
+              <span className="font-semibold uppercase tracking-[.13em] text-faint">{language === "en" ? "Source" : "Kaynak"}</span>
               {post.source_url ? (
-                <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source font-normal text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
+                <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
               ) : (
-                <span className="visitor-source font-normal text-ink">{displayedSource}</span>
+                <span className="visitor-source tracking-[.04em] text-ink">{displayedSource}</span>
               )}
             </div>
           )}
         </article>
 
         {nextPost && (
-          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-panel visitor-next group mt-3 block rounded-panel border border-line bg-surface-2 p-6 transition-colors hover:bg-surface sm:p-8">
-            <span className="visitor-muted text-[11px] font-bold tracking-[.16em] text-muted">{language === "en" ? "NEXT STORY" : "SONRAKİ HABER"}</span>
+          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-panel visitor-next group mt-3 block rounded-panel border border-line bg-surface-2 p-6 transition-all hover:-translate-y-0.5 hover:border-line-strong hover:bg-surface hover:shadow-soft sm:p-8">
+            <span className="visitor-muted text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.16em] text-faint">{language === "en" ? "Next story" : "Sonraki haber"}</span>
             <div className="mt-4 flex items-end justify-between gap-6">
-              <p className="visitor-copy max-w-[570px] text-[16px] font-normal leading-[1.65] text-ink [text-wrap:pretty]">{firstSentence(nextPost.body)}</p>
-              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-ink text-ink-contrast transition-transform group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={16} /></span>
+              <p className="visitor-copy max-w-[570px] text-[length:var(--vt-small)] font-normal leading-[1.7] text-ink [text-wrap:pretty]">{firstSentence(nextPost.body)}</p>
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-ink text-ink-contrast transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={16} /></span>
             </div>
           </Link>
         )}

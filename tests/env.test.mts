@@ -67,7 +67,7 @@ describe("isSupabaseConfigured", () => {
 
 // ---------------------------------------------------------------------------
 
-import { defaultVisitorLanguage, languageHref, resolveVisitorLanguage } from "../src/lib/visitor-language.ts";
+import { defaultVisitorLanguage, languageFromAcceptLanguage, languageHref, resolveVisitorLanguage } from "../src/lib/visitor-language.ts";
 
 describe("resolveVisitorLanguage", () => {
   test("English is the primary language", () => {
@@ -82,6 +82,23 @@ describe("resolveVisitorLanguage", () => {
     assert.equal(resolveVisitorLanguage("tr"), "tr");
     assert.equal(resolveVisitorLanguage("TR"), "en");
     assert.equal(resolveVisitorLanguage("de"), "en");
+  });
+});
+
+describe("languageFromAcceptLanguage", () => {
+  test("selects Turkish when it is the browser's primary language", () => {
+    assert.equal(languageFromAcceptLanguage("tr-TR,tr;q=0.9,en;q=0.8"), "tr");
+    assert.equal(languageFromAcceptLanguage("tr,en;q=0.5"), "tr");
+  });
+
+  test("uses English for every other primary language", () => {
+    assert.equal(languageFromAcceptLanguage("en-US,en;q=0.9,tr;q=0.8"), "en");
+    assert.equal(languageFromAcceptLanguage("de-DE,tr;q=0.9"), "en");
+    assert.equal(languageFromAcceptLanguage(null), "en");
+  });
+
+  test("honours quality weights", () => {
+    assert.equal(languageFromAcceptLanguage("en;q=0.5,tr;q=0.9"), "tr");
   });
 });
 

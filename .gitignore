@@ -6,4 +6,15 @@ node_modules/
 npm-debug.log*
 .DS_Store
 supabase/.temp/
+
+# Local RSS reader database (node:sqlite), never committed.
+data/
 *.tsbuildinfo
+
+# Local design mock-ups are not application source.
+Ayarlar.dc.html
+Blog Admin Dashboard.dc.html
+E-bülten.dc.html
+Kullanıcılar.dc.html
+Yazılar.dc.html
+İstatistik.dc.html

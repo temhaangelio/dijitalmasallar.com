@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
+import { Rss } from "lucide-react";
+import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { VisitorSettingsButton } from "@/components/features/visitor/visitor-settings-button";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
@@ -9,22 +10,22 @@ import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
  * The public pages share one frame: canvas background, 720px column, brand nav and footer.
  * `lang` is set here rather than in the root layout because the root layout is shared with the
  * always-Turkish admin panel, and the visitor language is decided per request.
+ *
+ * The footer is rendered here rather than by each page, so no public page can end up without one.
  */
 export function VisitorShell({
   language,
   siteName,
-  action,
   topContent,
   children,
 }: {
   language: VisitorLanguage;
   siteName: string;
-  action?: ReactNode;
   topContent?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-5 pb-12 pt-5 text-ink">
+    <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-5 pb-10 pt-5 text-ink">
       <div className="visitor-ambient" aria-hidden="true" />
       {topContent}
       <nav className={`visitor-nav flex min-h-14 w-full max-w-[720px] items-center justify-between gap-4 py-3 ${topContent ? "mt-5" : ""}`} aria-label={language === "en" ? "Site" : "Site"}>
@@ -33,34 +34,39 @@ export function VisitorShell({
           <span className="visitor-heading text-xl font-bold tracking-[-.04em] sm:text-[22px]">{siteName}</span>
         </Link>
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          {action}
           <VisitorSettingsButton language={language} />
           <VisitorMenu language={language} siteName={siteName} />
         </div>
       </nav>
       {children}
+      <VisitorFooter language={language} siteName={siteName} />
     </div>
   );
 }
 
-const navLink = "visitor-copy flex h-9 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors";
+function VisitorFooter({ language, siteName }: { language: VisitorLanguage; siteName: string }) {
+  const isEnglish = language === "en";
 
-/** Back-to-feed action used on the article and about pages. */
-export function VisitorBackLink({ language, label }: { language: VisitorLanguage; label?: string }) {
   return (
-    <Link href={languageHref("/", language)} className={`${navLink} text-ink-2 hover:bg-surface-2 hover:text-ink`}>
-      <ArrowLeft size={14} aria-hidden="true" /> {label ?? (language === "en" ? "Back to feed" : "Akışa dön")}
-    </Link>
-  );
-}
-
-export function VisitorFooter({ language, siteName }: { language: VisitorLanguage; siteName: string }) {
-  return (
-    <footer className="visitor-footer visitor-muted mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong px-2 pt-7 text-[13px] font-medium text-muted">
-      <span>© {new Date().getFullYear()} {siteName}</span>
-      <Link href={languageHref("/about", language)} className="rounded-sm transition-colors hover:text-ink">
-        {language === "en" ? "About" : "Hakkında"}
-      </Link>
+    <footer className="visitor-footer mt-14 flex w-full max-w-[720px] flex-col gap-5 border-t border-line-strong px-1 pt-7 sm:flex-row sm:items-center sm:justify-between">
+      <nav className="-ml-2.5 flex flex-wrap items-center gap-x-1 gap-y-1" aria-label={isEnglish ? "Footer" : "Alt bilgi"}>
+        {visitorNavItems.map((item) => (
+          <Link
+            key={item.href}
+            href={languageHref(item.href, language)}
+            className="visitor-copy rounded-full px-2.5 py-1.5 text-[length:var(--vt-ui)] font-semibold text-muted transition-colors hover:text-ink"
+          >
+            {item[language]}
+          </Link>
+        ))}
+        <a
+          href={isEnglish ? "/rss.xml" : "/rss.xml?lang=tr"}
+          className="visitor-copy flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[length:var(--vt-ui)] font-semibold text-muted transition-colors hover:text-ink"
+        >
+          <Rss className="size-3.5" aria-hidden="true" />RSS
+        </a>
+      </nav>
+      <p className="visitor-muted px-1.5 text-[length:var(--vt-meta)] font-medium text-faint">© {new Date().getFullYear()} {siteName}</p>
     </footer>
   );
 }

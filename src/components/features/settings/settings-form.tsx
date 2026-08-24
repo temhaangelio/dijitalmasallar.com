@@ -24,6 +24,7 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
   const showSubscriberCount = useWatch({ control, name: "showSubscriberCount" });
   const maintenanceMode = useWatch({ control, name: "maintenanceMode" });
   const modulePosts = useWatch({ control, name: "modulePosts" });
+  const moduleRss = useWatch({ control, name: "moduleRss" });
   const moduleNewsletter = useWatch({ control, name: "moduleNewsletter" });
   const moduleAds = useWatch({ control, name: "moduleAds" });
   const moduleAnalytics = useWatch({ control, name: "moduleAnalytics" });
@@ -94,10 +95,11 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
           <div className="mt-5 divide-y divide-line">
             {[
               ["Yazılar", "İçerik ekleme ve yönetme ekranları", "modulePosts", modulePosts],
+              ["RSS", "Takip edilen kaynaklar ve gelen içerikler", "moduleRss", moduleRss],
               ["E-bülten", "Bülten ve abone yönetimi", "moduleNewsletter", moduleNewsletter],
               ["Reklamlar", "Reklam ekleme ve yayınlama", "moduleAds", moduleAds],
               ["İstatistik", "Vercel Analytics raporları", "moduleAnalytics", moduleAnalytics],
-            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-muted">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics", value, { shouldDirty: true })} /></div>)}
+            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-muted">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleRss" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics", value, { shouldDirty: true })} /></div>)}
           </div>
       </div> : null}
 
