@@ -2,7 +2,7 @@ import Image from "next/image";
 import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
 import { DailyBrief } from "@/components/features/visitor/daily-brief";
-import { LoadMoreButton } from "@/components/features/visitor/load-more-button";
+import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { LiveNewsBand } from "@/components/features/visitor/live-news-band";
 import { NoteCard } from "@/components/features/visitor/note-card";
@@ -13,8 +13,9 @@ import { getSiteSettings } from "@/services/settings";
 import { dailyBriefPosts, dailyBriefText } from "@/lib/daily-brief";
 import { isOptimizableImage } from "@/lib/images";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
-import { dateKey, dateLabel, timeLabel } from "@/lib/visitor-date";
+import { dateKey, fullDateLabel, relativeDayLabel, timeLabel } from "@/lib/visitor-date";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
+import type { Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +87,25 @@ function randomAdSlots(postCount: number, ads: Advertisement[], excludedSlots: n
   const count = Math.min(shuffledAds.length, Math.max(1, Math.floor((postCount - adsAfterPostCount) / 3)), candidates.length);
   for (let index = 0; index < count; index++) slots.set(candidates[index], shuffledAds[index]);
   return slots;
+}
+
+/**
+ * The feed is read a day at a time, so it is rendered a day at a time: each day is its own section
+ * with its own heading, which is what lets that heading stay pinned while the day scrolls past.
+ *
+ * The flat feed position travels with every note, because the ad and newsletter slots were drawn
+ * against the ungrouped list and must not shift when the notes are bucketed.
+ */
+function groupPostsByDay(posts: Post[]) {
+  const days: { key: string; publishedAt: string; items: { post: Post; position: number }[] }[] = [];
+  posts.forEach((post, position) => {
+    const publishedAt = post.published_at ?? post.created_at;
+    const key = dateKey(publishedAt);
+    const current = days[days.length - 1];
+    if (current && current.key === key) current.items.push({ post, position });
+    else days.push({ key, publishedAt, items: [{ post, position }] });
+  });
+  return days;
 }
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ lang?: string; limit?: string }> }) {
@@ -180,37 +200,83 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           note visibly off-centre; below `sm` the timestamp sits inline above its card instead.
         */}
         <div className="visitor-timeline">
-        {posts.length ? posts.map((post, index) => {
-          const publishedAt = post.published_at ?? post.created_at;
-          const startsNewDay = index === 0 || dateKey(publishedAt) !== dateKey(posts[index - 1].published_at ?? posts[index - 1].created_at);
-          return (
-          <div className="pb-4 sm:pb-5" key={post.id}>
-            {startsNewDay && (
-              <div className={`visitor-muted mb-4 flex items-center gap-3 sm:mb-5 ${index === 0 ? "pt-1" : "pt-7 sm:pt-8"}`}>
-                <span className="shrink-0 rounded-full border border-line-strong bg-canvas px-3 py-1.5 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.13em] text-ink-2 shadow-[0_1px_2px_rgba(0,0,0,.03)]">{dateLabel(publishedAt, language)}</span>
+        {posts.length ? groupPostsByDay(posts).map((day, dayIndex) => (
+          <section key={day.key} aria-label={fullDateLabel(day.publishedAt, language)} className={dayIndex ? "mt-9 sm:mt-11" : ""}>
+            {/*
+              The day heading stays with its own notes: it is pinned to the top of the viewport for
+              as long as that day is on screen, so a reader scrolling through a long day never loses
+              track of which one they are in.
+
+              The band runs the full width of the window and is fully opaque. A translucent, blurred
+              one read as though the heading had not stuck — notes stayed visible through it — and
+              re-filtering the drifting ambient layer behind it on every scroll frame made it
+              shimmer. `.visitor-page` clips the horizontal overflow this creates.
+            */}
+            <div className="sticky top-0 z-20 -mx-[50vw] bg-canvas px-[50vw] py-3">
+              <div className="flex items-center gap-3">
+                <span
+                  title={fullDateLabel(day.publishedAt, language)}
+                  className="shrink-0 rounded-full border border-line-strong bg-canvas px-3 py-1.5 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.13em] text-ink-2 shadow-[0_1px_2px_rgba(0,0,0,.03)]"
+                >
+                  {relativeDayLabel(day.publishedAt, language)}
+                </span>
                 <span className="h-px min-w-6 flex-1 bg-line-strong" aria-hidden="true" />
               </div>
-            )}
-            <div className="relative">
-              <time dateTime={publishedAt} title={dateLabel(publishedAt, language)} className="visitor-muted mb-2 inline-flex font-mono text-[length:var(--vt-meta)] font-semibold tabular-nums tracking-[.06em] text-faint sm:absolute sm:-left-[104px] sm:top-5 sm:mb-0 sm:w-16 sm:justify-end">{timeLabel(publishedAt, language)}</time>
-              <span className="absolute -left-7 top-[23px] z-10 hidden size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] sm:block" aria-hidden="true" />
-              <NoteCard post={post} layout={settings.feedLayout} language={language} />
-              {adSlots.has(index) && <div className="mt-3"><AdCard ad={adSlots.get(index)!} /></div>}
-              {settings.moduleNewsletter && settings.newsletterEnabled && index === newsletterSlot && (
-                <div className="mt-3"><NewsletterPanel title={language === "en" ? settings.newsletterTitleEn : settings.newsletterTitle} description={language === "en" ? settings.newsletterDescriptionEn : settings.newsletterDescription} language={language} /></div>
-              )}
             </div>
+
+            <div className="flex flex-col gap-4 pt-1 sm:gap-5">
+              {day.items.map(({ post, position }) => {
+                const publishedAt = post.published_at ?? post.created_at;
+                return (
+                  // The gutter belongs to the note: hovering the card lights up its time and its dot
+                  // too, so the rail reads as part of the same object rather than decoration.
+                  <div className="group/note relative" key={post.id}>
+                    <time
+                      dateTime={publishedAt}
+                      title={fullDateLabel(publishedAt, language)}
+                      className="visitor-muted mb-2 inline-flex font-mono text-[length:var(--vt-meta)] font-semibold tabular-nums tracking-[.06em] text-faint transition-colors duration-300 group-hover/note:text-ink-2 sm:absolute sm:-left-[104px] sm:top-5 sm:mb-0 sm:w-16 sm:justify-end"
+                    >
+                      {timeLabel(publishedAt, language)}
+                    </time>
+                    <span
+                      className="absolute -left-7 top-[23px] z-10 hidden size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] transition-transform duration-300 ease-out group-hover/note:scale-125 sm:block"
+                      aria-hidden="true"
+                    />
+                    <NoteCard post={post} layout={settings.feedLayout} language={language} />
+                    {adSlots.has(position) && <div className="mt-3"><AdCard ad={adSlots.get(position)!} /></div>}
+                    {settings.moduleNewsletter && settings.newsletterEnabled && position === newsletterSlot && (
+                      <div className="mt-3"><NewsletterPanel title={language === "en" ? settings.newsletterTitleEn : settings.newsletterTitle} description={language === "en" ? settings.newsletterDescriptionEn : settings.newsletterDescription} language={language} /></div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )) : (
+          <div className="visitor-panel visitor-muted rounded-panel border border-dashed border-line-strong px-6 py-16 text-center">
+            <p className="visitor-copy text-[length:var(--vt-small)] font-medium text-muted">{language === "en" ? "No English notes have been published yet." : "Henüz Türkçe not yayınlanmadı."}</p>
+            <p className="visitor-muted mt-2 text-[length:var(--vt-ui)] text-faint">{language === "en" ? "New notes land here through the day." : "Yeni notlar gün boyunca buraya düşer."}</p>
           </div>
-          );
-        }) : <div className="visitor-panel visitor-muted rounded-panel border border-line bg-surface px-6 py-14 text-center text-[length:var(--vt-small)] text-muted">{language === "en" ? "No English posts have been published yet." : "Henüz Türkçe yazı yayınlanmadı."}</div>}
+        )}
         </div>
 
-        {hasMorePosts && <div className="flex justify-center pt-6">
-          <LoadMoreButton
-            href={languageHref("/", language, { limit: Math.min(visiblePostCount + settings.postsPerPage, 500) })}
-            label={language === "en" ? "More notes" : "Daha fazla not"}
-          />
-        </div>}
+        {hasMorePosts && (() => {
+          const nextHref = languageHref("/", language, { limit: Math.min(visiblePostCount + settings.postsPerPage, 500) });
+          const label = language === "en" ? "Loading more notes" : "Yeni notlar yükleniyor";
+          return (
+            <>
+              <AutoLoadMore href={nextHref} label={label} />
+              {/* Without scripting there is no observer to fire, so the feed keeps a plain link. */}
+              <noscript>
+                <div className="flex justify-center pb-10">
+                  <a href={nextHref} className="flex h-14 items-center rounded-full bg-ink px-6 text-[length:var(--vt-small)] font-semibold text-ink-contrast">
+                    {language === "en" ? "More notes" : "Daha fazla not"}
+                  </a>
+                </div>
+              </noscript>
+            </>
+          );
+        })()}
       </main>
     </VisitorShell>
   );

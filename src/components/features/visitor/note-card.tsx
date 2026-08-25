@@ -64,7 +64,9 @@ export function NoteCard({ post, layout, language, highlight }: { post: Post; la
   const layoutClass = layout === "card" ? "border-line shadow-card" : layout === "classic" ? "border-line-strong" : "border-transparent";
   const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
   return (
-    <article className={`visitor-card group relative rounded-panel border bg-surface p-5 transition duration-300 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-soft sm:p-6 ${layoutClass}`}>
+    // `has-[a:focus-visible]` gives the card the same lift for a keyboard reader that a pointer gets:
+    // the link that covers it is invisible, so without this only a bare outline moved down the feed.
+    <article className={`visitor-card group relative rounded-panel border bg-surface p-5 transition duration-300 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-soft has-[a:focus-visible]:border-line-strong has-[a:focus-visible]:shadow-soft sm:p-6 ${layoutClass}`}>
       {/*
         The note link stretches over the whole card through its own `::before`, so the meta row is
         part of the target too. Reading the note no longer dims the text on hover — the lift, the
@@ -81,7 +83,11 @@ export function NoteCard({ post, layout, language, highlight }: { post: Post; la
         {post.source_url
           ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source relative z-10 inline-flex items-center gap-2.5 tracking-[.04em] text-muted transition-colors hover:text-ink"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span>{displayedSource}</span></a>
           : <span className="visitor-source inline-flex items-center gap-2.5 tracking-[.04em] text-faint"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span>{displayedSource}</span></span>}
-        <span className="shrink-0 text-faint transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={15} /></span>
+        {/* The arrow sits in a ring that fills as the card is hovered — the note's "open" affordance,
+            in the same shape as the source badge across from it. */}
+        <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line text-faint transition-all duration-300 ease-out group-hover:border-ink group-hover:bg-ink group-hover:text-ink-contrast" aria-hidden="true">
+          <ArrowRight size={14} className="transition-transform duration-300 ease-out group-hover:translate-x-px" />
+        </span>
       </div>
     </article>
   );

@@ -14,12 +14,12 @@ import { writeFileSync } from "node:fs";
 /**
  * `.brand-mark`: a 40px box with a 13px radius, carrying a 9px dot.
  *
- * The dot is centred rather than parked in the corner where the CSS mark starts it: on the page the
- * mark's dot orbits, so a still frame of one corner reads as a mistake at icon size.
+ * Keep the dot in the same upper-left resting position as the CSS mark. App icons are static, so
+ * this frame preserves the site's recognisable logo instead of inventing a centred variant.
  */
 const cornerRadiusRatio = 13 / 40;
 const dotDiameterRatio = 9 / 40;
-const dotCentreRatio = 0.5;
+const dotCentreRatio = (9 + 9 / 2) / 40;
 
 const ink = [10, 10, 10];       // --color-ink
 const surface = [255, 255, 255]; // --color-surface

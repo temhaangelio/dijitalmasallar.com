@@ -32,3 +32,16 @@ export function fullDateLabel(value: string, language: VisitorLanguage) {
 export function dateKey(value: string) {
   return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone }).format(new Date(value));
 }
+
+/**
+ * The day separator's label. Today and yesterday are named rather than dated: in a feed people read
+ * several times a day, "Bugün" places a note faster than a weekday and a number do. Older days keep
+ * the weekday and date, and the full date is still available in the separator's tooltip.
+ */
+export function relativeDayLabel(value: string, language: VisitorLanguage) {
+  const day = dateKey(value);
+  const now = Date.now();
+  if (day === dateKey(new Date(now).toISOString())) return language === "en" ? "Today" : "Bugün";
+  if (day === dateKey(new Date(now - 24 * 60 * 60 * 1000).toISOString())) return language === "en" ? "Yesterday" : "Dün";
+  return dateLabel(value, language);
+}
