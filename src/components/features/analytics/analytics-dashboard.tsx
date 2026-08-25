@@ -29,10 +29,9 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
         />
         {missingEnv.length ? (
           <p className="mt-4 text-sm leading-6 text-muted">
-            Bu değerleri <code className="rounded bg-surface-2 px-1.5 py-0.5">.env.local</code> dosyasına ve Vercel proje ayarlarındaki
-            Environment Variables bölümüne ekleyin. Proje kimliğini Vercel panelinde Project Settings → General
-            altında bulabilirsiniz. <code className="rounded bg-surface-2 px-1.5 py-0.5">VERCEL_ANALYTICS_TEAM_ID</code> yalnızca
-            proje bir takıma bağlıysa gerekir; Hobby hesaplarında boş bırakın.
+            Erişim anahtarını <code className="rounded bg-surface-2 px-1.5 py-0.5">.env.local</code> dosyasına ve Vercel proje ayarlarındaki
+            Environment Variables bölümüne ekleyin. Ayrı bir Analytics proje kimliği tanımlamanız gerekmez.
+            <code className="ml-1 rounded bg-surface-2 px-1.5 py-0.5">VERCEL_ANALYTICS_TEAM_ID</code> yalnızca proje bir takıma bağlıysa gerekir.
           </p>
         ) : null}
       </Card>

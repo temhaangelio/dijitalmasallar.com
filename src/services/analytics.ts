@@ -18,6 +18,7 @@ export type AnalyticsData = {
 };
 
 const API_URL = "https://api.vercel.com/v1/query/web-analytics/visits/aggregate";
+const VERCEL_PROJECT = "dijinews";
 
 function dateOnly(date: Date) { return date.toISOString().slice(0, 10); }
 function addDays(date: Date, amount: number) { const next = new Date(date); next.setUTCDate(next.getUTCDate() + amount); return next; }
@@ -40,8 +41,8 @@ function sum(rows: VisitRow[], field: "pageviews" | "visitors") { return rows.re
 function change(current: number, previous: number) { if (previous === 0) return current === 0 ? 0 : null; return ((current - previous) / previous) * 100; }
 function sourceLabel(value: string) { if (!value) return "Doğrudan"; if (value === "Others") return "Diğer"; return value.replace(/^www\./, ""); }
 
-/** `VERCEL_ANALYTICS_TEAM_ID` is deliberately absent: it only applies to team-scoped projects. */
-const requiredEnv = ["VERCEL_ANALYTICS_TOKEN", "VERCEL_ANALYTICS_PROJECT_ID"] as const;
+/** Only API authentication is configured manually; the project resolves from Vercel or its slug. */
+const requiredEnv = ["VERCEL_ANALYTICS_TOKEN"] as const;
 
 /**
  * Names the variables that are missing so the UI can say which one to add, instead of blaming the
@@ -53,9 +54,9 @@ export function missingAnalyticsEnv(): string[] {
 
 export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData | null> {
   const token = process.env.VERCEL_ANALYTICS_TOKEN?.trim();
-  const projectId = process.env.VERCEL_ANALYTICS_PROJECT_ID?.trim();
+  const projectId = process.env.VERCEL_PROJECT_ID?.trim() || VERCEL_PROJECT;
   const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID?.trim() || undefined;
-  if (!token || !projectId) return null;
+  if (!token) return null;
   try {
     const now = new Date();
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
