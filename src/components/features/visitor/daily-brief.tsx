@@ -24,10 +24,7 @@ export function DailyBrief({ text, sentenceCount, language, latestTime }: { text
   const isEnglish = language === "en";
 
   return (
-    // Full-bleed: the wash behind the brief runs to both edges of the window while the text stays
-    // in the same 720px column as everything else.
-    <section className="daily-brief -mx-5 w-[calc(100%+2.5rem)] px-5" aria-labelledby={headingId}>
-      <div className="mx-auto w-full max-w-[720px] px-1 pb-9 pt-12 sm:pb-11 sm:pt-16">
+    <section className="w-full max-w-[720px] px-1 pb-9 pt-12 sm:pb-11 sm:pt-16" aria-labelledby={headingId}>
         {/*
           The page's own heading, kept at the size of a section title rather than a display line: the
           brief underneath it is what the reader came for. No dateline of its own either — the feed's
@@ -49,27 +46,26 @@ export function DailyBrief({ text, sentenceCount, language, latestTime }: { text
             </span>
           ) : null}
         </div>
-        <p
-          id={paragraphId}
-          className={`visitor-copy mt-4 text-[length:var(--vt-lead)] font-normal leading-[1.75] tracking-[-.018em] text-ink [text-wrap:pretty] ${expanded ? "" : "line-clamp-3"}`}
-        >
-          {text}
-        </p>
-        {sentenceCount > 1 ? (
-          <button
-            type="button"
-            onClick={() => setExpanded((open) => !open)}
-            aria-expanded={expanded}
-            aria-controls={paragraphId}
-            // No pill, no border, no rule: the toggle is part of the sentence flow, set in the
-            // paragraph's own type, and only its weight and the chevron mark it as pressable.
-            className="visitor-copy mt-3 inline-flex items-center gap-1 text-[length:var(--vt-small)] font-semibold text-muted transition-colors hover:text-ink"
+        <div className="mt-4 rounded-panel bg-surface-2 px-5 py-5 sm:px-6 sm:py-6">
+          <p
+            id={paragraphId}
+            className={`visitor-copy text-[length:var(--vt-lead)] font-normal leading-[1.75] tracking-[-.018em] text-ink [text-wrap:pretty] ${expanded ? "" : "line-clamp-3"}`}
           >
-            {expanded ? (isEnglish ? "Less" : "Daha az") : (isEnglish ? "More" : "Devamı")}
-            <ChevronDown size={15} aria-hidden="true" className={`transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
-          </button>
-        ) : null}
-      </div>
+            {text}
+          </p>
+          {sentenceCount > 1 ? (
+            <button
+              type="button"
+              onClick={() => setExpanded((open) => !open)}
+              aria-expanded={expanded}
+              aria-controls={paragraphId}
+              className="visitor-copy mt-3 inline-flex items-center gap-1 text-[length:var(--vt-small)] font-semibold text-muted transition-colors hover:text-ink"
+            >
+              {expanded ? (isEnglish ? "Less" : "Daha az") : (isEnglish ? "More" : "Devamı")}
+              <ChevronDown size={15} aria-hidden="true" className={`transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
+            </button>
+          ) : null}
+        </div>
     </section>
   );
 }

@@ -294,26 +294,6 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
     animation: visitor-ambient-drift 20s ease-in-out infinite alternate;
     will-change: transform;
   }
-  /*
-   * The daily brief sits on its own ground: one neutral surface colour from the design system,
-   * fading into the canvas at both ends. No border and no shadow — it is the opening of the page,
-   * not a card.
-   */
-  .daily-brief {
-    position: relative;
-    isolation: isolate;
-  }
-  .daily-brief::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: 0;
-    background: var(--color-surface-2);
-    /* Faded at both ends: the nav keeps the plain canvas under it, the colour only comes up once
-       the brief itself starts, and it is gone again before the feed. */
-    mask-image: linear-gradient(180deg, transparent 0, #000 24%, #000 70%, transparent 100%);
-  }
-
   /* Selection follows the theme instead of the browser's blue, which clashed with the greyscale. */
   .visitor-page ::selection { background: var(--color-highlight); color: var(--color-ink); }
 

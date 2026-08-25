@@ -419,12 +419,10 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
 export function VisitorFeedLoading() {
   return (
     <VisitorShellSkeleton label="Akış yükleniyor" liveBand>
-      {/* The brief keeps its washed, full-bleed band: it is the first thing a reader sees, and a
-          plain grey block there would not look like the page that is coming. */}
-      <div className="daily-brief -mx-5 w-[calc(100%+2.5rem)] px-5">
-        <div className="mx-auto w-full max-w-[720px] px-1 pb-9 pt-12 sm:pb-11 sm:pt-16">
-          <Skeleton className="h-6 w-44" />
-          <div className="mt-5 space-y-3">
+      <div className="w-full max-w-[720px] px-1 pb-9 pt-12 sm:pb-11 sm:pt-16">
+        <Skeleton className="h-6 w-44" />
+        <div className="mt-4 rounded-panel bg-surface-2 px-5 py-5 sm:px-6 sm:py-6">
+          <div className="space-y-3">
             {["w-full", "w-full", "w-3/4"].map((width, index) => <Skeleton key={index} className={`h-5 ${width}`} />)}
           </div>
           <Skeleton className="mt-5 h-4 w-20" />
