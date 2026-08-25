@@ -31,6 +31,10 @@ Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını payla�
 ### Migration ve RLS
 
 - `supabase/migrations/` — uygulanmaya hazır, eklemeli migration'lar. En yenisi
+  `20260825120000_push_subscriptions.sql`: web push abonelikleri için yeni bir tablo ve panelde
+  `module_push` anahtarı. Tablo RLS açık ve **hiç politikası yok**; tüm okuma/yazma
+  `src/services/push.ts` içindeki service-role istemcisinden geçer, yani abone listesi anon anahtarla
+  okunamaz. Bir önceki migration
   `20260823210000_query_indexes.sql`: uygulamanın gerçekten çalıştırdığı sorgular için dört indeks
   ekler. Hiçbir sütun, kısıt, politika veya satıra dokunmaz; geri alma komutları dosyanın sonundadır.
 - `supabase/audit/rls-audit.sql` — yalnızca `select` çalıştıran, RLS ve yetki denetim betiği.
@@ -50,7 +54,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL="diji.news <bulten@dijitalmasallar.com>"
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:merhaba@diji.news
 ```
+
+VAPID anahtarları web push için gerekir; ikisi de tanımlı değilse bildirim arayüzü hiç görünmez.
+Yeni bir çift `npx web-push generate-vapid-keys` ile üretilir. Genel anahtar `NEXT_PUBLIC_` önekiyle
+paketlenmez; ilgili sayfa onu sunucudan prop olarak geçirir.
 
 `RESEND_API_KEY` yerine mevcut projedeki `MAIL_KEY` de kullanılabilir. Vercel Preview ortamının production verisini değiştirmemesi için Preview’a ayrı bir staging Supabase projesinin URL/key değerlerini verin.
 
@@ -97,6 +108,28 @@ panel üretirdi. Panelin koyu teması ayrı bir iş olarak duruyor.
 
 `--color-ink-contrast` token'ı bu yüzden var: `bg-ink text-ink-contrast` kalıbı her iki temada da
 okunur kalır — açık temada siyah zemin/beyaz yazı, koyu temada açık zemin/koyu yazı.
+
+## PWA ve bildirimler
+
+Ziyaretçi tarafı yüklenebilir bir uygulamadır: `src/app/manifest.ts` manifesti panel ayarlarından
+üretir, ikonlar `scripts/generate-app-icons.mjs` ile `globals.css` içindeki `.brand-mark`
+geometrisinden çizilir (`node scripts/generate-app-icons.mjs` ile yeniden üretilir).
+
+`public/sw.js` bilinçli olarak **hiçbir şeyi önbelleğe almaz** — bir haber akışının dünkü notları
+önbellekten servis etmesi, ağ gerektiğini söylemesinden kötüdür. Service worker yalnızca iki iş
+yapar: push mesajını bildirime çevirmek ve bildirime dokunulduğunda ilgili notu açmak. `fetch`
+dinleyicisi boştur; tarayıcıların yükleme istemini sunmadan önce aradığı imzayı karşılar.
+
+Bildirimler yeni not yayınlandığında otomatik gider: `createPostAction` (ve planlı bir notu öne çeken
+`updatePostAction`) yanıtı bekletmemek için `after()` içinden `notifyNewPost` çağırır. Her abone,
+kaydolduğu dildeki metni alır; 404/410 dönen uçlar gönderim sırasında tablodan silinir.
+
+**Planlı notlar bildirim üretmez**: ileri tarihli bir not kendi zaman damgasıyla görünür hale gelir,
+arkasında bir istek yoktur. Bunun için ileride bir cron (örneğin Vercel Cron → route handler)
+gerekir.
+
+Yerel testte bildirimler `localhost` üzerinde çalışır (güvenli bağlam); ayrı bir cihazdan denemek
+için `next dev --experimental-https` gerekir.
 
 ## Kalite kontrolleri
 

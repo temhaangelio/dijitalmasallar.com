@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FontPicker, FontSizePicker } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
+import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
 import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorBottomSheet } from "@/components/features/visitor/visitor-bottom-sheet";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 
-export function VisitorSettingsButton({ language }: { language: VisitorLanguage }) {
+export function VisitorSettingsButton({ language, pushPublicKey }: { language: VisitorLanguage; pushPublicKey: string }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const isEnglish = language === "en";
@@ -26,6 +27,8 @@ export function VisitorSettingsButton({ language }: { language: VisitorLanguage 
             { label: isEnglish ? "Theme" : "Tema", control: <ThemePicker language={language} /> },
             { label: isEnglish ? "Font" : "Yazı tipi", control: <FontPicker language={language} /> },
             { label: isEnglish ? "Font size" : "Yazı boyutu", control: <FontSizePicker language={language} /> },
+            ...(pushPublicKey ? [{ label: isEnglish ? "Notifications" : "Bildirimler", control: <PushToggle language={language} publicKey={pushPublicKey} /> }] : []),
+            { label: isEnglish ? "App" : "Uygulama", control: <InstallPrompt language={language} /> },
           ].map((row) => (
             <div key={row.label} className="flex flex-col items-stretch gap-3 rounded-field border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <p className="visitor-muted min-w-0 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.14em] text-faint">{row.label}</p>

@@ -28,6 +28,7 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
   const moduleNewsletter = useWatch({ control, name: "moduleNewsletter" });
   const moduleAds = useWatch({ control, name: "moduleAds" });
   const moduleAnalytics = useWatch({ control, name: "moduleAnalytics" });
+  const modulePush = useWatch({ control, name: "modulePush" });
 
   const save = (formValues: SettingsFormValues) => startTransition(async () => {
     try {
@@ -99,7 +100,8 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
               ["E-bülten", "Bülten ve abone yönetimi", "moduleNewsletter", moduleNewsletter],
               ["Reklamlar", "Reklam ekleme ve yayınlama", "moduleAds", moduleAds],
               ["İstatistik", "Vercel Analytics raporları", "moduleAnalytics", moduleAnalytics],
-            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-muted">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleRss" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics", value, { shouldDirty: true })} /></div>)}
+              ["Bildirimler", "Yeni not yayınlandığında tarayıcı bildirimi", "modulePush", modulePush],
+            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-muted">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleRss" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics" | "modulePush", value, { shouldDirty: true })} /></div>)}
           </div>
       </div> : null}
 

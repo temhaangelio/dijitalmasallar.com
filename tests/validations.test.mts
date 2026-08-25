@@ -83,7 +83,7 @@ describe("settings validation", () => {
     language: "tr", feedLayout: "short", postsPerPage: 7,
     newsletterEnabled: true, newsletterTitle: "Bülten", newsletterTitleEn: "Newsletter", newsletterDescription: "Haftalık notlar", newsletterDescriptionEn: "Weekly notes",
     showSubscriberCount: true, contactEmail: "merhaba@diji.news", maintenanceMode: false,
-    modulePosts: true, moduleRss: true, moduleNewsletter: true, moduleAds: true, moduleAnalytics: true,
+    modulePosts: true, moduleRss: true, moduleNewsletter: true, moduleAds: true, moduleAnalytics: true, modulePush: true,
   };
 
   test("accepts the defaults", () => {

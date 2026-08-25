@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { parsePostContent, stripMarkdown } from "../src/lib/post-content.ts";
+import { parsePostContent, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
 
 describe("stripMarkdown", () => {
   test("drops images and unwraps links", () => {
@@ -57,5 +57,33 @@ describe("parsePostContent", () => {
     assert.equal(parsed.title, "Kısa.");
     assert.equal(parsed.excerpt, "Kısa.");
     assert.ok(!parsed.excerpt.endsWith("…"));
+  });
+});
+
+describe("summaryLine", () => {
+  test("prefers the authored excerpt", () => {
+    assert.equal(summaryLine({ excerpt: "Editörün özeti.", body: "# Başlık\n\nGövde metni." }), "Editörün özeti.");
+  });
+
+  test("keeps only the first sentence of a multi-sentence excerpt", () => {
+    assert.equal(summaryLine({ excerpt: "İlk cümle. İkinci cümle.", body: "" }), "İlk cümle.");
+  });
+
+  test("falls back to the opening sentence of the body, without its title", () => {
+    assert.equal(summaryLine({ excerpt: "", body: "# Başlık\n\nGövdenin ilk cümlesi. Sonrası." }), "Gövdenin ilk cümlesi.");
+  });
+
+  test("strips markdown from the fallback", () => {
+    assert.equal(summaryLine({ excerpt: "", body: "[Kaynak](https://example.com) **yeni** bir sürüm yayımladı." }), "Kaynak yeni bir sürüm yayımladı.");
+  });
+
+  test("truncates a sentence-less note to the limit with an ellipsis", () => {
+    const line = summaryLine({ excerpt: "", body: "x".repeat(400) });
+    assert.ok(line.length <= 150, `line was ${line.length} characters`);
+    assert.ok(line.endsWith("…"));
+  });
+
+  test("empty content yields an empty line", () => {
+    assert.equal(summaryLine({ excerpt: "", body: "" }), "");
   });
 });

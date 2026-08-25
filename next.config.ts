@@ -41,7 +41,20 @@ const nextConfig: NextConfig = {
       : [{ protocol: "https", hostname: "**.supabase.co", pathname: storagePath }],
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      {
+        // The worker must never be served from a stale copy: a cached `sw.js` keeps an old push
+        // handler alive for as long as the browser holds it. `Service-Worker-Allowed` lets the file
+        // claim the whole origin even though it is served from `/public`.
+        source: "/sw.js",
+        headers: [
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
+    ];
   },
   async redirects() {
     // The public routes were renamed when English became the primary language. Kept permanently so

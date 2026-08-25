@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: { default: "diji.news", template: "%s · diji.news" },
   description: "Teknoloji, yapay zekâ, bilim ve dijital kültür odaklı kısa ve güncel haber notları.",
   applicationName: "diji.news",
+  appleWebApp: { capable: true, title: "diji.news", statusBarStyle: "default" },
   category: "technology",
   creator: "diji.news",
   publisher: "diji.news",
@@ -33,6 +34,17 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary", title: "diji.news", description: "Kısa ve güncel teknoloji, yapay zekâ, bilim ve dijital kültür notları." },
   verification: { google: "I2Kgl2_qfu24MNHBQscd-jvFyhuFIBiaXULF5QOYOaA" },
+};
+
+/**
+ * The browser chrome follows the visitor theme rather than a single brand colour, so an installed
+ * app does not sit under a light status bar while its own page is dark.
+ */
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#efefef" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },
+  ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

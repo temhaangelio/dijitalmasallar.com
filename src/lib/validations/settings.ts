@@ -23,5 +23,6 @@ export const settingsSchema = z.object({
   moduleNewsletter: z.boolean(),
   moduleAds: z.boolean(),
   moduleAnalytics: z.boolean(),
+  modulePush: z.boolean(),
 });
 export type SettingsFormValues = z.infer<typeof settingsSchema>;

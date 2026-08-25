@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { FontPicker, FontSizePicker } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
+import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
 import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { resolveVisitorLanguage } from "@/lib/visitor-language";
+import { isPushConfigured, pushPublicKey } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
 
 export const metadata: Metadata = { title: "Sayfa ayarları", robots: { index: false, follow: true } };
@@ -13,11 +15,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const language = resolveVisitorLanguage(query.lang);
   const settings = await getSiteSettings();
   const isEnglish = language === "en";
+  const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
   const rows = [
     { title: isEnglish ? "Language" : "Dil", description: isEnglish ? "Choose the language used across the site." : "Sitede kullanılacak dili seçin.", control: <LanguagePicker language={language} path="/settings" /> },
     { title: isEnglish ? "Theme" : "Tema", description: isEnglish ? "System follows your device setting." : "Sistem seçeneği cihaz ayarınızı takip eder.", control: <ThemePicker language={language} /> },
     { title: isEnglish ? "Font" : "Yazı tipi", description: isEnglish ? "Choose the typeface used on visitor pages." : "Ziyaretçi sayfalarında kullanılacak yazı tipini seçin.", control: <FontPicker language={language} /> },
     { title: isEnglish ? "Font size" : "Yazı boyutu", description: isEnglish ? "Adjust the reading size across visitor pages." : "Ziyaretçi sayfalarındaki okuma boyutunu ayarlayın.", control: <FontSizePicker language={language} /> },
+    ...(publicKey ? [{
+      title: isEnglish ? "Notifications" : "Bildirimler",
+      description: isEnglish ? "Get a notification when a new note is published." : "Yeni bir not yayınlandığında bildirim alın.",
+      control: <PushToggle language={language} publicKey={publicKey} />,
+    }] : []),
+    {
+      title: isEnglish ? "App" : "Uygulama",
+      description: isEnglish ? "Install diji.news to your home screen." : "diji.news'i ana ekranınıza uygulama olarak ekleyin.",
+      control: <InstallPrompt language={language} />,
+    },
   ];
   return (
     <VisitorShell language={language} siteName={settings.siteName}>

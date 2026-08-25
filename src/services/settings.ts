@@ -27,6 +27,7 @@ export type SiteSettings = {
   moduleNewsletter: boolean;
   moduleAds: boolean;
   moduleAnalytics: boolean;
+  modulePush: boolean;
   updatedAt: string | null;
 };
 
@@ -54,6 +55,7 @@ export const defaultSiteSettings: SiteSettings = {
   moduleNewsletter: true,
   moduleAds: true,
   moduleAnalytics: true,
+  modulePush: true,
   updatedAt: null,
 };
 
@@ -82,6 +84,7 @@ const settingKeys = {
   module_newsletter: "moduleNewsletter",
   module_ads: "moduleAds",
   module_analytics: "moduleAnalytics",
+  module_push: "modulePush",
 } as const;
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {

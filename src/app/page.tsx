@@ -1,21 +1,20 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
+import { DailyBrief } from "@/components/features/visitor/daily-brief";
 import { LoadMoreButton } from "@/components/features/visitor/load-more-button";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
 import { LiveNewsBand } from "@/components/features/visitor/live-news-band";
+import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
-import { getSiteSettings, type SiteSettings } from "@/services/settings";
+import { getSiteSettings } from "@/services/settings";
+import { dailyBriefPosts, dailyBriefText } from "@/lib/daily-brief";
 import { isOptimizableImage } from "@/lib/images";
-import { sourceBadgeInitials, sourceLabel } from "@/lib/source-label";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
-import { languageHref, resolveVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
-import type { Post } from "@/types/database";
-import type { ReactNode } from "react";
+import { dateKey, dateLabel, timeLabel } from "@/lib/visitor-date";
+import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 
 export const dynamic = "force-dynamic";
 
@@ -45,74 +44,6 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     },
     twitter: { card: "summary", title: settings.siteName, description },
   };
-}
-
-function feedContent(post: Post): ReactNode[] {
-  const withoutHeading = post.body.replace(/^#\s+[^\n]+\n+/i, "");
-  const content = withoutHeading
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/[*_`]/g, "")
-    .replace(/\s+/g, " ")
-    .trim() || post.excerpt;
-  const nodes: ReactNode[] = [];
-  const pattern = /~~([^~]+)~~|==([^=]+)==/g;
-  let cursor = 0;
-  let match: RegExpExecArray | null;
-  while ((match = pattern.exec(content)) !== null) {
-    if (match.index > cursor) nodes.push(content.slice(cursor, match.index));
-    if (match[1]) nodes.push(<del key={`strike-${match.index}`}>{match[1]}</del>);
-    else nodes.push(<mark key={`highlight-${match.index}`} className="visitor-highlight rounded-[3px] px-1 py-0.5 text-inherit">{match[2]}</mark>);
-    cursor = match.index + match[0].length;
-  }
-  if (cursor < content.length) nodes.push(content.slice(cursor));
-  return nodes.length ? nodes : [content];
-}
-
-function timeLabel(value: string, language: VisitorLanguage) {
-  return new Intl.DateTimeFormat(language === "en" ? "en-US" : "tr-TR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Europe/Istanbul",
-  }).format(new Date(value));
-}
-
-function dateLabel(value: string, language: VisitorLanguage) {
-  const locale = language === "en" ? "en-US" : "tr-TR";
-  return new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Istanbul" }).format(new Date(value));
-}
-
-function dateKey(value: string) {
-  return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(value));
-}
-
-function NoteCard({ post, layout, language }: { post: Post; layout: SiteSettings["feedLayout"]; language: VisitorLanguage }) {
-  const layoutClass = layout === "card" ? "border-line shadow-card" : layout === "classic" ? "border-line-strong" : "border-transparent";
-  const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
-  return (
-    <article className={`visitor-card group relative rounded-panel border bg-surface p-5 transition duration-300 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-soft sm:p-6 ${layoutClass}`}>
-      {/*
-        The note link stretches over the whole card through its own `::before`, so the meta row is
-        part of the target too. Reading the note no longer dims the text on hover — the lift, the
-        border and the arrow carry the affordance, and the copy stays at full contrast while the
-        pointer rests on it.
-      */}
-      <Link
-        href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")}
-        className="visitor-copy block text-[length:var(--vt-body)] font-normal leading-[1.7] text-ink [text-wrap:pretty] before:absolute before:inset-0 before:rounded-panel before:content-['']"
-      >
-        {feedContent(post)}
-      </Link>
-      <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4 text-[length:var(--vt-meta)]">
-        {post.source_url
-          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source relative z-10 inline-flex items-center gap-2.5 tracking-[.04em] text-muted transition-colors hover:text-ink"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span>{displayedSource}</span></a>
-          : <span className="visitor-source inline-flex items-center gap-2.5 tracking-[.04em] text-faint"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span>{displayedSource}</span></span>}
-        <span className="shrink-0 text-faint transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={15} /></span>
-      </div>
-    </article>
-  );
 }
 
 function AdCard({ ad }: { ad: Advertisement }) {
@@ -165,6 +96,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
+  const briefPosts = dailyBriefPosts(posts);
+  const briefText = dailyBriefText(briefPosts, language);
   const newsletterSlot = settings.moduleNewsletter && settings.newsletterEnabled ? Math.min(3, posts.length - 1) : -1;
   const adSlots = randomAdSlots(posts.length, ads, newsletterSlot >= 0 ? [newsletterSlot] : []);
   const baseUrl = siteUrl(settings.domain);
@@ -213,11 +146,16 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <VisitorShell language={language} siteName={settings.siteName} topContent={<LiveNewsBand posts={posts} language={language} />}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
-      <header className="flex w-full max-w-[720px] flex-col items-center px-4 pb-14 pt-16 text-center sm:pb-[76px] sm:pt-[88px]">
-        <h1 className="visitor-intro-title visitor-heading m-0 max-w-[620px] text-[length:var(--vt-h2)] font-semibold leading-[1.3] tracking-[-.035em] [text-wrap:balance]">{language === "en" ? "Today’s Brief" : "Günün Özeti"}</h1>
-      </header>
+      {/*
+        The brief carries the page's `h1`. On a day with nothing published it renders nothing at all,
+        so the heading falls back to a hidden one — a page still has to name itself for screen
+        readers and search engines.
+      */}
+      {briefText ? null : <h1 className="sr-only">{settings.siteName}</h1>}
 
-      <main className="flex w-full max-w-[720px] flex-col">
+      <DailyBrief text={briefText} sentenceCount={briefPosts.length} language={language} />
+
+      <main className={`flex w-full max-w-[720px] flex-col ${briefText ? "mt-2 sm:mt-3" : "mt-14 sm:mt-16"}`}>
         {/*
           The rail, the dots and the timestamp gutter all live outside the 720px column and are
           desktop-only — see `.visitor-timeline`. On a phone that gutter used to eat 32px of the

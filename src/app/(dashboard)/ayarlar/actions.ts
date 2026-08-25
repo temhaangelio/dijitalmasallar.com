@@ -35,6 +35,7 @@ export async function saveSettingsAction(input: unknown) {
     ["module_newsletter", parsed.data.moduleNewsletter],
     ["module_ads", parsed.data.moduleAds],
     ["module_analytics", parsed.data.moduleAnalytics],
+    ["module_push", parsed.data.modulePush],
   ].map(([key, value]) => ({ key, value }));
   const { error } = await access.admin.from("site_settings").upsert(entries, { onConflict: "key" });
   if (error) return { success: false, message: "Ayarlar kaydedilemedi." };

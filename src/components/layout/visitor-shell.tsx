@@ -1,10 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Rss } from "lucide-react";
+import { Rss, Search } from "lucide-react";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
+import { ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { VisitorSettingsButton } from "@/components/features/visitor/visitor-settings-button";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
+import { isPushConfigured, pushPublicKey } from "@/services/push";
+import { getSiteSettings } from "@/services/settings";
 
 /**
  * The public pages share one frame: canvas background, 720px column, brand nav and footer.
@@ -12,8 +15,11 @@ import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
  * always-Turkish admin panel, and the visitor language is decided per request.
  *
  * The footer is rendered here rather than by each page, so no public page can end up without one.
+ *
+ * The service worker is registered from here too, so every public page installs it and none of the
+ * panel's pages do.
  */
-export function VisitorShell({
+export async function VisitorShell({
   language,
   siteName,
   topContent,
@@ -24,6 +30,11 @@ export function VisitorShell({
   topContent?: ReactNode;
   children: ReactNode;
 }) {
+  const settings = await getSiteSettings();
+  // The key is only handed out when the panel switch is on and the VAPID pair is configured; with an
+  // empty key the toggle can register the worker but never subscribe.
+  const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
+
   return (
     <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-5 pb-10 pt-5 text-ink">
       <div className="visitor-ambient" aria-hidden="true" />
@@ -34,12 +45,22 @@ export function VisitorShell({
           <span className="visitor-heading text-xl font-bold tracking-[-.04em] sm:text-[22px]">{siteName}</span>
         </Link>
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <VisitorSettingsButton language={language} />
+          {/* Search sits in the bar itself rather than only inside the menu: it is the one action a
+              reader reaches for from any page, and the sheet is one tap too far for it. */}
+          <Link
+            href={languageHref("/search", language)}
+            aria-label={language === "en" ? "Search" : "Arama"}
+            className="grid size-9 place-items-center rounded-[12px] bg-ink text-ink-contrast shadow-[0_2px_8px_rgba(0,0,0,.12)] transition-all hover:-translate-y-px hover:opacity-80 hover:shadow-soft"
+          >
+            <Search size={17} aria-hidden="true" />
+          </Link>
+          <VisitorSettingsButton language={language} pushPublicKey={publicKey} />
           <VisitorMenu language={language} siteName={siteName} />
         </div>
       </nav>
       {children}
       <VisitorFooter language={language} siteName={siteName} />
+      <ServiceWorkerRegistrar language={language} publicKey={publicKey} />
     </div>
   );
 }

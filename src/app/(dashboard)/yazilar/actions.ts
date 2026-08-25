@@ -2,10 +2,12 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { isUuid } from "@/lib/utils";
 import { postSchema } from "@/lib/validations/post";
 import { getPostsPage, type PostPublicationFilter, type PostSort } from "@/services/posts";
+import { notifyNewPost } from "@/services/push";
 
 const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc", "category-asc"];
 const postStatuses: PostPublicationFilter[] = ["all", "published", "scheduled"];
@@ -45,6 +47,20 @@ export async function loadMorePostsAction(page: number, pageSize = 20, language:
   }
 }
 
+/**
+ * Push goes out after the response, through `after`, so the editor's save is never held up by a
+ * thousand endpoints — and a push service having a bad day cannot turn a saved note into an error.
+ */
+function notifyPublishedPost(id: string, data: { tr: { title: string; excerpt: string }; en: { title: string; excerpt: string } }) {
+  after(async () => {
+    try {
+      await notifyNewPost({ id, tr: data.tr, en: data.en });
+    } catch (error) {
+      console.error("Push notification for new post failed", error);
+    }
+  });
+}
+
 export async function createPostAction(input: unknown, image: File | null = null) {
   const parsed = postSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: parsed.error.issues[0]?.message ?? "Yazıyı kontrol edin." };
@@ -53,7 +69,7 @@ export async function createPostAction(input: unknown, image: File | null = null
   const cover = await uploadCover(access, image);
   if (cover.error) return { success: false, message: cover.error };
   const createdAt = parsed.data.status === "scheduled" ? new Date(parsed.data.scheduledAt!).toISOString() : new Date().toISOString();
-  const { error } = await access.admin.from("posts").insert({
+  const { data: created, error } = await access.admin.from("posts").insert({
     content_tr: `# ${parsed.data.tr.title}\n\n${parsed.data.tr.excerpt}\n\n${parsed.data.tr.body}`,
     content_en: `# ${parsed.data.en.title}\n\n${parsed.data.en.excerpt}\n\n${parsed.data.en.body}`,
     category: parsed.data.category,
@@ -64,7 +80,7 @@ export async function createPostAction(input: unknown, image: File | null = null
     show_excerpt: parsed.data.showExcerpt,
     author_id: access.user.id,
     created_at: createdAt,
-  });
+  }).select("id").single();
   if (error) {
     if (cover.path) await access.admin.storage.from("diji-post-media").remove([cover.path]);
     // Database hints name columns and constraints, so they stay in the server log.
@@ -72,6 +88,9 @@ export async function createPostAction(input: unknown, image: File | null = null
     return { success: false, message: "Yazı kaydedilemedi. Lütfen tekrar deneyin." };
   }
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath("/dashboard");
+  // A note that is live right now is the only kind that can announce itself here: a scheduled one
+  // becomes visible on its own timestamp, with no request to hang the send off.
+  if (created?.id && parsed.data.status !== "scheduled") notifyPublishedPost(created.id, parsed.data);
   return { success: true, message: "Yazı kaydedildi." };
 }
 
@@ -113,6 +132,9 @@ export async function updatePostAction(id: string, input: unknown, image: File |
     if (oldPath) await access.admin.storage.from("diji-post-media").remove([oldPath]);
   }
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath(`/yazilar/${id}/duzenle`); revalidatePath("/dashboard");
+  // Only the moment a scheduled note is pulled forward counts as publishing it; ordinary edits to an
+  // already-published note must not notify the same readers again.
+  if (wasScheduled && parsed.data.status !== "scheduled") notifyPublishedPost(current.id, parsed.data);
   return { success: true, message: "Yazı güncellendi." };
 }
 

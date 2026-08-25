@@ -43,3 +43,17 @@ export function parsePostContent(value: string): ParsedPostContent {
     body: value,
   };
 }
+
+/**
+ * The one-line gist of a note, for places that show a story without opening it — the daily brief on
+ * the feed, and anywhere else a single sentence has to stand in for the whole note.
+ *
+ * The authored excerpt is preferred because an editor wrote it for exactly this purpose; notes
+ * imported without one fall back to the opening sentence of the body. Either way only the first
+ * sentence survives, so a brief cannot turn into a paragraph.
+ */
+export function summaryLine(post: { excerpt: string; body: string }, limit = 150) {
+  const source = post.excerpt.trim() || stripMarkdown(post.body.replace(/^#\s+[^\n]+\n+/, ""));
+  const sentence = source.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || source;
+  return truncate(sentence, limit);
+}

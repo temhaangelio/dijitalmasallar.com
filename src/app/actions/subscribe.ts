@@ -1,27 +1,11 @@
 "use server";
 
 import { getAppUrl } from "@/lib/env";
+import { createRateLimiter } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailSchema } from "@/lib/validations/auth";
-import { headers } from "next/headers";
 
-const attempts = new Map<string, { count: number; resetAt: number }>();
-const windowMs = 10 * 60 * 1000;
-const maxAttempts = 5;
-
-async function rateLimited() {
-  const requestHeaders = await headers();
-  const ip = (requestHeaders.get("x-forwarded-for") || requestHeaders.get("x-real-ip") || "unknown").split(",")[0].trim();
-  const now = Date.now();
-  const current = attempts.get(ip);
-  if (!current || current.resetAt <= now) {
-    attempts.set(ip, { count: 1, resetAt: now + windowMs });
-    return false;
-  }
-  current.count += 1;
-  if (attempts.size > 5000) attempts.delete(attempts.keys().next().value ?? ip);
-  return current.count > maxAttempts;
-}
+const rateLimited = createRateLimiter({ windowMs: 10 * 60 * 1000, maxAttempts: 5 });
 
 async function sendConfirmationEmail(email: string, token: string) {
   const apiKey = process.env.RESEND_API_KEY || process.env.MAIL_KEY;

@@ -183,6 +183,8 @@ html[data-visitor-theme="dark"] .visitor-page {
 
   --visitor-ambient-a: rgb(77 96 137 / .16);
   --visitor-ambient-b: rgb(130 88 66 / .12);
+  --brief-wash-a: rgb(86 110 160 / .46);
+  --brief-wash-b: rgb(146 98 72 / .38);
 }
 
 /* Visitor font preferences are intentionally scoped away from the admin panel. */
@@ -274,6 +276,10 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
   .visitor-page {
     --visitor-ambient-a: rgb(150 174 220 / .2);
     --visitor-ambient-b: rgb(238 191 157 / .16);
+    /* The brief's own wash: the ambient palette again, carried at a strength that reads as a
+       different ground rather than a passing tint. */
+    --brief-wash-a: rgb(146 172 224 / .46);
+    --brief-wash-b: rgb(240 186 148 / .42);
     position: relative;
     isolation: isolate;
     overflow-x: clip;
@@ -294,17 +300,33 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
     animation: visitor-ambient-drift 20s ease-in-out infinite alternate;
     will-change: transform;
   }
-  .visitor-intro-title { position: relative; isolation: isolate; }
-  .visitor-intro-title::before {
+  /*
+   * The daily brief sits on its own ground: a full-bleed wash of the two ambient colours, fading
+   * out at the bottom so the feed below still starts on the plain canvas. No border and no shadow —
+   * it is the opening of the page, not a card.
+   */
+  .daily-brief {
+    position: relative;
+    isolation: isolate;
+  }
+  .daily-brief::before {
     content: "";
     position: absolute;
     z-index: -1;
-    inset: -48px -72px;
-    pointer-events: none;
-    opacity: .9;
-    filter: blur(18px);
-    background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-surface) 88%, transparent) 0, transparent 70%);
+    inset: 0;
+    /*
+       Both washes sit over the 720px column rather than hugging the window edges, so the colour
+       reads as the ground the brief is written on instead of two stains in the margins. They are
+       kept inside the mask's solid range as well — a blob centred low would be cut in half by it.
+    */
+    background:
+      radial-gradient(58% 130% at 32% 24%, var(--brief-wash-a) 0, transparent 70%),
+      radial-gradient(52% 120% at 72% 52%, var(--brief-wash-b) 0, transparent 68%);
+    /* Faded at both ends: the nav keeps the plain canvas under it, the colour only comes up once
+       the brief itself starts, and it is gone again before the feed. */
+    mask-image: linear-gradient(180deg, transparent 0, #000 24%, #000 70%, transparent 100%);
   }
+
   /* Selection follows the theme instead of the browser's blue, which clashed with the greyscale. */
   .visitor-page ::selection { background: var(--color-highlight); color: var(--color-ink); }
 

@@ -1,9 +1,10 @@
 import { Skeleton } from "@/components/feedback/states";
 import { PageHeaderSkeleton, StatCardsSkeleton, TableRowsSkeleton } from "@/components/feedback/skeletons";
 import { ShellSkeleton } from "@/components/layout/shell-skeleton";
+import { VisitorShellSkeleton } from "@/components/layout/visitor-shell-skeleton";
 
 /**
- * One skeleton per admin route, each shaped like the page it stands in for.
+ * One skeleton per route — admin and visitor alike — each shaped like the page it stands in for.
  *
  * They all live here rather than next to their features because they only exist to be imported by a
  * three-line `loading.tsx`, and because keeping them together is what stops one of them drifting out
@@ -380,5 +381,151 @@ export function EditorLoading({ active, asideFields }: { active: string; asideFi
         </div>
       </div>
     </ShellSkeleton>
+  );
+}
+
+/* --------------------------------------------------------------- visitor */
+
+/**
+ * The visitor skeletons stand in for pages that are rendered per request against Supabase, so they
+ * are what a reader actually looks at while a note or a search is being fetched. They deliberately
+ * carry no text: a fallback cannot know the language of the page it is covering.
+ */
+
+/** The note card as the feed and the search results draw it: three lines of copy over a meta row. */
+export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; withCount?: boolean }) {
+  return (
+    <>
+      {withCount ? <Skeleton className="mb-4 ml-1 h-3 w-32" /> : null}
+      <div className="flex flex-col gap-4 sm:gap-5">
+        {Array.from({ length: count }, (_, index) => (
+          <div key={index} className="rounded-panel border border-transparent bg-surface p-5 sm:p-6">
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="mt-2.5 h-5 w-11/12" />
+            <Skeleton className="mt-2.5 h-5 w-2/3" />
+            <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
+              <div className="flex items-center gap-2.5"><Skeleton className="size-7 rounded-[9px]" /><Skeleton className="h-3.5 w-24" /></div>
+              <Skeleton className="size-4 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------- / */
+
+export function VisitorFeedLoading() {
+  return (
+    <VisitorShellSkeleton label="Akış yükleniyor" liveBand>
+      {/* The brief keeps its washed, full-bleed band: it is the first thing a reader sees, and a
+          plain grey block there would not look like the page that is coming. */}
+      <div className="daily-brief -mx-5 w-[calc(100%+2.5rem)] px-5">
+        <div className="mx-auto w-full max-w-[720px] px-1 pb-9 pt-12 sm:pb-11 sm:pt-16">
+          <Skeleton className="h-6 w-44" />
+          <div className="mt-5 space-y-3">
+            {["w-full", "w-full", "w-3/4"].map((width, index) => <Skeleton key={index} className={`h-5 ${width}`} />)}
+          </div>
+          <Skeleton className="mt-5 h-4 w-20" />
+        </div>
+      </div>
+      <div className="mt-2 w-full max-w-[720px] sm:mt-3">
+        <Skeleton className="mb-5 h-8 w-44 rounded-full" />
+        <VisitorNoteCardsSkeleton count={4} />
+      </div>
+    </VisitorShellSkeleton>
+  );
+}
+
+/* ------------------------------------------------------------- /search */
+
+export function VisitorSearchLoading() {
+  return (
+    <VisitorShellSkeleton label="Arama yükleniyor">
+      <div className="w-full max-w-[720px] pt-12 sm:pt-16">
+        <div className="px-1 pb-7"><Skeleton className="h-10 w-40" /><Skeleton className="mt-4 h-4 w-80 max-w-full" /></div>
+        <Skeleton className="h-[62px] w-full rounded-full" />
+        <div className="pt-9"><VisitorNoteCardsSkeleton count={3} withCount /></div>
+      </div>
+    </VisitorShellSkeleton>
+  );
+}
+
+/* -------------------------------------------------------- /haber/[id] */
+
+export function VisitorArticleLoading() {
+  return (
+    <VisitorShellSkeleton label="Haber yükleniyor">
+      <div className="w-full max-w-[720px] pt-8 sm:pt-10">
+        <div className="rounded-panel border border-line bg-surface p-6 sm:p-10">
+          <div className="mb-8 flex items-center justify-between"><Skeleton className="h-3 w-28" /><Skeleton className="size-10 rounded-full" /></div>
+          <Skeleton className="h-8 w-3/4" />
+          <div className="mt-6 space-y-3">
+            {["w-full", "w-full", "w-11/12", "w-full", "w-4/5"].map((width, index) => <Skeleton key={index} className={`h-5 ${width}`} />)}
+          </div>
+          <div className="mt-9 flex items-center justify-between border-t border-line pt-5"><Skeleton className="h-3 w-16" /><Skeleton className="h-3 w-32" /></div>
+        </div>
+      </div>
+    </VisitorShellSkeleton>
+  );
+}
+
+/* ---------------------------------- /about, /contact, /newsletter */
+
+/** `VisitorContentPage`: a titled header panel over a body of running text. */
+export function VisitorContentLoading({ label, lines = 5 }: { label: string; lines?: number }) {
+  const widths = ["w-full", "w-11/12", "w-full", "w-4/5", "w-full", "w-3/4"];
+  return (
+    <VisitorShellSkeleton label={label}>
+      <div className="w-full max-w-[720px] pb-6 pt-12 sm:pt-16">
+        <div className="overflow-hidden rounded-panel border border-line bg-surface">
+          <div className="border-b border-line px-6 py-8 sm:px-10 sm:py-10"><Skeleton className="h-10 w-52" /><Skeleton className="mt-4 h-4 w-4/5" /></div>
+          <div className="space-y-3 px-6 py-8 sm:px-10 sm:py-10">
+            <Skeleton className="mb-6 h-3 w-28" />
+            {Array.from({ length: lines }, (_, index) => <Skeleton key={index} className={`h-5 ${widths[index % widths.length]}`} />)}
+          </div>
+        </div>
+      </div>
+    </VisitorShellSkeleton>
+  );
+}
+
+/* ----------------------------------------------------------- /settings */
+
+/** The reader's own page settings: one row per preference, each a label beside a segmented control. */
+export function VisitorSettingsLoading() {
+  return (
+    <VisitorShellSkeleton label="Sayfa ayarları yükleniyor">
+      <div className="w-full max-w-[720px] pt-12 sm:pt-16">
+        <div className="rounded-panel border border-line bg-surface p-6 sm:p-10">
+          <Skeleton className="h-10 w-56" />
+          <div className="mt-8 divide-y divide-line">
+            {[0, 1, 2, 3].map((index) => (
+              <div key={index} className="flex flex-col gap-3 py-6 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                <div className="min-w-0 flex-1"><Skeleton className="h-4 w-28" /><Skeleton className="mt-2 h-3 w-64 max-w-full" /></div>
+                <Skeleton className="h-11 w-full rounded-full sm:w-64" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </VisitorShellSkeleton>
+  );
+}
+
+/* --------------------------------------- (auth) and the newsletter opt-in */
+
+/** `AuthShell` is a single centred card, so its fallback is one too. */
+export function AuthPageLoading() {
+  return (
+    <main className="grid min-h-screen place-items-center px-4 py-10" role="status" aria-label="Sayfa yükleniyor">
+      <section className="w-full max-w-[460px] rounded-card bg-white p-7 shadow-sm sm:p-10">
+        <div className="mb-10 flex items-center gap-3"><Skeleton className="size-8 rounded-[11px]" /><Skeleton className="h-5 w-24" /></div>
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="mb-8 mt-3 h-4 w-full" />
+        <div className="space-y-4"><Skeleton className="h-12 w-full rounded-field" /><Skeleton className="h-12 w-full rounded-field" /><Skeleton className="h-12 w-full rounded-full" /></div>
+      </section>
+    </main>
   );
 }
