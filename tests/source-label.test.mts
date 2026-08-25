@@ -7,6 +7,18 @@ describe("sourceLabel", () => {
     assert.equal(sourceLabel("Teknoloji Haberleri", "https://www.example.com/news.html", "Kaynak"), "Teknoloji Haberleri");
   });
 
+  it("uses the username for an X post even when a source name exists", () => {
+    assert.equal(sourceLabel("X", "https://x.com/Google/status/123456789", "Kaynak"), "@Google");
+  });
+
+  it("supports legacy Twitter links", () => {
+    assert.equal(sourceLabel(null, "https://mobile.twitter.com/OpenAI/status/123456789", "Kaynak"), "@OpenAI");
+  });
+
+  it("does not treat X system paths as usernames", () => {
+    assert.equal(sourceLabel("X", "https://x.com/i/web/status/123456789", "Kaynak"), "X");
+  });
+
   it("reduces a source URL to its domain", () => {
     assert.equal(sourceLabel(null, "https://www.example.com/haber/detay.html?ref=home", "Kaynak"), "example.com");
   });

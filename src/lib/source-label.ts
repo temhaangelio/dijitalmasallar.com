@@ -1,4 +1,26 @@
+const xReservedPaths = new Set([
+  "compose", "explore", "hashtag", "home", "i", "intent", "messages", "notifications", "search", "settings", "share",
+]);
+
+function xUsername(sourceUrl: string | null | undefined) {
+  if (!sourceUrl) return null;
+
+  try {
+    const url = new URL(sourceUrl);
+    const hostname = url.hostname.toLowerCase().replace(/^(?:www\.|mobile\.)/, "");
+    if (hostname !== "x.com" && hostname !== "twitter.com") return null;
+
+    const username = url.pathname.split("/").filter(Boolean)[0]?.replace(/^@/, "") ?? "";
+    if (!/^[a-z0-9_]{1,15}$/i.test(username) || xReservedPaths.has(username.toLowerCase())) return null;
+    return `@${username}`;
+  } catch {
+    return null;
+  }
+}
+
 export function sourceLabel(sourceName: string | null | undefined, sourceUrl: string | null | undefined, fallback: string) {
+  const username = xUsername(sourceUrl);
+  if (username) return username;
   const name = sourceName?.trim();
   if (name) return name;
   if (!sourceUrl) return fallback;
