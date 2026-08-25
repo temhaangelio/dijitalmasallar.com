@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Rss, Search } from "lucide-react";
-import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
+import { Search } from "lucide-react";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
@@ -60,36 +59,17 @@ export async function VisitorShell({
         </div>
       </nav>
       {children}
-      <VisitorFooter language={language} siteName={siteName} />
+      <VisitorFooter siteName={siteName} />
       <ServiceWorkerRegistrar language={language} publicKey={publicKey} />
       <InstallBanner language={language} />
     </div>
   );
 }
 
-function VisitorFooter({ language, siteName }: { language: VisitorLanguage; siteName: string }) {
-  const isEnglish = language === "en";
-
+function VisitorFooter({ siteName }: { siteName: string }) {
   return (
-    <footer className="visitor-footer mt-14 flex w-full max-w-[720px] flex-col gap-5 border-t border-line-strong px-1 pt-7 sm:flex-row sm:items-center sm:justify-between">
-      <nav className="-ml-2.5 flex flex-wrap items-center gap-x-1 gap-y-1" aria-label={isEnglish ? "Footer" : "Alt bilgi"}>
-        {visitorNavItems.map((item) => (
-          <Link
-            key={item.href}
-            href={languageHref(item.href, language)}
-            className="visitor-copy rounded-full px-2.5 py-1.5 text-[length:var(--vt-ui)] font-semibold text-muted transition-colors hover:text-ink"
-          >
-            {item[language]}
-          </Link>
-        ))}
-        <a
-          href={isEnglish ? "/rss.xml" : "/rss.xml?lang=tr"}
-          className="visitor-copy flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[length:var(--vt-ui)] font-semibold text-muted transition-colors hover:text-ink"
-        >
-          <Rss className="size-3.5" aria-hidden="true" />RSS
-        </a>
-      </nav>
-      <p className="visitor-muted px-1.5 text-[length:var(--vt-meta)] font-medium text-faint">© {new Date().getFullYear()} {siteName}</p>
+    <footer className="visitor-footer mt-14 flex w-full max-w-[720px] justify-center border-t border-line-strong px-1 pt-7">
+      <p className="visitor-muted text-[length:var(--vt-meta)] font-medium text-faint">© {new Date().getFullYear()} {siteName}</p>
     </footer>
   );
 }

@@ -23,11 +23,14 @@ const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist",
 // `opsz` is Source Serif's optical-size axis: paired with `font-optical-sizing: auto` it thickens
 // hairlines and opens the spacing as the text gets smaller, which is the whole point of choosing a
 // serif with an optical axis for body copy.
-const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-reading-serif", display: "swap" });
+// Not preloaded: the sans is what almost every reader sees, and preloading all three meant six font
+// files on the wire for two that get used. These two are fetched the moment someone switches to
+// them, with next/font's metric-matched fallback standing in until they arrive.
+const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-reading-serif", display: "swap", preload: false });
 
 // `--font-serif` and `--font-mono` are Tailwind's own theme tokens; these keep their own names so
 // the `font-mono` utility still means what it means everywhere else in the app.
-const geistMono = Geist_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-reading-mono", display: "swap" });
+const geistMono = Geist_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-reading-mono", display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
