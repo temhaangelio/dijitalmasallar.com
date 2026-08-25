@@ -203,31 +203,50 @@ function usePushSubscription(language: VisitorLanguage, publicKey: string) {
 }
 
 /**
- * The bell in the nav: one tap to start getting notes, one to stop. It only appears once the browser
- * has told us it can actually deliver them — a bell that opens an explanation is worse than no bell,
- * and the settings row carries that explanation instead.
+ * The bell in the nav: one tap to start getting notes, one to stop. It keeps its place next to search
+ * while the browser state is being resolved, and explains states that require action elsewhere.
  */
 export function PushNavButton({ language, publicKey }: { language: VisitorLanguage; publicKey: string }) {
   const { state, pending, turnOn, turnOff } = usePushSubscription(language, publicKey);
   const isEnglish = language === "en";
-  if (state !== "on" && state !== "off") return null;
-
   const on = state === "on";
-  const label = on
-    ? (isEnglish ? "Turn notifications off" : "Bildirimleri kapat")
-    : (isEnglish ? "Turn notifications on" : "Bildirimleri aç");
+  const label = state === "loading"
+    ? (isEnglish ? "Checking notifications" : "Bildirimler kontrol ediliyor")
+    : state === "needs-install"
+      ? (isEnglish ? "Add the app to your home screen first" : "Önce uygulamayı ana ekranınıza ekleyin")
+      : state === "blocked"
+        ? (isEnglish ? "Notifications are blocked in browser settings" : "Bildirimler tarayıcı ayarlarından engellenmiş")
+        : state === "unsupported"
+          ? (isEnglish ? "Notifications are not supported by this browser" : "Bu tarayıcı bildirimleri desteklemiyor")
+          : on
+            ? (isEnglish ? "Turn notifications off" : "Bildirimleri kapat")
+            : (isEnglish ? "Turn notifications on" : "Bildirimleri aç");
+  const disabled = pending || state === "loading" || state === "unsupported";
+
+  function handleClick() {
+    if (disabled) return;
+    if (state === "needs-install") {
+      showToast(isEnglish ? "Add the app to your home screen first." : "Bildirimler için önce uygulamayı ana ekranınıza ekleyin.", "error");
+      return;
+    }
+    if (state === "blocked") {
+      showToast(isEnglish ? "Allow notifications in your browser settings." : "Tarayıcı ayarlarından bildirim iznini açın.", "error");
+      return;
+    }
+    void (on ? turnOff() : turnOn());
+  }
 
   return (
     <button
       type="button"
-      onClick={() => { if (!pending) void (on ? turnOff() : turnOn()); }}
-      disabled={pending}
+      onClick={handleClick}
+      disabled={disabled}
       aria-pressed={on}
       aria-label={label}
       title={label}
-      className="grid size-9 place-items-center rounded-[12px] bg-ink text-ink-contrast shadow-[0_2px_8px_rgba(0,0,0,.12)] transition-all hover:-translate-y-px hover:opacity-80 hover:shadow-soft disabled:cursor-wait disabled:opacity-60"
+      className="grid size-9 place-items-center rounded-[12px] bg-ink text-ink-contrast shadow-[0_2px_8px_rgba(0,0,0,.12)] transition-all hover:-translate-y-px hover:opacity-80 hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {on ? <BellRing size={17} aria-hidden="true" /> : <Bell size={17} aria-hidden="true" />}
+      {on ? <BellRing size={17} aria-hidden="true" /> : state === "blocked" ? <BellOff size={17} aria-hidden="true" /> : <Bell size={17} aria-hidden="true" />}
     </button>
   );
 }

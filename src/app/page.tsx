@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
+import { Fragment } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { DailyBrief } from "@/components/features/visitor/daily-brief";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
 import { NewsletterPanel } from "@/components/features/visitor/newsletter-panel";
@@ -49,18 +51,36 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
 function AdCard({ ad }: { ad: Advertisement }) {
   return (
-    <a href={ad.target_url} target="_blank" rel="sponsored noopener noreferrer" className="group overflow-hidden rounded-panel bg-ink text-ink-contrast transition-transform hover:-translate-y-0.5">
-      {ad.image_url && (
-        <div className="relative h-52 bg-surface-3 sm:h-64">
-          {isOptimizableImage(ad.image_url)
-            ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
-            // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
-            : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
+    <a
+      href={ad.target_url}
+      target="_blank"
+      rel="sponsored noopener noreferrer"
+      aria-label={`${ad.label}: ${ad.title}`}
+      className="visitor-panel group block overflow-hidden rounded-panel border border-line-strong bg-surface shadow-[0_6px_24px_rgba(0,0,0,.04)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-ink hover:shadow-[0_12px_34px_rgba(0,0,0,.09)]"
+    >
+      <div className={ad.image_url ? "grid sm:grid-cols-[minmax(0,1fr)_220px]" : "block"}>
+        <div className="flex min-w-0 flex-col p-5 sm:min-h-[220px] sm:p-6">
+          <div className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-ink" aria-hidden="true" />
+            <span className="visitor-muted text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.16em] text-faint">{ad.label}</span>
+          </div>
+          <h2 className="visitor-heading mt-4 text-[length:var(--vt-h3)] font-bold leading-[1.08] tracking-[-.04em] [text-wrap:balance]">{ad.title}</h2>
+          <p className="visitor-copy mt-2 max-w-[480px] text-[length:var(--vt-small)] font-medium leading-relaxed text-muted [text-wrap:pretty]">{ad.description}</p>
+          <div className="mt-6 flex items-center justify-between gap-4 border-t border-line pt-4 sm:mt-auto">
+            <span className="text-[length:var(--vt-ui)] font-bold text-ink">{ad.cta_label}</span>
+            <span className="grid size-9 shrink-0 place-items-center rounded-full border border-line-strong bg-surface-2 text-ink transition-colors duration-300 group-hover:border-ink group-hover:bg-ink group-hover:text-ink-contrast" aria-hidden="true">
+              <ArrowUpRight size={17} strokeWidth={2.2} />
+            </span>
+          </div>
         </div>
-      )}
-      <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0"><span className="text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.16em] text-on-dark">{ad.label}</span><h2 className="mt-2 text-[length:var(--vt-h3)] font-bold tracking-[-.04em]">{ad.title}</h2><p className="mt-2 max-w-[520px] text-[length:var(--vt-small)] font-medium leading-relaxed text-on-dark [text-wrap:pretty]">{ad.description}</p></div>
-        <span className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-ink-contrast px-5 text-[length:var(--vt-ui)] font-bold text-ink">{ad.cta_label} ↗</span>
+        {ad.image_url && (
+          <div className="relative order-first min-h-44 overflow-hidden border-b border-line bg-surface-2 sm:order-last sm:min-h-full sm:border-b-0 sm:border-l">
+            {isOptimizableImage(ad.image_url)
+              ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 639px) 100vw, 220px" className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]" />
+              // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
+              : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]" />}
+          </div>
+        )}
       </div>
     </a>
   );
@@ -207,12 +227,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               as long as that day is on screen, so a reader scrolling through a long day never loses
               track of which one they are in.
 
-              The band runs the full width of the window and is fully opaque. A translucent, blurred
-              one read as though the heading had not stuck — notes stayed visible through it — and
-              re-filtering the drifting ambient layer behind it on every scroll frame made it
-              shimmer. `.visitor-page` clips the horizontal overflow this creates.
+              The band is fully opaque and reaches out over the timestamp gutter: a translucent,
+              blurred one read as though the heading had not stuck — notes stayed visible through
+              it — and re-filtering the ambient layer behind it on every scroll frame made it
+              shimmer. It only ever overhangs to the left, which is what keeps it from needing a
+              clipping ancestor; see `.visitor-ambient-frame`.
             */}
-            <div className="sticky top-0 z-20 -mx-[50vw] bg-canvas px-[50vw] py-3">
+            <div className="sticky top-0 z-20 -mx-1 bg-canvas px-1 py-3 sm:-ml-[124px] sm:pl-[124px]">
               <div className="flex items-center gap-3">
                 <span
                   title={fullDateLabel(day.publishedAt, language)}
@@ -221,6 +242,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   {relativeDayLabel(day.publishedAt, language)}
                 </span>
                 <span className="h-px min-w-6 flex-1 bg-line-strong" aria-hidden="true" />
+                {/* The wordmark rides along with the pinned band so the page keeps signing itself
+                    once the header has scrolled away. Decorative only — the nav already names the
+                    site, and a screen reader should not meet it again on every day heading. */}
+                <span aria-hidden="true" className="visitor-heading shrink-0 text-[length:var(--vt-meta)] font-bold tracking-[-.045em] text-faint">
+                  {settings.siteName}
+                </span>
               </div>
             </div>
 
@@ -228,26 +255,28 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               {day.items.map(({ post, position }) => {
                 const publishedAt = post.published_at ?? post.created_at;
                 return (
-                  // The gutter belongs to the note: hovering the card lights up its time and its dot
-                  // too, so the rail reads as part of the same object rather than decoration.
-                  <div className="group/note relative" key={post.id}>
-                    <time
-                      dateTime={publishedAt}
-                      title={fullDateLabel(publishedAt, language)}
-                      className="visitor-muted mb-2 inline-flex font-mono text-[length:var(--vt-meta)] font-semibold tabular-nums tracking-[.06em] text-faint transition-colors duration-300 group-hover/note:text-ink-2 sm:absolute sm:-left-[104px] sm:top-5 sm:mb-0 sm:w-16 sm:justify-end"
-                    >
-                      {timeLabel(publishedAt, language)}
-                    </time>
-                    <span
-                      className="absolute -left-7 top-[23px] z-10 hidden size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] transition-transform duration-300 ease-out group-hover/note:scale-125 sm:block"
-                      aria-hidden="true"
-                    />
-                    <NoteCard post={post} layout={settings.feedLayout} language={language} />
-                    {adSlots.has(position) && <div className="mt-3"><AdCard ad={adSlots.get(position)!} /></div>}
+                  <Fragment key={post.id}>
+                    {/* The gutter belongs only to the note. Ads and newsletter panels are separate
+                        feed items and must not light up this note's time or timeline dot. */}
+                    <div className="group/note relative">
+                      <time
+                        dateTime={publishedAt}
+                        title={fullDateLabel(publishedAt, language)}
+                        className="visitor-muted mb-2 inline-flex font-mono text-[length:var(--vt-meta)] font-semibold tabular-nums tracking-[.06em] text-faint transition-colors duration-300 group-hover/note:text-ink-2 sm:absolute sm:-left-[104px] sm:top-5 sm:mb-0 sm:w-16 sm:justify-end"
+                      >
+                        {timeLabel(publishedAt, language)}
+                      </time>
+                      <span
+                        className="absolute -left-7 top-[23px] z-10 hidden size-[11px] rounded-full border-[3px] border-canvas bg-ink shadow-[0_0_0_1px_var(--color-line-strong)] transition-transform duration-300 ease-out group-hover/note:scale-125 sm:block"
+                        aria-hidden="true"
+                      />
+                      <NoteCard post={post} layout={settings.feedLayout} language={language} />
+                    </div>
+                    {adSlots.has(position) && <div className="py-1"><AdCard ad={adSlots.get(position)!} /></div>}
                     {settings.moduleNewsletter && settings.newsletterEnabled && position === newsletterSlot && (
-                      <div className="mt-3"><NewsletterPanel title={language === "en" ? settings.newsletterTitleEn : settings.newsletterTitle} description={language === "en" ? settings.newsletterDescriptionEn : settings.newsletterDescription} language={language} /></div>
+                      <NewsletterPanel title={language === "en" ? settings.newsletterTitleEn : settings.newsletterTitle} description={language === "en" ? settings.newsletterDescriptionEn : settings.newsletterDescription} language={language} />
                     )}
-                  </div>
+                  </Fragment>
                 );
               })}
             </div>

@@ -276,7 +276,34 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
     --visitor-ambient-b: rgb(238 191 157 / .16);
     position: relative;
     isolation: isolate;
-    overflow-x: clip;
+  }
+  /*
+   * The ambient glow is wider than the window on purpose, so something has to clip it. That used to
+   * be `overflow-x: clip` on `.visitor-page` — but a clip anywhere above a `position: sticky`
+   * element forces the browser to reposition it on the main thread, which is what made the pinned
+   * day heading judder while scrolling. The clip now wraps only the glow itself, and the sticky
+   * heading has no clipping ancestor left.
+   *
+   * Overflow to the *left* — the timestamp gutter and its dots — never needed clipping: in a
+   * left-to-right page it is unreachable by scrolling and produces no scrollbar.
+   */
+  .visitor-ambient-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 440px;
+    overflow: clip;
+    z-index: -1;
+    pointer-events: none;
+    /*
+     * The glow is a blurred layer that animates forever, and a CSS animation does not stop when it
+     * scrolls out of view: the compositor kept re-rasterising a 14px blur behind every scrolled
+     * frame. `content-visibility` lets the browser skip the whole frame once it is off screen. It is
+     * out of flow and has a fixed height, so nothing below it can move when that happens.
+     */
+    content-visibility: auto;
+    contain-intrinsic-size: 100% 440px;
   }
   .visitor-ambient {
     position: absolute;

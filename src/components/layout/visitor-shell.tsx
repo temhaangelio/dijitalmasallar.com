@@ -36,7 +36,7 @@ export async function VisitorShell({
 
   return (
     <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-5 pb-10 pt-5 text-ink">
-      <div className="visitor-ambient" aria-hidden="true" />
+      <div className="visitor-ambient-frame" aria-hidden="true"><div className="visitor-ambient" /></div>
       {topContent}
       <nav className={`visitor-nav flex min-h-14 w-full max-w-[720px] items-center justify-between gap-4 py-3 ${topContent ? "mt-5" : ""}`} aria-label={language === "en" ? "Site" : "Site"}>
         <Link href={languageHref("/", language)} className="flex shrink-0 items-center gap-2.5 rounded-full">
@@ -44,8 +44,8 @@ export async function VisitorShell({
           <span className="visitor-heading text-xl font-bold tracking-[-.04em] sm:text-[22px]">{siteName}</span>
         </Link>
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          {/* The bell renders itself away on a browser that cannot deliver notifications, so the row
-              never carries a button that only leads to an apology. */}
+          {/* The bell keeps a stable place immediately before search, including while the browser's
+              notification capability is being resolved. */}
           {publicKey ? <PushNavButton language={language} publicKey={publicKey} /> : null}
           {/* Search sits in the bar itself rather than only inside the menu: it is the one action a
               reader reaches for from any page, and the sheet is one tap too far for it. */}
