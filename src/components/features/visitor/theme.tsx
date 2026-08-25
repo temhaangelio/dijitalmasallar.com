@@ -96,9 +96,10 @@ export function ThemePicker({ language }: { language: "tr" | "en" }) {
             title={option.label[language]}
             data-active={selected}
             onClick={() => setPreference(option.value)}
-            className={`${segmentClassName(selected)} size-10 justify-center p-0`}
+            className={segmentClassName(selected)}
           >
             <Icon size={15} aria-hidden="true" />
+            {option.label[language]}
           </button>
         );
       })}

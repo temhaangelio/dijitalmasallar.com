@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FontPicker, FontSizePicker } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
-import { SourceBadgePicker } from "@/components/features/visitor/source-badge-preference";
 import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorBottomSheet } from "@/components/features/visitor/visitor-bottom-sheet";
 import type { VisitorLanguage } from "@/lib/visitor-language";
@@ -27,7 +26,6 @@ export function VisitorSettingsButton({ language }: { language: VisitorLanguage 
             { label: isEnglish ? "Theme" : "Tema", control: <ThemePicker language={language} /> },
             { label: isEnglish ? "Font" : "Yazı tipi", control: <FontPicker language={language} /> },
             { label: isEnglish ? "Font size" : "Yazı boyutu", control: <FontSizePicker language={language} /> },
-            { label: isEnglish ? "Source badge" : "Kaynak rozeti", control: <SourceBadgePicker language={language} /> },
           ].map((row) => (
             <div key={row.label} className="flex items-center justify-between gap-4 rounded-field border border-line bg-surface p-4">
               <p className="visitor-muted min-w-0 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.14em] text-faint">{row.label}</p>

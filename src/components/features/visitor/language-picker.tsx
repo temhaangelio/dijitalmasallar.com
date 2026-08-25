@@ -30,9 +30,10 @@ export function LanguagePicker({ language, path = "/about", onNavigate }: { lang
             aria-current={selected ? "true" : undefined}
             title={item.label}
             data-active={selected}
-            className={`${segmentClassName(selected)} size-10 justify-center p-0`}
+            className={segmentClassName(selected)}
           >
             <span className="text-base leading-none" aria-hidden="true">{item.icon}</span>
+            {item.label}
           </Link>
         );
       })}

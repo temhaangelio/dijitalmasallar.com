@@ -195,7 +195,6 @@ html[data-visitor-font="mono"] .visitor-page { font-family: "SFMono-Regular", Co
 html[data-visitor-font="modern"] .visitor-markdown { font-family: var(--font-geist), Arial, sans-serif; }
 html[data-visitor-font="classic"] .visitor-markdown { font-family: Georgia, "Times New Roman", serif; }
 html[data-visitor-font="mono"] .visitor-markdown { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
-html[data-visitor-source-badges="hide"] .visitor-source-badge { display: none; }
 
 html[data-visitor-font-size="small"] .visitor-page { --visitor-font-scale: .92; }
 html[data-visitor-font-size="normal"] .visitor-page { --visitor-font-scale: 1; }
