@@ -60,12 +60,13 @@ export function SourceBadgePicker({ language }: { language: "tr" | "en" }) {
             type="button"
             role="radio"
             aria-checked={selected}
+            aria-label={option.label}
+            title={option.label}
             data-active={selected}
             onClick={() => setPreference(option.value)}
-            className={segmentClassName(selected)}
+            className={`${segmentClassName(selected)} size-10 justify-center p-0`}
           >
             <Icon size={15} aria-hidden="true" />
-            {option.label}
           </button>
         );
       })}

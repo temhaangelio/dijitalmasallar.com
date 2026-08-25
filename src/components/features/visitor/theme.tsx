@@ -92,12 +92,13 @@ export function ThemePicker({ language }: { language: "tr" | "en" }) {
             type="button"
             role="radio"
             aria-checked={selected}
+            aria-label={option.label[language]}
+            title={option.label[language]}
             data-active={selected}
             onClick={() => setPreference(option.value)}
-            className={segmentClassName(selected)}
+            className={`${segmentClassName(selected)} size-10 justify-center p-0`}
           >
             <Icon size={15} aria-hidden="true" />
-            {option.label[language]}
           </button>
         );
       })}

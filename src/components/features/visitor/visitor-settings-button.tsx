@@ -21,16 +21,16 @@ export function VisitorSettingsButton({ language }: { language: VisitorLanguage 
         <Settings2 size={17} aria-hidden="true" />
       </button>
       <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Page settings" : "Sayfa ayarları"} closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           {[
             { label: isEnglish ? "Language" : "Dil", control: <LanguagePicker language={language} path={pathname} onNavigate={() => setOpen(false)} /> },
             { label: isEnglish ? "Theme" : "Tema", control: <ThemePicker language={language} /> },
             { label: isEnglish ? "Font" : "Yazı tipi", control: <FontPicker language={language} /> },
             { label: isEnglish ? "Font size" : "Yazı boyutu", control: <FontSizePicker language={language} /> },
-            { label: isEnglish ? "Source badge" : "Kaynak rozeti", control: <SourceBadgePicker language={language} />, wide: true },
+            { label: isEnglish ? "Source badge" : "Kaynak rozeti", control: <SourceBadgePicker language={language} /> },
           ].map((row) => (
-            <div key={row.label} className={`rounded-field border border-line bg-surface p-4 ${row.wide ? "sm:col-span-2" : ""}`}>
-              <p className="visitor-muted mb-3 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.14em] text-faint">{row.label}</p>
+            <div key={row.label} className="flex items-center justify-between gap-4 rounded-field border border-line bg-surface p-4">
+              <p className="visitor-muted min-w-0 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.14em] text-faint">{row.label}</p>
               {row.control}
             </div>
           ))}
