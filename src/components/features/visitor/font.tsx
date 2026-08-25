@@ -3,6 +3,7 @@
 import { BookOpen, Braces, Minus, Plus, Type } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { Segmented, segmentClassName } from "@/components/ui/segmented";
+import { cn } from "@/lib/utils";
 
 export type FontPreference = "modern" | "classic" | "mono";
 
@@ -52,7 +53,7 @@ export function FontPicker({ language }: { language: "tr" | "en" }) {
   const preference = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   return (
-    <Segmented className="w-fit" role="radiogroup" label={language === "en" ? "Font" : "Yazı tipi"}>
+    <Segmented className="w-full sm:w-fit" role="radiogroup" label={language === "en" ? "Font" : "Yazı tipi"}>
       {options.map((option) => {
         const Icon = option.icon;
         const selected = preference === option.value;
@@ -66,9 +67,9 @@ export function FontPicker({ language }: { language: "tr" | "en" }) {
             title={option.label[language]}
             data-active={selected}
             onClick={() => setPreference(option.value)}
-            className={segmentClassName(selected)}
+            className={cn(segmentClassName(selected), "flex-1 justify-center gap-1.5 px-2 sm:flex-none sm:gap-2 sm:px-3.5")}
           >
-            <Icon size={15} aria-hidden="true" />
+            <Icon size={15} className="hidden sm:block" aria-hidden="true" />
             {option.label[language]}
           </button>
         );
@@ -125,7 +126,7 @@ export function FontSizePicker({ language }: { language: "tr" | "en" }) {
   const preference = useSyncExternalStore(subscribeToSize, getSizeSnapshot, getSizeServerSnapshot);
 
   return (
-    <Segmented className="w-fit" role="radiogroup" label={language === "en" ? "Font size" : "Yazı boyutu"}>
+    <Segmented className="w-full sm:w-fit" role="radiogroup" label={language === "en" ? "Font size" : "Yazı boyutu"}>
       {sizeOptions.map((option) => {
         const Icon = option.icon;
         const selected = preference === option.value;
@@ -139,9 +140,9 @@ export function FontSizePicker({ language }: { language: "tr" | "en" }) {
             title={option.label[language]}
             data-active={selected}
             onClick={() => setSizePreference(option.value)}
-            className={segmentClassName(selected)}
+            className={cn(segmentClassName(selected), "flex-1 justify-center gap-1.5 px-2 sm:flex-none sm:gap-2 sm:px-3.5")}
           >
-            <Icon size={15} aria-hidden="true" />
+            <Icon size={15} className="hidden sm:block" aria-hidden="true" />
             {option.label[language]}
           </button>
         );

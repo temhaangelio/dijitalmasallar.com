@@ -27,7 +27,7 @@ export function VisitorSettingsButton({ language }: { language: VisitorLanguage 
             { label: isEnglish ? "Font" : "Yazı tipi", control: <FontPicker language={language} /> },
             { label: isEnglish ? "Font size" : "Yazı boyutu", control: <FontSizePicker language={language} /> },
           ].map((row) => (
-            <div key={row.label} className="flex items-center justify-between gap-4 rounded-field border border-line bg-surface p-4">
+            <div key={row.label} className="flex flex-col items-stretch gap-3 rounded-field border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <p className="visitor-muted min-w-0 text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.14em] text-faint">{row.label}</p>
               {row.control}
             </div>

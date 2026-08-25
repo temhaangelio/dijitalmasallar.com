@@ -26,7 +26,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <h1 className="visitor-heading text-[length:var(--vt-h1)] font-semibold tracking-[-.045em]">{isEnglish ? "Page settings" : "Sayfa ayarları"}</h1>
           <div className="mt-8 divide-y divide-line">
             {rows.map((row) => (
-              <div key={row.title} className="flex items-center justify-between gap-4 py-6 first:pt-0 last:pb-0 sm:gap-8">
+              <div key={row.title} className="flex flex-col items-stretch gap-3 py-6 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
                 <div className="min-w-0">
                   <strong className="visitor-copy block text-[length:var(--vt-small)] font-semibold">{row.title}</strong>
                   <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-6 text-muted">{row.description}</p>

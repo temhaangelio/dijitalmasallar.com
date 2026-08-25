@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Segmented, segmentClassName } from "@/components/ui/segmented";
+import { cn } from "@/lib/utils";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
 const languages: { value: VisitorLanguage; label: string; icon: string }[] = [
@@ -15,7 +16,7 @@ const languages: { value: VisitorLanguage; label: string; icon: string }[] = [
  */
 export function LanguagePicker({ language, path = "/about", onNavigate }: { language: VisitorLanguage; path?: string; onNavigate?: () => void }) {
   return (
-    <Segmented className="w-fit" role="group" label={language === "en" ? "Language" : "Dil"}>
+    <Segmented className="w-full sm:w-fit" role="group" label={language === "en" ? "Language" : "Dil"}>
       {languages.map((item) => {
         const selected = item.value === language;
         return (
@@ -30,9 +31,9 @@ export function LanguagePicker({ language, path = "/about", onNavigate }: { lang
             aria-current={selected ? "true" : undefined}
             title={item.label}
             data-active={selected}
-            className={segmentClassName(selected)}
+            className={cn(segmentClassName(selected), "flex-1 justify-center gap-1.5 px-2 sm:flex-none sm:gap-2 sm:px-3.5")}
           >
-            <span className="text-base leading-none" aria-hidden="true">{item.icon}</span>
+            <span className="hidden text-base leading-none sm:inline" aria-hidden="true">{item.icon}</span>
             {item.label}
           </Link>
         );
