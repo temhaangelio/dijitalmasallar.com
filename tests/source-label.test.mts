@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { sourceLabel } from "../src/lib/source-label.ts";
+import { sourceBadgeInitials, sourceLabel } from "../src/lib/source-label.ts";
 
 describe("sourceLabel", () => {
   it("uses an explicit source name first", () => {
@@ -13,5 +13,20 @@ describe("sourceLabel", () => {
 
   it("falls back when no usable source is available", () => {
     assert.equal(sourceLabel("", "not a url", "Kaynak"), "Kaynak");
+  });
+});
+
+describe("sourceBadgeInitials", () => {
+  it("uses the main domain instead of a subdomain", () => {
+    assert.equal(sourceBadgeInitials("https://teknoloji.example.com/haber", "Teknoloji", "tr"), "EX");
+  });
+
+  it("handles country-code domain suffixes", () => {
+    assert.equal(sourceBadgeInitials("https://news.example.com.tr/haber", "Haber", "tr"), "EX");
+    assert.equal(sourceBadgeInitials("https://news.bbc.co.uk/story", "BBC News", "en"), "BB");
+  });
+
+  it("falls back to the source label without a usable URL", () => {
+    assert.equal(sourceBadgeInitials(null, "İçerik", "tr"), "İÇ");
   });
 });

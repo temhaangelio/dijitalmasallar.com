@@ -9,3 +9,24 @@ export function sourceLabel(sourceName: string | null | undefined, sourceUrl: st
     return fallback;
   }
 }
+
+function sourceDomainName(sourceUrl: string | null | undefined) {
+  if (!sourceUrl) return null;
+
+  try {
+    const labels = new URL(sourceUrl).hostname.replace(/^www\./i, "").split(".").filter(Boolean);
+    if (labels.length < 2) return labels[0] ?? null;
+
+    const topLevel = labels.at(-1) ?? "";
+    const secondLevel = labels.at(-2) ?? "";
+    const usesCountrySuffix = labels.length > 2 && topLevel.length === 2 && secondLevel.length <= 3;
+    return labels.at(usesCountrySuffix ? -3 : -2) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function sourceBadgeInitials(sourceUrl: string | null | undefined, fallback: string, language: "tr" | "en") {
+  const name = sourceDomainName(sourceUrl) || fallback.trim();
+  return name.slice(0, 2).toLocaleUpperCase(language === "en" ? "en-US" : "tr-TR");
+}

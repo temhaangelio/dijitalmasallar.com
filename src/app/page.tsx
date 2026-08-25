@@ -11,7 +11,7 @@ import { getActiveAds, type Advertisement } from "@/services/ads";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings, type SiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
-import { sourceLabel } from "@/lib/source-label";
+import { sourceBadgeInitials, sourceLabel } from "@/lib/source-label";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
 import { languageHref, resolveVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
@@ -88,15 +88,6 @@ function dateKey(value: string) {
   return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(value));
 }
 
-function sourceInitials(value: string, language: VisitorLanguage) {
-  const name = value.split(".")[0].trim();
-  const words = name.split(/[\s_-]+/).filter(Boolean);
-  const initials = words.length > 1
-    ? words.slice(0, 2).map((word) => word[0]).join("")
-    : name.match(/[A-ZÇĞİÖŞÜ]/g)?.slice(0, 2).join("") || name.slice(0, 2);
-  return initials.toLocaleUpperCase(language === "en" ? "en-US" : "tr-TR");
-}
-
 function NoteCard({ post, layout, language }: { post: Post; layout: SiteSettings["feedLayout"]; language: VisitorLanguage }) {
   const layoutClass = layout === "card" ? "border-line shadow-card" : layout === "classic" ? "border-line-strong" : "border-transparent";
   const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
@@ -116,8 +107,8 @@ function NoteCard({ post, layout, language }: { post: Post; layout: SiteSettings
       </Link>
       <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4 text-[length:var(--vt-meta)]">
         {post.source_url
-          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source relative z-10 inline-flex items-center gap-2.5 tracking-[.04em] text-muted transition-colors hover:text-ink"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceInitials(displayedSource, language)}</span><span>{displayedSource}</span></a>
-          : <span className="visitor-source inline-flex items-center gap-2.5 tracking-[.04em] text-faint"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceInitials(displayedSource, language)}</span><span>{displayedSource}</span></span>}
+          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source relative z-10 inline-flex items-center gap-2.5 tracking-[.04em] text-muted transition-colors hover:text-ink"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span>{displayedSource}</span></a>
+          : <span className="visitor-source inline-flex items-center gap-2.5 tracking-[.04em] text-faint"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span>{displayedSource}</span></span>}
         <span className="shrink-0 text-faint transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={15} /></span>
       </div>
     </article>
