@@ -44,6 +44,9 @@ export async function VisitorShell({
           <span className="visitor-heading text-xl font-bold tracking-[-.04em] sm:text-[22px]">{siteName}</span>
         </Link>
         <div className="ml-auto flex shrink-0 items-center gap-2">
+          {/* The bell renders itself away on a browser that cannot deliver notifications, so the row
+              never carries a button that only leads to an apology. */}
+          {publicKey ? <PushNavButton language={language} publicKey={publicKey} /> : null}
           {/* Search sits in the bar itself rather than only inside the menu: it is the one action a
               reader reaches for from any page, and the sheet is one tap too far for it. */}
           <Link
@@ -54,9 +57,6 @@ export async function VisitorShell({
             <Search size={17} aria-hidden="true" />
           </Link>
           <VisitorMenu language={language} siteName={siteName} pushPublicKey={publicKey} />
-          {/* The bell renders itself away on a browser that cannot deliver notifications, so the row
-              never carries a button that only leads to an apology. */}
-          {publicKey ? <PushNavButton language={language} publicKey={publicKey} /> : null}
         </div>
       </nav>
       {children}
