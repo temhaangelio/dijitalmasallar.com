@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
 import { FontScript, FontSizeScript } from "@/components/features/visitor/font";
@@ -8,7 +8,24 @@ import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytic
 import { ThemeScript } from "@/components/features/visitor/theme";
 import { siteUrl } from "@/lib/seo";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
+/*
+ * `latin-ext` carries ğ, ş, İ, Ğ, Ş — the Turkish letters the `latin` subset leaves out. Without it
+ * the browser still finds them, but in a later-loading file, so Turkish words rendered their first
+ * frames with a few letters in a fallback face.
+ *
+ * The reader picks between these three in page settings. The serif and the mono used to be system
+ * stacks — Georgia and SF Mono, neither of which exists on Android — so the same setting produced a
+ * different typeface on every platform, with no control over its metrics. Both are now real,
+ * self-hosted files with the same language coverage as the sans.
+ */
+const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist", display: "swap" });
+
+// `opsz` is Source Serif's optical-size axis: paired with `font-optical-sizing: auto` it thickens
+// hairlines and opens the spacing as the text gets smaller, which is the whole point of choosing a
+// serif with an optical axis for body copy.
+const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-serif", display: "swap" });
+
+const geistMono = Geist_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -56,7 +73,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="tr" suppressHydrationWarning>
       <head><ThemeScript /><FontScript /><FontSizeScript /><InstallScript /></head>
-      <body className={geist.variable}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <body className={`${geist.variable} ${sourceSerif.variable} ${geistMono.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );
 }
