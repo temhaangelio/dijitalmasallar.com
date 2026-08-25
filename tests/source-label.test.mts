@@ -26,6 +26,13 @@ describe("sourceBadgeInitials", () => {
     assert.equal(sourceBadgeInitials("https://news.bbc.co.uk/story", "BBC News", "en"), "BB");
   });
 
+  it("uses Google's brand TLD instead of its property name", () => {
+    assert.equal(
+      sourceBadgeInitials("https://blog.google/company-news/outreach-and-initiatives/arts-culture/united-parks-of-america/", "Google", "en"),
+      "GO",
+    );
+  });
+
   it("falls back to the source label without a usable URL", () => {
     assert.equal(sourceBadgeInitials(null, "İçerik", "tr"), "İÇ");
   });

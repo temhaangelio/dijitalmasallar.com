@@ -19,6 +19,8 @@ function sourceDomainName(sourceUrl: string | null | undefined) {
 
     const topLevel = labels.at(-1) ?? "";
     const secondLevel = labels.at(-2) ?? "";
+    // Google uses its brand TLD for properties such as blog.google, safety.google and ai.google.
+    if (topLevel === "google") return topLevel;
     const usesCountrySuffix = labels.length > 2 && topLevel.length === 2 && secondLevel.length <= 3;
     return labels.at(usesCountrySuffix ? -3 : -2) ?? null;
   } catch {
