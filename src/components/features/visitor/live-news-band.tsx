@@ -12,8 +12,10 @@ export function LiveNewsBand({ posts, language }: { posts: Post[]; language: Vis
   if (!items.length) return null;
 
   return (
-    <aside className="live-news-band -mt-5 w-full max-w-[720px] overflow-hidden border-b border-line-strong bg-ink text-ink-contrast" aria-label={language === "en" ? "Live news" : "Canlı haberler"}>
-      <div className="flex h-11 w-full items-center">
+    <aside className="live-news-band relative -mt-5 w-full max-w-[720px] border-b border-line-strong bg-ink text-ink-contrast" aria-label={language === "en" ? "Live news" : "Canlı haberler"}>
+      <span className="pointer-events-none absolute inset-y-0 right-full w-24 bg-gradient-to-l from-ink to-transparent" aria-hidden="true" />
+      <span className="pointer-events-none absolute inset-y-0 left-full w-24 bg-gradient-to-r from-ink to-transparent" aria-hidden="true" />
+      <div className="relative flex h-11 w-full items-center">
         <div className="flex h-full shrink-0 items-center gap-2 pl-5 pr-4 text-[length:var(--vt-eyebrow)] font-extrabold uppercase tracking-[.14em]">
           <span className="relative flex size-2 items-center justify-center" aria-hidden="true">
             <span className="absolute inset-0 rounded-full bg-red-500/60 motion-safe:animate-ping" />
