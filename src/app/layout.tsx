@@ -10,8 +10,6 @@ import { siteUrl } from "@/lib/seo";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
-const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
-
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: "diji.news", template: "%s · diji.news" },
@@ -35,8 +33,7 @@ export const metadata: Metadata = {
     alternateLocale: ["tr_TR"],
   },
   twitter: { card: "summary", title: "diji.news", description: "Kısa ve güncel teknoloji, yapay zekâ, bilim ve dijital kültür notları." },
-  // Emits <meta name="google-site-verification"> for Search Console when the token is configured.
-  verification: googleSiteVerification ? { google: googleSiteVerification } : undefined,
+  verification: { google: "I2Kgl2_qfu24MNHBQscd-jvFyhuFIBiaXULF5QOYOaA" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
