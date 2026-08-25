@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Mail } from "lucide-react";
+import { VisitorContentPage } from "@/components/features/visitor/visitor-content-page";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
@@ -22,16 +23,21 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   const isEnglish = language === "en";
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
-      <main className="w-full max-w-[720px] pt-12 sm:pt-16">
-        <section className="visitor-panel rounded-panel bg-ink p-7 text-ink-contrast sm:p-12">
-          <span className="grid size-11 place-items-center rounded-full bg-ink-contrast/10" aria-hidden="true"><Mail className="size-5" /></span>
-          <h1 className="visitor-heading mt-7 text-[length:var(--vt-h1)] font-semibold tracking-[-.045em]">{isEnglish ? "Contact" : "İletişim"}</h1>
-          <p className="visitor-copy mt-4 max-w-[520px] text-[length:var(--vt-small)] leading-7 text-on-dark [text-wrap:pretty]">
-            {isEnglish ? "For questions, suggestions, and collaborations, reach us by email." : "Soru, öneri ve iş birlikleri için e-posta üzerinden bize ulaşabilirsiniz."}
-          </p>
-          <a href={`mailto:${settings.contactEmail}`} className="mt-8 inline-flex min-h-12 items-center rounded-full bg-ink-contrast px-5 text-[length:var(--vt-ui)] font-bold text-ink transition-opacity hover:opacity-85">{settings.contactEmail}</a>
+      <VisitorContentPage
+        title={isEnglish ? "Contact" : "İletişim"}
+        intro={isEnglish ? "For questions, suggestions, and collaborations, reach us by email." : "Soru, öneri ve iş birlikleri için e-posta üzerinden bize ulaşabilirsiniz."}
+      >
+        <section className="flex flex-col gap-5 rounded-field bg-surface-2 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6" aria-labelledby="contact-email-title">
+          <div className="flex min-w-0 items-center gap-4">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-ink-contrast" aria-hidden="true"><Mail className="size-5" /></span>
+            <div className="min-w-0">
+              <h2 id="contact-email-title" className="visitor-heading text-[length:var(--vt-h4)] font-semibold tracking-[-.025em]">{isEnglish ? "Email" : "E-posta"}</h2>
+              <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-6 text-muted">{isEnglish ? "We will reply as soon as possible." : "En kısa sürede yanıt veririz."}</p>
+            </div>
+          </div>
+          <a href={`mailto:${settings.contactEmail}`} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-ink px-5 text-[length:var(--vt-ui)] font-bold text-ink-contrast transition-opacity hover:opacity-85">{settings.contactEmail}</a>
         </section>
-      </main>
+      </VisitorContentPage>
     </VisitorShell>
   );
 }
