@@ -65,6 +65,9 @@ function AdCard({ ad }: { ad: Advertisement }) {
   );
 }
 
+/** How far back the feed query reaches for the brief: comfortably more than one busy day of notes. */
+const briefLookback = 60;
+
 /**
  * Ads only enter the feed once the reader is past this many notes, so the first screens stay clean.
  * The last note is still kept ad-free, hence the `- 1`.
@@ -92,12 +95,21 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const requestedLimit = Number.parseInt(params.limit ?? "", 10);
   const visiblePostCount = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, settings.postsPerPage), 500) : settings.postsPerPage;
   if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
-  const [postData, ads] = await Promise.all([getPosts(1, Math.min(visiblePostCount + 1, 500), language), settings.moduleAds ? getActiveAds(language) : Promise.resolve([])]);
+  /*
+   * The brief covers a whole day of notes, which is normally more than the first page of the feed
+   * shows, so the query reaches back far enough to hold one. The feed still renders only its own
+   * slice; the rest of the rows exist for the paragraph at the top.
+   */
+  const fetchCount = Math.min(Math.max(visiblePostCount + 1, briefLookback), 500);
+  const [postData, ads] = await Promise.all([getPosts(1, fetchCount, language), settings.moduleAds ? getActiveAds(language) : Promise.resolve([])]);
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
   const briefPosts = dailyBriefPosts(posts);
   const briefText = dailyBriefText(briefPosts, language);
+  // The "still unfolding" note only belongs on a day that is actually still running: early in the
+  // morning the brief falls back to yesterday, and yesterday is finished.
+  const briefIsToday = Boolean(briefPosts.length) && dateKey(briefPosts[0].published_at ?? briefPosts[0].created_at) === dateKey(new Date().toISOString());
   const newsletterSlot = settings.moduleNewsletter && settings.newsletterEnabled ? Math.min(3, posts.length - 1) : -1;
   const adSlots = randomAdSlots(posts.length, ads, newsletterSlot >= 0 ? [newsletterSlot] : []);
   const baseUrl = siteUrl(settings.domain);
@@ -153,7 +165,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       */}
       {briefText ? null : <h1 className="sr-only">{settings.siteName}</h1>}
 
-      <DailyBrief text={briefText} sentenceCount={briefPosts.length} language={language} />
+      <DailyBrief
+        text={briefText}
+        sentenceCount={briefPosts.length}
+        language={language}
+        latestTime={briefIsToday ? timeLabel(briefPosts[0].published_at ?? briefPosts[0].created_at, language) : undefined}
+      />
 
       <main className={`flex w-full max-w-[720px] flex-col ${briefText ? "mt-2 sm:mt-3" : "mt-14 sm:mt-16"}`}>
         {/*

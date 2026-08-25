@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
 import { Rss } from "lucide-react";
-import { FontPicker, FontSizePicker } from "@/components/features/visitor/font";
-import { LanguagePicker } from "@/components/features/visitor/language-picker";
-import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
-import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorContentPage } from "@/components/features/visitor/visitor-content-page";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
-import { isPushConfigured, pushPublicKey } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
 import type { ReactNode } from "react";
 
@@ -40,56 +35,19 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
   const rssHref = isEnglish ? "/rss.xml" : "/rss.xml?lang=tr";
   const about = isEnglish ? settings.aboutTextEn || settings.descriptionEn : settings.aboutText || settings.description;
   const paragraphs = about.split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
-  const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
-
-  /*
-   * The reader's own preferences live on this page rather than on one of their own: what the site is
-   * and how the reader wants to see it are the same question asked twice, and splitting them left
-   * two thin pages where one full one belongs. `/settings` redirects here.
-   */
-  const preferences = [
-    { title: isEnglish ? "Language" : "Dil", description: isEnglish ? "Choose the language used across the site." : "Sitede kullanılacak dili seçin.", control: <LanguagePicker language={language} path="/about" /> },
-    { title: isEnglish ? "Theme" : "Tema", description: isEnglish ? "System follows your device setting." : "Sistem seçeneği cihaz ayarınızı takip eder.", control: <ThemePicker language={language} /> },
-    { title: isEnglish ? "Font" : "Yazı tipi", description: isEnglish ? "Choose the typeface used on visitor pages." : "Ziyaretçi sayfalarında kullanılacak yazı tipini seçin.", control: <FontPicker language={language} /> },
-    { title: isEnglish ? "Font size" : "Yazı boyutu", description: isEnglish ? "Adjust the reading size across the site." : "Sitedeki okuma boyutunu ayarlayın.", control: <FontSizePicker language={language} /> },
-    ...(publicKey ? [{
-      title: isEnglish ? "Notifications" : "Bildirimler",
-      description: isEnglish ? "Get a notification when a new note is published." : "Yeni bir not yayınlandığında bildirim alın.",
-      control: <PushToggle language={language} publicKey={publicKey} />,
-    }] : []),
-    {
-      title: isEnglish ? "App" : "Uygulama",
-      description: isEnglish ? "Install diji.news to your home screen." : "diji.news'i ana ekranınıza uygulama olarak ekleyin.",
-      control: <InstallPrompt language={language} />,
-    },
-  ];
 
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
       <VisitorContentPage
         title={isEnglish ? "About" : "Hakkında"}
         intro={isEnglish
-          ? "A closer look at diji.news, and the settings that decide how you read it."
-          : "diji.news'i ve akışın arkasındaki yaklaşımı tanıyın; okuma tercihlerinizi buradan ayarlayın."}
+          ? "A closer look at diji.news and the thinking behind the feed."
+          : "diji.news'i ve akışın arkasındaki yaklaşımı daha yakından tanıyın."}
       >
         <Section title={isEnglish ? "What we do" : "Ne yapıyoruz"} first>
           <div className="space-y-5">
             {paragraphs.map((paragraph, index) => (
               <p key={`${paragraph.slice(0, 24)}-${index}`} className="visitor-copy text-[length:var(--vt-lead)] font-normal leading-[1.7] tracking-[-.018em] text-ink [text-wrap:pretty]">{paragraph}</p>
-            ))}
-          </div>
-        </Section>
-
-        <Section title={isEnglish ? "Page settings" : "Sayfa ayarları"}>
-          <div className="-mt-1 divide-y divide-line">
-            {preferences.map((row) => (
-              <div key={row.title} className="flex flex-col items-stretch gap-3 py-5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
-                <div className="min-w-0">
-                  <strong className="visitor-copy block text-[length:var(--vt-small)] font-semibold">{row.title}</strong>
-                  <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-6 text-muted">{row.description}</p>
-                </div>
-                {row.control}
-              </div>
             ))}
           </div>
         </Section>

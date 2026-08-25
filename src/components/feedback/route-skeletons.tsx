@@ -474,8 +474,8 @@ export function VisitorArticleLoading() {
 /* ---------------------------------- /about, /contact, /newsletter */
 
 /**
- * `VisitorContentPage`: a titled header panel over a body of running text, and — on the about page,
- * which now carries the reader's own preferences — a block of labelled setting rows under it.
+ * `VisitorContentPage`: a titled header panel over a body of running text. Optional labelled rows
+ * remain available for content pages that need structured controls.
  */
 export function VisitorContentLoading({ label, lines = 5, rows = 0 }: { label: string; lines?: number; rows?: number }) {
   const widths = ["w-full", "w-11/12", "w-full", "w-4/5", "w-full", "w-3/4"];

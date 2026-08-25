@@ -16,7 +16,7 @@ import type { VisitorLanguage } from "@/lib/visitor-language";
  * reader without the toggle — a crawler, a reader mode, anyone who copies the text — still gets all
  * of it.
  */
-export function DailyBrief({ text, sentenceCount, language }: { text: string; sentenceCount: number; language: VisitorLanguage }) {
+export function DailyBrief({ text, sentenceCount, language, latestTime }: { text: string; sentenceCount: number; language: VisitorLanguage; latestTime?: string }) {
   const [expanded, setExpanded] = useState(false);
   const paragraphId = useId();
   const headingId = useId();
@@ -33,9 +33,22 @@ export function DailyBrief({ text, sentenceCount, language }: { text: string; se
           brief underneath it is what the reader came for. No dateline of its own either — the feed's
           first day separator sits a few lines below and already names the day.
         */}
-        <h1 id={headingId} className="visitor-heading text-[length:var(--vt-h4)] font-semibold tracking-[-.025em] text-ink">
-          {isEnglish ? "Today’s Brief" : "Günün Özeti"}
-        </h1>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h1 id={headingId} className="visitor-heading text-[length:var(--vt-h4)] font-semibold tracking-[-.025em] text-ink">
+            {isEnglish ? "Today’s Brief" : "Günün Özeti"}
+          </h1>
+          {/* The day is not over: notes keep arriving, and the brief grows with them. The stamp is
+              formatted on the server so the two renders cannot disagree about the reader's clock. */}
+          {latestTime ? (
+            <span className="visitor-muted inline-flex min-h-8 items-center gap-2 rounded-full border border-line-strong bg-surface px-3 py-1.5 text-[length:var(--vt-meta)] font-semibold text-muted shadow-[0_2px_8px_rgba(0,0,0,.05)]">
+              <span className="relative flex size-2 items-center justify-center" aria-hidden="true">
+                <span className="absolute inset-0 rounded-full bg-ink/45 motion-safe:animate-ping" />
+                <span className="relative size-2 rounded-full bg-ink" />
+              </span>
+              {isEnglish ? `Still unfolding · last note ${latestTime}` : `Gün sürüyor · son not ${latestTime}`}
+            </span>
+          ) : null}
+        </div>
         <p
           id={paragraphId}
           className={`visitor-copy mt-4 text-[length:var(--vt-lead)] font-normal leading-[1.75] tracking-[-.018em] text-ink [text-wrap:pretty] ${expanded ? "" : "line-clamp-3"}`}

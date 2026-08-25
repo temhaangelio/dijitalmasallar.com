@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, BellOff, BellRing, X } from "lucide-react";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { Bell, BellOff, BellRing, Share, SquarePlus, X } from "lucide-react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { subscribeToPushAction, unsubscribeFromPushAction } from "@/app/actions/push";
 import { showToast } from "@/components/ui/toast";
 import { Segmented, segmentClassName } from "@/components/ui/segmented";
@@ -354,6 +354,19 @@ async function runInstall() {
   notifyInstallListeners();
 }
 
+function IosInstallSteps({ language }: { language: VisitorLanguage }) {
+  const isEnglish = language === "en";
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1.5">
+      <span>{isEnglish ? "Share" : "Paylaş"}</span>
+      <Share className="size-4 shrink-0" aria-hidden="true" />
+      <span aria-hidden="true">→</span>
+      <SquarePlus className="size-4 shrink-0" aria-hidden="true" />
+      <span>{isEnglish ? "Add to Home Screen" : "Ana Ekrana Ekle"}</span>
+    </span>
+  );
+}
+
 /**
  * The install control in the settings row. Chrome and Edge hand over a prompt we can trigger; Safari
  * on iOS has no such API, so it gets the one sentence that says where the button lives. It always
@@ -363,8 +376,8 @@ export function InstallPrompt({ language }: { language: VisitorLanguage }) {
   const status = useSyncExternalStore(subscribeToInstall, installSnapshot, serverInstallSnapshot);
   const isEnglish = language === "en";
 
-  const note = (text: string) => (
-    <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-faint sm:max-w-[240px] sm:text-right">{text}</span>
+  const note = (content: ReactNode) => (
+    <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-faint sm:max-w-[240px] sm:text-right">{content}</span>
   );
 
   if (status === "unknown") return note("…");
@@ -382,7 +395,7 @@ export function InstallPrompt({ language }: { language: VisitorLanguage }) {
     );
   }
 
-  if (isIos()) return note(isEnglish ? "Share ⎋ → Add to Home Screen" : "Paylaş ⎋ → Ana Ekrana Ekle");
+  if (isIos()) return note(<IosInstallSteps language={language} />);
   return note(isEnglish ? "Install from your browser's menu." : "Tarayıcınızın menüsünden yükleyebilirsiniz.");
 }
 
@@ -426,7 +439,8 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
       aria-label={isEnglish ? "Install diji.news" : "diji.news'i yükle"}
     >
       <div className="visitor-panel mx-auto flex w-full max-w-[560px] items-center gap-4 rounded-[24px] border border-line-strong bg-surface p-4 shadow-modal">
-        <Image src="/icon-192.png" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px]" />
+        {/* The mark is black on black in the dark theme, so it carries a hairline of its own. */}
+        <Image src="/icon-192.png" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px] border border-line-strong" />
         <div className="min-w-0 flex-1">
           <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold tracking-[-.02em]">
             {isEnglish ? "Add diji.news to your home screen" : "diji.news'i ana ekranınıza ekleyin"}
@@ -434,7 +448,7 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
           <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">
             {status === "ready"
               ? (isEnglish ? "Opens like an app, and can bring you the day's notes." : "Uygulama gibi açılır, günün notlarını bildirimle getirir.")
-              : (isEnglish ? "Share ⎋ → Add to Home Screen" : "Paylaş ⎋ → Ana Ekrana Ekle")}
+              : <IosInstallSteps language={language} />}
           </p>
         </div>
         {status === "ready" ? (

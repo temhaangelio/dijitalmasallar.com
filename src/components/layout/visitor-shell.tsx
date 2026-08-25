@@ -4,7 +4,6 @@ import { Rss, Search } from "lucide-react";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
-import { VisitorSettingsButton } from "@/components/features/visitor/visitor-settings-button";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 import { isPushConfigured, pushPublicKey } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
@@ -54,11 +53,10 @@ export async function VisitorShell({
           >
             <Search size={17} aria-hidden="true" />
           </Link>
+          <VisitorMenu language={language} siteName={siteName} pushPublicKey={publicKey} />
           {/* The bell renders itself away on a browser that cannot deliver notifications, so the row
               never carries a button that only leads to an apology. */}
           {publicKey ? <PushNavButton language={language} publicKey={publicKey} /> : null}
-          <VisitorSettingsButton language={language} pushPublicKey={publicKey} />
-          <VisitorMenu language={language} siteName={siteName} />
         </div>
       </nav>
       {children}

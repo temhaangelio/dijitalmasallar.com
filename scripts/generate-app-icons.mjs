@@ -11,10 +11,15 @@
 import { deflateSync } from "node:zlib";
 import { writeFileSync } from "node:fs";
 
-/** `.brand-mark`: 40px box, 13px radius, 9px padding around a 9px dot. */
+/**
+ * `.brand-mark`: a 40px box with a 13px radius, carrying a 9px dot.
+ *
+ * The dot is centred rather than parked in the corner where the CSS mark starts it: on the page the
+ * mark's dot orbits, so a still frame of one corner reads as a mistake at icon size.
+ */
 const cornerRadiusRatio = 13 / 40;
 const dotDiameterRatio = 9 / 40;
-const dotCentreRatio = 13.5 / 40;
+const dotCentreRatio = 0.5;
 
 const ink = [10, 10, 10];       // --color-ink
 const surface = [255, 255, 255]; // --color-surface
@@ -53,8 +58,8 @@ function mix(background, foreground, amount) {
 }
 
 /**
- * `maskable` fills the whole square and centres the dot: the launcher crops the icon to its own
- * shape, and only the middle 80% is guaranteed to survive that crop.
+ * `maskable` fills the whole square: the launcher crops the icon to its own shape, and only the
+ * middle 80% is guaranteed to survive that crop.
  */
 function renderIcon(size, { maskable = false, badge = false } = {}) {
   // A notification badge is drawn from its alpha channel alone — Android tints whatever is opaque —
@@ -75,7 +80,7 @@ function renderIcon(size, { maskable = false, badge = false } = {}) {
   }
   const radius = maskable ? 0 : size * cornerRadiusRatio;
   const dotRadius = (size * dotDiameterRatio) / 2;
-  const dotCentre = maskable ? size / 2 : size * dotCentreRatio;
+  const dotCentre = size * dotCentreRatio;
   const pixels = Buffer.alloc(size * size * 4);
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
