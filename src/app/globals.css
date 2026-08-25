@@ -34,6 +34,7 @@
   --color-success-surface: #ecfdf3;
   --color-warning: #93370d;
   --color-warning-surface: #fffaeb;
+  --color-accent: #c9412c;
 
   --color-highlight: #eaeaea;
   /* Reads on top of --color-ink. Flips with the theme, so `bg-ink text-ink-contrast` stays legible
@@ -181,69 +182,57 @@ html[data-visitor-theme="dark"] .visitor-page {
 
   --focus-ring: #f2f2f2;
 
-  --visitor-ambient-a: rgb(77 96 137 / .16);
-  --visitor-ambient-b: rgb(130 88 66 / .12);
 }
-
-/* Visitor font preferences are intentionally scoped away from the admin panel. */
-html[data-visitor-font="modern"] .visitor-page { font-family: var(--font-geist), Arial, sans-serif; }
-/* `font-optical-sizing` is what makes the serif worth loading: Source Serif carries an optical-size
-   axis, so at note size the stems thicken and the spacing opens instead of the display cut being
-   scaled down. The tracking correction the old Georgia stack needed is gone with it. */
-html[data-visitor-font="classic"] .visitor-page { font-family: var(--font-reading-serif), Georgia, "Times New Roman", serif; letter-spacing: 0; font-optical-sizing: auto; }
-html[data-visitor-font="mono"] .visitor-page { font-family: var(--font-reading-mono), "SFMono-Regular", Consolas, "Liberation Mono", monospace; letter-spacing: -.012em; }
-
-/* Article markdown is rendered through a reusable preview component. Bind its typography directly
-   so the visitor font preference cannot be lost through that component boundary. */
-html[data-visitor-font="modern"] .visitor-markdown { font-family: var(--font-geist), Arial, sans-serif; }
-html[data-visitor-font="classic"] .visitor-markdown { font-family: var(--font-reading-serif), Georgia, "Times New Roman", serif; font-optical-sizing: auto; }
-html[data-visitor-font="mono"] .visitor-markdown { font-family: var(--font-reading-mono), "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
-
-html[data-visitor-font-size="small"] .visitor-page { --visitor-font-scale: .92; }
-html[data-visitor-font-size="normal"] .visitor-page { --visitor-font-scale: 1; }
-html[data-visitor-font-size="large"] .visitor-page { --visitor-font-scale: 1.12; }
 
 /*
  * Visitor type scale.
  *
- * Every piece of text on a public page picks a step from this scale instead of a literal size, for
- * two reasons. The reader's size preference multiplies the whole scale in one place — the previous
- * approach overrode a hand-written list of Tailwind `text-[Npx]` utilities and silently skipped
- * every size that was not on the list, so the control did nothing on the about, contact, newsletter
- * and article pages. And the responsive steps live here rather than as `sm:` variants scattered
- * through the markup, so a heading's growth curve is defined once.
+ * Every piece of text on a public page picks a step from this scale instead of a literal size. The
+ * responsive steps live here rather than as `sm:` variants scattered through the markup, so a
+ * heading's growth curve is defined once.
  *
  * `clamp()` interpolates on viewport width, so the large steps need no breakpoints at all. The
  * small steps are flat: labels and metadata should not grow with the window.
  */
 .visitor-page {
-  --vt-eyebrow: calc(11px * var(--visitor-font-scale, 1));
-  --vt-meta: calc(12px * var(--visitor-font-scale, 1));
-  --vt-ui: calc(13px * var(--visitor-font-scale, 1));
-  --vt-small: calc(15px * var(--visitor-font-scale, 1));
-  --vt-body: calc(clamp(18px, 17.1px + .28vw, 19px) * var(--visitor-font-scale, 1));
-  --vt-lead: calc(clamp(19px, 17px + .55vw, 21px) * var(--visitor-font-scale, 1));
-  --vt-h4: calc(clamp(18px, 17.1px + .28vw, 20px) * var(--visitor-font-scale, 1));
-  --vt-h3: calc(clamp(22px, 19.5px + .8vw, 26px) * var(--visitor-font-scale, 1));
-  --vt-h2: calc(clamp(27px, 22px + 1.6vw, 34px) * var(--visitor-font-scale, 1));
-  --vt-h1: calc(clamp(32px, 25px + 2.2vw, 42px) * var(--visitor-font-scale, 1));
-  --vt-display: calc(clamp(44px, 22px + 7vw, 72px) * var(--visitor-font-scale, 1));
+  --vt-eyebrow: 11px;
+  --vt-meta: 12px;
+  --vt-ui: 13px;
+  --vt-small: 15px;
+  --vt-body: clamp(18px, 17.1px + .28vw, 19px);
+  --vt-lead: clamp(19px, 17px + .55vw, 21px);
+  --vt-h4: clamp(18px, 17.1px + .28vw, 20px);
+  --vt-h3: clamp(22px, 19.5px + .8vw, 26px);
+  --vt-h2: clamp(27px, 22px + 1.6vw, 34px);
+  --vt-h1: clamp(32px, 25px + 2.2vw, 42px);
+  --vt-display: clamp(44px, 22px + 7vw, 72px);
 }
 
-/* Shared form and control primitives are used inside visitor panels too, and they size themselves
-   with Tailwind's named steps rather than the scale above. These two keep them in step with the
-   reader preference; anything larger inside a visitor page uses a `--vt-*` step directly. */
-html[data-visitor-font-size] .visitor-page .text-xs { font-size: calc(.75rem * var(--visitor-font-scale)); }
-html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * var(--visitor-font-scale)); }
-
-/* Article markdown is rendered through the shared preview component, so its typography is bound
-   here instead of at the call site. */
-.visitor-page .visitor-markdown > div { font-size: var(--vt-body); font-weight: 400; line-height: 1.7; }
-.visitor-page .visitor-markdown h1 { font-size: var(--vt-h2); letter-spacing: -.04em; }
-.visitor-page .visitor-markdown h2 { font-size: var(--vt-h3); letter-spacing: -.03em; }
+/* The editorial article follows the same fixed type rhythm as the reference: a compact mobile
+   measure that opens up at `sm`, without fluid interpolation changing the intended leading. */
+.visitor-page .visitor-markdown > div { font-size: 17px; font-weight: 400; line-height: 1.5; }
+.visitor-page .visitor-markdown h1 {
+  padding-top: 0;
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+.visitor-page .visitor-markdown h2 {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
 .visitor-page .visitor-markdown h1 + *, .visitor-page .visitor-markdown h2 + * { margin-top: .35em; }
 .visitor-page .visitor-markdown a { text-decoration-color: var(--color-line-strong); transition: text-decoration-color .2s; }
 .visitor-page .visitor-markdown a:hover { text-decoration-color: currentcolor; }
+
+@media (min-width: 640px) {
+  .visitor-page .visitor-markdown > div { font-size: 20px; line-height: 1.5; }
+  .visitor-page .visitor-markdown h1 { font-size: 27px; line-height: 1.35; }
+  .visitor-page .visitor-markdown h2 { font-size: 22px; line-height: 1.4; }
+}
 
 /*
  * Reading refinements, set once here instead of as `[text-wrap:pretty]` repeated on every paragraph.
@@ -279,17 +268,6 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
   75% { transform: translate(0, var(--diji-loading-travel, 20px)); }
 }
 
-@keyframes live-news-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-@keyframes visitor-ambient-drift {
-  0% { transform: translate3d(-52%, -2%, 0) scale(1) rotate(-2deg); }
-  50% { transform: translate3d(-48%, 4%, 0) scale(1.06) rotate(1deg); }
-  100% { transform: translate3d(-51%, 0, 0) scale(1.02) rotate(3deg); }
-}
-
 @keyframes visitor-sheet-backdrop-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -302,84 +280,32 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
 
 @layer components {
   .visitor-page {
-    --visitor-ambient-a: rgb(150 174 220 / .2);
-    --visitor-ambient-b: rgb(238 191 157 / .16);
-    position: relative;
-    isolation: isolate;
+    --color-canvas: #f8f8f5;
+    --color-surface: #f8f8f5;
+    --color-surface-2: #efefe9;
+    --color-surface-3: #e9e9e3;
+    --color-ink: #15150f;
+    --color-ink-2: #4a4a42;
+    --color-muted: #6e6e65;
+    --color-faint: #8a8a80;
+    --color-line: #e2e2db;
+    --color-line-strong: #c6c6bc;
+    --font-mono: var(--font-plex-mono), monospace;
+    font-family: var(--font-plex-sans), Arial, sans-serif;
+    letter-spacing: 0;
+    font-kerning: normal;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  /*
-   * The ambient glow is wider than the window on purpose, so something has to clip it. That used to
-   * be `overflow-x: clip` on `.visitor-page` — but a clip anywhere above a `position: sticky`
-   * element forces the browser to reposition it on the main thread, which is what made the pinned
-   * day heading judder while scrolling. The clip now wraps only the glow itself, and the sticky
-   * heading has no clipping ancestor left.
-   *
-   * Overflow to the *left* — the timestamp gutter and its dots — never needed clipping: in a
-   * left-to-right page it is unreachable by scrolling and produces no scrollbar.
-   */
-  .visitor-ambient-frame {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 440px;
-    overflow: clip;
-    z-index: -1;
-    pointer-events: none;
-    /*
-     * The glow is a blurred layer that animates forever, and a CSS animation does not stop when it
-     * scrolls out of view: the compositor kept re-rasterising a 14px blur behind every scrolled
-     * frame. `content-visibility` lets the browser skip the whole frame once it is off screen. It is
-     * out of flow and has a fixed height, so nothing below it can move when that happens.
-     */
-    content-visibility: auto;
-    contain-intrinsic-size: 100% 440px;
-  }
-  .visitor-ambient {
-    position: absolute;
-    z-index: -1;
-    top: -260px;
-    left: 50%;
-    width: min(1120px, 145vw);
-    height: 700px;
-    pointer-events: none;
-    opacity: .8;
-    filter: blur(14px);
-    background:
-      radial-gradient(circle at 27% 54%, var(--visitor-ambient-a) 0, transparent 42%),
-      radial-gradient(circle at 72% 38%, var(--visitor-ambient-b) 0, transparent 40%);
-    animation: visitor-ambient-drift 20s ease-in-out infinite alternate;
-    will-change: transform;
+  .visitor-page .font-mono {
+    font-family: var(--font-plex-mono), monospace;
+    font-kerning: normal;
+    font-synthesis: none;
   }
   /* Selection follows the theme instead of the browser's blue, which clashed with the greyscale. */
   .visitor-page ::selection { background: var(--color-highlight); color: var(--color-ink); }
-
-  /*
-   * Feed timeline. Desktop only: on a phone the rail and its timestamp gutter cost 32px of the
-   * card's measure and pushed every note off-centre, so the timestamp moves inline above the card
-   * instead and the notes run edge to edge.
-   *
-   * The rail fades out at both ends rather than stopping dead, so it reads as a continuing thread.
-   */
-  .visitor-timeline { position: relative; }
-  .visitor-timeline::before {
-    content: "";
-    position: absolute;
-    top: 4px;
-    bottom: 24px;
-    left: -23px;
-    width: 1px;
-    pointer-events: none;
-    background: linear-gradient(to bottom, transparent, var(--color-line-strong) 56px, var(--color-line-strong) calc(100% - 96px), transparent);
-  }
-  @media (max-width: 639px) { .visitor-timeline::before { content: none; } }
-
-  /* The ticker text slides in and out of a soft edge; it used to be cut off by a hard shadow
-     bleeding out of the "Live" chip. */
-  .live-news-viewport {
-    mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 72px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 72px), transparent 100%);
-  }
 
   .visitor-sheet-backdrop { animation: visitor-sheet-backdrop-in .22s ease-out both; }
   .visitor-sheet-panel { animation: visitor-sheet-panel-in .3s cubic-bezier(.2,.8,.2,1) both; }
@@ -387,15 +313,10 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
   .install-banner { animation: visitor-sheet-panel-in .32s cubic-bezier(.2,.8,.2,1) both; }
   .visitor-highlight { background: var(--color-highlight); }
   .diji-loading-dot { animation: diji-loading-orbit 1.25s cubic-bezier(.65, 0, .35, 1) infinite; }
-  .visitor-logo-dot { animation-duration: 3.6s; animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
-  .live-news-track { animation: live-news-scroll 38s linear infinite; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .visitor-ambient { animation: none; will-change: auto; }
-    .live-news-viewport { overflow-x: auto; scrollbar-width: none; }
-    .live-news-viewport::-webkit-scrollbar { display: none; }
-    .live-news-track { animation: none; }
-    .live-news-track > [aria-hidden="true"] { display: none; }
+  .visitor-logo-mark::after {
+    --diji-loading-travel: 9px;
+    animation: diji-loading-orbit 3.6s cubic-bezier(.45, 0, .55, 1) infinite;
+    will-change: transform;
   }
   .page-loading-visitor:not(.page-loading-embedded), .page-loading-admin:not(.page-loading-embedded) { background: var(--color-canvas); }
 }

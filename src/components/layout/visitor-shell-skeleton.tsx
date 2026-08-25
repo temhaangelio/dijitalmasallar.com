@@ -10,28 +10,27 @@ import { Skeleton } from "@/components/feedback/states";
  * flash white on a dark page — along with the column width and the nav height, so nothing shifts
  * sideways or jumps down when the page itself arrives.
  */
-export function VisitorShellSkeleton({ children, label, liveBand = false }: { children: ReactNode; label: string; liveBand?: boolean }) {
+export function VisitorShellSkeleton({ children, label }: { children: ReactNode; label: string }) {
   return (
-    <div className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-5 pb-10 pt-5 text-ink" role="status" aria-label={label}>
-      <div className="visitor-ambient" aria-hidden="true" />
-      {/* The feed carries the live strip above its nav; without it here the whole page would jump
-          44px upwards the moment the real one arrived. */}
-      {liveBand ? <div className="-mx-5 -mt-5 h-11 w-[calc(100%+2.5rem)] border-b border-line-strong bg-ink" aria-hidden="true" /> : null}
-      <div className={`flex min-h-14 w-full max-w-[720px] items-center justify-between gap-4 py-3 ${liveBand ? "mt-5" : ""}`}>
-        <div className="flex items-center gap-2.5">
-          <Skeleton className="size-8 rounded-[11px]" />
-          <Skeleton className="h-6 w-28" />
+    <div className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-6 pb-10 text-ink sm:px-8" role="status" aria-label={label}>
+      <div className="flex w-full max-w-[900px] flex-col items-center pt-9 sm:pt-14">
+        <div className="flex w-full max-w-[640px] items-center justify-between">
+          <Skeleton className="size-9 rounded-[12px]" />
+          <div className="flex items-center gap-2">
+            {[0, 1].map((index) => <Skeleton key={index} className="size-9 rounded-[12px]" />)}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {[0, 1, 2].map((index) => <Skeleton key={index} className="size-9 rounded-[12px]" />)}
+        <Skeleton className="mt-5 h-7 w-32" />
+        <div className="mt-4 flex flex-col items-center gap-4">
+          <Skeleton className="h-5 w-80 max-w-full" />
+          <Skeleton className="h-5 w-64 max-w-full" />
+          <div className="mt-2 hidden items-center gap-[22px] sm:flex">
+            {["w-10", "w-14"].map((width) => <Skeleton key={width} className={`h-3 ${width}`} />)}
+          </div>
         </div>
       </div>
       {children}
-      <footer className="mt-14 flex w-full max-w-[720px] flex-col gap-5 border-t border-line-strong px-1 pt-7 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2">
-          {/* Literal classes: Tailwind only ships the utilities it can see written out in full. */}
-          {["w-16", "w-14", "w-20", "w-16", "w-10"].map((width, index) => <Skeleton key={index} className={`h-5 ${width}`} />)}
-        </div>
+      <footer className="mt-14 flex w-full max-w-[640px] justify-center border-t border-line px-1 pt-6">
         <Skeleton className="h-4 w-28" />
       </footer>
     </div>

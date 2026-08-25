@@ -5,9 +5,9 @@ import { Segmented, segmentClassName } from "@/components/ui/segmented";
 import { cn } from "@/lib/utils";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
-const languages: { value: VisitorLanguage; label: string; icon: string }[] = [
-  { value: "tr", label: "Türkçe", icon: "🇹🇷" },
-  { value: "en", label: "English", icon: "🇬🇧" },
+const languages: { value: VisitorLanguage; label: string }[] = [
+  { value: "tr", label: "Türkçe" },
+  { value: "en", label: "English" },
 ];
 
 /**
@@ -31,9 +31,8 @@ export function LanguagePicker({ language, path = "/about", onNavigate }: { lang
             aria-current={selected ? "true" : undefined}
             title={item.label}
             data-active={selected}
-            className={cn(segmentClassName(selected), "flex-1 justify-center gap-1.5 px-2 sm:flex-none sm:gap-2 sm:px-3.5")}
+            className={cn(segmentClassName(selected), "flex-1 justify-center px-3.5 sm:flex-none")}
           >
-            <span className="hidden text-base leading-none sm:inline" aria-hidden="true">{item.icon}</span>
             {item.label}
           </Link>
         );

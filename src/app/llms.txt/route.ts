@@ -27,7 +27,6 @@ export async function GET() {
     "",
     `- [Home](${absoluteUrl(baseUrl, "/")})`,
     `- [About](${absoluteUrl(baseUrl, "/about")})`,
-    `- [RSS feed](${absoluteUrl(baseUrl, "/rss.xml")})`,
     `- [XML sitemap](${absoluteUrl(baseUrl, "/sitemap.xml")})`,
     "",
     "## Latest English notes",

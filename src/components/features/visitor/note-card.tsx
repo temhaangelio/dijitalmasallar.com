@@ -1,15 +1,10 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
-import { sourceBadgeInitials, sourceLabel } from "@/lib/source-label";
+import { sourceLabel } from "@/lib/source-label";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
-import type { SiteSettings } from "@/services/settings";
 import type { Post } from "@/types/database";
 
-/**
- * The note as it appears in a list: the feed and the search results share this card, so a change to
- * one cannot leave the other behind.
- */
+/** The note as it appears in the editorial feed. */
 
 /** Wraps every occurrence of `term` in `<mark>`, used to show why a search result matched. */
 function highlightMatches(text: string, term: string, keyPrefix: string): ReactNode[] {
@@ -60,34 +55,20 @@ export function feedContent(post: Post, highlight?: string): ReactNode[] {
   return nodes.length ? nodes : [plain(content, "only")];
 }
 
-export function NoteCard({ post, layout, language, highlight }: { post: Post; layout: SiteSettings["feedLayout"]; language: VisitorLanguage; highlight?: string }) {
-  const layoutClass = layout === "card" ? "border-line shadow-card" : layout === "classic" ? "border-line-strong" : "border-transparent";
+export function NoteCard({ post, language, highlight }: { post: Post; language: VisitorLanguage; highlight?: string }) {
   const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
   return (
-    // `has-[a:focus-visible]` gives the card the same lift for a keyboard reader that a pointer gets:
-    // the link that covers it is invisible, so without this only a bare outline moved down the feed.
-    <article className={`visitor-card group relative rounded-panel border bg-surface p-5 transition duration-300 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-soft has-[a:focus-visible]:border-line-strong has-[a:focus-visible]:shadow-soft sm:p-6 ${layoutClass}`}>
-      {/*
-        The note link stretches over the whole card through its own `::before`, so the meta row is
-        part of the target too. Reading the note no longer dims the text on hover — the lift, the
-        border and the arrow carry the affordance, and the copy stays at full contrast while the
-        pointer rests on it.
-      */}
+    <article className="visitor-card group relative rounded-[14px] border border-line/70 bg-surface/55 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
       <Link
         href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")}
-        className="visitor-copy block text-[length:var(--vt-body)] font-normal leading-[1.7] text-ink [text-wrap:pretty] before:absolute before:inset-0 before:rounded-panel before:content-['']"
+        className="visitor-copy block text-[17px] font-normal leading-[1.5] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[20px]"
       >
         {feedContent(post, highlight)}
       </Link>
-      <div className="mt-5 flex min-w-0 items-center justify-between gap-4 border-t border-line pt-4 text-[length:var(--vt-meta)]">
+      <div className="mt-2.5 flex min-w-0 items-center justify-end font-mono text-[11px] font-normal leading-[1.6]">
         {post.source_url
-          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 inline-flex min-w-0 flex-1 items-center gap-2.5 tracking-[.04em] text-muted transition-colors hover:text-ink"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span className="truncate">{displayedSource}</span></a>
-          : <span title={displayedSource} className="visitor-source inline-flex min-w-0 flex-1 items-center gap-2.5 tracking-[.04em] text-faint"><span className="visitor-source-badge grid size-7 shrink-0 place-items-center rounded-[9px] bg-surface-2 font-mono text-[9px] font-semibold tracking-[.04em] text-ink-2" aria-hidden="true">{sourceBadgeInitials(post.source_url, displayedSource, language)}</span><span className="truncate">{displayedSource}</span></span>}
-        {/* The arrow sits in a ring that fills as the card is hovered — the note's "open" affordance,
-            in the same shape as the source badge across from it. */}
-        <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line text-faint transition-all duration-300 ease-out group-hover:border-ink group-hover:bg-ink group-hover:text-ink-contrast" aria-hidden="true">
-          <ArrowRight size={14} className="transition-transform duration-300 ease-out group-hover:translate-x-px" />
-        </span>
+          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 inline-block max-w-full min-w-0 truncate border-b border-line text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource} ↗</a>
+          : <span title={displayedSource} className="visitor-source min-w-0 truncate text-faint">{displayedSource}</span>}
       </div>
     </article>
   );

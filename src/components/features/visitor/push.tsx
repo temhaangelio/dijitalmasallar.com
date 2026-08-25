@@ -267,15 +267,14 @@ export function PushToggle({ language, publicKey }: { language: VisitorLanguage;
   }
 
   const options = [
-    { value: "off" as const, icon: BellOff, label: isEnglish ? "Off" : "Kapalı" },
-    { value: "on" as const, icon: Bell, label: isEnglish ? "On" : "Açık" },
+    { value: "off" as const, label: isEnglish ? "Off" : "Kapalı" },
+    { value: "on" as const, label: isEnglish ? "On" : "Açık" },
   ];
 
   return (
     <Segmented className="w-full sm:w-fit" role="radiogroup" label={isEnglish ? "Notifications" : "Bildirimler"}>
       {options.map((option) => {
         const selected = state === option.value;
-        const Icon = option.icon;
         return (
           <button
             key={option.value}
@@ -287,9 +286,8 @@ export function PushToggle({ language, publicKey }: { language: VisitorLanguage;
             disabled={pending}
             data-active={selected}
             onClick={() => { if (!selected && !pending) void (option.value === "on" ? turnOn() : turnOff()); }}
-            className={cn(segmentClassName(selected), "flex-1 justify-center gap-1.5 px-2 disabled:cursor-wait sm:flex-none sm:gap-2 sm:px-3.5")}
+            className={cn(segmentClassName(selected), "flex-1 justify-center px-3.5 disabled:cursor-wait sm:flex-none")}
           >
-            <Icon size={15} className="hidden sm:block" aria-hidden="true" />
             {option.label}
           </button>
         );

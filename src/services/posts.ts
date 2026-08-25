@@ -4,7 +4,6 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { demoPosts } from "@/lib/constants/demo-data";
 import { parsePostContent } from "@/lib/post-content";
 import { isUuid } from "@/lib/utils";
-import { normalizeSearchQuery } from "@/lib/visitor-search";
 import type { Post } from "@/types/database";
 
 type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; category: string; source_name: string | null; source_url: string | null; cover_path: string | null; featured: boolean; show_title: boolean; show_excerpt: boolean; created_at: string; author_id: string | null };
@@ -216,48 +215,6 @@ export async function getNextPublishedPost(createdAt: string, language: "tr" | "
     return mapPost(data as PostRow, language);
   } catch {
     return null;
-  }
-}
-
-export type PostSearchResult = { posts: Post[]; total: number };
-
-function demoSearch(needle: string, language: "tr" | "en", limit: number): PostSearchResult {
-  const lowered = needle.toLocaleLowerCase("tr");
-  const matches = demoPosts.filter((post) =>
-    post.language === language
-    && post.status === "published"
-    && `${post.title} ${post.excerpt} ${post.body} ${post.category} ${post.source_name ?? ""}`.toLocaleLowerCase("tr").includes(lowered));
-  return { posts: matches.slice(0, limit), total: matches.length };
-}
-
-/**
- * Visitor-facing search. Unlike the admin table it goes through the anonymous client and can only
- * ever see published rows, and it matches the three things a reader can actually read: the note in
- * the language they are browsing, its category, and its source name.
- *
- * `total` is the exact count of matches, not of returned rows, so the page can say how many notes
- * matched and whether more of them are waiting behind the limit.
- */
-export async function searchPublishedPosts(query: string, language: "tr" | "en" = "tr", limit = 20): Promise<PostSearchResult> {
-  const needle = normalizeSearchQuery(query);
-  if (!needle) return { posts: [], total: 0 };
-  const safeLimit = Math.min(Math.max(Math.floor(limit), 1), 200);
-  if (!isSupabaseConfigured()) return demoSearch(needle, language, safeLimit);
-  try {
-    const supabase = await createClient();
-    const pattern = quotedLikePattern(needle);
-    const { data, count, error } = await supabase
-      .from("posts")
-      .select(postColumns, { count: "exact" })
-      .lte("created_at", new Date().toISOString())
-      .or(`${titleColumn[language]}.ilike.${pattern},category.ilike.${pattern},source_name.ilike.${pattern}`)
-      .order("created_at", { ascending: false })
-      .range(0, safeLimit - 1);
-    if (error) throw error;
-    const rows = (data ?? []) as PostRow[];
-    return { posts: rows.map((row) => mapPost(row, language)), total: count ?? rows.length };
-  } catch {
-    return { posts: [], total: 0 };
   }
 }
 

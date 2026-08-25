@@ -392,20 +392,20 @@ export function EditorLoading({ active, asideFields }: { active: string; asideFi
  * carry no text: a fallback cannot know the language of the page it is covering.
  */
 
-/** The note card as the feed and the search results draw it: three lines of copy over a meta row. */
+/** A feed note: its timestamp and copy sit directly on the page over a plain source label. */
 export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; withCount?: boolean }) {
   return (
     <>
       {withCount ? <Skeleton className="mb-4 ml-1 h-3 w-32" /> : null}
-      <div className="flex flex-col gap-4 sm:gap-5">
+      <div className="flex flex-col gap-[46px]">
         {Array.from({ length: count }, (_, index) => (
-          <div key={index} className="rounded-panel border border-transparent bg-surface p-5 sm:p-6">
-            <Skeleton className="h-5 w-full" />
-            <Skeleton className="mt-2.5 h-5 w-11/12" />
-            <Skeleton className="mt-2.5 h-5 w-2/3" />
-            <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
-              <div className="flex items-center gap-2.5"><Skeleton className="size-7 rounded-[9px]" /><Skeleton className="h-3.5 w-24" /></div>
-              <Skeleton className="size-4 rounded-full" />
+          <div key={index}>
+            <Skeleton className="mb-2.5 h-3 w-12" />
+            <div className="rounded-[14px] border border-line/70 bg-surface/55 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="mt-2 h-5 w-11/12" />
+              <Skeleton className="mt-2 h-5 w-2/3" />
+              <Skeleton className="ml-auto mt-4 h-2.5 w-24" />
             </div>
           </div>
         ))}
@@ -418,33 +418,10 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
 
 export function VisitorFeedLoading() {
   return (
-    <VisitorShellSkeleton label="Akış yükleniyor" liveBand>
-      <div className="w-full max-w-[720px] px-1 pb-9 pt-12 sm:pb-11 sm:pt-16">
-        <Skeleton className="h-6 w-44" />
-        <div className="mt-4 rounded-panel bg-surface-2 px-5 py-5 sm:px-6 sm:py-6">
-          <div className="space-y-3">
-            {["w-full", "w-full", "w-3/4"].map((width, index) => <Skeleton key={index} className={`h-5 ${width}`} />)}
-          </div>
-          <Skeleton className="mt-5 h-4 w-20" />
-        </div>
-      </div>
-      <div className="mt-2 w-full max-w-[720px] sm:mt-3">
-        <Skeleton className="mb-5 h-8 w-44 rounded-full" />
+    <VisitorShellSkeleton label="Akış yükleniyor">
+      <div className="mt-9 w-full max-w-[640px] sm:mt-14">
+        <div className="mb-[46px] flex items-center gap-3.5"><Skeleton className="h-2.5 w-32" /><Skeleton className="h-px flex-1" /></div>
         <VisitorNoteCardsSkeleton count={4} />
-      </div>
-    </VisitorShellSkeleton>
-  );
-}
-
-/* ------------------------------------------------------------- /search */
-
-export function VisitorSearchLoading() {
-  return (
-    <VisitorShellSkeleton label="Arama yükleniyor">
-      <div className="w-full max-w-[720px] pt-12 sm:pt-16">
-        <div className="px-1 pb-7"><Skeleton className="h-10 w-40" /><Skeleton className="mt-4 h-4 w-80 max-w-full" /></div>
-        <Skeleton className="h-[62px] w-full rounded-full" />
-        <div className="pt-9"><VisitorNoteCardsSkeleton count={3} withCount /></div>
       </div>
     </VisitorShellSkeleton>
   );
@@ -455,21 +432,69 @@ export function VisitorSearchLoading() {
 export function VisitorArticleLoading() {
   return (
     <VisitorShellSkeleton label="Haber yükleniyor">
-      <div className="w-full max-w-[720px] pt-8 sm:pt-10">
-        <div className="rounded-panel border border-line bg-surface p-6 sm:p-10">
-          <div className="mb-8 flex items-center justify-between"><Skeleton className="h-3 w-28" /><Skeleton className="size-10 rounded-full" /></div>
-          <Skeleton className="h-8 w-3/4" />
-          <div className="mt-6 space-y-3">
-            {["w-full", "w-full", "w-11/12", "w-full", "w-4/5"].map((width, index) => <Skeleton key={index} className={`h-5 ${width}`} />)}
+      <main className="w-full max-w-[640px] pt-11 sm:pt-14">
+        <article className="rounded-[14px] border border-line/70 bg-surface/55 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
+          <div className="mb-8 border-b border-line pb-5">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-3 w-10" />
+              <Skeleton className="h-3 w-32" />
+            </div>
           </div>
-          <div className="mt-9 flex items-center justify-between border-t border-line pt-5"><Skeleton className="h-3 w-16" /><Skeleton className="h-3 w-32" /></div>
-        </div>
-      </div>
+
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-[94%]" />
+            <Skeleton className="h-6 w-4/5" />
+            <div className="h-2" />
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-11/12" />
+            <Skeleton className="h-6 w-3/4" />
+          </div>
+
+          <div className="mt-9 flex justify-end">
+            <Skeleton className="h-3 w-32" />
+          </div>
+        </article>
+      </main>
     </VisitorShellSkeleton>
   );
 }
 
 /* ---------------------------------- /about, /contact, /newsletter */
+
+/** Mirrors the current 640px editorial About card. */
+export function VisitorAboutLoading() {
+  return (
+    <VisitorShellSkeleton label="Hakkında yükleniyor">
+      <main className="w-full max-w-[640px] pb-6 pt-12 sm:pt-16">
+        <article className="rounded-[14px] border border-line/70 bg-surface/55 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
+          <header>
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="mt-2 h-5 w-4/5" />
+            <Skeleton className="mt-6 h-0.5 w-12 rounded-none" />
+          </header>
+
+          <div className="mt-9 space-y-5 sm:mt-10">
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-5 w-11/12" />
+              <Skeleton className="h-5 w-4/5" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-5 w-5/6" />
+              <Skeleton className="h-5 w-2/3" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-5/6" />
+              <Skeleton className="h-4 w-44" />
+            </div>
+          </div>
+        </article>
+      </main>
+    </VisitorShellSkeleton>
+  );
+}
 
 /**
  * `VisitorContentPage`: a titled header panel over a body of running text. Optional labelled rows

@@ -1,36 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
+import { Geist, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
-import { FontScript, FontSizeScript } from "@/components/features/visitor/font";
 import { InstallScript } from "@/components/features/visitor/push";
 import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytics";
 import { ThemeScript } from "@/components/features/visitor/theme";
 import { siteUrl } from "@/lib/seo";
 
-/*
- * `latin-ext` carries ğ, ş, İ, Ğ, Ş — the Turkish letters the `latin` subset leaves out. Without it
- * the browser still finds them, but in a later-loading file, so Turkish words rendered their first
- * frames with a few letters in a fallback face.
- *
- * The reader picks between these three in page settings. The serif and the mono used to be system
- * stacks — Georgia and SF Mono, neither of which exists on Android — so the same setting produced a
- * different typeface on every platform, with no control over its metrics. Both are now real,
- * self-hosted files with the same language coverage as the sans.
- */
+/* `latin-ext` carries ğ, ş, İ, Ğ, Ş so Turkish never falls back to a second typeface. */
 const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist", display: "swap" });
-
-// `opsz` is Source Serif's optical-size axis: paired with `font-optical-sizing: auto` it thickens
-// hairlines and opens the spacing as the text gets smaller, which is the whole point of choosing a
-// serif with an optical axis for body copy.
-// Not preloaded: the sans is what almost every reader sees, and preloading all three meant six font
-// files on the wire for two that get used. These two are fetched the moment someone switches to
-// them, with next/font's metric-matched fallback standing in until they arrive.
-const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-reading-serif", display: "swap", preload: false });
-
-// `--font-serif` and `--font-mono` are Tailwind's own theme tokens; these keep their own names so
-// the `font-mono` utility still means what it means everywhere else in the app.
-const geistMono = Geist_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-reading-mono", display: "swap", preload: false });
+const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap" });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-plex-mono", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -65,7 +45,7 @@ export const metadata: Metadata = {
  */
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#efefef" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f8f5" },
     { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },
   ],
 };
@@ -77,8 +57,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The dark tokens themselves only apply inside `.visitor-page`.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /><FontScript /><FontSizeScript /><InstallScript /></head>
-      <body className={`${geist.variable} ${sourceSerif.variable} ${geistMono.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <head><ThemeScript /><InstallScript /></head>
+      <body className={`${geist.variable} ${plexSans.variable} ${plexMono.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );
 }

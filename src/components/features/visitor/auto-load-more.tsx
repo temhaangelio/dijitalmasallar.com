@@ -38,11 +38,11 @@ export function AutoLoadMore({ href, label }: { href: string; label: string }) {
   }, [href, router]);
 
   return (
-    <div ref={sentinel} className="flex min-h-16 items-center justify-center py-10" aria-live="polite" aria-busy={loading}>
+    <div ref={sentinel} className="flex min-h-16 items-center justify-center py-14" aria-live="polite" aria-busy={loading}>
       {loading ? (
-        <span className="visitor-muted inline-flex items-center gap-3 text-[length:var(--vt-ui)] font-semibold text-faint">
+        <span className="visitor-muted inline-flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-muted">
           <span className="relative block size-4" aria-hidden="true">
-            <span className="diji-loading-dot absolute left-0 top-0 size-2 rounded-full bg-ink [--diji-loading-travel:8px]" />
+            <span className="diji-loading-dot absolute left-0 top-0 size-2 rounded-full bg-accent [--diji-loading-travel:8px]" />
           </span>
           {label}
         </span>

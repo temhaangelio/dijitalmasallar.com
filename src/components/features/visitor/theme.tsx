@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { Monitor, Moon, Sun } from "lucide-react";
 import { Segmented, segmentClassName } from "@/components/ui/segmented";
 import { cn } from "@/lib/utils";
 
@@ -64,10 +63,10 @@ function setPreference(preference: ThemePreference) {
   listeners.forEach((listener) => listener());
 }
 
-const options: { value: ThemePreference; icon: typeof Sun; label: { tr: string; en: string } }[] = [
-  { value: "light", icon: Sun, label: { tr: "Açık", en: "Light" } },
-  { value: "dark", icon: Moon, label: { tr: "Koyu", en: "Dark" } },
-  { value: "system", icon: Monitor, label: { tr: "Sistem", en: "System" } },
+const options: { value: ThemePreference; label: { tr: string; en: string } }[] = [
+  { value: "light", label: { tr: "Açık", en: "Light" } },
+  { value: "dark", label: { tr: "Koyu", en: "Dark" } },
+  { value: "system", label: { tr: "Sistem", en: "System" } },
 ];
 
 export function ThemePicker({ language }: { language: "tr" | "en" }) {
@@ -85,7 +84,6 @@ export function ThemePicker({ language }: { language: "tr" | "en" }) {
   return (
     <Segmented className="w-full sm:w-fit" role="radiogroup" label={language === "en" ? "Theme" : "Tema"}>
       {options.map((option) => {
-        const Icon = option.icon;
         const selected = preference === option.value;
         return (
           <button
@@ -97,9 +95,8 @@ export function ThemePicker({ language }: { language: "tr" | "en" }) {
             title={option.label[language]}
             data-active={selected}
             onClick={() => setPreference(option.value)}
-            className={cn(segmentClassName(selected), "flex-1 justify-center gap-1.5 px-2 sm:flex-none sm:gap-2 sm:px-3.5")}
+            className={cn(segmentClassName(selected), "flex-1 justify-center px-3.5 sm:flex-none")}
           >
-            <Icon size={15} className="hidden sm:block" aria-hidden="true" />
             {option.label[language]}
           </button>
         );

@@ -30,8 +30,5 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
       // Cropped to the launcher's own shape while keeping the upper-left dot inside the safe area.
       { src: "/icon-maskable-512.png?v=2", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
-    shortcuts: [
-      { name: "Search", short_name: "Search", url: "/search", icons: [{ src: "/icon-192.png?v=2", sizes: "192x192", type: "image/png" }] },
-    ],
   };
 }

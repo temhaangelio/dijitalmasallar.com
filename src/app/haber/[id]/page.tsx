@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorShell } from "@/components/layout/visitor-shell";
+import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
 import { languageHref } from "@/lib/visitor-language";
 import { sourceLabel } from "@/lib/source-label";
 import { absoluteUrl, jsonLd, postDescription, postHeadline, siteUrl } from "@/lib/seo";
@@ -71,15 +72,6 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   };
 }
 
-function dateLabel(value: string, language: "tr" | "en") {
-  return new Intl.DateTimeFormat(language === "en" ? "en-US" : "tr-TR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Europe/Istanbul",
-  }).format(new Date(value));
-}
-
 export default async function NewsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ lang?: string }> }) {
   const { id } = await params;
   const lang = (await searchParams).lang;
@@ -117,20 +109,21 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
-      <main className="w-full max-w-[720px] pt-8 sm:pt-10">
-        <article className="visitor-panel rounded-panel border border-line bg-surface p-6 sm:p-10">
-          <div className="visitor-muted mb-8 flex items-center justify-between gap-4 text-[length:var(--vt-meta)] font-semibold uppercase tracking-[.13em] text-faint">
-            <time dateTime={publishedAt}>{dateLabel(publishedAt, language)}</time>
-            <Link href={languageHref("/", language)} aria-label={language === "en" ? "Close article" : "Haberi kapat"} className="-mr-1 grid size-10 shrink-0 place-items-center rounded-full border border-line-strong bg-surface text-ink transition-all hover:-translate-y-px hover:bg-surface-2 hover:shadow-soft">
-              <X size={18} aria-hidden="true" />
-            </Link>
+      <main className="w-full max-w-[640px] pt-11 sm:pt-14">
+        <article className="visitor-article rounded-[14px] border border-line/70 bg-surface/55 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
+          <div className="visitor-muted mb-8 border-b border-line pb-5 font-mono">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
+              <time dateTime={publishedAt} className="text-[11px] font-medium leading-none tabular-nums text-accent sm:text-[12px]">
+                {timeLabel(publishedAt, language)}
+              </time>
+              <span className="text-[11px] font-normal leading-none text-muted sm:text-[12px]">{fullDateLabel(publishedAt, language)}</span>
+            </div>
           </div>
           <div className="visitor-markdown">
             <MarkdownPreview value={post.body} />
           </div>
           {(post.source_url || post.source_name) && (
-            <div className="visitor-muted mt-9 flex items-center justify-between gap-4 border-t border-line pt-5 text-[length:var(--vt-meta)]">
-              <span className="font-semibold uppercase tracking-[.13em] text-faint">{language === "en" ? "Source" : "Kaynak"}</span>
+            <div className="visitor-muted mt-9 flex justify-end font-mono text-[11px] font-normal leading-[1.6]">
               {post.source_url ? (
                 <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
               ) : (
@@ -141,11 +134,11 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
         </article>
 
         {nextPost && (
-          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-panel visitor-next group mt-3 block rounded-panel border border-line bg-surface-2 p-6 transition-all hover:-translate-y-0.5 hover:border-line-strong hover:bg-surface hover:shadow-soft sm:p-8">
-            <span className="visitor-muted text-[length:var(--vt-eyebrow)] font-bold uppercase tracking-[.16em] text-faint">{language === "en" ? "Next story" : "Sonraki haber"}</span>
-            <div className="mt-4 flex items-end justify-between gap-6">
-              <p className="visitor-copy max-w-[570px] text-[length:var(--vt-small)] font-normal leading-[1.7] text-ink [text-wrap:pretty]">{firstSentence(nextPost.body)}</p>
-              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-ink text-ink-contrast transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true"><ArrowRight size={16} /></span>
+          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-next group mt-8 block sm:mt-10">
+            <span className="visitor-muted font-mono text-[10px] font-medium uppercase tracking-[.18em] text-faint sm:text-[11px]">{language === "en" ? "Next story" : "Sonraki haber"}</span>
+            <div className="mt-4 flex items-start justify-between gap-6">
+              <p className="visitor-copy max-w-[540px] text-[17px] font-normal leading-[1.55] text-ink transition-colors group-hover:text-accent sm:text-[20px] sm:leading-[1.5]">{firstSentence(nextPost.body)}</p>
+              <span className="mt-1 shrink-0 text-muted transition-[transform,color] duration-300 group-hover:translate-x-1 group-hover:text-accent" aria-hidden="true"><ArrowRight size={18} strokeWidth={1.5} /></span>
             </div>
           </Link>
         )}

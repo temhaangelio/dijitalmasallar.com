@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getPosts(1, 500, "tr"),
   ]);
   const baseUrl = siteUrl(settings.domain);
-  const staticPaths = ["/", "/about", "/contact", "/newsletter"];
+  const staticPaths = ["/", "/about"];
   const staticEntries: MetadataRoute.Sitemap = staticPaths.map((path, index) => ({
     url: absoluteUrl(baseUrl, languageHref(path, "en")),
     lastModified: settings.updatedAt ?? undefined,

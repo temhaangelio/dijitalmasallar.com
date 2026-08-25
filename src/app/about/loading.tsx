@@ -1,3 +1,3 @@
-import { VisitorContentLoading } from "@/components/feedback/route-skeletons";
+import { VisitorAboutLoading } from "@/components/feedback/route-skeletons";
 
-export default function Loading() { return <VisitorContentLoading label="Hakkında yükleniyor" lines={4} />; }
+export default function Loading() { return <VisitorAboutLoading />; }
