@@ -15,8 +15,10 @@ export default function SettingsSectionsLayout({ children }: { children: React.R
         <Link href="/ayarlar" className="mb-4 inline-flex items-center gap-2 rounded-full text-sm font-semibold text-muted transition-colors hover:text-ink">
           <ArrowLeft size={16} aria-hidden="true" /> Ayarlara dön
         </Link>
-        <SettingsHeading />
-        <SettingsTabs />
+        <header className="mb-5 flex items-end justify-between gap-3 px-1">
+          <SettingsHeading />
+          <SettingsTabs />
+        </header>
         {children}
       </div>
     </AppShell>
