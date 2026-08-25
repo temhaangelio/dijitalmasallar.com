@@ -473,40 +473,35 @@ export function VisitorArticleLoading() {
 
 /* ---------------------------------- /about, /contact, /newsletter */
 
-/** `VisitorContentPage`: a titled header panel over a body of running text. */
-export function VisitorContentLoading({ label, lines = 5 }: { label: string; lines?: number }) {
+/**
+ * `VisitorContentPage`: a titled header panel over a body of running text, and — on the about page,
+ * which now carries the reader's own preferences — a block of labelled setting rows under it.
+ */
+export function VisitorContentLoading({ label, lines = 5, rows = 0 }: { label: string; lines?: number; rows?: number }) {
   const widths = ["w-full", "w-11/12", "w-full", "w-4/5", "w-full", "w-3/4"];
   return (
     <VisitorShellSkeleton label={label}>
       <div className="w-full max-w-[720px] pb-6 pt-12 sm:pt-16">
         <div className="overflow-hidden rounded-panel border border-line bg-surface">
           <div className="border-b border-line px-6 py-8 sm:px-10 sm:py-10"><Skeleton className="h-10 w-52" /><Skeleton className="mt-4 h-4 w-4/5" /></div>
-          <div className="space-y-3 px-6 py-8 sm:px-10 sm:py-10">
+          <div className="px-6 py-8 sm:px-10 sm:py-10">
             <Skeleton className="mb-6 h-3 w-28" />
-            {Array.from({ length: lines }, (_, index) => <Skeleton key={index} className={`h-5 ${widths[index % widths.length]}`} />)}
-          </div>
-        </div>
-      </div>
-    </VisitorShellSkeleton>
-  );
-}
-
-/* ----------------------------------------------------------- /settings */
-
-/** The reader's own page settings: one row per preference, each a label beside a segmented control. */
-export function VisitorSettingsLoading() {
-  return (
-    <VisitorShellSkeleton label="Sayfa ayarları yükleniyor">
-      <div className="w-full max-w-[720px] pt-12 sm:pt-16">
-        <div className="rounded-panel border border-line bg-surface p-6 sm:p-10">
-          <Skeleton className="h-10 w-56" />
-          <div className="mt-8 divide-y divide-line">
-            {[0, 1, 2, 3].map((index) => (
-              <div key={index} className="flex flex-col gap-3 py-6 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
-                <div className="min-w-0 flex-1"><Skeleton className="h-4 w-28" /><Skeleton className="mt-2 h-3 w-64 max-w-full" /></div>
-                <Skeleton className="h-11 w-full rounded-full sm:w-64" />
+            <div className="space-y-3">
+              {Array.from({ length: lines }, (_, index) => <Skeleton key={index} className={`h-5 ${widths[index % widths.length]}`} />)}
+            </div>
+            {rows ? (
+              <div className="mt-9 border-t border-line pt-8 sm:mt-10 sm:pt-9">
+                <Skeleton className="mb-6 h-3 w-32" />
+                <div className="divide-y divide-line">
+                  {Array.from({ length: rows }, (_, index) => (
+                    <div key={index} className="flex flex-col gap-3 py-5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                      <div className="min-w-0 flex-1"><Skeleton className="h-4 w-28" /><Skeleton className="mt-2 h-3 w-56 max-w-full" /></div>
+                      <Skeleton className="h-11 w-full rounded-full sm:w-64" />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            ) : null}
           </div>
         </div>
       </div>

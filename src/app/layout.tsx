@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
 import { FontScript, FontSizeScript } from "@/components/features/visitor/font";
+import { InstallScript } from "@/components/features/visitor/push";
 import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytics";
 import { ThemeScript } from "@/components/features/visitor/theme";
 import { siteUrl } from "@/lib/seo";
@@ -54,7 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The dark tokens themselves only apply inside `.visitor-page`.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /><FontScript /><FontSizeScript /></head>
+      <head><ThemeScript /><FontScript /><FontSizeScript /><InstallScript /></head>
       <body className={geist.variable}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );

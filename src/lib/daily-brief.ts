@@ -5,20 +5,24 @@ import { dateKey } from "./visitor-date.ts";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
 
-/** Three notes is as much as a short paragraph can carry before it stops being a brief. */
-export const dailyBriefSize = 3;
+/**
+ * The brief covers the whole day, not a selection from it — the cap is only there so a runaway day
+ * cannot turn the top of the page into an essay.
+ */
+export const dailyBriefMax = 40;
 
 /**
- * The notes the brief is written from: the ones published on the newest day that has any. Early in
+ * The notes the brief is written from: every note published on the newest day that has any. Early in
  * the morning, before the first note of the day is out, that is still yesterday — which is the
- * honest answer, and better than an empty panel under the heading.
+ * honest answer, and better than an empty space under the heading.
  *
- * `posts` arrives newest-first from the feed query, so the first entry names the day.
+ * `posts` arrives newest-first from the feed query, so the first entry names the day. The caller has
+ * to hand over enough of the feed to hold a full day; the home page fetches for that on purpose.
  */
 export function dailyBriefPosts(posts: Post[]) {
   if (!posts.length) return [];
   const day = dateKey(posts[0].published_at ?? posts[0].created_at);
-  return posts.filter((post) => dateKey(post.published_at ?? post.created_at) === day).slice(0, dailyBriefSize);
+  return posts.filter((post) => dateKey(post.published_at ?? post.created_at) === day).slice(0, dailyBriefMax);
 }
 
 /**
@@ -41,14 +45,16 @@ export function briefSentence(post: Post) {
  * is how most of them open) still reads correctly.
  */
 const connectors: Record<VisitorLanguage, readonly string[]> = {
-  tr: ["", "Ayrıca ", "Öte yandan "],
-  en: ["", "Meanwhile, ", "Elsewhere, "],
+  tr: ["Ayrıca ", "Öte yandan ", "Bir yandan ", "Buna ek olarak ", "Aynı gün ", "Diğer yandan "],
+  en: ["Meanwhile, ", "Elsewhere, ", "Also, ", "In addition, ", "On the same day, ", "At the same time, "],
 };
 
 export function dailyBriefText(posts: Post[], language: VisitorLanguage = "tr") {
   const sentences = posts.map(briefSentence).filter(Boolean);
   const links = connectors[language] ?? connectors.tr;
   return sentences
-    .map((sentence, index) => `${links[index] ?? links[links.length - 1]}${sentence}`)
+    // The opening sentence stands on its own; the rest cycle through the connectors, so a day with
+    // a dozen notes does not repeat the same word a dozen times.
+    .map((sentence, index) => (index === 0 ? sentence : `${links[(index - 1) % links.length]}${sentence}`))
     .join(" ");
 }

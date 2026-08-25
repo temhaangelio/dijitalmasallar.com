@@ -97,8 +97,8 @@ güncellemektir.
 
 ### Koyu tema
 
-Ziyaretçi sayfalarında Açık / Koyu / Sistem seçimi `/hakkinda` sayfasındaki **Sayfa ayarları**
-bölümünden yapılır; tercih `localStorage` içinde `diji-news-theme` anahtarıyla saklanır. Kök
+Ziyaretçi sayfalarında Açık / Koyu / Sistem seçimi `/about` sayfasındaki **Sayfa ayarları**
+bölümünden (ya da üst çubuktaki ⚙ sayfa ayarları sheet'inden) yapılır; tercih `localStorage` içinde `diji-news-theme` anahtarıyla saklanır. Kök
 `layout.tsx` içindeki satır içi `ThemeScript`, ilk boyamadan önce `<html>` üzerine
 `data-visitor-theme` özniteliğini yazar; böylece koyu temada açık renk bir sıçrama olmaz.
 
@@ -108,6 +108,13 @@ panel üretirdi. Panelin koyu teması ayrı bir iş olarak duruyor.
 
 `--color-ink-contrast` token'ı bu yüzden var: `bg-ink text-ink-contrast` kalıbı her iki temada da
 okunur kalır — açık temada siyah zemin/beyaz yazı, koyu temada açık zemin/koyu yazı.
+
+## Ziyaretçi sayfaları
+
+Genel akış `/`, notlar `/haber/[id]`, arama `/search`, e-bülten `/newsletter`, iletişim `/contact`.
+Hakkında sayfası (`/about`) aynı zamanda okuma tercihlerini taşır — dil, tema, yazı tipi ve boyutu,
+bildirimler ve uygulama kurulumu; eski `/settings` adresi buraya kalıcı olarak yönlendirilir. Aynı
+tercihler üst çubuktaki ⚙ düğmesinin açtığı sheet'ten de değiştirilebilir.
 
 ## PWA ve bildirimler
 

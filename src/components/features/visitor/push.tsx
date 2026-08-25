@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, BellOff } from "lucide-react";
+import Image from "next/image";
+import { Bell, BellOff, BellRing, X } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { subscribeToPushAction, unsubscribeFromPushAction } from "@/app/actions/push";
 import { showToast } from "@/components/ui/toast";
@@ -113,14 +114,21 @@ export function ServiceWorkerRegistrar({ language, publicKey }: { language: Visi
   return null;
 }
 
-export function PushToggle({ language, publicKey }: { language: VisitorLanguage; publicKey: string }) {
+type PushState = PushEnvironment | "on" | "off";
+
+/**
+ * Everything the two notification controls need: what the browser will allow, whether this reader is
+ * subscribed, and the two calls that change it. The nav's bell and the settings row are the same
+ * switch in two shapes, so they share one implementation rather than two that can disagree.
+ */
+function usePushSubscription(language: VisitorLanguage, publicKey: string) {
   // Safari on iOS only exposes push to an app that has been added to the home screen, so an
   // uninstalled iPhone reports "needs-install" rather than a plain "unsupported".
   const environment = useSyncExternalStore(subscribeToEnvironment, environmentSnapshot, serverEnvironment);
   const [subscribed, setSubscribed] = useState<boolean | null>(null);
   const [pending, setPending] = useState(false);
   const isEnglish = language === "en";
-  const state = environment !== "ready" ? environment : subscribed === null ? "loading" : subscribed ? "on" : "off";
+  const state: PushState = environment !== "ready" ? environment : subscribed === null ? "loading" : subscribed ? "on" : "off";
 
   useEffect(() => {
     if (environment !== "ready") return;
@@ -191,6 +199,43 @@ export function PushToggle({ language, publicKey }: { language: VisitorLanguage;
     }
   }
 
+  return { state, pending, turnOn, turnOff };
+}
+
+/**
+ * The bell in the nav: one tap to start getting notes, one to stop. It only appears once the browser
+ * has told us it can actually deliver them — a bell that opens an explanation is worse than no bell,
+ * and the settings row carries that explanation instead.
+ */
+export function PushNavButton({ language, publicKey }: { language: VisitorLanguage; publicKey: string }) {
+  const { state, pending, turnOn, turnOff } = usePushSubscription(language, publicKey);
+  const isEnglish = language === "en";
+  if (state !== "on" && state !== "off") return null;
+
+  const on = state === "on";
+  const label = on
+    ? (isEnglish ? "Turn notifications off" : "Bildirimleri kapat")
+    : (isEnglish ? "Turn notifications on" : "Bildirimleri aç");
+
+  return (
+    <button
+      type="button"
+      onClick={() => { if (!pending) void (on ? turnOff() : turnOn()); }}
+      disabled={pending}
+      aria-pressed={on}
+      aria-label={label}
+      title={label}
+      className="grid size-9 place-items-center rounded-[12px] bg-ink text-ink-contrast shadow-[0_2px_8px_rgba(0,0,0,.12)] transition-all hover:-translate-y-px hover:opacity-80 hover:shadow-soft disabled:cursor-wait disabled:opacity-60"
+    >
+      {on ? <BellRing size={17} aria-hidden="true" /> : <Bell size={17} aria-hidden="true" />}
+    </button>
+  );
+}
+
+export function PushToggle({ language, publicKey }: { language: VisitorLanguage; publicKey: string }) {
+  const { state, pending, turnOn, turnOff } = usePushSubscription(language, publicKey);
+  const isEnglish = language === "en";
+
   if (state === "loading") return <span className="visitor-muted text-[length:var(--vt-ui)] text-faint">…</span>;
 
   if (state === "unsupported" || state === "needs-install" || state === "blocked") {
@@ -234,48 +279,102 @@ export function PushToggle({ language, publicKey }: { language: VisitorLanguage;
   );
 }
 
-/**
- * The install control. Chrome and Edge hand over a prompt we can trigger; Safari on iOS has no such
- * API, so it gets the one sentence that says where the button lives. It always renders something —
- * it sits in a labelled settings row, and a row with an empty right-hand side reads as broken.
- */
+/* ------------------------------------------------------------------ install */
+
 type InstallEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
-function subscribeToNothing() { return () => {}; }
+declare global {
+  interface Window { __dijiInstallEvent?: InstallEvent | null }
+}
 
+const installReadyEvent = "diji-install-ready";
+const dismissKey = "diji-news-install-dismissed";
+
+/**
+ * `beforeinstallprompt` fires once, and it can fire before React has hydrated — a listener added by
+ * a component would simply miss it. This runs in `<head>`, keeps the event on `window`, and tells
+ * the page about it, so the install controls can pick it up whenever they mount.
+ */
+export function InstallScript() {
+  const script = `(function(){window.__dijiInstallEvent=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__dijiInstallEvent=e;window.dispatchEvent(new Event(${JSON.stringify(installReadyEvent)}));});})();`;
+  return <script dangerouslySetInnerHTML={{ __html: script }} />;
+}
+
+/*
+ * The captured prompt is external state — it lives on `window`, put there by the head script — so it
+ * is read through `useSyncExternalStore` rather than copied into React state by an effect. The
+ * snapshot is a plain status string: an object identity would change on every read.
+ */
+type InstallStatus = "unknown" | "installed" | "ready" | "none";
+
+const installListeners = new Set<() => void>();
+let installedNow = false;
+
+function notifyInstallListeners() {
+  installListeners.forEach((listener) => listener());
+}
+
+function subscribeToInstall(onChange: () => void) {
+  installListeners.add(onChange);
+  const onPrompt = (nativeEvent: Event) => {
+    nativeEvent.preventDefault();
+    window.__dijiInstallEvent = nativeEvent as InstallEvent;
+    notifyInstallListeners();
+  };
+  const onInstalled = () => {
+    window.__dijiInstallEvent = null;
+    installedNow = true;
+    notifyInstallListeners();
+  };
+  window.addEventListener(installReadyEvent, notifyInstallListeners);
+  window.addEventListener("beforeinstallprompt", onPrompt);
+  window.addEventListener("appinstalled", onInstalled);
+  return () => {
+    installListeners.delete(onChange);
+    window.removeEventListener(installReadyEvent, notifyInstallListeners);
+    window.removeEventListener("beforeinstallprompt", onPrompt);
+    window.removeEventListener("appinstalled", onInstalled);
+  };
+}
+
+function installSnapshot(): InstallStatus {
+  if (installedNow || isStandalone()) return "installed";
+  return window.__dijiInstallEvent ? "ready" : "none";
+}
+
+function serverInstallSnapshot(): InstallStatus {
+  return "unknown";
+}
+
+async function runInstall() {
+  const event = window.__dijiInstallEvent;
+  if (!event) return;
+  await event.prompt();
+  window.__dijiInstallEvent = null;
+  notifyInstallListeners();
+}
+
+/**
+ * The install control in the settings row. Chrome and Edge hand over a prompt we can trigger; Safari
+ * on iOS has no such API, so it gets the one sentence that says where the button lives. It always
+ * renders something — a labelled row with an empty right-hand side reads as broken.
+ */
 export function InstallPrompt({ language }: { language: VisitorLanguage }) {
-  const [event, setEvent] = useState<InstallEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
+  const status = useSyncExternalStore(subscribeToInstall, installSnapshot, serverInstallSnapshot);
   const isEnglish = language === "en";
-  // Only ever read on the client; the server render is the "no prompt available" case.
-  const mounted = useSyncExternalStore(subscribeToNothing, () => true, () => false);
-
-  useEffect(() => {
-    const onPrompt = (nativeEvent: Event) => {
-      nativeEvent.preventDefault();
-      setEvent(nativeEvent as InstallEvent);
-    };
-    const onInstalled = () => { setInstalled(true); setEvent(null); };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onPrompt);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
 
   const note = (text: string) => (
     <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-faint sm:max-w-[240px] sm:text-right">{text}</span>
   );
 
-  if (!mounted) return note("…");
-  if (installed || isStandalone()) return note(isEnglish ? "Already installed." : "Zaten yüklü.");
+  if (status === "unknown") return note("…");
+  if (status === "installed") return note(isEnglish ? "Already installed." : "Zaten yüklü.");
 
-  if (event) {
+  if (status === "ready") {
     return (
       <button
         type="button"
-        onClick={() => { void event.prompt().then(() => setEvent(null)); }}
+        onClick={() => { void runInstall(); }}
         className="h-10 shrink-0 rounded-full bg-ink px-4 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
       >
         {isEnglish ? "Install" : "Yükle"}
@@ -285,4 +384,77 @@ export function InstallPrompt({ language }: { language: VisitorLanguage }) {
 
   if (isIos()) return note(isEnglish ? "Share ⎋ → Add to Home Screen" : "Paylaş ⎋ → Ana Ekrana Ekle");
   return note(isEnglish ? "Install from your browser's menu." : "Tarayıcınızın menüsünden yükleyebilirsiniz.");
+}
+
+/** Dismissal is remembered for good: a reader who said no once should not be asked on every visit. */
+function installDismissed() {
+  try { return localStorage.getItem(dismissKey) === "1"; } catch { return false; }
+}
+
+function rememberInstallDismissal() {
+  try { localStorage.setItem(dismissKey, "1"); } catch { /* Storage may be unavailable. */ }
+}
+
+/**
+ * The invitation to install, offered once, low on the first pages a reader opens.
+ *
+ * It waits a few seconds so it never competes with the first paint, it is only shown where it can
+ * actually be accepted — a browser that handed over a prompt, or iOS Safari with its share sheet —
+ * and closing it settles the question for good.
+ */
+export function InstallBanner({ language }: { language: VisitorLanguage }) {
+  const status = useSyncExternalStore(subscribeToInstall, installSnapshot, serverInstallSnapshot);
+  const [visible, setVisible] = useState(false);
+  const [closed, setClosed] = useState(false);
+  const isEnglish = language === "en";
+  const iosShareSheet = status === "none" && isIos();
+
+  useEffect(() => {
+    if (installDismissed()) return;
+    const timer = setTimeout(() => setVisible(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!visible || closed || status === "installed" || status === "unknown") return null;
+  if (status !== "ready" && !iosShareSheet) return null;
+
+  const close = () => { setClosed(true); rememberInstallDismissal(); };
+
+  return (
+    <aside
+      className="install-banner fixed inset-x-0 bottom-0 z-[150] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+      aria-label={isEnglish ? "Install diji.news" : "diji.news'i yükle"}
+    >
+      <div className="visitor-panel mx-auto flex w-full max-w-[560px] items-center gap-4 rounded-[24px] border border-line-strong bg-surface p-4 shadow-modal">
+        <Image src="/icon-192.png" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px]" />
+        <div className="min-w-0 flex-1">
+          <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold tracking-[-.02em]">
+            {isEnglish ? "Add diji.news to your home screen" : "diji.news'i ana ekranınıza ekleyin"}
+          </strong>
+          <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">
+            {status === "ready"
+              ? (isEnglish ? "Opens like an app, and can bring you the day's notes." : "Uygulama gibi açılır, günün notlarını bildirimle getirir.")
+              : (isEnglish ? "Share ⎋ → Add to Home Screen" : "Paylaş ⎋ → Ana Ekrana Ekle")}
+          </p>
+        </div>
+        {status === "ready" ? (
+          <button
+            type="button"
+            onClick={() => { rememberInstallDismissal(); void runInstall(); }}
+            className="h-10 shrink-0 rounded-full bg-ink px-4 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
+          >
+            {isEnglish ? "Install" : "Yükle"}
+          </button>
+        ) : null}
+        <button
+          type="button"
+          onClick={close}
+          aria-label={isEnglish ? "Dismiss" : "Kapat"}
+          className="grid size-9 shrink-0 place-items-center rounded-full text-faint transition-colors hover:bg-surface-2 hover:text-ink"
+        >
+          <X size={17} aria-hidden="true" />
+        </button>
+      </div>
+    </aside>
+  );
 }

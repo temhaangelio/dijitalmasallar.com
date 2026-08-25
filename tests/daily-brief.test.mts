@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { briefSentence, dailyBriefPosts, dailyBriefSize, dailyBriefText } from "../src/lib/daily-brief.ts";
+import { briefSentence, dailyBriefMax, dailyBriefPosts, dailyBriefText } from "../src/lib/daily-brief.ts";
 import type { Post } from "../src/types/database.ts";
 
 /** Times are UTC; the brief groups by the Istanbul day, which is three hours ahead. */
@@ -28,9 +28,11 @@ describe("dailyBriefPosts", () => {
     assert.deepEqual(dailyBriefPosts(posts).map((post) => post.id), ["1"]);
   });
 
-  test("never takes more than the brief holds", () => {
-    const posts = Array.from({ length: 6 }, (_, index) => note(String(index), "2026-08-25T09:00:00Z", "Not."));
-    assert.equal(dailyBriefPosts(posts).length, dailyBriefSize);
+  test("covers the whole day, up to the runaway cap", () => {
+    const posts = Array.from({ length: 12 }, (_, index) => note(String(index), "2026-08-25T09:00:00Z", "Not."));
+    assert.equal(dailyBriefPosts(posts).length, 12);
+    const flood = Array.from({ length: dailyBriefMax + 15 }, (_, index) => note(String(index), "2026-08-25T09:00:00Z", "Not."));
+    assert.equal(dailyBriefPosts(flood).length, dailyBriefMax);
   });
 
   test("no posts, no brief", () => {
@@ -65,6 +67,14 @@ describe("dailyBriefText", () => {
 
   test("a single note gets no connector", () => {
     assert.equal(dailyBriefText(posts.slice(0, 1), "tr"), "İlk haber.");
+  });
+
+  test("connectors cycle rather than repeating one word all day", () => {
+    const many = Array.from({ length: 8 }, (_, index) => note(String(index), "2026-08-25T09:00:00Z", "", `Haber ${index}`));
+    const text = dailyBriefText(many, "tr");
+    assert.ok(text.startsWith("Haber 0. Ayrıca Haber 1. Öte yandan Haber 2."), text.slice(0, 80));
+    // Six connectors, so the seventh sentence is where the first one comes round again.
+    assert.ok(text.includes("Ayrıca Haber 7."), text.slice(-60));
   });
 
   test("empty notes leave no paragraph", () => {

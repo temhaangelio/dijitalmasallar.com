@@ -359,6 +359,8 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
 
   .visitor-sheet-backdrop { animation: visitor-sheet-backdrop-in .22s ease-out both; }
   .visitor-sheet-panel { animation: visitor-sheet-panel-in .3s cubic-bezier(.2,.8,.2,1) both; }
+  /* The install invitation rises the same way a sheet does, so the two read as one family. */
+  .install-banner { animation: visitor-sheet-panel-in .32s cubic-bezier(.2,.8,.2,1) both; }
   .visitor-highlight { background: var(--color-highlight); }
   .diji-loading-dot { animation: diji-loading-orbit 1.25s cubic-bezier(.65, 0, .35, 1) infinite; }
   .visitor-logo-dot { animation-duration: 3.6s; animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
