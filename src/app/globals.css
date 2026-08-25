@@ -187,14 +187,17 @@ html[data-visitor-theme="dark"] .visitor-page {
 
 /* Visitor font preferences are intentionally scoped away from the admin panel. */
 html[data-visitor-font="modern"] .visitor-page { font-family: var(--font-geist), Arial, sans-serif; }
-html[data-visitor-font="classic"] .visitor-page { font-family: Georgia, "Times New Roman", serif; letter-spacing: -.006em; }
-html[data-visitor-font="mono"] .visitor-page { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; letter-spacing: -.02em; }
+/* `font-optical-sizing` is what makes the serif worth loading: Source Serif carries an optical-size
+   axis, so at note size the stems thicken and the spacing opens instead of the display cut being
+   scaled down. The tracking correction the old Georgia stack needed is gone with it. */
+html[data-visitor-font="classic"] .visitor-page { font-family: var(--font-reading-serif), Georgia, "Times New Roman", serif; letter-spacing: 0; font-optical-sizing: auto; }
+html[data-visitor-font="mono"] .visitor-page { font-family: var(--font-reading-mono), "SFMono-Regular", Consolas, "Liberation Mono", monospace; letter-spacing: -.012em; }
 
 /* Article markdown is rendered through a reusable preview component. Bind its typography directly
    so the visitor font preference cannot be lost through that component boundary. */
 html[data-visitor-font="modern"] .visitor-markdown { font-family: var(--font-geist), Arial, sans-serif; }
-html[data-visitor-font="classic"] .visitor-markdown { font-family: Georgia, "Times New Roman", serif; }
-html[data-visitor-font="mono"] .visitor-markdown { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+html[data-visitor-font="classic"] .visitor-markdown { font-family: var(--font-reading-serif), Georgia, "Times New Roman", serif; font-optical-sizing: auto; }
+html[data-visitor-font="mono"] .visitor-markdown { font-family: var(--font-reading-mono), "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 
 html[data-visitor-font-size="small"] .visitor-page { --visitor-font-scale: .92; }
 html[data-visitor-font-size="normal"] .visitor-page { --visitor-font-scale: 1; }
@@ -241,6 +244,33 @@ html[data-visitor-font-size] .visitor-page .text-sm { font-size: calc(.875rem * 
 .visitor-page .visitor-markdown h1 + *, .visitor-page .visitor-markdown h2 + * { margin-top: .35em; }
 .visitor-page .visitor-markdown a { text-decoration-color: var(--color-line-strong); transition: text-decoration-color .2s; }
 .visitor-page .visitor-markdown a:hover { text-decoration-color: currentcolor; }
+
+/*
+ * Reading refinements, set once here instead of as `[text-wrap:pretty]` repeated on every paragraph.
+ *
+ * `pretty` is what keeps a note from ending on a single orphaned word. `break-word` keeps a pasted
+ * URL inside its card rather than widening the card around it. Hyphenation is switched on only
+ * below `sm`: that is where the measure gets short enough for Turkish's long agglutinated words to
+ * tear a visible hole in the ragged edge, and the browser hyphenates by the `lang` the visitor
+ * shell sets, so it applies Turkish rules to Turkish notes.
+ */
+.visitor-page .visitor-copy,
+.visitor-page .visitor-markdown p,
+.visitor-page .visitor-markdown li {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 639px) {
+  .visitor-page .visitor-copy,
+  .visitor-page .visitor-markdown p,
+  .visitor-page .visitor-markdown li { hyphens: auto; }
+}
+
+/* Headlines break where the meaning does, not wherever the line happens to run out. */
+.visitor-page .visitor-heading,
+.visitor-page .visitor-markdown h1,
+.visitor-page .visitor-markdown h2 { text-wrap: balance; }
 
 @keyframes diji-loading-orbit {
   0%, 100% { transform: translate(0, 0); }
