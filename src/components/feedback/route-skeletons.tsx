@@ -24,6 +24,36 @@ function Field({ height = "h-12" }: { height?: string }) {
   );
 }
 
+/* ---------------------------------------------------------- /yapay-zeka */
+
+export function AiDeskLoading() {
+  return (
+    <ShellSkeleton active="/yapay-zeka">
+      <div role="status" aria-label="Yapay zekâ masası yükleniyor" className="mx-auto w-full max-w-[1100px]">
+        <PageHeaderSkeleton />
+        <Skeleton className="mb-5 h-11 w-[320px] rounded-full" />
+        <div className="flex flex-col gap-4">
+          {[0, 1, 2].map((index) => (
+            <div key={index} className="card space-y-4">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-7 w-40 rounded-full" />
+                <Skeleton className="h-11 w-44 rounded-full" />
+              </div>
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-12 w-full rounded-field" />
+              <Skeleton className="h-24 w-full rounded-field" />
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-9 w-32 rounded-full" />
+                <Skeleton className="h-9 w-48 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </ShellSkeleton>
+  );
+}
+
 /* ---------------------------------------------------------------------- /rss */
 
 export function RssPageLoading() {

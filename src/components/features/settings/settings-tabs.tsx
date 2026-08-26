@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Segmented, segmentClassName } from "@/components/ui/segmented";
+import { Segmented } from "@/components/ui/segmented";
+import { segmentClassName } from "@/components/ui/segmented-style";
 
 export const sections = [
   { label: "Genel", href: "/ayarlar/genel", title: "Genel ayarlar", note: "Site kimliği ve ziyaretçi akışı" },

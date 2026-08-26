@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { Segmented, segmentClassName } from "@/components/ui/segmented";
+import { Segmented } from "@/components/ui/segmented";
+import { segmentClassName } from "@/components/ui/segmented-style";
 import { cn } from "@/lib/utils";
 
 export type ThemePreference = "light" | "dark" | "system";

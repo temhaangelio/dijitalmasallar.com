@@ -61,11 +61,3 @@ export function Segmented({ children, className, role, label }: { children: Reac
     </div>
   );
 }
-
-/** Shared look for a segment. The active colour is the pill's contrast, not a background of its own. */
-export function segmentClassName(active: boolean) {
-  return cn(
-    "relative z-[1] flex h-9 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold transition-colors",
-    active ? "text-ink-contrast" : "text-muted hover:text-ink",
-  );
-}

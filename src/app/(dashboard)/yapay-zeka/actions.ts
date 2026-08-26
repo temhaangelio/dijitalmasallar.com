@@ -1,11 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { isUuid } from "@/lib/utils";
-import { aiCategories, summaryLimit } from "@/lib/ai/summarize";
+import { summaryLimit } from "@/lib/ai/summarize";
 import { addSource, approveItem, collectStories, rejectItem, removeSource, retryItem, setSourceActive, summarizePending } from "@/services/ai-desk";
+import { notifyNewPost } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
 
 type ActionResult = { success: boolean; message: string };
@@ -134,10 +136,23 @@ export async function approveAiItemAction(id: string, input: unknown): Promise<A
   if (!parsed.success) return { success: false, message: parsed.error.issues[0]?.message ?? "Notu kontrol edin." };
 
   try {
-    await approveItem(id, gate.admin.user.id, parsed.data);
+    const published = await approveItem(id, gate.admin.user.id, parsed.data);
     refresh();
     revalidatePath("/");
     revalidatePath("/yazilar");
+    // Same treatment a hand-written note gets: the push goes out after the response, so a push
+    // service having a bad day cannot turn an approved story into an error on screen.
+    after(async () => {
+      try {
+        await notifyNewPost({
+          id: published.postId,
+          tr: { title: published.titleTr, excerpt: published.summaryTr },
+          en: { title: published.titleEn, excerpt: published.summaryEn },
+        });
+      } catch (cause) {
+        console.error("Push notification for approved AI note failed", cause);
+      }
+    });
     return { success: true, message: "Haber yayınlandı." };
   } catch (cause) {
     return failure(cause, "Haber yayınlanamadı.");
@@ -171,5 +186,3 @@ export async function retryAiItemAction(id: string): Promise<ActionResult> {
     return failure(cause, "İçerik güncellenemedi.");
   }
 }
-
-export const availableCategories = aiCategories;

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Segmented, segmentClassName } from "@/components/ui/segmented";
+import { Segmented } from "@/components/ui/segmented";
+import { segmentClassName } from "@/components/ui/segmented-style";
 import { cn } from "@/lib/utils";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 

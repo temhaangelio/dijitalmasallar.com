@@ -5,7 +5,8 @@ import { Bell, BellOff, BellRing, Share, SquarePlus, X } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { subscribeToPushAction, unsubscribeFromPushAction } from "@/app/actions/push";
 import { showToast } from "@/components/ui/toast";
-import { Segmented, segmentClassName } from "@/components/ui/segmented";
+import { Segmented } from "@/components/ui/segmented";
+import { segmentClassName } from "@/components/ui/segmented-style";
 import { cn } from "@/lib/utils";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 

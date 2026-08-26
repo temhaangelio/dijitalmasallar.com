@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { readArticle } from "@/lib/ai/article";
 import { isAllowedStoryUrl, readSource, resolveSource, type SourceKind } from "@/lib/ai/sources";
 import { isSummarizerConfigured, summarizeStory, summarizerModel } from "@/lib/ai/summarize";
+import { normaliseUrl } from "@/lib/ai/url";
 
 /**
  * The AI desk.
@@ -47,6 +48,8 @@ export type AiItem = {
   importance: number;
   status: string;
   model: string | null;
+  /** Why a story was skipped or how it failed — the archive's only useful column. */
+  note: string;
   createdAt: string;
 };
 
@@ -68,26 +71,7 @@ const summariseBatchLimit = 12;
 const maxStoryAgeDays = 5;
 
 const sourceColumns = "id,name,site_url,source_url,kind,category,active,last_fetched_at,last_item_at,last_error";
-const itemColumns = "id,source_id,url,original_title,original_published_at,title_tr,title_en,summary_tr,summary_en,category,importance,status,model,created_at";
-
-/**
- * Tracking parameters and a trailing slash make the same story look like several. Normalising
- * before hashing is what makes `url_hash` a workable unique key.
- */
-export function normaliseUrl(value: string) {
-  try {
-    const url = new URL(value);
-    url.hash = "";
-    url.hostname = url.hostname.toLowerCase().replace(/^www\./, "");
-    for (const key of [...url.searchParams.keys()]) {
-      if (/^(utm_|ref$|ref_|source$|fbclid$|gclid$|mc_)/i.test(key)) url.searchParams.delete(key);
-    }
-    url.pathname = url.pathname.replace(/\/+$/, "") || "/";
-    return url.toString();
-  } catch {
-    return value.trim();
-  }
-}
+const itemColumns = "id,source_id,url,original_title,original_published_at,title_tr,title_en,summary_tr,summary_en,category,importance,status,model,error,created_at";
 
 export function urlHash(value: string) {
   return createHash("sha256").update(normaliseUrl(value)).digest("hex");
@@ -331,7 +315,7 @@ export async function summarizePending(limit = summariseBatchLimit): Promise<Sum
 type ItemRow = {
   id: string; source_id: string; url: string; original_title: string; original_published_at: string | null;
   title_tr: string | null; title_en: string | null; summary_tr: string | null; summary_en: string | null;
-  category: string | null; importance: number | null; status: string; model: string | null; created_at: string;
+  category: string | null; importance: number | null; status: string; model: string | null; error: string | null; created_at: string;
   ai_sources?: { name?: string; site_url?: string } | null;
 };
 
@@ -352,6 +336,7 @@ function mapItem(row: ItemRow): AiItem {
     importance: row.importance ?? 0,
     status: row.status,
     model: row.model,
+    note: row.error ?? "",
     createdAt: row.created_at,
   };
 }
