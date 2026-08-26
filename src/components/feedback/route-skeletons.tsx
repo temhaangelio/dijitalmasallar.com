@@ -71,32 +71,20 @@ export function DashboardLoading() {
       <div role="status" aria-label="Panel yükleniyor">
         <PageHeaderSkeleton actionWidth="w-36" />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-12">
-          <div className="card flex min-h-[300px] flex-col justify-between xl:col-span-2">
-            <Skeleton className="h-7 w-28" />
-            <Skeleton className="h-24 w-24" />
-          </div>
-          <div className="card min-h-[300px] xl:col-span-3">
+          <div className="card min-h-[300px] xl:col-span-4">
             <Skeleton className="h-7 w-full" />
             <div className="mt-7 grid grid-cols-7 gap-3">
               {Array.from({ length: 28 }, (_, index) => <Skeleton key={index} className="size-[13px] rounded-full" />)}
             </div>
             <Skeleton className="mt-8 h-4 w-3/4" />
           </div>
-          <div className="card min-h-[300px] xl:col-span-5">
+          <div className="card min-h-[300px] xl:col-span-8">
             <Skeleton className="h-7 w-40" />
             <div className="mt-6 space-y-4">
               {[0, 1, 2, 3].map((index) => (
                 <div key={index}><Skeleton className="h-4 w-4/5" /><Skeleton className="mt-2 h-3 w-1/3" /></div>
               ))}
             </div>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-1">
-            {[0, 1].map((index) => (
-              <div key={index} className="card flex min-h-[140px] flex-col justify-between">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-9 w-20" />
-              </div>
-            ))}
           </div>
           <div className="card xl:col-span-5">
             <Skeleton className="h-7 w-40" />

@@ -135,7 +135,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
           <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-next group mt-8 block sm:mt-10">
             <span className="visitor-muted font-mono text-[10px] font-medium uppercase tracking-[.18em] text-faint sm:text-[11px]">{language === "en" ? "Next story" : "Sonraki haber"}</span>
             <div className="mt-4 flex items-start justify-between gap-6">
-              <p className="visitor-copy max-w-[540px] text-[17px] font-normal leading-[1.55] text-ink transition-colors group-hover:text-accent sm:text-[20px] sm:leading-[1.5]">{firstSentence(nextPost.body)}</p>
+      <p className="visitor-copy visitor-serif max-w-[540px] text-[17px] font-normal leading-[1.55] text-ink transition-colors group-hover:text-accent sm:text-[20px] sm:leading-[1.5]">{firstSentence(nextPost.body)}</p>
               <span className="mt-1 shrink-0 text-muted transition-[transform,color] duration-300 group-hover:translate-x-1 group-hover:text-accent" aria-hidden="true"><ArrowRight size={18} strokeWidth={1.5} /></span>
             </div>
           </Link>
