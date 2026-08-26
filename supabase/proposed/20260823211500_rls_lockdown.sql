@@ -84,19 +84,6 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------------
--- newsletter_subscribers — subscriber e-mail addresses, service_role only
--- ---------------------------------------------------------------------------
-do $$
-begin
-  if to_regclass('public.newsletter_subscribers') is null then return; end if;
-
-  alter table public.newsletter_subscribers enable row level security;
-  revoke all on table public.newsletter_subscribers from anon, authenticated;
-  -- Subscribing goes through the `subscribeAction` server action, which uses service_role and
-  -- applies its own rate limit and validation, so anon needs no insert grant of its own.
-end $$;
-
--- ---------------------------------------------------------------------------
 -- admin_users — the role table the whole authorisation model rests on
 -- ---------------------------------------------------------------------------
 do $$

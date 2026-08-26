@@ -7,7 +7,6 @@ const privateRoutePrefixes = [
   "/dashboard",
   "/yazilar",
   "/rss",
-  "/e-bulten",
   "/reklamlar",
   "/istatistik",
   "/ayarlar",

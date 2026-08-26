@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { Blocks, ChevronRight, Eye, Mail, Settings2, UserRound } from "lucide-react";
+import { Blocks, ChevronRight, Eye, Settings2, UserRound } from "lucide-react";
 
 const items = [
   { title: "Genel", description: "Site adı, açıklamalar, alan adı ve akış biçimi", href: "/ayarlar/genel", icon: Settings2 },
-  { title: "E-bülten", description: "Ziyaretçi abonelik alanının metinleri ve görünürlüğü", href: "/ayarlar/e-bulten", icon: Mail },
-  { title: "Görünürlük", description: "Abone sayısı ve bakım modu seçenekleri", href: "/ayarlar/gorunurluk", icon: Eye },
+  { title: "Görünürlük", description: "Bakım modu ve ziyaretçi görünürlüğü seçenekleri", href: "/ayarlar/gorunurluk", icon: Eye },
   { title: "Modüller", description: "Panelde kullanılacak özellikleri açın veya kapatın", href: "/ayarlar/moduller", icon: Blocks },
   { title: "Profil", description: "Admin hesabı ve güvenlik bilgileri", href: "/profil", icon: UserRound },
 ] as const;

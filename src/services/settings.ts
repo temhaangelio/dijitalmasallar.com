@@ -14,18 +14,10 @@ export type SiteSettings = {
   homeTitle: string;
   feedLayout: "short" | "card" | "classic";
   postsPerPage: number;
-  newsletterEnabled: boolean;
-  newsletterTitle: string;
-  newsletterTitleEn: string;
-  newsletterDescription: string;
-  newsletterDescriptionEn: string;
-  showSubscriberCount: boolean;
   contactEmail: string;
   maintenanceMode: boolean;
   modulePosts: boolean;
   moduleRss: boolean;
-  moduleAi: boolean;
-  moduleNewsletter: boolean;
   moduleAds: boolean;
   moduleAnalytics: boolean;
   modulePush: boolean;
@@ -43,18 +35,10 @@ export const defaultSiteSettings: SiteSettings = {
   homeTitle: "Kısa ve özgün teknoloji notları",
   feedLayout: "short",
   postsPerPage: 7,
-  newsletterEnabled: true,
-  newsletterTitle: "Haftalık bülten",
-  newsletterTitleEn: "Weekly newsletter",
-  newsletterDescription: "Haftanın kısa teknoloji notları, tek e-postada.",
-  newsletterDescriptionEn: "The week’s concise technology notes in one email.",
-  showSubscriberCount: true,
   contactEmail: "merhaba@diji.news",
   maintenanceMode: false,
   modulePosts: true,
   moduleRss: true,
-  moduleAi: true,
-  moduleNewsletter: true,
   moduleAds: true,
   moduleAnalytics: true,
   modulePush: true,
@@ -73,18 +57,10 @@ const settingKeys = {
   home_title: "homeTitle",
   diji_feed_layout: "feedLayout",
   home_posts_per_page: "postsPerPage",
-  newsletter_enabled: "newsletterEnabled",
-  newsletter_title: "newsletterTitle",
-  newsletter_title_en: "newsletterTitleEn",
-  newsletter_description: "newsletterDescription",
-  newsletter_description_en: "newsletterDescriptionEn",
-  show_subscriber_count: "showSubscriberCount",
   contact_email: "contactEmail",
   maintenance_mode: "maintenanceMode",
   module_posts: "modulePosts",
   module_rss: "moduleRss",
-  module_ai: "moduleAi",
-  module_newsletter: "moduleNewsletter",
   module_ads: "moduleAds",
   module_analytics: "moduleAnalytics",
   module_push: "modulePush",

@@ -7,7 +7,6 @@ import { segmentClassName } from "@/components/ui/segmented-style";
 
 export const sections = [
   { label: "Genel", href: "/ayarlar/genel", title: "Genel ayarlar", note: "Site kimliği ve ziyaretçi akışı" },
-  { label: "E-bülten", href: "/ayarlar/e-bulten", title: "E-bülten ayarları", note: "Abonelik alanının içeriği ve görünürlüğü" },
   { label: "Görünürlük", href: "/ayarlar/gorunurluk", title: "Görünürlük ayarları", note: "Ziyaretçilerin görebileceği sistem bilgileri" },
   { label: "Modüller", href: "/ayarlar/moduller", title: "Panel modülleri", note: "Yönetim panelinde kullanılacak özellikler" },
 ] as const;

@@ -55,7 +55,7 @@ export async function VisitorShell({
         <Link href={languageHref("/", language)} className="mt-5 font-mono text-[22px] font-bold leading-none tracking-[-.03em] text-ink antialiased [text-rendering:geometricPrecision] sm:text-[30px]">
           {siteName}
         </Link>
-        <p className="visitor-copy mt-4 max-w-[38ch] text-[15px] font-normal leading-[1.5] text-muted sm:text-[19px]">{description}</p>
+        <p className="visitor-copy visitor-serif mt-4 max-w-[38ch] text-[15px] font-normal leading-[1.5] text-muted sm:text-[19px]">{description}</p>
         <VisitorHeaderNav language={language} />
       </nav> : null}
       {children}

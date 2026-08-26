@@ -2,7 +2,7 @@
 -- from supabase/proposed/. Nothing here writes.
 --
 -- The repository cannot answer these questions on its own: `posts`, `site_settings`, `ad_units`,
--- `newsletter_subscribers`, `admin_users` and the `is_admin()` function have no `create` migration
+-- `admin_users` and the `is_admin()` function have no `create` migration
 -- in this repo — they live in the schema shared with the dijitalmasallar.com project.
 
 \echo '== 1. Is RLS enabled and forced on every table the app touches? =='
@@ -15,8 +15,7 @@ join pg_namespace n on n.oid = c.relnamespace
 where n.nspname = 'public'
   and c.relkind = 'r'
   and c.relname in (
-    'posts', 'site_settings', 'ad_units', 'newsletter_subscribers',
-    'newsletter_campaigns', 'admin_users', 'pages'
+    'posts', 'site_settings', 'ad_units', 'admin_users', 'pages'
   )
 order by c.relname;
 
@@ -31,8 +30,7 @@ select
 from pg_policies
 where schemaname = 'public'
   and tablename in (
-    'posts', 'site_settings', 'ad_units', 'newsletter_subscribers',
-    'newsletter_campaigns', 'admin_users', 'pages'
+    'posts', 'site_settings', 'ad_units', 'admin_users', 'pages'
   )
 order by tablename, cmd, policyname;
 

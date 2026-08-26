@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, Mail, Megaphone, Rss, Settings2, Sparkles } from "lucide-react";
+import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, Megaphone, Rss, Settings2 } from "lucide-react";
 import { SidebarToggle } from "./sidebar-toggle";
 
 /**
@@ -14,14 +14,12 @@ const items = [
   ["Dashboard", "/dashboard", null, LayoutDashboard],
   ["Yazılar", "/yazilar", "posts", FileText],
   ["RSS", "/rss", "rss", Rss],
-  ["Yapay Zekâ", "/yapay-zeka", "ai", Sparkles],
-  ["E-bülten", "/e-bulten", "newsletter", Mail],
   ["Reklamlar", "/reklamlar", "ads", Megaphone],
   ["İstatistik", "/istatistik", "analytics", ChartColumn],
   ["Ayarlar", "/ayarlar", null, Settings2],
 ] as const;
 
-export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "rss" | "ai" | "newsletter" | "ads" | "analytics", boolean> }) {
+export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "rss" | "ads" | "analytics", boolean> }) {
   return <aside className="sidebar">
     <Link href="/dashboard" aria-label={siteName} className="flex items-center gap-3">
       <span className="brand-mark shrink-0" aria-hidden="true" /><strong className="sidebar-expanded-only block truncate text-base tracking-[-.03em]">{siteName}</strong>

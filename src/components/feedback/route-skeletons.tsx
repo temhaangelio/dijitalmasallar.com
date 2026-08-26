@@ -24,36 +24,6 @@ function Field({ height = "h-12" }: { height?: string }) {
   );
 }
 
-/* ---------------------------------------------------------- /yapay-zeka */
-
-export function AiDeskLoading() {
-  return (
-    <ShellSkeleton active="/yapay-zeka">
-      <div role="status" aria-label="Yapay zekâ masası yükleniyor" className="mx-auto w-full max-w-[1100px]">
-        <PageHeaderSkeleton />
-        <Skeleton className="mb-5 h-11 w-[320px] rounded-full" />
-        <div className="flex flex-col gap-4">
-          {[0, 1, 2].map((index) => (
-            <div key={index} className="card space-y-4">
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-7 w-40 rounded-full" />
-                <Skeleton className="h-11 w-44 rounded-full" />
-              </div>
-              <Skeleton className="h-4 w-2/3" />
-              <Skeleton className="h-12 w-full rounded-field" />
-              <Skeleton className="h-24 w-full rounded-field" />
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-9 w-32 rounded-full" />
-                <Skeleton className="h-9 w-48 rounded-full" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </ShellSkeleton>
-  );
-}
-
 /* ---------------------------------------------------------------------- /rss */
 
 export function RssPageLoading() {
@@ -168,44 +138,6 @@ export function PostsPageLoading() {
           </div>
           <TableRowsSkeleton rows={5} withBody />
           <div className="mt-5 flex justify-center border-t border-line pt-5"><Skeleton className="h-4 w-40" /></div>
-        </div>
-      </div>
-    </ShellSkeleton>
-  );
-}
-
-/* ---------------------------------------------------------------- /e-bulten */
-
-export function NewsletterPageLoading() {
-  return (
-    <ShellSkeleton active="/e-bulten">
-      <div className="mx-auto w-full max-w-[1600px]" role="status" aria-label="E-bülten yükleniyor">
-        <PageHeaderSkeleton actionWidth="w-40" />
-        <StatCardsSkeleton count={4} className="grid grid-cols-2 gap-5 lg:grid-cols-4" />
-        <div className="mt-5 grid gap-5 xl:grid-cols-12">
-          <div className="card xl:col-span-7">
-            <Skeleton className="h-4 w-48" />
-            <Skeleton className="mt-4 h-7 w-3/4" />
-            <Skeleton className="mt-2 h-4 w-1/2" />
-            <div className="mt-10 grid grid-cols-2 gap-4 border-y border-line py-5">
-              <div><Skeleton className="h-3 w-20" /><Skeleton className="mt-2 h-4 w-24" /></div>
-              <div><Skeleton className="h-3 w-28" /><Skeleton className="mt-2 h-4 w-32" /></div>
-            </div>
-          </div>
-          <div className="card xl:col-span-5">
-            <Skeleton className="h-7 w-36" />
-            <Skeleton className="mt-5 h-11 w-28" />
-            <div className="mt-8 flex h-28 items-end gap-3">
-              {[70, 45, 85, 55, 65, 40].map((height, index) => (
-                <div key={index} className="flex h-full flex-1 flex-col justify-end gap-2">
-                  <Skeleton className="w-full" style={{ height: `${height}%` }} />
-                  <Skeleton className="h-3 w-full" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="card xl:col-span-12"><Skeleton className="mb-5 h-7 w-32" /><TableRowsSkeleton rows={4} /></div>
-          <div className="card xl:col-span-12"><Skeleton className="mb-5 h-7 w-32" /><TableRowsSkeleton rows={3} /></div>
         </div>
       </div>
     </ShellSkeleton>
@@ -383,9 +315,9 @@ export function SettingsSectionLoading() {
   );
 }
 
-/* ------------------------------------------------- editors: post / newsletter */
+/* -------------------------------------------------------------- editors */
 
-/** `/yazilar/yeni`, `/yazilar/[id]/duzenle` and `/e-bulten/yeni` all use the 1fr + 360px form grid. */
+/** Post editors use the 1fr + 360px form grid. */
 export function EditorLoading({ active, asideFields }: { active: string; asideFields: number }) {
   return (
     <ShellSkeleton active={active}>
@@ -397,9 +329,8 @@ export function EditorLoading({ active, asideFields }: { active: string; asideFi
               <Skeleton className="h-7 w-32" />
               <Skeleton className="h-13 w-full rounded-field sm:w-64" />
             </div>
-            <Field />
-            <Field height="h-28" />
             <div><Skeleton className="mb-2 h-4 w-28" /><Skeleton className="h-[360px] w-full rounded-field" /></div>
+            <Field />
           </div>
           <aside className="space-y-5">
             <div className="card space-y-5">
@@ -432,9 +363,9 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
           <div key={index}>
             <Skeleton className="mb-2.5 h-3 w-12" />
             <div className="rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="mt-2 h-5 w-11/12" />
-              <Skeleton className="mt-2 h-5 w-2/3" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="mt-2 h-6 w-11/12" />
+              <Skeleton className="mt-2 h-6 w-2/3" />
               <Skeleton className="ml-auto mt-4 h-2.5 w-24" />
             </div>
           </div>
@@ -490,7 +421,7 @@ export function VisitorArticleLoading() {
   );
 }
 
-/* ---------------------------------- /about, /contact, /newsletter */
+/* ----------------------------------------------- /about, /contact */
 
 /** Mirrors the current 640px, card-free editorial About page. */
 export function VisitorAboutLoading() {
@@ -563,7 +494,7 @@ export function VisitorContentLoading({ label, lines = 5, rows = 0 }: { label: s
   );
 }
 
-/* --------------------------------------- (auth) and the newsletter opt-in */
+/* ----------------------------------------------------------------- (auth) */
 
 /** `AuthShell` is a single centred card, so its fallback is one too. */
 export function AuthPageLoading() {

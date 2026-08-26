@@ -56,8 +56,8 @@ function text(value: unknown) { return typeof value === "string" ? value : ""; }
 function count(value: unknown) { return typeof value === "number" ? value : Number(value ?? 0) || 0; }
 
 /**
- * The RSS reader and the AI desk both follow addresses someone typed in, so the guard rail, the
- * size cap and the timeout live in `@/lib/net/remote` and are shared. This wrapper keeps the
+ * The RSS reader follows addresses someone typed in, so the guard rail, size cap and timeout live
+ * in `@/lib/net/remote`. This wrapper keeps the
  * reader's own call sites unchanged: they want the body or an error, never a 304, because they
  * never send a conditional request.
  */

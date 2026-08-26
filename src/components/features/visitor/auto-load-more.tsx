@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
  * the same route with a larger `limit`, and the server renders the longer feed.
  *
  * Going through the URL rather than appending posts on the client is what keeps one source of
- * truth — the ad and newsletter slots, the day grouping and the sticky headings are all decided on
+ * truth — the ad slots, the day grouping and the sticky headings are all decided on
  * the server, and a reload or a shared link brings back exactly what the reader was looking at.
  *
  * `replace` rather than `push`: an infinite feed that stacks a history entry per screenful turns
@@ -41,8 +41,8 @@ export function AutoLoadMore({ href, label }: { href: string; label: string }) {
     <div ref={sentinel} className="flex min-h-16 items-center justify-center py-14" aria-live="polite" aria-busy={loading}>
       {loading ? (
         <span className="visitor-muted inline-flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-muted">
-          <span className="relative block size-4" aria-hidden="true">
-            <span className="diji-loading-dot absolute left-0 top-0 size-2 rounded-full bg-accent [--diji-loading-travel:8px]" />
+          <span className="relative block size-5 rounded-[7px] border border-line bg-surface-2/70 shadow-[0_1px_2px_rgba(0,0,0,.025)]" aria-hidden="true">
+            <span className="diji-loading-dot absolute left-[3px] top-[3px] size-1.5 rounded-full bg-ink-2 [--diji-loading-travel:8px]" />
           </span>
           {label}
         </span>

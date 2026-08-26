@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Geist, IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
 import { InstallScript } from "@/components/features/visitor/push";
@@ -11,6 +11,7 @@ import { siteUrl } from "@/lib/seo";
 const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist", display: "swap" });
 const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap" });
 const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-plex-mono", display: "swap" });
+const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -59,7 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="tr" suppressHydrationWarning>
       <head><ThemeScript /><InstallScript /></head>
-      <body className={`${geist.variable} ${plexSans.variable} ${plexMono.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <body className={`${geist.variable} ${plexSans.variable} ${plexMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );
 }

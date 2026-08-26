@@ -4,7 +4,6 @@ import { siteUrl } from "@/lib/seo";
 const privatePaths = [
   "/dashboard/",
   "/yazilar/",
-  "/e-bulten/",
   "/reklamlar/",
   "/istatistik/",
   "/ayarlar/",
@@ -13,7 +12,6 @@ const privatePaths = [
   "/sifremi-unuttum/",
   "/sifre-yenile/",
   "/auth/",
-  "/ebulten-onay/",
 ];
 
 export default function robots(): MetadataRoute.Robots {

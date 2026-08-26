@@ -81,7 +81,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
 
   const language = post.language === "en" ? "en" : "tr";
   const publishedAt = post.published_at ?? post.created_at;
-  const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
+  const displayedSource = sourceLabel(null, post.source_url, language === "en" ? "Source" : "Kaynak");
   const nextPost = await getNextPublishedPost(post.created_at, language);
   const baseUrl = siteUrl(settings.domain);
   const canonicalUrl = absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, language));
@@ -119,16 +119,14 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
               <span className="text-[11px] font-normal leading-none text-muted sm:text-[12px]">{fullDateLabel(publishedAt, language)}</span>
             </div>
           </div>
-          <div className="visitor-markdown">
+          <div className="visitor-markdown visitor-serif">
             <MarkdownPreview value={post.body} />
           </div>
-          {(post.source_url || post.source_name) && (
+          {post.source_url && (
             <div className="visitor-muted mt-9 flex justify-end font-mono text-[11px] font-normal leading-[1.6]">
               {post.source_url ? (
                 <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
-              ) : (
-                <span className="visitor-source tracking-[.04em] text-ink">{displayedSource}</span>
-              )}
+              ) : null}
             </div>
           )}
         </article>

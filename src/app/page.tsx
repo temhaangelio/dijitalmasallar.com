@@ -98,7 +98,7 @@ function randomAdSlots(postCount: number, ads: Advertisement[]) {
  * The feed is read a day at a time, so it is rendered a day at a time: each day is its own section
  * with its own heading.
  *
- * The flat feed position travels with every note, because the ad and newsletter slots were drawn
+ * The flat feed position travels with every note, because the ad slots were drawn
  * against the ungrouped list and must not shift when the notes are bucketed.
  */
 function groupPostsByDay(posts: Post[]) {

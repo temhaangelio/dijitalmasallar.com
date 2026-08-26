@@ -12,12 +12,11 @@ export type Advertisement = {
   image_url: string | null;
   language: "tr" | "en";
   active: boolean;
-  newsletter_enabled: boolean;
   created_at: string;
   updated_at: string;
 };
 
-const columns = "id,placement,label,title,description,cta_label,target_url,image_url,language,active,newsletter_enabled,created_at,updated_at";
+const columns = "id,placement,label,title,description,cta_label,target_url,image_url,language,active,created_at,updated_at";
 
 export async function getAds(): Promise<Advertisement[]> {
   try {

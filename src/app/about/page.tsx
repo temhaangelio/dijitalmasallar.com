@@ -35,7 +35,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
           {isEnglish ? (
             <>
               <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                We follow developments in technology, artificial intelligence, science, and digital culture, turning notable stories into <strong className="font-semibold">short notes with source links</strong> using AI support. Our goal is to help you catch up on the news in just a few minutes without feeling overwhelmed.
+                We follow developments in technology, artificial intelligence, science, and digital culture, turning notable stories into <strong className="font-semibold">short notes with source links</strong>. Our goal is to help you catch up on the news in just a few minutes without feeling overwhelmed.
               </p>
               <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
                 <strong className="font-semibold">diji.news</strong> is an independent publishing project developed by Temha Angelio, who has worked in technology and digital production for nearly 20 years. For other work, visit{" "}
@@ -49,7 +49,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
           ) : (
             <>
               <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                Teknoloji, yapay zekâ, bilim ve dijital kültürdeki gelişmeleri takip ediyor, öne çıkan haberleri yapay zeka desteği ile <strong className="font-semibold">kısa ve kaynak bağlantılı notlara</strong> dönüştürüyoruz. Amacımız, gündemi yorulmadan birkaç dakikada yakalamanızı sağlamak.
+                Teknoloji, yapay zekâ, bilim ve dijital kültürdeki gelişmeleri takip ediyor, öne çıkan haberleri <strong className="font-semibold">kısa ve kaynak bağlantılı notlara</strong> dönüştürüyoruz. Amacımız, gündemi yorulmadan birkaç dakikada yakalamanızı sağlamak.
               </p>
               <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
                 <strong className="font-semibold">diji.news</strong>, yaklaşık 20 yıldır teknoloji ve dijital üretim alanlarında çalışan Temha Angelio tarafından geliştirilen bağımsız bir yayın projesidir. Diğer çalışmalar için{" "}

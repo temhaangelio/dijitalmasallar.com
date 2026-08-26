@@ -1,13 +1,11 @@
 "use client";
 
-import { ArrowDownUp, Columns3, Search, X } from "lucide-react";
+import { ArrowDownUp, Search, X } from "lucide-react";
 import { ActionMenu } from "@/components/ui/action-menu";
 import { Input } from "@/components/ui/input";
 import type { PostSort } from "@/services/posts";
 
-export const columnLabels = { language: "Dil", category: "Kategori", status: "Durum", reads: "Okuma", date: "Tarih" } as const;
-export type OptionalColumn = keyof typeof columnLabels;
-export const sortLabels: Record<PostSort, string> = { newest: "En yeni", oldest: "En eski", "title-asc": "Başlık A–Z", "title-desc": "Başlık Z–A", "category-asc": "Kategori A–Z" };
+export const sortLabels: Record<PostSort, string> = { newest: "En yeni", oldest: "En eski", "title-asc": "Başlık A–Z", "title-desc": "Başlık Z–A" };
 
 const segment = "flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors disabled:cursor-wait";
 const menuTrigger = "flex h-10 w-auto items-center gap-2 rounded-full bg-surface-3 px-4 text-sm font-semibold text-ink hover:bg-line";
@@ -20,8 +18,6 @@ export function PostsToolbar({
   languagePending,
   sort,
   onSortChange,
-  visibleColumns,
-  onToggleColumn,
 }: {
   query: string;
   onQueryChange: (value: string) => void;
@@ -30,15 +26,15 @@ export function PostsToolbar({
   languagePending: boolean;
   sort: PostSort;
   onSortChange: (value: PostSort) => void;
-  visibleColumns: Record<OptionalColumn, boolean>;
-  onToggleColumn: (column: OptionalColumn) => void;
 }) {
   return (
     <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div className="relative max-w-md flex-1">
         <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
         <Input
-          type="search"
+          type="text"
+          role="searchbox"
+          autoComplete="off"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
           aria-label="Tüm yazılarda ara"
@@ -66,13 +62,6 @@ export function PostsToolbar({
             </button>
           ))}
         </div>
-        <ActionMenu
-          label="Sütunları seç"
-          placement="center"
-          trigger={<><Columns3 size={15} aria-hidden="true" /><span>Sütunlar</span></>}
-          triggerClassName={menuTrigger}
-          items={(Object.keys(columnLabels) as OptionalColumn[]).map((column) => ({ label: columnLabels[column], checked: visibleColumns[column], keepOpen: true, onSelect: () => onToggleColumn(column) }))}
-        />
         <ActionMenu
           label="Yazıları sırala"
           trigger={<><ArrowDownUp size={15} aria-hidden="true" /><span>Sırala · {sortLabels[sort]}</span></>}

@@ -3,9 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useId, useState, useSyncExternalStore, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { createPostAction, updatePostAction } from "@/app/(dashboard)/yazilar/actions";
 import { FormField } from "@/components/forms/form-field";
@@ -14,8 +13,6 @@ import { RichTextEditor } from "@/components/forms/rich-text-editor";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { showToast } from "@/components/ui/toast";
 import { postSchema, type PostFormValues } from "@/lib/validations/post";
 import { isOptimizableImage } from "@/lib/images";
@@ -28,46 +25,6 @@ function localDateTime(value: string | null) {
 }
 
 type PostTranslations = Partial<Record<"tr" | "en", Post>>;
-const visibilityPreferenceKey = "diji-news-new-post-visibility";
-
-/*
- * Whether the publish panel is open is a preference that should survive navigating between the new
- * and edit screens, so it lives in localStorage. It is read through `useSyncExternalStore` rather
- * than an effect for the usual reason: localStorage is an external store, and the server render has
- * to start from a known value.
- */
-const panelPreferenceKey = "diji-news-post-publish-panel";
-const panelListeners = new Set<() => void>();
-
-function subscribeToPanel(onChange: () => void) {
-  panelListeners.add(onChange);
-  window.addEventListener("storage", onChange);
-  return () => {
-    panelListeners.delete(onChange);
-    window.removeEventListener("storage", onChange);
-  };
-}
-
-function readPanelOpen() {
-  try {
-    return localStorage.getItem(panelPreferenceKey) !== "closed";
-  } catch {
-    return true;
-  }
-}
-
-/** The server cannot know the preference, so it renders the panel open and React reconciles. */
-function readPanelOpenOnServer() {
-  return true;
-}
-
-function setPanelOpen(open: boolean) {
-  try { localStorage.setItem(panelPreferenceKey, open ? "open" : "closed"); } catch { /* Storage may be unavailable. */ }
-  panelListeners.forEach((listener) => listener());
-}
-
-/** Fields that live in the publish panel, so a validation failure there can reopen it. */
-const panelFields = ["category", "sourceName", "status", "scheduledAt", "publishedAt"] as const;
 
 export function PostForm({ posts }: { posts?: PostTranslations }) {
   const router = useRouter();
@@ -77,42 +34,18 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   const [pending, startTransition] = useTransition();
   const editing = Boolean(posts);
   const sharedPost = posts?.tr ?? posts?.en;
-  const { register, control, handleSubmit, setValue, formState: { errors } } = useForm<PostFormValues>({
+  const { register, control, handleSubmit, formState: { errors } } = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      tr: { title: posts?.tr?.title ?? "", excerpt: posts?.tr?.excerpt ?? "", body: posts?.tr?.body ?? "" },
-      en: { title: posts?.en?.title ?? "", excerpt: posts?.en?.excerpt ?? "", body: posts?.en?.body ?? "" },
-      category: sharedPost?.category ?? "",
-      sourceName: sharedPost?.source_name ?? "",
+      tr: { body: posts?.tr?.body ?? "" },
+      en: { body: posts?.en?.body ?? "" },
       sourceUrl: sharedPost?.source_url ?? "",
-      showTitle: sharedPost ? sharedPost.show_title !== false : false,
-      showExcerpt: sharedPost ? sharedPost.show_excerpt !== false : false,
       status: sharedPost?.status === "scheduled" ? "scheduled" : "published",
       scheduledAt: localDateTime(sharedPost?.scheduled_at ?? null),
       publishedAt: sharedPost?.status === "published" ? localDateTime(sharedPost.created_at) : "",
     },
   });
-  const panelOpen = useSyncExternalStore(subscribeToPanel, readPanelOpen, readPanelOpenOnServer);
-  const panelId = useId();
   const status = useWatch({ control, name: "status" });
-  const showTitle = useWatch({ control, name: "showTitle" });
-  const showExcerpt = useWatch({ control, name: "showExcerpt" });
-
-  useEffect(() => {
-    if (editing) return;
-    try {
-      const saved = JSON.parse(localStorage.getItem(visibilityPreferenceKey) ?? "null") as { showTitle?: unknown; showExcerpt?: unknown } | null;
-      if (typeof saved?.showTitle === "boolean") setValue("showTitle", saved.showTitle);
-      if (typeof saved?.showExcerpt === "boolean") setValue("showExcerpt", saved.showExcerpt);
-    } catch { /* Invalid preferences keep the form defaults. */ }
-  }, [editing, setValue]);
-
-  function rememberVisibility(next: Partial<Pick<PostFormValues, "showTitle" | "showExcerpt">>) {
-    try {
-      const current = JSON.parse(localStorage.getItem(visibilityPreferenceKey) ?? "{}") as Partial<Pick<PostFormValues, "showTitle" | "showExcerpt">>;
-      localStorage.setItem(visibilityPreferenceKey, JSON.stringify({ ...current, ...next }));
-    } catch { /* Storage may be unavailable in private browsing modes. */ }
-  }
 
   const onSubmit = (values: PostFormValues) => startTransition(async () => {
     try {
@@ -131,54 +64,30 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   const onInvalid = (formErrors: typeof errors) => {
     if (formErrors.tr) setActiveLanguage("tr");
     else if (formErrors.en) setActiveLanguage("en");
-    // An error the author cannot see is an error they cannot fix.
-    if (panelFields.some((field) => formErrors[field])) setPanelOpen(true);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5" noValidate>
-      <div className={`grid gap-5 ${panelOpen ? "xl:grid-cols-[minmax(0,1fr)_360px]" : ""}`}>
       <div className="card space-y-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="section-title">İçerik</h2>
-          <div className="flex items-center gap-2">
-            <div role="tablist" aria-label="İçerik dili" className="grid flex-1 grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64 sm:flex-none">
+          <div role="tablist" aria-label="İçerik dili" className="grid grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64">
               {(["tr", "en"] as const).map((language) => (
                 <button key={language} type="button" role="tab" aria-selected={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`h-10 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-white hover:text-ink"}`}>
                   {language === "tr" ? "Türkçe" : "English"}
                 </button>
               ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => setPanelOpen(!panelOpen)}
-              aria-expanded={panelOpen}
-              aria-controls={panelId}
-              title={panelOpen ? "Yayın panelini gizle" : "Yayın panelini göster"}
-              className={`grid size-11 shrink-0 place-items-center rounded-field transition-colors ${panelOpen ? "bg-surface-3 text-ink hover:bg-line" : "text-muted hover:bg-surface-2 hover:text-ink"}`}
-            >
-              <span className="sr-only">{panelOpen ? "Yayın panelini gizle" : "Yayın panelini göster"}</span>
-              {panelOpen ? <PanelRightClose size={19} aria-hidden="true" /> : <PanelRightOpen size={19} aria-hidden="true" />}
-            </button>
           </div>
         </div>
-        {showTitle ? <FormField label={activeLanguage === "tr" ? "Türkçe başlık (isteğe bağlı)" : "English title"} htmlFor={`${activeLanguage}-title`} error={errors[activeLanguage]?.title?.message}><Input id={`${activeLanguage}-title`} {...register(`${activeLanguage}.title`)} /></FormField> : null}
-        {showExcerpt ? <FormField label={activeLanguage === "tr" ? "Türkçe kısa özet (isteğe bağlı)" : "English summary"} htmlFor={`${activeLanguage}-excerpt`} error={errors[activeLanguage]?.excerpt?.message} hint={activeLanguage === "tr" ? undefined : "Akışta 250–400 karakter aralığı önerilir."}><Textarea id={`${activeLanguage}-excerpt`} {...register(`${activeLanguage}.excerpt`)} /></FormField> : null}
         <FormField label={activeLanguage === "tr" ? "Türkçe yazı" : "English content"} htmlFor={`${activeLanguage}-body`} error={errors[activeLanguage]?.body?.message}>
           <Controller
             name={`${activeLanguage}.body`}
             control={control}
-            render={({ field }) => <RichTextEditor key={activeLanguage} id={`${activeLanguage}-body`} name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />}
+            render={({ field }) => <RichTextEditor key={activeLanguage} id={`${activeLanguage}-body`} name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} showToolbar={editing} />}
           />
         </FormField>
         <FormField label="Kaynak bağlantısı" htmlFor="sourceUrl" error={errors.sourceUrl?.message} hint="İçeriğin özgün kaynağına ait bağlantıyı ekleyin."><Input id="sourceUrl" type="url" placeholder="https://..." {...register("sourceUrl")} /></FormField>
-      </div>
-      {panelOpen && <aside id={panelId} className="space-y-5">
-        <div className="card space-y-5">
-          <h2 className="section-title">Yayın</h2>
-          <FormField label="Kategori (isteğe bağlı)" htmlFor="category" error={errors.category?.message}><Input id="category" {...register("category")} /></FormField>
-          <FormField label="Kaynak adı (isteğe bağlı)" htmlFor="sourceName" error={errors.sourceName?.message}><Input id="sourceName" placeholder="Örn. OpenAI" {...register("sourceName")} /></FormField>
-          <div>
+        <div>
             <h3 className="mb-2 text-sm font-semibold">Kapak görseli <span className="font-normal text-muted">(isteğe bağlı)</span></h3>
             {sharedPost?.cover_path && !removeCover && !coverImage ? <div className="mb-3 overflow-hidden rounded-field bg-surface-3"><div className="relative aspect-[4/3]">{isOptimizableImage(sharedPost.cover_path)
               ? <Image src={sharedPost.cover_path} alt="Mevcut kapak görseli" fill sizes="360px" className="object-cover" />
@@ -188,20 +97,11 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
             {removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(false)} className="mt-2 text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
             <p className="mt-2 text-xs leading-5 text-muted">JPG, PNG veya WebP · en fazla 5 MB</p>
           </div>
-          <div>
-            <h3 className="mb-2 text-sm font-semibold">Ziyaretçi görünümü</h3>
-            <div className="divide-y divide-line rounded-field bg-surface-2 px-4">
-              <div className="flex items-center justify-between gap-4 py-4"><div><strong className="block text-sm">Başlığı göster</strong><small className="mt-1 block text-muted">Yazı başlığı ziyaretçi kartında görünür.</small></div><Controller name="showTitle" control={control} render={({ field }) => <Switch label="Başlığı ziyaretçiye göster" checked={field.value} onCheckedChange={(checked) => { if (!checked) { setValue("tr.title", "", { shouldDirty: true }); setValue("en.title", "", { shouldDirty: true }); } field.onChange(checked); rememberVisibility({ showTitle: checked }); }} />} /></div>
-              <div className="flex items-center justify-between gap-4 py-4"><div><strong className="block text-sm">Özeti göster</strong><small className="mt-1 block text-muted">Kısa özet ziyaretçi kartında görünür.</small></div><Controller name="showExcerpt" control={control} render={({ field }) => <Switch label="Özeti ziyaretçiye göster" checked={field.value} onCheckedChange={(checked) => { if (!checked) { setValue("tr.excerpt", "", { shouldDirty: true }); setValue("en.excerpt", "", { shouldDirty: true }); } field.onChange(checked); rememberVisibility({ showExcerpt: checked }); }} />} /></div>
-            </div>
-          </div>
           <FormField label="Durum" htmlFor="status" error={errors.status?.message}>
             <Select id="status" {...register("status")}><option value="published">Şimdi yayınla</option><option value="scheduled">Planlı</option></Select>
           </FormField>
           {editing && status === "published" && <FormField label="Yayın tarihi" htmlFor="publishedAt" error={errors.publishedAt?.message} hint="Akış sıralaması bu tarih ve saate göre güncellenir."><Input id="publishedAt" type="datetime-local" {...register("publishedAt")} /></FormField>}
           {status === "scheduled" && <FormField label="Yayın tarihi" htmlFor="scheduledAt" error={errors.scheduledAt?.message}><Input id="scheduledAt" type="datetime-local" {...register("scheduledAt")} /></FormField>}
-        </div>
-      </aside>}
       </div>
 
       <div className="flex justify-end gap-2">

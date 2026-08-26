@@ -211,16 +211,25 @@ html[data-visitor-theme="dark"] .visitor-page {
 
 /* The editorial article follows the same fixed type rhythm as the reference: a compact mobile
    measure that opens up at `sm`, without fluid interpolation changing the intended leading. */
-.visitor-page .visitor-markdown > div { font-size: 17px; font-weight: 400; line-height: 1.5; }
+.visitor-page .visitor-serif {
+  font-family: var(--font-source-serif), Georgia, serif;
+  font-optical-sizing: auto;
+}
+.visitor-page .visitor-markdown > div {
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.58;
+}
 .visitor-page .visitor-markdown h1 {
   padding-top: 0;
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1.4;
 }
 .visitor-page .visitor-markdown h2 {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 500;
   letter-spacing: 0;
   line-height: 1.4;
@@ -230,9 +239,9 @@ html[data-visitor-theme="dark"] .visitor-page {
 .visitor-page .visitor-markdown a:hover { text-decoration-color: currentcolor; }
 
 @media (min-width: 640px) {
-  .visitor-page .visitor-markdown > div { font-size: 20px; line-height: 1.5; }
-  .visitor-page .visitor-markdown h1 { font-size: 27px; line-height: 1.35; }
-  .visitor-page .visitor-markdown h2 { font-size: 22px; line-height: 1.4; }
+  .visitor-page .visitor-markdown > div { font-size: 21px; line-height: 1.58; }
+  .visitor-page .visitor-markdown h1 { font-size: 28px; line-height: 1.35; }
+  .visitor-page .visitor-markdown h2 { font-size: 23px; line-height: 1.4; }
 }
 
 /*

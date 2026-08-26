@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 
 /**
- * A per-IP limiter for the public server actions — newsletter sign-up, push subscription.
+ * A per-IP limiter for public server actions such as push subscriptions.
  *
  * It is deliberately in-memory: the counters live in one server instance and reset on deploy, which
  * is enough to stop a single client hammering an endpoint, and avoids a round-trip to the database

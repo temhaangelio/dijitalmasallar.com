@@ -6,9 +6,9 @@ import { parsePostContent } from "@/lib/post-content";
 import { isUuid } from "@/lib/utils";
 import type { Post } from "@/types/database";
 
-type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; category: string; source_name: string | null; source_url: string | null; cover_path: string | null; featured: boolean; show_title: boolean; show_excerpt: boolean; created_at: string; author_id: string | null };
-const postColumns = "id,content_tr,content_en,legacy_english_id,category,source_name,source_url,cover_path,featured,show_title,show_excerpt,created_at,author_id";
-export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc" | "category-asc";
+type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; source_url: string | null; cover_path: string | null; featured: boolean; created_at: string; author_id: string | null };
+const postColumns = "id,content_tr,content_en,legacy_english_id,source_url,cover_path,featured,created_at,author_id";
+export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc";
 export type PostPublicationFilter = "all" | "published" | "scheduled";
 
 function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
@@ -21,17 +21,13 @@ function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
     slug: row.id,
     excerpt: content.excerpt,
     body: content.body,
-    category: row.category,
     language,
     status: scheduled ? "scheduled" : "published",
     cover_path: row.cover_path,
-    source_name: row.source_name,
     source_url: row.source_url,
     published_at: scheduled ? null : row.created_at,
     scheduled_at: scheduled ? row.created_at : null,
     reads: 0,
-    show_title: row.show_title !== false,
-    show_excerpt: row.show_excerpt !== false,
     created_at: row.created_at,
     updated_at: row.created_at,
   };
@@ -58,14 +54,14 @@ export async function getPosts(page = 1, pageSize = 20, language: "tr" | "en" = 
 
 export type PostsPageResult = { posts: Post[]; total: number; page: number; totalPages: number };
 
-const postSorts: readonly PostSort[] = ["newest", "oldest", "title-asc", "title-desc", "category-asc"];
+const postSorts: readonly PostSort[] = ["newest", "oldest", "title-asc", "title-desc"];
 
 function demoPage(page: number, pageSize: number, language: "tr" | "en", search = "", status: PostPublicationFilter = "all"): PostsPageResult {
   const needle = search.trim().toLocaleLowerCase("tr");
   const localizedPosts = demoPosts.filter((post) => {
     if (post.language !== language) return false;
     if (status !== "all" && post.status !== status) return false;
-    return !needle || `${post.title} ${post.excerpt} ${post.body} ${post.category} ${post.source_name ?? ""}`.toLocaleLowerCase("tr").includes(needle);
+    return !needle || `${post.title} ${post.excerpt} ${post.body}`.toLocaleLowerCase("tr").includes(needle);
   });
   const totalPages = Math.max(Math.ceil(localizedPosts.length / pageSize), 1);
   const currentPage = Math.min(page, totalPages);
@@ -93,7 +89,7 @@ async function fetchAdminPostRows(page: number, pageSize: number, sort: PostSort
   const normalizedSearch = search.trim().slice(0, 120);
   if (normalizedSearch) {
     const pattern = quotedLikePattern(normalizedSearch);
-    query = query.or(`content_tr.ilike.${pattern},content_en.ilike.${pattern},category.ilike.${pattern},source_name.ilike.${pattern}`);
+    query = query.or(`content_tr.ilike.${pattern},content_en.ilike.${pattern}`);
   }
   const now = new Date().toISOString();
   if (status === "published") query = query.lte("created_at", now);
@@ -101,7 +97,6 @@ async function fetchAdminPostRows(page: number, pageSize: number, sort: PostSort
   if (sort === "oldest") query = query.order("created_at", { ascending: true });
   else if (sort === "title-asc") query = query.order(titleColumn[language], { ascending: true });
   else if (sort === "title-desc") query = query.order(titleColumn[language], { ascending: false });
-  else if (sort === "category-asc") query = query.order("category", { ascending: true }).order("created_at", { ascending: false });
   else query = query.order("created_at", { ascending: false });
   const { data, count, error } = await query.range(from, from + pageSize - 1);
   if (error) throw error;

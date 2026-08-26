@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { languageFromAcceptLanguage, visitorLanguageCookie, type VisitorLanguage } from "@/lib/visitor-language";
 
-const languageAwareVisitorPaths = new Set(["/", "/about", "/contact", "/newsletter"]);
+const languageAwareVisitorPaths = new Set(["/", "/about", "/contact"]);
 
 function validLanguage(value?: string | null): VisitorLanguage | null {
   return value === "tr" || value === "en" ? value : null;

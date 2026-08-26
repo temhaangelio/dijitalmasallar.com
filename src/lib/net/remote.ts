@@ -3,10 +3,9 @@ import "server-only";
 /**
  * Fetching a document from an address someone else chose.
  *
- * Both the RSS reader and the AI desk follow addresses that were typed into a form, so both need
- * the same three guarantees: the address does not point back into our own network, the response
- * cannot grow without bound, and a source that never finishes responding does not hold a request
- * open forever. Keeping them here means there is one place to get them right.
+ * The RSS reader follows addresses that were typed into a form, so it needs three guarantees: the
+ * address does not point back into our own network, the response cannot grow without bound, and a
+ * source that never finishes responding does not hold a request open forever.
  */
 
 export const defaultTimeoutMs = 15_000;

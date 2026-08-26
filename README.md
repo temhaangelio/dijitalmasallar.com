@@ -1,6 +1,6 @@
 # diji.news
 
-Claude Design referanslarından dönüştürülmüş, yayın ve e-bülten yönetimi için üretime hazır Next.js uygulaması. Yönetim paneli; yazılar, bültenler, ekip, istatistik ve yayın ayarlarını tek bir tasarım sistemi altında toplar. Ziyaretçi akışı ve bülten aboneliği de aynı projededir.
+Claude Design referanslarından dönüştürülmüş, yayın yönetimi için üretime hazır Next.js uygulaması. Yönetim paneli; yazılar, ekip, istatistik ve yayın ayarlarını tek bir tasarım sistemi altında toplar.
 
 ## Teknolojiler
 
@@ -21,18 +21,19 @@ Uygulama varsayılan olarak `http://localhost:3000` adresinde çalışır. Supab
 
 ## Supabase hazırlığı
 
-Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını paylaşır. Yeni bir migration çalıştırmak gerekmez. Kullanılan kaynaklar:
+Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını paylaşır. Kullanılan kaynaklar:
 
 - `posts`: yazı listeleme, oluşturma, güncelleme, silme ve ileri tarihli yayın
 - `admin_users` + Supabase Auth Admin API: ekip ve rol bilgileri
-- `newsletter_subscribers`: double opt-in bülten aboneliği ve canlı abone sayıları
 - `site_settings`: diji.news’e ait `diji_*` anahtarlı yayın ayarları
 
 ### Migration ve RLS
 
-- `supabase/migrations/` — uygulanmaya hazır, eklemeli migration'lar. En yenisi
-  `20260825120000_push_subscriptions.sql`: web push abonelikleri için yeni bir tablo ve panelde
-  `module_push` anahtarı. Tablo RLS açık ve **hiç politikası yok**; tüm okuma/yazma
+- `supabase/migrations/` — uygulanmaya hazır migration'lar. En yenisi
+  `20260826073940_remove_newsletter_module.sql`: bülten tablolarını, ayarlarını ve reklamlardaki
+  bülten bayrağını kaldırır. Web push abonelikleri ayrı tutulur ve bu migration'dan etkilenmez.
+  `20260825120000_push_subscriptions.sql` web push abonelikleri için yeni bir tablo ve panelde
+  `module_push` anahtarı ekler. Tablo RLS açık ve **hiç politikası yok**; tüm okuma/yazma
   `src/services/push.ts` içindeki service-role istemcisinden geçer, yani abone listesi anon anahtarla
   okunamaz. Bir önceki migration
   `20260823210000_query_indexes.sql`: uygulamanın gerçekten çalıştırdığı sorgular için dört indeks
@@ -52,8 +53,6 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-RESEND_API_KEY=
-RESEND_FROM_EMAIL="diji.news <bulten@dijitalmasallar.com>"
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 VAPID_SUBJECT=mailto:merhaba@diji.news
@@ -63,7 +62,7 @@ VAPID anahtarları web push için gerekir; ikisi de tanımlı değilse bildirim 
 Yeni bir çift `npx web-push generate-vapid-keys` ile üretilir. Genel anahtar `NEXT_PUBLIC_` önekiyle
 paketlenmez; ilgili sayfa onu sunucudan prop olarak geçirir.
 
-`RESEND_API_KEY` yerine mevcut projedeki `MAIL_KEY` de kullanılabilir. Vercel Preview ortamının production verisini değiştirmemesi için Preview’a ayrı bir staging Supabase projesinin URL/key değerlerini verin.
+Vercel Preview ortamının production verisini değiştirmemesi için Preview’a ayrı bir staging Supabase projesinin URL/key değerlerini verin.
 
 ## Auth callback adresleri
 
@@ -111,7 +110,7 @@ okunur kalır — açık temada siyah zemin/beyaz yazı, koyu temada açık zemi
 
 ## Ziyaretçi sayfaları
 
-Genel akış `/`, notlar `/haber/[id]`, arama `/search`, e-bülten `/newsletter`, iletişim `/contact`.
+Genel akış `/`, notlar `/haber/[id]`, arama `/search`, iletişim `/contact`.
 Hakkında sayfası (`/about`) siteyi ve yayın yaklaşımını anlatır. Dil, tema, yazı tipi ve boyutu,
 bildirimler ile uygulama kurulumu tercihleri üst çubuktaki menünün **Ayarlar** bölümünde bulunur.
 
@@ -164,7 +163,7 @@ uygulamayı bozar.
 1. Bu repository’yi Vercel’de **New Project** ile bağlayın veya mevcut bağlantıda `vercel link` kullanın.
 2. Preview ve Production ortam değişkenlerini ayrı ayrı ekleyin.
 3. Preview oluşturun: `vercel deploy`.
-4. Preview’da giriş, kayıt, callback, yazı ekleme, bülten onayı ve RLS akışlarını kontrol edin.
+4. Preview’da giriş, kayıt, callback, yazı ekleme ve RLS akışlarını kontrol edin.
 5. Kullanıcının açık onayından sonra production’a alın: `vercel deploy --prod`.
 
 Özel domain için Vercel Project Settings → Domains alanından domaini ekleyin, DNS kayıtlarını doğrulayın ve `NEXT_PUBLIC_APP_URL` ile Supabase callback listesini yeni HTTPS adresine güncelleyin.

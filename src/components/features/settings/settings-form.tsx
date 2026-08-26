@@ -14,19 +14,15 @@ import { showToast } from "@/components/ui/toast";
 import { settingsSchema, type SettingsFormValues } from "@/lib/validations/settings";
 import type { SiteSettings } from "@/services/settings";
 
-type SettingsSection = "general" | "newsletter" | "visibility" | "modules";
+type SettingsSection = "general" | "visibility" | "modules";
 
 export function SettingsForm({ initialValues, section }: { initialValues: SiteSettings; section: SettingsSection }) {
   const [pending, startTransition] = useTransition();
   const values: SettingsFormValues = { ...initialValues };
   const { register, control, handleSubmit, reset, setValue, formState: { errors, isDirty } } = useForm<SettingsFormValues>({ resolver: zodResolver(settingsSchema), defaultValues: values });
-  const newsletterEnabled = useWatch({ control, name: "newsletterEnabled" });
-  const showSubscriberCount = useWatch({ control, name: "showSubscriberCount" });
   const maintenanceMode = useWatch({ control, name: "maintenanceMode" });
   const modulePosts = useWatch({ control, name: "modulePosts" });
   const moduleRss = useWatch({ control, name: "moduleRss" });
-  const moduleAi = useWatch({ control, name: "moduleAi" });
-  const moduleNewsletter = useWatch({ control, name: "moduleNewsletter" });
   const moduleAds = useWatch({ control, name: "moduleAds" });
   const moduleAnalytics = useWatch({ control, name: "moduleAnalytics" });
   const modulePush = useWatch({ control, name: "modulePush" });
@@ -65,29 +61,10 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
         <FormField label="İletişim e-postası" htmlFor="contactEmail" error={errors.contactEmail?.message}><Input id="contactEmail" type="email" {...register("contactEmail")} /></FormField>
       </div> : null}
 
-      {section === "newsletter" ? <div className="card">
-          <h2 className="section-title">E-bülten alanı</h2>
-          <div className="mt-5 flex items-center justify-between gap-4 border-b border-line pb-5">
-            <div><strong className="text-[15px]">Bülteni göster</strong><p className="mt-1 text-[13px] text-muted">Ziyaretçi akışında abonelik formunu gösterir.</p></div>
-            <Switch label="Bülteni göster" checked={newsletterEnabled} onCheckedChange={(value) => setValue("newsletterEnabled", value, { shouldDirty: true })} />
-          </div>
-          <div className="mt-5 space-y-5">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <FormField label="Türkçe bülten başlığı" htmlFor="newsletterTitle" error={errors.newsletterTitle?.message}><Input id="newsletterTitle" disabled={!newsletterEnabled} {...register("newsletterTitle")} /></FormField>
-              <FormField label="İngilizce bülten başlığı" htmlFor="newsletterTitleEn" error={errors.newsletterTitleEn?.message}><Input id="newsletterTitleEn" disabled={!newsletterEnabled} {...register("newsletterTitleEn")} /></FormField>
-            </div>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <FormField label="Türkçe bülten açıklaması" htmlFor="newsletterDescription" error={errors.newsletterDescription?.message}><Textarea id="newsletterDescription" disabled={!newsletterEnabled} {...register("newsletterDescription")} /></FormField>
-              <FormField label="İngilizce bülten açıklaması" htmlFor="newsletterDescriptionEn" error={errors.newsletterDescriptionEn?.message}><Textarea id="newsletterDescriptionEn" disabled={!newsletterEnabled} {...register("newsletterDescriptionEn")} /></FormField>
-            </div>
-          </div>
-      </div> : null}
-
       {section === "visibility" ? <div className="card">
           <h2 className="section-title">Görünürlük</h2>
           <div className="mt-5 divide-y divide-line">
-            <div className="flex items-center justify-between gap-4 pb-4"><div><strong className="text-[15px]">Abone sayısını göster</strong><p className="mt-1 text-[13px] text-muted">Ana başlığın altında gerçek aktif abone sayısı görünür.</p></div><Switch label="Abone sayısını göster" checked={showSubscriberCount} onCheckedChange={(value) => setValue("showSubscriberCount", value, { shouldDirty: true })} /></div>
-            <div className="flex items-center justify-between gap-4 pt-4"><div><strong className="text-[15px]">Bakım modu</strong><p className="mt-1 text-[13px] text-muted">Ziyaretçilere geçici bakım ekranı gösterir.</p></div><Switch label="Bakım modu" checked={maintenanceMode} onCheckedChange={(value) => setValue("maintenanceMode", value, { shouldDirty: true })} /></div>
+            <div className="flex items-center justify-between gap-4"><div><strong className="text-[15px]">Bakım modu</strong><p className="mt-1 text-[13px] text-muted">Ziyaretçilere geçici bakım ekranı gösterir.</p></div><Switch label="Bakım modu" checked={maintenanceMode} onCheckedChange={(value) => setValue("maintenanceMode", value, { shouldDirty: true })} /></div>
           </div>
       </div> : null}
 
@@ -98,12 +75,10 @@ export function SettingsForm({ initialValues, section }: { initialValues: SiteSe
             {[
               ["Yazılar", "İçerik ekleme ve yönetme ekranları", "modulePosts", modulePosts],
               ["RSS", "Takip edilen kaynaklar ve gelen içerikler", "moduleRss", moduleRss],
-              ["Yapay Zekâ", "Resmi kaynakları tarayıp onayına sunan haber masası", "moduleAi", moduleAi],
-              ["E-bülten", "Bülten ve abone yönetimi", "moduleNewsletter", moduleNewsletter],
               ["Reklamlar", "Reklam ekleme ve yayınlama", "moduleAds", moduleAds],
               ["İstatistik", "Vercel Analytics raporları", "moduleAnalytics", moduleAnalytics],
               ["Bildirimler", "Yeni not yayınlandığında tarayıcı bildirimi", "modulePush", modulePush],
-            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-muted">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleRss" | "moduleAi" | "moduleNewsletter" | "moduleAds" | "moduleAnalytics" | "modulePush", value, { shouldDirty: true })} /></div>)}
+            ].map(([title, description, name, checked]) => <div key={String(name)} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"><div><strong className="text-[15px]">{title}</strong><p className="mt-1 text-[13px] text-muted">{description}</p></div><Switch label={`${title} modülünü etkinleştir`} checked={Boolean(checked)} onCheckedChange={(value) => setValue(name as "modulePosts" | "moduleRss" | "moduleAds" | "moduleAnalytics" | "modulePush", value, { shouldDirty: true })} /></div>)}
           </div>
       </div> : null}
 

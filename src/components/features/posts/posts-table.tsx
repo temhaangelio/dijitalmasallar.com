@@ -2,26 +2,18 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
+import { LoaderCircle, Plus, Trash2 } from "lucide-react";
 import { deletePostAction, loadMorePostsAction } from "@/app/(dashboard)/yazilar/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { PostsStatusTabs, type PostStatusFilter } from "@/components/features/posts/posts-status-tabs";
-import { PostsToolbar, columnLabels, type OptionalColumn } from "@/components/features/posts/posts-toolbar";
-import { Badge, type BadgeProps } from "@/components/ui/badge";
-import { ActionMenu } from "@/components/ui/action-menu";
+import { PostsToolbar } from "@/components/features/posts/posts-toolbar";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Table, TableWrap, Td, Th } from "@/components/ui/table";
-import type { Post, PostStatus } from "@/types/database";
+import { Table, TableWrap, Td } from "@/components/ui/table";
+import { showToast } from "@/components/ui/toast";
+import type { Post } from "@/types/database";
 import type { PostSort } from "@/services/posts";
-
-const labels: Record<PostStatus, string> = { published: "Yayında", draft: "Taslak", scheduled: "Planlı", archived: "Arşiv" };
-const statusVariants: Record<PostStatus, BadgeProps["variant"]> = { published: "solid", draft: "neutral", scheduled: "outline", archived: "neutral" };
-const languageLabels = { tr: "Türkçe", en: "İngilizce" } as const;
-const columnsStorageKey = "diji-news-post-columns";
-const defaultColumns: Record<OptionalColumn, boolean> = { language: true, category: true, status: true, reads: true, date: true };
 
 type PostsTableProps = {
   initialPosts: Post[];
@@ -32,10 +24,12 @@ type PostsTableProps = {
 };
 
 export function PostsTable({ initialPosts, total, scheduledTotal, language, pageSize = 20 }: PostsTableProps) {
-  const router = useRouter();
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [posts, setPosts] = useState(initialPosts);
+  const [overallTotal, setOverallTotal] = useState(total);
+  const [scheduledCount, setScheduledCount] = useState(scheduledTotal);
   const [resultTotal, setResultTotal] = useState(total);
+  const [postToDelete, setPostToDelete] = useState<Post | null>(null);
   const [page, setPage] = useState(1);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoadingMore, startLoadingMore] = useTransition();
@@ -47,21 +41,6 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
   const [isSearching, setIsSearching] = useState(false);
   const searchRequest = useRef(0);
   const initialCriteria = useRef(true);
-  const [postToDelete, setPostToDelete] = useState<Post | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [visibleColumns, setVisibleColumns] = useState(defaultColumns);
-
-  // Reading the stored preference during render would mismatch the server markup, so it is applied
-  // after mount instead.
-  useEffect(() => {
-    let saved: Partial<Record<OptionalColumn, boolean>> | null = null;
-    try {
-      saved = JSON.parse(localStorage.getItem(columnsStorageKey) ?? "null") as Partial<Record<OptionalColumn, boolean>> | null;
-    } catch { /* Invalid preferences fall back to all columns. */ }
-    if (!saved) return;
-    const frame = requestAnimationFrame(() => setVisibleColumns({ ...defaultColumns, ...saved }));
-    return () => cancelAnimationFrame(frame);
-  }, []);
 
   useEffect(() => {
     if (initialCriteria.current) {
@@ -88,17 +67,6 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
 
   const hasMore = posts.length < resultTotal;
   const busy = isChangingLanguage || isSorting || isSearching;
-  const visibleColumnCount = Object.values(visibleColumns).filter(Boolean).length;
-  const tableWidth = visibleColumnCount <= 2 ? "min-w-[560px]" : visibleColumnCount <= 4 ? "min-w-[680px]" : "min-w-[820px]";
-
-  function toggleColumn(column: OptionalColumn) {
-    setVisibleColumns((current) => {
-      const next = { ...current, [column]: !current[column] };
-      try { localStorage.setItem(columnsStorageKey, JSON.stringify(next)); } catch { /* Storage may be unavailable. */ }
-      return next;
-    });
-  }
-
   function changeSort(nextSort: PostSort) {
     if (nextSort === sort || isSorting) return;
     setLoadError(null);
@@ -130,20 +98,16 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
     });
   }
 
-  async function deleteSelectedPost() {
+  async function removeSelectedPost() {
     if (!postToDelete) return false;
     const result = await deletePostAction(postToDelete.id);
-    if (!result.success) {
-      setDeleteError(result.message);
-      return false;
-    }
-    router.refresh();
+    showToast(result.message, result.success ? "success" : "error");
+    if (!result.success) return false;
+    setPosts((current) => current.filter((post) => post.id !== postToDelete.id));
+    setResultTotal((current) => Math.max(0, current - 1));
+    setOverallTotal((current) => Math.max(0, current - 1));
+    if (postToDelete.status === "scheduled") setScheduledCount((current) => Math.max(0, current - 1));
     return true;
-  }
-
-  function setConfirmOpen(open: boolean) {
-    if (!open) setPostToDelete(null);
-    setDeleteError(null);
   }
 
   const emptyState = query.trim() || status !== "all"
@@ -152,7 +116,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
 
   return (
     <>
-      <PostsStatusTabs active={status} total={total} scheduledTotal={scheduledTotal} onChange={(value) => { setIsSearching(true); setStatus(value); }} />
+      <PostsStatusTabs active={status} total={overallTotal} scheduledTotal={scheduledCount} onChange={(value) => { setIsSearching(true); setStatus(value); }} />
 
       <div className="card">
         <PostsToolbar
@@ -163,8 +127,6 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
           languagePending={isChangingLanguage}
           sort={sort}
           onSortChange={changeSort}
-          visibleColumns={visibleColumns}
-          onToggleColumn={toggleColumn}
         />
 
         <div className="relative" aria-busy={busy}>
@@ -178,40 +140,21 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
 
           {posts.length ? (
             <TableWrap>
-              <Table className={tableWidth}>
-                <thead>
-                  <tr>
-                    <Th className="w-full">Yazı</Th>
-                    {visibleColumns.language && <Th className="w-px whitespace-nowrap">{columnLabels.language}</Th>}
-                    {visibleColumns.category && <Th className="w-px whitespace-nowrap">{columnLabels.category}</Th>}
-                    {visibleColumns.status && <Th className="w-px whitespace-nowrap">{columnLabels.status}</Th>}
-                    {visibleColumns.reads && <Th className="w-px whitespace-nowrap text-right">{columnLabels.reads}</Th>}
-                    {visibleColumns.date && <Th className="w-px whitespace-nowrap text-right">{columnLabels.date}</Th>}
-                    <Th className="w-px"><span className="sr-only">İşlemler</span></Th>
-                  </tr>
-                </thead>
+              <Table>
                 <tbody>
                   {posts.map((post) => (
                     <tr key={post.id} className="transition-colors hover:bg-surface-2">
                       <Td className="align-top">
-                        <Link href={`/yazilar/${post.id}/duzenle`} className="group block rounded-sm">
-                          <MarkdownPreview value={post.body} compact />
-                        </Link>
-                      </Td>
-                      {visibleColumns.language && <Td className="w-px whitespace-nowrap"><Badge><abbr title={languageLabels[post.language === "en" ? "en" : "tr"]} className="no-underline">{post.language === "en" ? "EN" : "TR"}</abbr></Badge></Td>}
-                      {visibleColumns.category && <Td className="w-px whitespace-nowrap">{post.category || "—"}</Td>}
-                      {visibleColumns.status && <Td className="w-px whitespace-nowrap"><Badge variant={statusVariants[post.status]}>{labels[post.status]}</Badge></Td>}
-                      {visibleColumns.reads && <Td className="w-px whitespace-nowrap text-right font-semibold tabular-nums">{post.reads ? post.reads.toLocaleString("tr-TR") : "—"}</Td>}
-                      {visibleColumns.date && <Td className="w-px whitespace-nowrap text-right text-muted tabular-nums">{new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}</Td>}
-                      <Td className="w-px">
-                        <div className="flex justify-end">
-                          <ActionMenu
-                            label="Yazı işlemleri"
-                            items={[
-                              { label: "Düzenle", href: `/yazilar/${post.id}/duzenle`, icon: <Pencil size={15} aria-hidden="true" /> },
-                              { label: "Sil", destructive: true, icon: <Trash2 size={15} aria-hidden="true" />, onSelect: () => { setDeleteError(null); setPostToDelete(post); } },
-                            ]}
-                          />
+                        <div className="flex items-start gap-3">
+                          <Link href={`/yazilar/${post.id}/duzenle`} className="group min-w-0 flex-1 rounded-sm">
+                            <p className="mb-2 text-xs text-muted tabular-nums">
+                              {new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}
+                            </p>
+                            <MarkdownPreview value={post.body} compact />
+                          </Link>
+                          <button type="button" onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} className="grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-danger-surface hover:text-danger">
+                            <Trash2 className="size-4" aria-hidden="true" />
+                          </button>
                         </div>
                       </Td>
                     </tr>
@@ -237,12 +180,11 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
       <ConfirmDialog
         open={Boolean(postToDelete)}
         title="Yazı silinsin mi?"
-        description="Bu yazı kalıcı olarak silinecek. Bu işlem geri alınamaz."
+        description={postToDelete ? `“${postToDelete.title || "Bu yazı"}” ve kapak görseli kalıcı olarak silinecek.` : "Bu işlem geri alınamaz."}
         confirmLabel="Yazıyı sil"
         variant="destructive"
-        error={deleteError}
-        onOpenChange={setConfirmOpen}
-        onConfirm={deleteSelectedPost}
+        onOpenChange={(open) => !open && setPostToDelete(null)}
+        onConfirm={removeSelectedPost}
       />
     </>
   );

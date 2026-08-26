@@ -4,12 +4,13 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
+import { parsePostContent } from "@/lib/post-content";
 import { isUuid } from "@/lib/utils";
 import { postSchema } from "@/lib/validations/post";
 import { getPostsPage, type PostPublicationFilter, type PostSort } from "@/services/posts";
 import { notifyNewPost } from "@/services/push";
 
-const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc", "category-asc"];
+const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc"];
 const postStatuses: PostPublicationFilter[] = ["all", "published", "scheduled"];
 const acceptedImages = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -51,10 +52,12 @@ export async function loadMorePostsAction(page: number, pageSize = 20, language:
  * Push goes out after the response, through `after`, so the editor's save is never held up by a
  * thousand endpoints — and a push service having a bad day cannot turn a saved note into an error.
  */
-function notifyPublishedPost(id: string, data: { tr: { title: string; excerpt: string }; en: { title: string; excerpt: string } }) {
+function notifyPublishedPost(id: string, data: { tr: { body: string }; en: { body: string } }) {
+  const tr = parsePostContent(data.tr.body);
+  const en = parsePostContent(data.en.body);
   after(async () => {
     try {
-      await notifyNewPost({ id, tr: data.tr, en: data.en });
+      await notifyNewPost({ id, tr: { title: tr.title, excerpt: tr.excerpt }, en: { title: en.title, excerpt: en.excerpt } });
     } catch (error) {
       console.error("Push notification for new post failed", error);
     }
@@ -70,14 +73,10 @@ export async function createPostAction(input: unknown, image: File | null = null
   if (cover.error) return { success: false, message: cover.error };
   const createdAt = parsed.data.status === "scheduled" ? new Date(parsed.data.scheduledAt!).toISOString() : new Date().toISOString();
   const { data: created, error } = await access.admin.from("posts").insert({
-    content_tr: `# ${parsed.data.tr.title}\n\n${parsed.data.tr.excerpt}\n\n${parsed.data.tr.body}`,
-    content_en: `# ${parsed.data.en.title}\n\n${parsed.data.en.excerpt}\n\n${parsed.data.en.body}`,
-    category: parsed.data.category,
-    source_name: parsed.data.sourceName,
+    content_tr: parsed.data.tr.body,
+    content_en: parsed.data.en.body,
     source_url: parsed.data.sourceUrl,
     cover_path: cover.url,
-    show_title: parsed.data.showTitle,
-    show_excerpt: parsed.data.showExcerpt,
     author_id: access.user.id,
     created_at: createdAt,
   }).select("id").single();
@@ -112,14 +111,10 @@ export async function updatePostAction(id: string, input: unknown, image: File |
         ? new Date().toISOString()
         : current.created_at;
   const { error } = await access.admin.from("posts").update({
-    content_tr: `# ${parsed.data.tr.title}\n\n${parsed.data.tr.excerpt}\n\n${parsed.data.tr.body}`,
-    content_en: `# ${parsed.data.en.title}\n\n${parsed.data.en.excerpt}\n\n${parsed.data.en.body}`,
-    category: parsed.data.category,
-    source_name: parsed.data.sourceName,
+    content_tr: parsed.data.tr.body,
+    content_en: parsed.data.en.body,
     source_url: parsed.data.sourceUrl,
     cover_path: cover.url ?? (removeCover ? null : current.cover_path),
-    show_title: parsed.data.showTitle,
-    show_excerpt: parsed.data.showExcerpt,
     created_at: createdAt,
   }).eq("id", current.id);
   if (error) {

@@ -1,11 +1,10 @@
-import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, Mail, Megaphone, Rss, Settings2 } from "lucide-react";
+import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, Megaphone, Rss, Settings2 } from "lucide-react";
 import { Skeleton } from "@/components/feedback/states";
 
 const items = [
   ["Dashboard", "/dashboard", LayoutDashboard],
   ["Yazılar", "/yazilar", FileText],
   ["RSS", "/rss", Rss],
-  ["E-bülten", "/e-bulten", Mail],
   ["Reklamlar", "/reklamlar", Megaphone],
   ["İstatistik", "/istatistik", ChartColumn],
   ["Ayarlar", "/ayarlar", Settings2],

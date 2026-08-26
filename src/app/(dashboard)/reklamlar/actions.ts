@@ -45,7 +45,7 @@ export async function createAdAction(formData: FormData): Promise<ActionResult> 
     imageUrl = access.admin.storage.from("ad-images").getPublicUrl(uploadedPath).data.publicUrl;
   }
 
-  const { error } = await access.admin.from("ad_units").insert({ placement: "home_feed", label: language === "en" ? "AD" : "REKLAM", title, description, cta_label: ctaLabel, target_url: targetUrl, image_url: imageUrl, language, active, newsletter_enabled: false });
+  const { error } = await access.admin.from("ad_units").insert({ placement: "home_feed", label: language === "en" ? "AD" : "REKLAM", title, description, cta_label: ctaLabel, target_url: targetUrl, image_url: imageUrl, language, active });
   if (error) {
     if (uploadedPath) await access.admin.storage.from("ad-images").remove([uploadedPath]);
     return { success: false, message: "Reklam kaydedilemedi." };

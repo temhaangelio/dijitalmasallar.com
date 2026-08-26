@@ -4,9 +4,9 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const items = [["Dashboard", "/dashboard", null], ["Yazılar", "/yazilar", "posts"], ["RSS", "/rss", "rss"], ["Yapay Zekâ", "/yapay-zeka", "ai"], ["E-bülten", "/e-bulten", "newsletter"], ["Reklamlar", "/reklamlar", "ads"], ["İstatistik", "/istatistik", "analytics"], ["Ayarlar", "/ayarlar", null]] as const;
+const items = [["Dashboard", "/dashboard", null], ["Yazılar", "/yazilar", "posts"], ["RSS", "/rss", "rss"], ["Reklamlar", "/reklamlar", "ads"], ["İstatistik", "/istatistik", "analytics"], ["Ayarlar", "/ayarlar", null]] as const;
 
-export function MobileNavigation({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "rss" | "ai" | "newsletter" | "ads" | "analytics", boolean> }) {
+export function MobileNavigation({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "rss" | "ads" | "analytics", boolean> }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const close = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);

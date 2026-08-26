@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bold, Eraser, Heading1, Heading2, Highlighter, Italic, Link2, Maximize2, Minimize2, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void };
+type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean };
 type ToolButtonProps = { label: string; shortcut?: string; onPress: () => void; children: React.ReactNode };
 
 function ToolButton({ label, shortcut, onPress, children }: ToolButtonProps) {
@@ -56,7 +56,7 @@ function nodeToMarkdown(node: Node): string {
 
 function editorToMarkdown(editor: HTMLElement) { return Array.from(editor.childNodes).map(nodeToMarkdown).join("").replace(/\n{3,}/g, "\n\n").trim(); }
 
-export function RichTextEditor({ id, name, value, onChange, onBlur }: RichTextEditorProps) {
+export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar = true }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -89,7 +89,7 @@ export function RichTextEditor({ id, name, value, onChange, onBlur }: RichTextEd
 
   return (
     <div className={cn("relative overflow-hidden rounded-field border border-transparent bg-surface-2 transition focus-within:border-ink focus-within:bg-white", fullscreen && "fixed inset-0 z-[200] rounded-none border-0 bg-white") }>
-      <div role="toolbar" aria-label="Metin biçimlendirme" className="absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] items-center gap-0.5 overflow-x-auto rounded-full bg-ink px-2 py-1.5 shadow-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {showToolbar ? <div role="toolbar" aria-label="Metin biçimlendirme" className="absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] items-center gap-0.5 overflow-x-auto rounded-full bg-ink px-2 py-1.5 shadow-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ToolButton label="Kalın" shortcut="⌘B" onPress={() => command("bold")}><Bold className="size-[17px]" /></ToolButton>
         <ToolButton label="İtalik" shortcut="⌘I" onPress={() => command("italic")}><Italic className="size-[17px]" /></ToolButton>
         <ToolButton label="Vurgula" onPress={() => command("hiliteColor", "#eaeaea")}><Highlighter className="size-[17px]" /></ToolButton>
@@ -102,9 +102,9 @@ export function RichTextEditor({ id, name, value, onChange, onBlur }: RichTextEd
         <ToolButton label="Alıntı" onPress={() => command("formatBlock", "blockquote")}><Quote className="size-[17px]" /></ToolButton>
         <span aria-hidden="true" className="mx-1 h-5 w-px bg-white/20" />
         <ToolButton label={fullscreen ? "Tam ekrandan çık" : "Tam ekran"} shortcut={fullscreen ? "Esc" : undefined} onPress={() => setFullscreen((current) => !current)}>{fullscreen ? <Minimize2 className="size-[17px]" /> : <Maximize2 className="size-[17px]" />}</ToolButton>
-      </div>
+      </div> : null}
       <input type="hidden" name={name} value={value} readOnly />
-      <div ref={editorRef} id={id} role="textbox" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[360px] px-5 pb-5 pt-[76px] text-[16px] leading-7 text-ink outline-none [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-ink [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-line [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-highlight [&_mark]:px-0.5", fullscreen && "mx-auto h-screen w-full max-w-5xl overflow-y-auto px-8 pb-20 pt-24 text-[18px] leading-8 sm:px-16")} />
+      <div ref={editorRef} id={id} role="textbox" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[360px] px-5 pb-5 text-[16px] leading-7 text-ink outline-none [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-ink [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-line [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-highlight [&_mark]:px-0.5", showToolbar ? "pt-[76px]" : "pt-5", fullscreen && "mx-auto h-screen w-full max-w-5xl overflow-y-auto px-8 pb-20 pt-24 text-[18px] leading-8 sm:px-16")} />
     </div>
   );
 }
