@@ -21,8 +21,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     display: "standalone",
     orientation: "portrait",
     // The light canvas: the value the browser paints around the app while it starts.
-    background_color: "#efefef",
-    theme_color: "#efefef",
+    background_color: "#f8f8f5",
+    theme_color: "#f8f8f5",
     categories: ["news", "magazines"],
     icons: [
       { src: "/icon-192.png?v=2", sizes: "192x192", type: "image/png", purpose: "any" },

@@ -4,6 +4,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { rssDatabase } from "@/lib/rss/local-db";
 import { discoverFeedUrls, parseFeed } from "@/lib/rss/parse";
 import { scrapePage } from "@/lib/rss/scrape";
+import { assertFetchableUrl, download as downloadRemote } from "@/lib/net/remote";
 
 /** A `page` source is a listing with no feed of its own, read by scraping its links. */
 export type RssFeedKind = "feed" | "page";
@@ -55,63 +56,15 @@ function text(value: unknown) { return typeof value === "string" ? value : ""; }
 function count(value: unknown) { return typeof value === "number" ? value : Number(value ?? 0) || 0; }
 
 /**
- * Blocks the loopback and private ranges before a fetch leaves the server. The person adding a feed
- * is an authenticated admin, so this is a guard rail rather than a boundary: it stops a pasted
- * internal address from turning the app into an unwitting proxy, and does not attempt to defend
- * against DNS rebinding.
+ * The RSS reader and the AI desk both follow addresses someone typed in, so the guard rail, the
+ * size cap and the timeout live in `@/lib/net/remote` and are shared. This wrapper keeps the
+ * reader's own call sites unchanged: they want the body or an error, never a 304, because they
+ * never send a conditional request.
  */
-function assertFetchableUrl(value: string) {
-  let url: URL;
-  try {
-    url = new URL(value);
-  } catch {
-    throw new Error("Geçerli bir adres girin.");
-  }
-  if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("Adres http veya https ile başlamalı.");
-  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  const isPrivate =
-    host === "localhost" || host.endsWith(".localhost") || host === "::1" ||
-    /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host) || /^169\.254\./.test(host) ||
-    /^(fc|fd)[0-9a-f]{2}:/.test(host);
-  if (isPrivate) throw new Error("Yerel ağ adresleri takip edilemez.");
-  return url.toString();
-}
-
-/** Reads the body through the stream so an unexpectedly huge feed is cut off rather than buffered. */
-async function readCapped(response: Response) {
-  const reader = response.body?.getReader();
-  if (!reader) return "";
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  try {
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      size += value.byteLength;
-      if (size > maxFeedBytes) throw new Error("Kaynak dosyası çok büyük.");
-      chunks.push(value);
-    }
-  } finally {
-    await reader.cancel().catch(() => {});
-  }
-  return new TextDecoder("utf-8").decode(await new Blob(chunks as BlobPart[]).arrayBuffer());
-}
-
 async function download(url: string, timeoutMs = requestTimeoutMs) {
-  const response = await fetch(url, {
-    headers: {
-      accept: "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, text/html;q=0.8, */*;q=0.7",
-      "user-agent": "diji.news RSS reader",
-    },
-    redirect: "follow",
-    cache: "no-store",
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-  if (!response.ok) throw new Error(`Kaynak ${response.status} yanıtı döndü.`);
-  const body = await readCapped(response);
-  if (!body.trim()) throw new Error("Kaynak boş yanıt döndü.");
-  return body;
+  const result = await downloadRemote(url, { timeoutMs, maxBytes: maxFeedBytes });
+  if (!result) throw new Error("Kaynak yanıt vermedi.");
+  return result.body;
 }
 
 /**

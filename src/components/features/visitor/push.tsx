@@ -209,8 +209,11 @@ function usePushSubscription(language: VisitorLanguage, publicKey: string) {
 export function PushNavButton({ language, publicKey }: { language: VisitorLanguage; publicKey: string }) {
   const { state, pending, turnOn, turnOff } = usePushSubscription(language, publicKey);
   const isEnglish = language === "en";
+  const configured = Boolean(publicKey);
   const on = state === "on";
-  const label = state === "loading"
+  const label = !configured
+    ? (isEnglish ? "Notifications are not configured" : "Bildirimler yapılandırılmamış")
+    : state === "loading"
     ? (isEnglish ? "Checking notifications" : "Bildirimler kontrol ediliyor")
     : state === "needs-install"
       ? (isEnglish ? "Add the app to your home screen first" : "Önce uygulamayı ana ekranınıza ekleyin")
@@ -221,10 +224,14 @@ export function PushNavButton({ language, publicKey }: { language: VisitorLangua
           : on
             ? (isEnglish ? "Turn notifications off" : "Bildirimleri kapat")
             : (isEnglish ? "Turn notifications on" : "Bildirimleri aç");
-  const disabled = pending || state === "loading" || state === "unsupported";
+  const disabled = configured && (pending || state === "loading" || state === "unsupported");
 
   function handleClick() {
     if (disabled) return;
+    if (!configured) {
+      showToast(isEnglish ? "Notifications are not configured on this deployment." : "Bu deployment için bildirimler yapılandırılmamış.", "error");
+      return;
+    }
     if (state === "needs-install") {
       showToast(isEnglish ? "Add the app to your home screen first." : "Bildirimler için önce uygulamayı ana ekranınıza ekleyin.", "error");
       return;

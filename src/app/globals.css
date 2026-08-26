@@ -157,6 +157,7 @@
  *   --color-muted #9a9a9a → 6.25:1 (AA, all sizes)
  *   --color-faint #757575 → 3.82:1 (AA large text / UI)
  */
+html:has(.visitor-page) { background: #f8f8f5; }
 html[data-visitor-theme="dark"]:has(.visitor-page) { background: #0f0f0f; color-scheme: dark; }
 
 html[data-visitor-theme="dark"] .visitor-page {
@@ -298,6 +299,16 @@ html[data-visitor-theme="dark"] .visitor-page {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    padding-top: env(safe-area-inset-top);
+  }
+  .visitor-page::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 25;
+    height: env(safe-area-inset-top);
+    background: var(--color-canvas);
+    pointer-events: none;
   }
   .visitor-page .font-mono {
     font-family: var(--font-plex-mono), monospace;

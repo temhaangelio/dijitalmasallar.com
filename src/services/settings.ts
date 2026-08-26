@@ -24,6 +24,7 @@ export type SiteSettings = {
   maintenanceMode: boolean;
   modulePosts: boolean;
   moduleRss: boolean;
+  moduleAi: boolean;
   moduleNewsletter: boolean;
   moduleAds: boolean;
   moduleAnalytics: boolean;
@@ -52,6 +53,7 @@ export const defaultSiteSettings: SiteSettings = {
   maintenanceMode: false,
   modulePosts: true,
   moduleRss: true,
+  moduleAi: true,
   moduleNewsletter: true,
   moduleAds: true,
   moduleAnalytics: true,
@@ -81,6 +83,7 @@ const settingKeys = {
   maintenance_mode: "maintenanceMode",
   module_posts: "modulePosts",
   module_rss: "moduleRss",
+  module_ai: "moduleAi",
   module_newsletter: "moduleNewsletter",
   module_ads: "moduleAds",
   module_analytics: "moduleAnalytics",

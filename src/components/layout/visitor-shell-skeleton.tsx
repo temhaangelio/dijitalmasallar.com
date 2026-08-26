@@ -10,10 +10,10 @@ import { Skeleton } from "@/components/feedback/states";
  * flash white on a dark page — along with the column width and the nav height, so nothing shifts
  * sideways or jumps down when the page itself arrives.
  */
-export function VisitorShellSkeleton({ children, label }: { children: ReactNode; label: string }) {
+export function VisitorShellSkeleton({ children, label, showHeader = true }: { children: ReactNode; label: string; showHeader?: boolean }) {
   return (
     <div className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-6 pb-10 text-ink sm:px-8" role="status" aria-label={label}>
-      <div className="flex w-full max-w-[900px] flex-col items-center pt-9 sm:pt-14">
+      {showHeader ? <div className="flex w-full max-w-[900px] flex-col items-center pt-9 sm:pt-14">
         <div className="flex w-full max-w-[640px] items-center justify-between">
           <Skeleton className="size-9 rounded-[12px]" />
           <div className="flex items-center gap-2">
@@ -24,11 +24,11 @@ export function VisitorShellSkeleton({ children, label }: { children: ReactNode;
         <div className="mt-4 flex flex-col items-center gap-4">
           <Skeleton className="h-5 w-80 max-w-full" />
           <Skeleton className="h-5 w-64 max-w-full" />
-          <div className="mt-2 hidden items-center gap-[22px] sm:flex">
+          <div className="mt-2 flex items-center gap-[22px]">
             {["w-10", "w-14"].map((width) => <Skeleton key={width} className={`h-3 ${width}`} />)}
           </div>
         </div>
-      </div>
+      </div> : null}
       {children}
       <footer className="mt-14 flex w-full max-w-[640px] justify-center border-t border-line px-1 pt-6">
         <Skeleton className="h-4 w-28" />

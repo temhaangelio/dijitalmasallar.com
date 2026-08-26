@@ -110,7 +110,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[640px] pt-11 sm:pt-14">
-        <article className="visitor-article rounded-[14px] border border-line/70 bg-surface/55 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
+        <article className="visitor-article rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
           <div className="visitor-muted mb-8 border-b border-line pb-5 font-mono">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
               <time dateTime={publishedAt} className="text-[11px] font-medium leading-none tabular-nums text-accent sm:text-[12px]">

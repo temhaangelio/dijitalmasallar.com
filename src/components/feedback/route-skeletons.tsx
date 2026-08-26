@@ -397,11 +397,11 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
   return (
     <>
       {withCount ? <Skeleton className="mb-4 ml-1 h-3 w-32" /> : null}
-      <div className="flex flex-col gap-[46px]">
+      <div className="flex flex-col gap-8 sm:gap-[46px]">
         {Array.from({ length: count }, (_, index) => (
           <div key={index}>
             <Skeleton className="mb-2.5 h-3 w-12" />
-            <div className="rounded-[14px] border border-line/70 bg-surface/55 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
+            <div className="rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
               <Skeleton className="h-5 w-full" />
               <Skeleton className="mt-2 h-5 w-11/12" />
               <Skeleton className="mt-2 h-5 w-2/3" />
@@ -433,7 +433,7 @@ export function VisitorArticleLoading() {
   return (
     <VisitorShellSkeleton label="Haber yükleniyor">
       <main className="w-full max-w-[640px] pt-11 sm:pt-14">
-        <article className="rounded-[14px] border border-line/70 bg-surface/55 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
+        <article className="rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
           <div className="mb-8 border-b border-line pb-5">
             <div className="flex items-center gap-3">
               <Skeleton className="h-3 w-10" />
@@ -462,12 +462,13 @@ export function VisitorArticleLoading() {
 
 /* ---------------------------------- /about, /contact, /newsletter */
 
-/** Mirrors the current 640px editorial About card. */
+/** Mirrors the current 640px, card-free editorial About page. */
 export function VisitorAboutLoading() {
   return (
-    <VisitorShellSkeleton label="Hakkında yükleniyor">
+    <VisitorShellSkeleton label="Hakkında yükleniyor" showHeader={false}>
       <main className="w-full max-w-[640px] pb-6 pt-12 sm:pt-16">
-        <article className="rounded-[14px] border border-line/70 bg-surface/55 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
+        <article>
+          <Skeleton className="mb-8 size-9 rounded-[12px]" />
           <header>
             <Skeleton className="h-8 w-32" />
             <Skeleton className="mt-2 h-5 w-4/5" />

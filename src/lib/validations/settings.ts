@@ -20,6 +20,7 @@ export const settingsSchema = z.object({
   maintenanceMode: z.boolean(),
   modulePosts: z.boolean(),
   moduleRss: z.boolean(),
+  moduleAi: z.boolean(),
   moduleNewsletter: z.boolean(),
   moduleAds: z.boolean(),
   moduleAnalytics: z.boolean(),

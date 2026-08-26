@@ -12,7 +12,7 @@ export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-6 hidden items-center gap-[22px] sm:flex" aria-label={language === "en" ? "Main navigation" : "Ana navigasyon"}>
+    <nav className="mt-6 flex items-center gap-[22px]" aria-label={language === "en" ? "Main navigation" : "Ana navigasyon"}>
       {visitorNavItems.filter((item) => headerPaths.has(item.href)).map((item) => {
         const current = pathname === item.href;
         const href = languageHref(item.href, language);

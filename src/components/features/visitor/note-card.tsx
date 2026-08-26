@@ -58,7 +58,7 @@ export function feedContent(post: Post, highlight?: string): ReactNode[] {
 export function NoteCard({ post, language, highlight }: { post: Post; language: VisitorLanguage; highlight?: string }) {
   const displayedSource = sourceLabel(post.source_name, post.source_url, language === "en" ? "Source" : "Kaynak");
   return (
-    <article className="visitor-card group relative rounded-[14px] border border-line/70 bg-surface/55 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
+    <article className="visitor-card group relative rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
       <Link
         href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")}
         className="visitor-copy block text-[17px] font-normal leading-[1.5] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[20px]"

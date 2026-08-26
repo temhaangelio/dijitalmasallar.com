@@ -22,9 +22,11 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
   const isEnglish = language === "en";
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName}>
+    <VisitorShell language={language} siteName={settings.siteName} showHeader={false}>
       <VisitorContentPage
         title={isEnglish ? "About" : "Hakkında"}
+        homeHref={languageHref("/", language)}
+        homeLabel={isEnglish ? `${settings.siteName} home` : `${settings.siteName} ana sayfa`}
         intro={isEnglish
           ? "The calm flow of the digital world."
           : "Dijital dünyanın sakin akışı."}

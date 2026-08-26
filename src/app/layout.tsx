@@ -44,6 +44,7 @@ export const metadata: Metadata = {
  * app does not sit under a light status bar while its own page is dark.
  */
 export const viewport: Viewport = {
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f8f8f5" },
     { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },

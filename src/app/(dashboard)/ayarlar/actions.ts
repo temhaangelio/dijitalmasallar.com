@@ -32,6 +32,7 @@ export async function saveSettingsAction(input: unknown) {
     ["maintenance_mode", parsed.data.maintenanceMode],
     ["module_posts", parsed.data.modulePosts],
     ["module_rss", parsed.data.moduleRss],
+    ["module_ai", parsed.data.moduleAi],
     ["module_newsletter", parsed.data.moduleNewsletter],
     ["module_ads", parsed.data.moduleAds],
     ["module_analytics", parsed.data.moduleAnalytics],

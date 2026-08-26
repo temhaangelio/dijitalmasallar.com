@@ -11,25 +11,25 @@ const titles: Record<ToastVariant, string> = {
   info: "Bilgilendirme",
 };
 
-/** A compact editorial notice that uses the same paper, rule, type and accent as the visitor pages. */
+/** Deliberately dark in both themes: the toast reads as an overlay, not as part of the page. */
 function ToastCard({ id, message, variant }: { id: string | number; message: string; variant: ToastVariant }) {
   return (
     <div
       role={variant === "error" ? "alert" : "status"}
-      className="flex w-[min(380px,calc(100vw-32px))] items-start overflow-hidden rounded-field border border-line-strong bg-surface text-ink shadow-pop [font-family:var(--font-plex-sans)]"
+      className="on-dark flex w-[min(390px,calc(100vw-32px))] items-start gap-3 rounded-panel border border-white/10 bg-ink p-3.5 text-white shadow-modal"
     >
-      <span className="w-1 self-stretch bg-accent" aria-hidden="true" />
-      <div className="min-w-0 flex-1 px-4 py-3.5">
-        <strong className="block font-mono text-[10px] font-medium uppercase leading-none tracking-[.16em] text-ink">{titles[variant]}</strong>
-        <p className="mt-2 text-[14px] font-normal leading-[1.5] text-muted">{message}</p>
+      <span className="brand-mark brand-mark-inverse !size-10 shrink-0 !rounded-chip" aria-hidden="true" />
+      <div className="min-w-0 flex-1 pt-0.5">
+        <strong className="block text-[13px] text-white">{titles[variant]}</strong>
+        <p className="mt-1 text-[13px] leading-5 text-on-dark">{message}</p>
       </div>
       <button
         type="button"
         onClick={() => sonnerToast.dismiss(id)}
         aria-label="Bildirimi kapat"
-        className="mr-2 mt-2 grid size-8 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+        className="grid size-8 shrink-0 place-items-center rounded-full text-on-dark transition-colors hover:bg-white/10 hover:text-white"
       >
-        <X size={14} strokeWidth={1.75} aria-hidden="true" />
+        <X size={15} aria-hidden="true" />
       </button>
     </div>
   );

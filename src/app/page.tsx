@@ -173,6 +173,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-[25] h-[calc(env(safe-area-inset-top)+36px)] bg-canvas sm:hidden" aria-hidden="true" />
 
       <main className="mt-9 flex w-full max-w-[640px] flex-col sm:mt-14">
         <div>
@@ -182,7 +183,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               The heading remains pinned while its day's notes are in view; the next section's
               heading naturally pushes it away.
             */}
-            <div className="sticky top-0 z-20 -mt-3 bg-canvas py-3">
+            <div className="sticky top-[env(safe-area-inset-top)] z-30 -mt-3 bg-canvas py-3">
               <div className="flex items-center gap-3 sm:gap-3.5">
                 <span
                   title={fullDateLabel(day.publishedAt, language)}
@@ -194,7 +195,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>
 
-            <div className="mt-[34px] flex flex-col gap-[46px]">
+            <div className="mt-[34px] flex flex-col gap-8 sm:gap-[46px]">
               {day.items.map(({ post, position }) => {
                 const publishedAt = post.published_at ?? post.created_at;
                 return (

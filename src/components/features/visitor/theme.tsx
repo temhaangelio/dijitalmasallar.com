@@ -8,6 +8,8 @@ export type ThemePreference = "light" | "dark" | "system";
 
 const storageKey = "diji-news-theme";
 const themeAttribute = "data-visitor-theme";
+const lightThemeColor = "#f8f8f5";
+const darkThemeColor = "#0f0f0f";
 
 /**
  * Runs before the first paint, inline in the document, so the page never flashes light before the
@@ -15,7 +17,7 @@ const themeAttribute = "data-visitor-theme";
  * variant yet, and leaving the attribute unset there keeps it on the light tokens.
  */
 export function ThemeScript() {
-  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");}catch(e){}})();`;
+  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
@@ -53,8 +55,21 @@ function resolve(preference: ThemePreference) {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
+function syncBrowserThemeColor(theme: "light" | "dark") {
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"][data-diji-theme]');
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.dataset.dijiTheme = "";
+    document.head.appendChild(meta);
+  }
+  meta.content = theme === "dark" ? darkThemeColor : lightThemeColor;
+}
+
 function apply(preference: ThemePreference) {
-  document.documentElement.setAttribute(themeAttribute, resolve(preference));
+  const theme = resolve(preference);
+  document.documentElement.setAttribute(themeAttribute, theme);
+  syncBrowserThemeColor(theme);
 }
 
 function setPreference(preference: ThemePreference) {
