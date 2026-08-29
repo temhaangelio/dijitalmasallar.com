@@ -419,7 +419,7 @@ export function VisitorAboutLoading() {
     <VisitorShellSkeleton label="Hakkında yükleniyor" showHeader={false}>
       <main className="w-full max-w-[640px] pb-6 pt-12 sm:pt-16">
         <article>
-          <Skeleton className="mb-8 size-9 rounded-[12px]" />
+          <Skeleton className="mb-8 size-20 rounded-[24px] sm:size-28 sm:rounded-[32px]" />
           <header>
             <Skeleton className="h-8 w-32" />
             <Skeleton className="mt-2 h-5 w-4/5" />
