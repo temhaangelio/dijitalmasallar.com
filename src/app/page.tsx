@@ -3,6 +3,7 @@ import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
+import { DailyBrief } from "@/components/features/visitor/daily-brief";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
@@ -126,6 +127,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
+  const postDays = groupPostsByDay(posts);
   const adSlots = randomAdSlots(posts.length, ads);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
@@ -177,7 +179,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       <main className="mt-9 flex w-full max-w-[640px] flex-col sm:mt-14">
         <div>
-        {posts.length ? groupPostsByDay(posts).map((day, dayIndex) => (
+        {posts.length ? (
+          <>
+          <DailyBrief posts={postDays[0].items.map(({ post }) => post)} language={language} />
+          {postDays.map((day, dayIndex) => (
           <section key={day.key} aria-label={fullDateLabel(day.publishedAt, language)} className={dayIndex ? "mt-16" : ""}>
             {/*
               The heading remains pinned while its day's notes are in view; the next section's
@@ -187,7 +192,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               <div className="flex items-center gap-3 sm:gap-3.5">
                 <span
                   title={fullDateLabel(day.publishedAt, language)}
-                  className="shrink-0 font-mono text-[10px] font-medium leading-none uppercase tracking-[.2em] text-ink sm:text-[11px]"
+                  className="shrink-0 font-mono text-[10px] font-medium leading-none uppercase tracking-[.2em] text-accent sm:text-[11px]"
                 >
                   {dateLabel(day.publishedAt, language)}
                 </span>
@@ -217,7 +222,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               })}
             </div>
           </section>
-        )) : (
+          ))}
+          </>
+        ) : (
           <div className="visitor-panel visitor-muted rounded-panel border border-dashed border-line-strong px-6 py-16 text-center">
             <p className="visitor-copy text-[length:var(--vt-small)] font-medium text-muted">{language === "en" ? "No English notes have been published yet." : "Henüz Türkçe not yayınlanmadı."}</p>
             <p className="visitor-muted mt-2 text-[length:var(--vt-ui)] text-faint">{language === "en" ? "New notes land here through the day." : "Yeni notlar gün boyunca buraya düşer."}</p>

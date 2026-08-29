@@ -371,6 +371,14 @@ export function VisitorFeedLoading() {
   return (
     <VisitorShellSkeleton label="Akış yükleniyor">
       <div className="mt-9 w-full max-w-[640px] sm:mt-14">
+        <div className="mb-14 rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
+          <Skeleton className="h-2.5 w-28" />
+          <div className="mt-6 space-y-4">
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-11/12" />
+            <Skeleton className="h-6 w-4/5" />
+          </div>
+        </div>
         <div className="mb-[46px] flex items-center gap-3.5"><Skeleton className="h-2.5 w-32" /><Skeleton className="h-px flex-1" /></div>
         <VisitorNoteCardsSkeleton count={4} />
       </div>
@@ -426,20 +434,20 @@ export function VisitorAboutLoading() {
             <Skeleton className="mt-6 h-0.5 w-12 rounded-none" />
           </header>
 
-          <div className="mt-9 space-y-5 sm:mt-10">
+          <div className="mt-9 sm:mt-10">
             <div className="space-y-3">
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-11/12" />
-              <Skeleton className="h-5 w-4/5" />
+              <Skeleton className="h-2.5 w-24" />
+              <Skeleton className="mt-4 h-7 w-full" />
+              <Skeleton className="h-7 w-11/12" />
+              <Skeleton className="mt-4 h-5 w-4/5" />
             </div>
-            <div className="space-y-3">
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-5/6" />
-              <Skeleton className="h-5 w-2/3" />
+            <div className="mt-9 grid gap-4 border-t border-line pt-8 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-8">
+              <Skeleton className="h-3 w-16" />
+              <div className="space-y-3"><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-5/6" /><Skeleton className="h-5 w-2/3" /></div>
             </div>
-            <div className="space-y-3">
-              <Skeleton className="h-5 w-5/6" />
-              <Skeleton className="h-4 w-44" />
+            <div className="mt-8 grid gap-4 border-t border-line pt-8 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-8">
+              <Skeleton className="h-3 w-20" />
+              <div className="space-y-3"><Skeleton className="h-5 w-4/5" /><Skeleton className="h-4 w-44" /></div>
             </div>
           </div>
         </article>

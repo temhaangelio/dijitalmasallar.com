@@ -6,7 +6,7 @@ export function VisitorContentPage({ title, intro, homeHref, homeLabel, children
     <main className="w-full max-w-[640px] pb-6 pt-12 sm:pt-16">
       <article>
         <Link href={homeHref} aria-label={homeLabel} className="mb-8 block w-fit transition-opacity hover:opacity-75">
-          <span className="brand-mark visitor-logo-mark block !size-20 !rounded-[24px] !p-5 after:!size-5 sm:!size-28 sm:!rounded-[32px] sm:!p-7 sm:after:!size-7" aria-hidden="true" />
+          <span className="brand-mark visitor-logo-mark about-logo-mark block" aria-hidden="true" />
         </Link>
         <header>
           <h1 className="visitor-heading text-[26px] font-normal leading-[1.3] tracking-normal sm:text-[30px]">{title}</h1>

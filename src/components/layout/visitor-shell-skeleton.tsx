@@ -13,19 +13,19 @@ import { Skeleton } from "@/components/feedback/states";
 export function VisitorShellSkeleton({ children, label, showHeader = true }: { children: ReactNode; label: string; showHeader?: boolean }) {
   return (
     <div className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-6 pb-10 text-ink sm:px-8" role="status" aria-label={label}>
-      {showHeader ? <div className="flex w-full max-w-[900px] flex-col items-center pt-9 sm:pt-14">
+      {showHeader ? <div className="flex w-full max-w-[900px] flex-col items-center pb-4 pt-12 sm:pb-6 sm:pt-16">
         <div className="flex w-full max-w-[640px] items-center justify-between">
           <Skeleton className="size-9 rounded-[12px]" />
           <div className="flex items-center gap-2">
             {[0, 1].map((index) => <Skeleton key={index} className="size-9 rounded-[12px]" />)}
           </div>
         </div>
-        <Skeleton className="mt-5 h-7 w-32" />
+        <Skeleton className="mt-8 h-7 w-32 sm:mt-10" />
         <div className="mt-4 flex flex-col items-center gap-4">
+          <Skeleton className="h-5 w-96 max-w-full" />
           <Skeleton className="h-5 w-80 max-w-full" />
-          <Skeleton className="h-5 w-64 max-w-full" />
           <div className="mt-2 flex items-center gap-[22px]">
-            {["w-10", "w-14"].map((width) => <Skeleton key={width} className={`h-3 ${width}`} />)}
+            {["w-10", "w-14", "w-16"].map((width) => <Skeleton key={width} className={`h-3 ${width}`} />)}
           </div>
         </div>
       </div> : null}

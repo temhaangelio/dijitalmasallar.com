@@ -31,36 +31,38 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
           ? "The calm flow of the digital world."
           : "Dijital dünyanın sakin akışı."}
       >
-        <div className="space-y-5">
-          {isEnglish ? (
-            <>
-              <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                We follow developments in technology, artificial intelligence, science, and digital culture, turning notable stories into <strong className="font-semibold">short notes with source links</strong>. Our goal is to help you catch up on the news in just a few minutes without feeling overwhelmed.
-              </p>
-              <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                <strong className="font-semibold">diji.news</strong> is an independent publishing project developed by Temha Angelio, who has worked in technology and digital production for nearly 20 years. For other work, visit{" "}
-                <a href="https://www.temhaangelio.com/" target="_blank" rel="noreferrer" className="font-medium text-accent underline decoration-accent/35 underline-offset-[5px] transition-colors hover:text-ink hover:decoration-ink">temhaangelio.com</a>.
-              </p>
-              <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                For questions, suggestions, and corrections:{" "}
-                <a href="mailto:temhaangelio@gmail.com" className="font-medium text-accent underline decoration-accent/35 underline-offset-[5px] transition-colors hover:text-ink hover:decoration-ink">temhaangelio@gmail.com</a>
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                Teknoloji, yapay zekâ, bilim ve dijital kültürdeki gelişmeleri takip ediyor, öne çıkan haberleri <strong className="font-semibold">kısa ve kaynak bağlantılı notlara</strong> dönüştürüyoruz. Amacımız, gündemi yorulmadan birkaç dakikada yakalamanızı sağlamak.
-              </p>
-              <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                <strong className="font-semibold">diji.news</strong>, yaklaşık 20 yıldır teknoloji ve dijital üretim alanlarında çalışan Temha Angelio tarafından geliştirilen bağımsız bir yayın projesidir. Diğer çalışmalar için{" "}
-                <a href="https://www.temhaangelio.com/" target="_blank" rel="noreferrer" className="font-medium text-accent underline decoration-accent/35 underline-offset-[5px] transition-colors hover:text-ink hover:decoration-ink">temhaangelio.com</a> adresini ziyaret edebilirsiniz.
-              </p>
-              <p className="visitor-copy text-[16px] font-normal leading-[1.6] tracking-normal text-ink sm:text-[18px] sm:leading-[1.65]">
-                Soru, öneri ve düzeltmeleriniz için:{" "}
-                <a href="mailto:temhaangelio@gmail.com" className="font-medium text-accent underline decoration-accent/35 underline-offset-[5px] transition-colors hover:text-ink hover:decoration-ink">temhaangelio@gmail.com</a>
-              </p>
-            </>
-          )}
+        <div>
+          <section aria-labelledby="about-purpose">
+            <h2 id="about-purpose" className="font-mono text-[10px] font-semibold uppercase tracking-[.2em] text-accent sm:text-[11px]">
+              {isEnglish ? "What we do" : "Ne yapıyoruz"}
+            </h2>
+            <p className="visitor-copy visitor-serif mt-4 text-[19px] font-normal leading-[1.58] tracking-[-.01em] text-ink sm:text-[22px] sm:leading-[1.6]">
+              {isEnglish
+                ? <>We follow technology, artificial intelligence, science, and digital culture, turning what matters into <strong className="font-semibold">short notes with clear source links</strong>. The aim is simple: help you catch up in a few calm minutes, without the noise.</>
+                : <>Teknoloji, yapay zekâ, bilim ve dijital kültürü takip ediyor; önemli gelişmeleri <strong className="font-semibold">kısa, anlaşılır ve kaynak bağlantılı notlara</strong> dönüştürüyoruz. Amacımız basit: gündemi gürültüye kapılmadan, sakin birkaç dakika içinde yakalamanızı sağlamak.</>}
+            </p>
+          </section>
+
+          <section aria-labelledby="about-project" className="mt-9 grid gap-4 border-t border-line pt-8 sm:mt-11 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-8 sm:pt-9">
+            <h2 id="about-project" className="font-mono text-[10px] font-semibold uppercase tracking-[.18em] text-muted sm:pt-1 sm:text-[11px]">
+              {isEnglish ? "The project" : "Proje"}
+            </h2>
+            <p className="visitor-copy visitor-serif text-[19px] font-normal leading-[1.58] tracking-[-.01em] text-ink sm:text-[22px] sm:leading-[1.6]">
+              {isEnglish
+                ? <><strong className="font-semibold">diji.news</strong> is an independent publishing project by Temha Angelio, built on nearly 20 years of work in technology and digital production. Explore other work at{" "}<a href="https://www.temhaangelio.com/" target="_blank" rel="noreferrer" className="font-medium text-accent underline decoration-accent/35 underline-offset-[5px] transition-colors hover:text-ink hover:decoration-ink">temhaangelio.com ↗</a>.</>
+                : <><strong className="font-semibold">diji.news</strong>, teknoloji ve dijital üretim alanlarındaki yaklaşık 20 yıllık deneyimin ardından Temha Angelio tarafından geliştirilen bağımsız bir yayın projesidir. Diğer çalışmalar için{" "}<a href="https://www.temhaangelio.com/" target="_blank" rel="noreferrer" className="font-medium text-accent underline decoration-accent/35 underline-offset-[5px] transition-colors hover:text-ink hover:decoration-ink">temhaangelio.com ↗</a>.</>}
+            </p>
+          </section>
+
+          <section aria-labelledby="about-contact" className="mt-8 grid gap-4 border-t border-line pt-8 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-8">
+            <h2 id="about-contact" className="font-mono text-[10px] font-semibold uppercase tracking-[.18em] text-muted sm:pt-1 sm:text-[11px]">
+              {isEnglish ? "Contact" : "İletişim"}
+            </h2>
+            <div>
+              <p className="visitor-copy visitor-serif text-[19px] font-normal leading-[1.58] tracking-[-.01em] text-ink sm:text-[22px] sm:leading-[1.6]">{isEnglish ? "Questions, suggestions, or corrections are always welcome." : "Soru, öneri ve düzeltmelerinizi her zaman paylaşabilirsiniz."}</p>
+              <a href="mailto:temhaangelio@gmail.com" className="visitor-copy visitor-serif mt-3 inline-block text-[19px] font-medium leading-[1.58] tracking-[-.01em] text-accent underline decoration-accent/35 underline-offset-[5px] transition-colors hover:text-ink hover:decoration-ink sm:text-[22px] sm:leading-[1.6]">temhaangelio@gmail.com ↗</a>
+            </div>
+          </section>
         </div>
       </VisitorContentPage>
     </VisitorShell>

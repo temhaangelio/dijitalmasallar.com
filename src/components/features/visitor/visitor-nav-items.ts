@@ -2,4 +2,5 @@
 export const visitorNavItems = [
   { href: "/", tr: "Akış", en: "Feed" },
   { href: "/about", tr: "Hakkında", en: "About" },
+  { href: "/favoriler", tr: "Favoriler", en: "Favorites" },
 ] as const;

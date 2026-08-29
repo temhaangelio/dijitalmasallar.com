@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
-import { FavoritesNavButton } from "@/components/features/visitor/favorites-nav-button";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
@@ -37,7 +36,7 @@ export async function VisitorShell({
 
   return (
     <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-6 pb-10 text-ink sm:px-8">
-      {showHeader ? <nav className="visitor-nav flex w-full max-w-[900px] flex-col items-center pb-0 pt-9 text-center sm:pt-14" aria-label={language === "en" ? "Site" : "Site"}>
+      {showHeader ? <nav className="visitor-nav flex w-full max-w-[900px] flex-col items-center pb-4 pt-12 text-center sm:pb-6 sm:pt-16" aria-label={language === "en" ? "Site" : "Site"}>
         <div className="flex w-full max-w-[640px] items-center justify-between">
           <Link
             href={languageHref("/", language)}
@@ -47,17 +46,16 @@ export async function VisitorShell({
             <span className="brand-mark visitor-logo-mark block !size-9 !rounded-[12px]" aria-hidden="true" />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            <FavoritesNavButton language={language} />
             {/* Keep the bell visible when the module is enabled, even if a deployment is missing its
                 VAPID configuration; the button then explains the configuration problem safely. */}
             {settings.modulePush ? <PushNavButton language={language} publicKey={publicKey} /> : null}
             <VisitorMenu language={language} pushPublicKey={publicKey} />
           </div>
         </div>
-        <Link href={languageHref("/", language)} className="mt-5 font-mono text-[22px] font-bold leading-none tracking-[-.03em] text-ink antialiased [text-rendering:geometricPrecision] sm:text-[30px]">
+        <Link href={languageHref("/", language)} className="mt-8 font-mono text-[22px] font-bold leading-none tracking-[-.03em] text-ink antialiased [text-rendering:geometricPrecision] sm:mt-10 sm:text-[30px]">
           {siteName}
         </Link>
-        <p className="visitor-copy visitor-serif mt-4 max-w-[38ch] text-[15px] font-normal leading-[1.5] text-muted sm:text-[19px]">{description}</p>
+        <p className="visitor-copy visitor-serif mt-4 max-w-[48ch] text-[15px] font-normal leading-[1.5] text-muted [text-wrap:balance] sm:text-[19px]">{description}</p>
         <VisitorHeaderNav language={language} />
       </nav> : null}
       {children}
