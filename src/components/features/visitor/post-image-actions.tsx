@@ -5,10 +5,10 @@ import { Bookmark, Share2 } from "lucide-react";
 import { showToast } from "@/components/ui/toast";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 
-const favoritesStorageKey = "diji-news:favorites:v1";
-const favoritesChangedEvent = "diji-news:favorites-change";
+export const favoritesStorageKey = "diji-news:favorites:v1";
+export const favoritesChangedEvent = "diji-news:favorites-change";
 
-function readFavorites() {
+export function readFavorites() {
   try {
     const value = JSON.parse(window.localStorage.getItem(favoritesStorageKey) ?? "[]");
     return new Set(Array.isArray(value) ? value.filter((id): id is string => typeof id === "string") : []);
@@ -17,7 +17,7 @@ function readFavorites() {
   }
 }
 
-function subscribeToFavorites(onStoreChange: () => void) {
+export function subscribeToFavorites(onStoreChange: () => void) {
   window.addEventListener("storage", onStoreChange);
   window.addEventListener(favoritesChangedEvent, onStoreChange);
   return () => {

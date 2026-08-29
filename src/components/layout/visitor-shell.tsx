@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
+import { FavoritesNavButton } from "@/components/features/visitor/favorites-nav-button";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
@@ -46,6 +47,7 @@ export async function VisitorShell({
             <span className="brand-mark visitor-logo-mark block !size-9 !rounded-[12px]" aria-hidden="true" />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
+            <FavoritesNavButton language={language} />
             {/* Keep the bell visible when the module is enabled, even if a deployment is missing its
                 VAPID configuration; the button then explains the configuration problem safely. */}
             {settings.modulePush ? <PushNavButton language={language} publicKey={publicKey} /> : null}

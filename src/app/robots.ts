@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/seo";
 
 const privatePaths = [
+  "/admin/",
   "/dashboard/",
   "/yazilar/",
   "/reklamlar/",
