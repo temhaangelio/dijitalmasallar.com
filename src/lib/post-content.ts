@@ -5,9 +5,46 @@
  */
 
 export type ParsedPostContent = { title: string; excerpt: string; body: string };
+export type ParsedBilingualPaste = { tr: string; en: string; sourceUrl?: string };
 
 const titleLimit = 110;
 const excerptLimit = 180;
+
+function cleanSourceUrl(value: string) {
+  try {
+    const url = new URL(value);
+    for (const key of [...url.searchParams.keys()]) {
+      const normalizedKey = key.toLowerCase();
+      if (normalizedKey === "utc" || normalizedKey.startsWith("utm_")) url.searchParams.delete(key);
+    }
+    return url.toString();
+  } catch {
+    return value;
+  }
+}
+
+/** Splits the compact `TR: … EN: … [source](url)` format used by editorial drafts. */
+export function parseBilingualPostPaste(value: string): ParsedBilingualPaste | null {
+  const normalized = value.replace(/\r\n?/g, "\n").trim();
+  const trMarker = normalized.match(/(?:^|\n)\s*TR:\s*/i);
+  if (!trMarker || trMarker.index === undefined) return null;
+
+  const trStart = trMarker.index + trMarker[0].length;
+  const afterTr = normalized.slice(trStart);
+  const enMarker = afterTr.match(/\bEN:\s*/i);
+  if (!enMarker || enMarker.index === undefined) return null;
+
+  const tr = afterTr.slice(0, enMarker.index).trim();
+  let en = afterTr.slice(enMarker.index + enMarker[0].length).trim();
+  const markdownSource = en.match(/\n*\s*\[[^\]]+\]\((https?:\/\/[^)\s]+)\)\s*(?:↗\s*)?$/i);
+  const plainSource = markdownSource ? null : en.match(/\n*\s*(https?:\/\/[^\s↗]+)\s*(?:↗\s*)?$/i);
+  const sourceMatch = markdownSource ?? plainSource;
+  const sourceUrl = sourceMatch?.[1] ? cleanSourceUrl(sourceMatch[1]) : undefined;
+  if (sourceMatch?.index !== undefined) en = en.slice(0, sourceMatch.index).trim();
+
+  if (!tr || !en) return null;
+  return { tr, en, ...(sourceUrl ? { sourceUrl } : {}) };
+}
 
 export function stripMarkdown(value: string) {
   return value

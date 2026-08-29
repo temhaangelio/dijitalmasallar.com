@@ -45,18 +45,19 @@ async function register() {
 }
 
 /* The sync stamp is written from module scope so the clock is never read while a component renders. */
-function markSynced() {
-  try { localStorage.setItem(syncKey, String(Date.now())); } catch { /* Storage may be unavailable. */ }
+function markSynced(language: VisitorLanguage) {
+  try { localStorage.setItem(syncKey, JSON.stringify({ syncedAt: Date.now(), language })); } catch { /* Storage may be unavailable. */ }
 }
 
 function clearSynced() {
   try { localStorage.removeItem(syncKey); } catch { /* Storage may be unavailable. */ }
 }
 
-function syncedRecently() {
+function syncedRecently(language: VisitorLanguage) {
   try {
-    const last = Number(localStorage.getItem(syncKey) ?? 0);
-    return Number.isFinite(last) && Date.now() - last < syncIntervalMs;
+    const saved = JSON.parse(localStorage.getItem(syncKey) ?? "null") as { syncedAt?: unknown; language?: unknown } | null;
+    const syncedAt = Number(saved?.syncedAt ?? 0);
+    return saved?.language === language && Number.isFinite(syncedAt) && Date.now() - syncedAt < syncIntervalMs;
   } catch {
     return false;
   }
@@ -100,9 +101,9 @@ export function ServiceWorkerRegistrar({ language, publicKey }: { language: Visi
         const subscription = await registration.pushManager.getSubscription();
         if (cancelled || !subscription) return;
 
-        if (syncedRecently()) return;
+        if (syncedRecently(language)) return;
         const result = await subscribeToPushAction(subscription.toJSON(), language);
-        if (result.success) markSynced();
+        if (result.success) markSynced(language);
       } catch {
         // A blocked worker, a private window, or storage that is unavailable: the page works either
         // way, and the reader can still turn notifications on by hand.
@@ -170,7 +171,7 @@ function usePushSubscription(language: VisitorLanguage, publicKey: string) {
         showToast(isEnglish ? "Notifications could not be turned on." : result.message, "error");
         return;
       }
-      markSynced();
+      markSynced(language);
       setSubscribed(true);
       showToast(isEnglish ? "Notifications are on." : "Bildirimler açıldı.", "success");
     } catch {

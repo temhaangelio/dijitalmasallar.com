@@ -1,10 +1,12 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
+import sharp from "sharp";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { parsePostContent } from "@/lib/post-content";
+import { discoverSourceImage } from "@/lib/source-image";
 import { isUuid } from "@/lib/utils";
 import { postSchema } from "@/lib/validations/post";
 import { getPostsPage, type PostPublicationFilter, type PostSort } from "@/services/posts";
@@ -13,6 +15,9 @@ import { notifyNewPost } from "@/services/push";
 const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc"];
 const postStatuses: PostPublicationFilter[] = ["all", "published", "scheduled"];
 const acceptedImages = new Set(["image/jpeg", "image/png", "image/webp"]);
+const maxCoverWidth = 800;
+const maxCoverHeight = 600;
+const coverQuality = 75;
 
 function storagePathFromUrl(value: string | null) {
   if (!value) return null;
@@ -25,9 +30,18 @@ async function uploadCover(access: NonNullable<Awaited<ReturnType<typeof getAuth
   if (!image || image.size === 0) return { url: null, path: null, error: null };
   if (!acceptedImages.has(image.type)) return { url: null, path: null, error: "Görsel JPG, PNG veya WebP olmalı." };
   if (image.size > 5 * 1024 * 1024) return { url: null, path: null, error: "Görsel 5 MB’dan küçük olmalı." };
-  const extension = image.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "webp";
-  const path = `${access.user.id}/${randomUUID()}.${extension}`;
-  const { error } = await access.admin.storage.from("diji-post-media").upload(path, image, { contentType: image.type, upsert: false });
+  let optimized: Buffer;
+  try {
+    optimized = await sharp(Buffer.from(await image.arrayBuffer()))
+      .rotate()
+      .resize({ width: maxCoverWidth, height: maxCoverHeight, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: coverQuality, effort: 4 })
+      .toBuffer();
+  } catch {
+    return { url: null, path: null, error: "Görsel işlenemedi. Başka bir JPG, PNG veya WebP deneyin." };
+  }
+  const path = `${access.user.id}/${randomUUID()}.webp`;
+  const { error } = await access.admin.storage.from("diji-post-media").upload(path, optimized, { contentType: "image/webp", upsert: false });
   if (error) return { url: null, path: null, error: "Kapak görseli yüklenemedi." };
   return { url: access.admin.storage.from("diji-post-media").getPublicUrl(path).data.publicUrl, path, error: null };
 }
@@ -71,12 +85,14 @@ export async function createPostAction(input: unknown, image: File | null = null
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
   const cover = await uploadCover(access, image);
   if (cover.error) return { success: false, message: cover.error };
+  const coverUrl = cover.url ?? await discoverSourceImage(parsed.data.sourceUrl);
   const createdAt = parsed.data.status === "scheduled" ? new Date(parsed.data.scheduledAt!).toISOString() : new Date().toISOString();
   const { data: created, error } = await access.admin.from("posts").insert({
     content_tr: parsed.data.tr.body,
     content_en: parsed.data.en.body,
     source_url: parsed.data.sourceUrl,
-    cover_path: cover.url,
+    cover_path: coverUrl,
+    featured: parsed.data.featured,
     author_id: access.user.id,
     created_at: createdAt,
   }).select("id").single();
@@ -103,6 +119,7 @@ export async function updatePostAction(id: string, input: unknown, image: File |
   const wasScheduled = new Date(current.created_at).getTime() > Date.now();
   const cover = await uploadCover(access, image);
   if (cover.error) return { success: false, message: cover.error };
+  const discoveredCoverUrl = !cover.url && !removeCover && !current.cover_path ? await discoverSourceImage(parsed.data.sourceUrl) : null;
   const createdAt = parsed.data.status === "scheduled"
     ? new Date(parsed.data.scheduledAt!).toISOString()
     : parsed.data.publishedAt
@@ -114,7 +131,8 @@ export async function updatePostAction(id: string, input: unknown, image: File |
     content_tr: parsed.data.tr.body,
     content_en: parsed.data.en.body,
     source_url: parsed.data.sourceUrl,
-    cover_path: cover.url ?? (removeCover ? null : current.cover_path),
+    cover_path: cover.url ?? discoveredCoverUrl ?? (removeCover ? null : current.cover_path),
+    featured: parsed.data.featured,
     created_at: createdAt,
   }).eq("id", current.id);
   if (error) {

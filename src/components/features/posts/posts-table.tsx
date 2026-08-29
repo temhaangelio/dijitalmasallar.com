@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { LoaderCircle, Plus, Trash2 } from "lucide-react";
+import { ImageIcon, LoaderCircle, Plus, Trash2 } from "lucide-react";
 import { deletePostAction, loadMorePostsAction } from "@/app/(dashboard)/yazilar/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
@@ -12,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Table, TableWrap, Td } from "@/components/ui/table";
 import { showToast } from "@/components/ui/toast";
+import { isOptimizableImage } from "@/lib/images";
+import { sourceLabel } from "@/lib/source-label";
 import type { Post } from "@/types/database";
 import type { PostSort } from "@/services/posts";
 
@@ -34,6 +37,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoadingMore, startLoadingMore] = useTransition();
   const [isChangingLanguage, startLanguageChange] = useTransition();
+  const [pendingLanguage, setPendingLanguage] = useState<"tr" | "en" | null>(null);
   const [isSorting, startSorting] = useTransition();
   const [sort, setSort] = useState<PostSort>("newest");
   const [status, setStatus] = useState<PostStatusFilter>("all");
@@ -60,6 +64,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
         setPage(1);
         setLoadError(null);
       }
+      setPendingLanguage(null);
       setIsSearching(false);
     }, query.trim() ? 300 : 0);
     return () => window.clearTimeout(timer);
@@ -78,6 +83,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
     if (nextLanguage === currentLanguage || isChangingLanguage) return;
     setLoadError(null);
     setIsSearching(true);
+    setPendingLanguage(nextLanguage);
     startLanguageChange(() => { setCurrentLanguage(nextLanguage); setSort("newest"); });
   }
 
@@ -118,23 +124,22 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
     <>
       <PostsStatusTabs active={status} total={overallTotal} scheduledTotal={scheduledCount} onChange={(value) => { setIsSearching(true); setStatus(value); }} />
 
-      <div className="card">
+      <div className="card xl:p-5">
         <PostsToolbar
           query={query}
           onQueryChange={(value) => { setIsSearching(true); setQuery(value); }}
           language={currentLanguage}
           onLanguageChange={changeLanguage}
-          languagePending={isChangingLanguage}
+          pendingLanguage={pendingLanguage}
           sort={sort}
           onSortChange={changeSort}
         />
 
         <div className="relative" aria-busy={busy}>
           {busy ? (
-            <div className="absolute inset-0 z-10 grid place-items-center rounded-field bg-surface/75 backdrop-blur-[1px]" role="status">
-              <span className="flex items-center gap-2 text-sm font-semibold text-muted">
-                <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />Yazılar güncelleniyor…
-              </span>
+            <div className="absolute inset-0 z-10 grid place-items-center rounded-field bg-surface/75 backdrop-blur-[1px]" role="status" aria-label="Yazılar güncelleniyor">
+              <LoaderCircle className="size-7 animate-spin text-ink" aria-hidden="true" />
+              <span className="sr-only">Yazılar güncelleniyor…</span>
             </div>
           ) : null}
 
@@ -143,16 +148,30 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
               <Table>
                 <tbody>
                   {posts.map((post) => (
-                    <tr key={post.id} className="transition-colors hover:bg-surface-2">
+                    <tr key={post.id} className="group transition-colors hover:bg-surface-2">
                       <Td className="align-top">
                         <div className="flex items-start gap-3">
-                          <Link href={`/yazilar/${post.id}/duzenle`} className="group min-w-0 flex-1 rounded-sm">
-                            <p className="mb-2 text-xs text-muted tabular-nums">
-                              {new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}
-                            </p>
-                            <MarkdownPreview value={post.body} compact />
+                          <Link href={`/yazilar/${post.id}/duzenle`} className="group/link flex min-w-0 flex-1 items-start gap-3 rounded-sm">
+                            <div className="relative grid aspect-[4/3] w-20 shrink-0 place-items-center overflow-hidden rounded-field border border-line bg-surface-3 text-faint sm:w-24">
+                              {post.cover_path
+                                ? isOptimizableImage(post.cover_path)
+                                  ? <Image src={post.cover_path} alt="" fill sizes="96px" className="object-cover transition-transform duration-300 group-hover/link:scale-[1.03]" />
+                                  // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
+                                  : <img src={post.cover_path} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover/link:scale-[1.03]" />
+                                : <ImageIcon className="size-5" aria-hidden="true" />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="mb-2 flex min-w-0 items-center gap-1.5 text-xs text-muted">
+                                <span className="shrink-0 tabular-nums">{new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}</span>
+                                <span aria-hidden="true">·</span>
+                                <span className="truncate" title={sourceLabel(null, post.source_url, "Kaynak yok")}>{sourceLabel(null, post.source_url, "Kaynak yok")}</span>
+                              </p>
+                              <div className="max-h-14 overflow-hidden">
+                                <MarkdownPreview value={post.body} compact />
+                              </div>
+                            </div>
                           </Link>
-                          <button type="button" onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} className="grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-danger-surface hover:text-danger">
+                          <button type="button" onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} className="grid size-9 shrink-0 place-items-center rounded-full text-muted opacity-100 transition-[color,background-color,opacity] hover:bg-danger-surface hover:text-danger focus-visible:opacity-100 sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
                             <Trash2 className="size-4" aria-hidden="true" />
                           </button>
                         </div>

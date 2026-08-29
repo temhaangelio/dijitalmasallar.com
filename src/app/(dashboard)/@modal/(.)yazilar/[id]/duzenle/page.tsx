@@ -1,17 +1,16 @@
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/layout/app-shell";
-import { PageHeader } from "@/components/layout/page-header";
 import { PostForm } from "@/components/features/posts/post-form";
+import { PostFormModal } from "@/components/features/posts/post-form-modal";
 import { getPostTranslationsById } from "@/services/posts";
 
-export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditPostModal({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const posts = await getPostTranslationsById(id);
   if (!posts) notFound();
+
   return (
-    <AppShell active="/yazilar">
-      <PageHeader title="Yazıyı düzenle" />
+    <PostFormModal title="Yazıyı düzenle">
       <PostForm posts={posts} />
-    </AppShell>
+    </PostFormModal>
   );
 }

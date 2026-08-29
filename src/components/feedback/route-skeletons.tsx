@@ -28,10 +28,10 @@ function Field({ height = "h-12" }: { height?: string }) {
 
 export function RssPageLoading() {
   return (
-    <ShellSkeleton active="/rss">
-      <div role="status" aria-label="RSS kaynakları yükleniyor">
-        <PageHeaderSkeleton />
-        <div className="grid items-start gap-5 lg:grid-cols-[340px_minmax(0,1fr)]">
+    <main className="admin-page min-h-dvh px-4 py-5 sm:px-6 sm:py-7 lg:px-10">
+      <div className="mx-auto w-full max-w-[1600px]" role="status" aria-label="RSS kaynakları yükleniyor">
+        <PageHeaderSkeleton actionWidth="w-64" />
+        <div className="grid items-start gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
           <div className="card space-y-5">
             <Skeleton className="h-7 w-32" />
             <Skeleton className="h-12 w-full rounded-field" />
@@ -59,7 +59,7 @@ export function RssPageLoading() {
           </div>
         </div>
       </div>
-    </ShellSkeleton>
+    </main>
   );
 }
 
@@ -70,29 +70,29 @@ export function DashboardLoading() {
     <ShellSkeleton active="/dashboard">
       <div role="status" aria-label="Panel yükleniyor">
         <PageHeaderSkeleton actionWidth="w-36" />
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-12">
-          <div className="card min-h-[300px] xl:col-span-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:h-[calc(100dvh-130px)] xl:grid-cols-12 xl:grid-rows-2">
+          <div className="card min-h-[300px] xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-full" />
             <div className="mt-7 grid grid-cols-7 gap-3">
               {Array.from({ length: 28 }, (_, index) => <Skeleton key={index} className="size-[13px] rounded-full" />)}
             </div>
             <Skeleton className="mt-8 h-4 w-3/4" />
           </div>
-          <div className="card min-h-[300px] xl:col-span-8">
+          <div className="card min-h-[300px] xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-40" />
             <div className="mt-6 space-y-4">
-              {[0, 1, 2, 3].map((index) => (
+              {[0, 1, 2].map((index) => (
                 <div key={index}><Skeleton className="h-4 w-4/5" /><Skeleton className="mt-2 h-3 w-1/3" /></div>
               ))}
             </div>
           </div>
-          <div className="card xl:col-span-5">
+          <div className="card xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-40" />
             <div className="mt-6 grid grid-cols-7 gap-y-4">
               {Array.from({ length: 35 }, (_, index) => <Skeleton key={index} className="mx-auto size-8 rounded-full" />)}
             </div>
           </div>
-          <div className="card xl:col-span-7">
+          <div className="card xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-40" />
             <Skeleton className="mt-4 h-10 w-32" />
             <div className="mt-8 flex h-24 items-end gap-2">
@@ -114,8 +114,8 @@ export function PostsPageLoading() {
     <ShellSkeleton active="/yazilar">
       <div className="mx-auto w-full max-w-[1600px]" role="status" aria-label="Yazılar yükleniyor">
         <PageHeaderSkeleton actionWidth="w-36" />
-        <StatCardsSkeleton count={3} className="mb-5 grid grid-cols-2 gap-5 sm:grid-cols-3" />
-        <div className="card">
+        <StatCardsSkeleton count={3} className="mb-5 grid grid-cols-2 gap-5 sm:grid-cols-3 xl:mb-4 xl:gap-4 [&>div]:xl:h-24 [&>div]:xl:p-5" />
+        <div className="card xl:p-5">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <Skeleton className="h-12 w-full max-w-md rounded-field" />
             <div className="flex flex-wrap gap-2">
@@ -124,7 +124,7 @@ export function PostsPageLoading() {
               <Skeleton className="h-10 w-36 rounded-full" />
             </div>
           </div>
-          <TableRowsSkeleton rows={5} withBody />
+          <TableRowsSkeleton rows={3} withBody />
           <div className="mt-5 flex justify-center border-t border-line pt-5"><Skeleton className="h-4 w-40" /></div>
         </div>
       </div>
@@ -139,33 +139,35 @@ export function AnalyticsPageLoading() {
     <ShellSkeleton active="/istatistik">
       <div role="status" aria-label="İstatistikler yükleniyor">
         <PageHeaderSkeleton />
-        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between xl:mb-4">
           <Skeleton className="h-5 w-80 max-w-full" />
-          <div className="flex gap-2"><Skeleton className="h-9 w-20 rounded-full" /><Skeleton className="h-9 w-20 rounded-full" /></div>
+          <div className="flex gap-2">
+            {[0, 1, 2, 3].map((index) => <Skeleton key={index} className="h-9 w-16 rounded-full" />)}
+          </div>
         </div>
-        <StatCardsSkeleton count={4} className="grid grid-cols-2 gap-5 lg:grid-cols-4" />
-        <div className="mt-5 grid gap-5 xl:grid-cols-12">
-          <div className="card xl:col-span-8">
+        <StatCardsSkeleton count={4} className="grid grid-cols-2 gap-5 lg:grid-cols-4 [&>div]:xl:h-24 [&>div]:xl:p-5" />
+        <div className="mt-5 grid gap-5 xl:mt-4 xl:h-[calc(100dvh-298px)] xl:grid-cols-12 xl:grid-rows-2 xl:gap-4">
+          <div className="card xl:col-span-8 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-48" />
-            <div className="mt-8 flex h-[270px] items-end gap-1.5">
+            <div className="mt-8 flex h-[270px] items-end gap-1.5 xl:mt-4 xl:h-[140px]">
               {[55, 72, 40, 88, 61, 35, 79, 50, 66, 44, 82, 58].map((height, index) => (
                 <Skeleton key={index} className="flex-1 rounded-t" style={{ height: `${height}%` }} />
               ))}
             </div>
           </div>
-          <div className="card xl:col-span-4">
+          <div className="card xl:col-span-4 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-40" />
-            <div className="mt-7 space-y-5">
-              {[0, 1, 2, 3, 4].map((index) => (
+            <div className="mt-4 space-y-2">
+              {[0, 1, 2].map((index) => (
                 <div key={index}><Skeleton className="mb-2 h-4 w-full" /><Skeleton className="h-2 w-full rounded-full" /></div>
               ))}
             </div>
           </div>
-          <div className="card xl:col-span-8"><Skeleton className="h-7 w-56" /><TableRowsSkeleton rows={5} /></div>
-          <div className="card xl:col-span-4">
+          <div className="card xl:col-span-8 xl:min-h-0 xl:overflow-hidden xl:p-5"><Skeleton className="h-7 w-56" /><TableRowsSkeleton rows={3} /></div>
+          <div className="card xl:col-span-4 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-40" />
-            <div className="mt-7 space-y-5">
-              {[0, 1, 2, 3, 4].map((index) => <Skeleton key={index} className="h-5 w-full" />)}
+            <div className="mt-4 space-y-2">
+              {[0, 1, 2].map((index) => <Skeleton key={index} className="h-5 w-full" />)}
             </div>
           </div>
         </div>

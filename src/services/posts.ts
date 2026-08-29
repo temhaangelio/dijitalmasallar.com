@@ -25,6 +25,7 @@ function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
     status: scheduled ? "scheduled" : "published",
     cover_path: row.cover_path,
     source_url: row.source_url,
+    featured: row.featured,
     published_at: scheduled ? null : row.created_at,
     scheduled_at: scheduled ? row.created_at : null,
     reads: 0,
@@ -247,7 +248,7 @@ export async function getDashboardPostStats(): Promise<DashboardPostStats> {
       access.admin.from("posts").select("id", { count: "exact", head: true }).gte("created_at", isoAtIstanbulMidnight(weekStartDay)).lte("created_at", nowIso),
       access.admin.from("posts").select("created_at").gte("created_at", monthStart).lte("created_at", nowIso),
       access.admin.from("posts").select(postColumns).gt("created_at", nowIso).lt("created_at", nextMonthStart).order("created_at").limit(20),
-      access.admin.from("posts").select(postColumns).order("created_at", { ascending: false }).limit(4),
+      access.admin.from("posts").select(postColumns).order("created_at", { ascending: false }).limit(3),
     ]);
     if (totalResult.error || weekResult.error || monthResult.error || scheduledResult.error || recentResult.error) return empty;
     const monthDates = monthResult.data ?? [];

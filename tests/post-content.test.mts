@@ -1,6 +1,45 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { parsePostContent, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
+import { parseBilingualPostPaste, parsePostContent, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
+
+describe("parseBilingualPostPaste", () => {
+  test("splits Turkish, English and a Markdown source link", () => {
+    const parsed = parseBilingualPostPaste("TR: Türkçe **metin** burada.\nEN: English **copy** here.\n[Kaynak ↗](https://example.com/news)");
+    assert.deepEqual(parsed, {
+      tr: "Türkçe **metin** burada.",
+      en: "English **copy** here.",
+      sourceUrl: "https://example.com/news",
+    });
+  });
+
+  test("accepts multiline sections and a plain source URL", () => {
+    const parsed = parseBilingualPostPaste("TR:\nBirinci satır.\nİkinci satır.\nEN:\nFirst line.\nSecond line.\nhttps://example.com/post");
+    assert.equal(parsed?.tr, "Birinci satır.\nİkinci satır.");
+    assert.equal(parsed?.en, "First line.\nSecond line.");
+    assert.equal(parsed?.sourceUrl, "https://example.com/post");
+  });
+
+  test("extracts an adjacent Markdown source and trailing arrow", () => {
+    const parsed = parseBilingualPostPaste(
+      "TR: Anthropic, MHS araştırma önizlemesini açtı.Standart cihazların birlikte yönetilmesini sağlıyor.EN: Anthropic opened the MHS research preview.It lets agents coordinate equipment.[https://www.anthropic.com/news/model-hardware-standard-research-preview](https://www.anthropic.com/news/model-hardware-standard-research-preview) ↗",
+    );
+    assert.equal(parsed?.tr, "Anthropic, MHS araştırma önizlemesini açtı.Standart cihazların birlikte yönetilmesini sağlıyor.");
+    assert.equal(parsed?.en, "Anthropic opened the MHS research preview.It lets agents coordinate equipment.");
+    assert.equal(parsed?.sourceUrl, "https://www.anthropic.com/news/model-hardware-standard-research-preview");
+  });
+
+  test("removes utc and utm tracking parameters from the source", () => {
+    const parsed = parseBilingualPostPaste(
+      "TR: Türkçe içerik burada. EN: English content here. https://example.com/news?id=42&utm_source=chatgpt&utc=3&utm_campaign=technology",
+    );
+    assert.equal(parsed?.sourceUrl, "https://example.com/news?id=42");
+  });
+
+  test("rejects text without both language markers", () => {
+    assert.equal(parseBilingualPostPaste("Yalnızca sıradan bir metin."), null);
+    assert.equal(parseBilingualPostPaste("TR: Yalnızca Türkçe."), null);
+  });
+});
 
 describe("stripMarkdown", () => {
   test("drops images and unwraps links", () => {

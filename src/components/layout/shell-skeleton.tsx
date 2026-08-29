@@ -21,7 +21,7 @@ const items = [
  */
 export function ShellSkeleton({ active, children }: { active: string; children: React.ReactNode }) {
   return (
-    <div className="shell">
+    <div className="shell admin-page">
       <aside className="sidebar" aria-hidden="true">
         <div className="flex items-center gap-3">
           {/* The real brand mark is the one solid, fully-coloured thing on an otherwise grey page,
@@ -31,7 +31,7 @@ export function ShellSkeleton({ active, children }: { active: string; children: 
         </div>
         <nav className="flex flex-col gap-1">
           {items.map(([label, href, Icon]) => (
-            <div key={href} className={`sidebar-item text-[15px] ${active === href ? "bg-ink font-semibold text-white" : "font-medium text-ink-2"}`}>
+            <div key={href} className={`sidebar-item text-[15px] ${active === href ? "bg-ink font-semibold text-ink-contrast" : "font-medium text-ink-2"}`}>
               <Icon size={18} className="shrink-0" />
               <span className="sidebar-expanded-only">{label}</span>
             </div>

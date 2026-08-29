@@ -20,6 +20,7 @@ export function RssDialog({
   busy = false,
   initialFocusRef,
   panelClassName = "",
+  hideIdentity = false,
   children,
 }: {
   title: string;
@@ -27,6 +28,7 @@ export function RssDialog({
   busy?: boolean;
   initialFocusRef?: RefObject<HTMLElement | null>;
   panelClassName?: string;
+  hideIdentity?: boolean;
   children: ReactNode;
 }) {
   const titleId = useId();
@@ -63,17 +65,18 @@ export function RssDialog({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-label={hideIdentity ? title : undefined}
+        aria-labelledby={hideIdentity ? undefined : titleId}
         className={`w-full max-w-[520px] rounded-card bg-white p-6 shadow-modal sm:p-7 ${panelClassName}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-5">
-          <span className="brand-mark !size-11 shrink-0" aria-hidden="true" />
+        <div className={`flex items-start gap-5 ${hideIdentity ? "justify-end" : "justify-between"}`}>
+          {!hideIdentity ? <span className="brand-mark !size-11 shrink-0" aria-hidden="true" /> : null}
           <button type="button" disabled={busy} aria-label="Pencereyi kapat" onClick={onClose} className="grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink disabled:opacity-50">
             <X size={18} />
           </button>
         </div>
-        <h2 id={titleId} className="mt-5 text-[26px] font-bold leading-tight tracking-[-.04em]">{title}</h2>
+        {!hideIdentity ? <h2 id={titleId} className="mt-5 text-[26px] font-bold leading-tight tracking-[-.04em]">{title}</h2> : null}
         {children}
       </div>
     </div>,

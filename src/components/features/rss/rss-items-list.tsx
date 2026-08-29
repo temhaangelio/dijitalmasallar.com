@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition, type KeyboardEvent, type MouseEvent } from "react";
-import { ArrowDown, ArrowUpRight, CheckCheck, Circle, CircleCheck, RefreshCw } from "lucide-react";
+import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from "react";
+import { ArrowDown, ArrowUpRight, CheckCheck, Circle, CircleCheck, FileText, RefreshCw } from "lucide-react";
 import { markAllReadAction, refreshFeedsAction, toggleItemReadAction } from "@/app/(dashboard)/rss/actions";
 import { EmptyState } from "@/components/feedback/states";
-import { RssDialog } from "@/components/features/rss/rss-dialog";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/components/ui/toast";
 import type { RssItem } from "@/services/rss";
@@ -48,8 +47,6 @@ export function RssItemsList({
    */
   const [readOverrides, setReadOverrides] = useState<Record<string, boolean>>({});
   const [visibleCount, setVisibleCount] = useState(itemPageSize);
-  const [sourceItem, setSourceItem] = useState<RssItem | null>(null);
-  const sourceExternalRef = useRef<HTMLAnchorElement>(null);
   const shownItems = items.map((item) => (item.id in readOverrides ? { ...item, read: readOverrides[item.id] } : item));
   const visibleItems = shownItems.slice(0, visibleCount);
 
@@ -129,24 +126,6 @@ export function RssItemsList({
     }
   }
 
-  /**
-   * A plain left click selects the headline instead of leaving the page — clicking is how you put
-   * the cursor somewhere before arrowing on from it, and opening the source on the way defeats that.
-   *
-   * It stays an `<a href>` rather than becoming a button, so everything a link can do still works:
-   * `event.detail === 0` marks a keyboard activation and is allowed through, so Enter opens, and
-   * modified clicks are left alone so Cmd/Ctrl-click, middle-click and "copy link" behave normally.
-   */
-  function selectInsteadOfOpening(event: MouseEvent<HTMLAnchorElement>, item: RssItem) {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    if (event.detail === 0) {
-      setSourceItem(item);
-      return;
-    }
-    event.currentTarget.focus();
-  }
-
   const filterHref = (unread: boolean) => {
     const params = new URLSearchParams();
     if (activeFeedId) params.set("feed", activeFeedId);
@@ -159,8 +138,8 @@ export function RssItemsList({
     `min-w-0 flex-1 truncate text-[17px] leading-[1.45] tracking-[-.015em] ${read ? "font-medium text-muted" : "font-semibold text-ink"}`;
 
   return (
-    <div className="grid items-start gap-5 xl:grid-cols-[minmax(460px,1.2fr)_minmax(320px,.8fr)]">
-      <div className="card">
+    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,.8fr)] xl:h-full xl:min-h-0 xl:items-stretch">
+      <div className="card xl:flex xl:min-h-0 xl:flex-col xl:overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div role="tablist" aria-label="İçerik filtresi" className="flex gap-1 rounded-full bg-surface-2 p-1">
             {[{ label: "Okunmamış", unread: true }, { label: "Tümü", unread: false }].map((tab) => {
@@ -191,19 +170,15 @@ export function RssItemsList({
 
         {shownItems.length ? (
           <>
-            {/* Clicking no longer opens anything, so the list says what it does instead of leaving it
-                to be discovered. */}
             <p className="mt-4 hidden flex-wrap items-center gap-x-3 gap-y-1 text-[12px] font-medium text-faint sm:flex">
               <span><kbd className="font-sans">↑</kbd> <kbd className="font-sans">↓</kbd> gez</span>
-              <span aria-hidden="true">·</span>
-              <span><kbd className="font-sans">Enter</kbd> önizlemeyi aç</span>
               <span aria-hidden="true">·</span>
               <span><kbd className="font-sans">m</kbd> okundu/okunmadı</span>
               <span aria-hidden="true">·</span>
               <span>üstüne geldiğin başlık okundu sayılır</span>
             </p>
 
-            <ul id="rss-items" ref={listRef} onKeyDown={onListKeyDown} className="mt-2 divide-y divide-line">
+            <ul id="rss-items" ref={listRef} onKeyDown={onListKeyDown} className="mt-2 divide-y divide-line xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
               {visibleItems.map((item) => (
                 <li
                   key={item.id}
@@ -225,18 +200,15 @@ export function RssItemsList({
                   </button>
 
                   {item.link ? (
-                    <a
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
                       data-rss-title
                       tabIndex={item.id === activeId ? 0 : -1}
                       onFocus={() => onRowFocus(item)}
-                      onClick={(event) => selectInsteadOfOpening(event, item)}
-                      className={titleClass(item.read)}
+                      className={`${titleClass(item.read)} text-left`}
                     >
                       {item.title}
-                    </a>
+                    </button>
                   ) : (
                     <span data-rss-title tabIndex={item.id === activeId ? 0 : -1} onFocus={() => onRowFocus(item)} className={titleClass(item.read)}>
                       {item.title}
@@ -245,16 +217,17 @@ export function RssItemsList({
 
                   {/* With a click no longer opening the source, the mouse needs a way in of its own. */}
                   {item.link && (
-                    <button
-                      type="button"
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       tabIndex={-1}
-                      onClick={() => setSourceItem(item)}
-                      aria-label={`“${item.title}” kaynağını modalda aç`}
-                      title="Kaynağı modalda aç"
+                      aria-label={`“${item.title}” kaynağını yeni sekmede aç`}
+                      title="Kaynağı yeni sekmede aç"
                       className="grid size-8 shrink-0 place-items-center rounded-full text-muted opacity-0 transition-opacity hover:bg-surface-3 hover:text-ink group-focus-within:opacity-100 group-hover:opacity-100"
                     >
                       <ArrowUpRight className="size-[18px]" aria-hidden="true" />
-                    </button>
+                    </a>
                   )}
                 </li>
               ))}
@@ -282,10 +255,9 @@ export function RssItemsList({
         )}
       </div>
 
-      {selectedItem && (
-        <aside className="card xl:sticky xl:top-4" aria-labelledby="rss-item-summary-title">
-          <p className="text-[12px] font-bold uppercase tracking-[.12em] text-faint">Haber açıklaması</p>
-          <h2 id="rss-item-summary-title" className="mt-3 text-[24px] font-bold leading-[1.25] tracking-[-.035em] text-ink">
+      {selectedItem ? (
+        <aside className="card lg:sticky lg:top-4 xl:h-full xl:overflow-y-auto" aria-labelledby="rss-item-summary-title">
+          <h2 id="rss-item-summary-title" className="text-[24px] font-bold leading-[1.25] tracking-[-.035em] text-ink">
             {selectedItem.title}
           </h2>
 
@@ -300,45 +272,26 @@ export function RssItemsList({
           </p>
 
           {selectedItem.link && (
-            <button
-              type="button"
-              onClick={() => setSourceItem(selectedItem)}
+            <a
+              href={selectedItem.link}
+              target="_blank"
+              rel="noopener noreferrer"
               className="mt-7 inline-flex min-h-10 items-center gap-2 rounded-full bg-ink px-4 text-[13px] font-semibold text-white transition-opacity hover:opacity-80"
             >
               Haberi kaynağında aç <ArrowUpRight className="size-4" aria-hidden="true" />
-            </button>
+            </a>
           )}
         </aside>
-      )}
-
-      {sourceItem && (
-        <RssDialog
-          title={sourceItem.title}
-          onClose={() => setSourceItem(null)}
-          initialFocusRef={sourceExternalRef}
-          panelClassName="!max-w-[1440px]"
-        >
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-            <p className="min-w-0 truncate text-[13px] font-medium text-muted">{sourceItem.feedTitle}</p>
-            <a
-              ref={sourceExternalRef}
-              href={sourceItem.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-full bg-ink px-4 text-[13px] font-semibold text-white transition-opacity hover:opacity-80"
-            >
-              Yeni sekmede aç <ArrowUpRight className="size-4" aria-hidden="true" />
-            </a>
+      ) : (
+        <aside className="card grid min-h-56 place-items-center border-dashed lg:sticky lg:top-4 xl:h-full" aria-label="Haber önizlemesi">
+          <div className="max-w-xs text-center">
+            <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-surface-2 text-muted">
+              <FileText className="size-5" aria-hidden="true" />
+            </span>
+            <h2 className="mt-4 text-[17px] font-semibold text-ink">Haber önizlemesi</h2>
+            <p className="mt-1.5 text-[13px] leading-5 text-muted">Listeden bir haber seçtiğinizde içeriği burada görüntülenir.</p>
           </div>
-          <iframe
-            src={sourceItem.link}
-            title={`${sourceItem.title} kaynağı`}
-            loading="eager"
-            referrerPolicy="no-referrer"
-            sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-            className="mt-4 h-[65dvh] w-full rounded-panel border border-line bg-white"
-          />
-        </RssDialog>
+        </aside>
       )}
     </div>
   );

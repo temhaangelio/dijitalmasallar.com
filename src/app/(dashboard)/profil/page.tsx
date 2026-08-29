@@ -24,7 +24,7 @@ export default async function ProfilePage() {
 
   return (
     <AppShell active="/profil">
-      <PageHeader title="Profil" note="Hesap bilgileriniz ve oturum ayarlarınız" />
+      <PageHeader title="Profil" />
       <div className="grid gap-5 xl:grid-cols-12">
         <Card className="xl:col-span-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">

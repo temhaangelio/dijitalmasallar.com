@@ -9,7 +9,7 @@ import { getBilingualPostsPage, getScheduledPostCount } from "@/services/posts";
 export default async function PostsPage({ searchParams }: { searchParams: Promise<{ dil?: string }> }) {
   const params = await searchParams;
   const language = params.dil === "en" ? "en" : "tr";
-  const pageSize = 10;
+  const pageSize = 3;
   const [{ tr: turkish, en: english }, scheduledTotal] = await Promise.all([getBilingualPostsPage(1, pageSize), getScheduledPostCount()]);
   const result = language === "en" ? english : turkish;
 
@@ -18,7 +18,6 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
       <div className="mx-auto w-full max-w-[1600px]">
       <PageHeader
         title="Yazılar"
-        note={`${result.total.toLocaleString("tr-TR")} yazı`}
         actions={<Link href="/yazilar/yeni" className={buttonVariants()}>Yeni yazı <ArrowRight className="size-4" aria-hidden="true" /></Link>}
       />
       <PostsTable

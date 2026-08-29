@@ -1,7 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PostImageActions } from "@/components/features/visitor/post-image-actions";
 import { sourceLabel } from "@/lib/source-label";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
+import { isOptimizableImage } from "@/lib/images";
 import type { Post } from "@/types/database";
 
 /** The note as it appears in the editorial feed. */
@@ -28,47 +31,71 @@ function highlightMatches(text: string, term: string, keyPrefix: string): ReactN
 }
 
 /**
- * The note body as the list shows it: markdown stripped down to running text, with the two inline
- * marks that survive — `~~strike~~` and `==highlight==` — kept as real elements.
+ * Renders the compact set of inline Markdown supported by the editor. Calling the function again
+ * for matched content also preserves combinations such as `**_bold italic_**`.
  */
+function renderFeedInline(content: string, highlight: string | undefined, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  const pattern = /\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|==([^=]+)==|_([^_\n]+)_|\*([^*\n]+)\*/g;
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+  const plain = (text: string, key: string): ReactNode | ReactNode[] => (highlight ? highlightMatches(text, highlight, key) : text);
+  while ((match = pattern.exec(content)) !== null) {
+    if (match.index > cursor) nodes.push(plain(content.slice(cursor, match.index), `${keyPrefix}-plain-${match.index}`));
+    const inner = match[1] ?? match[2] ?? match[3] ?? match[4] ?? match[5] ?? match[6] ?? "";
+    const children = renderFeedInline(inner, highlight, `${keyPrefix}-${match.index}`);
+    if (match[1] || match[2]) nodes.push(<strong key={`${keyPrefix}-strong-${match.index}`} className="font-semibold">{children}</strong>);
+    else if (match[3]) nodes.push(<del key={`${keyPrefix}-strike-${match.index}`}>{children}</del>);
+    else if (match[4]) nodes.push(<mark key={`${keyPrefix}-highlight-${match.index}`} className="visitor-highlight rounded-[3px] px-1 py-0.5 text-inherit">{children}</mark>);
+    else nodes.push(<em key={`${keyPrefix}-italic-${match.index}`}>{children}</em>);
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < content.length) nodes.push(plain(content.slice(cursor), `${keyPrefix}-tail-${cursor}`));
+  return nodes.length ? nodes : [plain(content, "only")];
+}
+
+/** The note body as the list shows it, with paragraph breaks and inline emphasis preserved. */
 export function feedContent(post: Post, highlight?: string): ReactNode[] {
   const withoutHeading = post.body.replace(/^#\s+[^\n]+\n+/i, "");
   const content = withoutHeading
     .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")
-    .replace(/[*_`]/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/`/g, "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[^\S\n]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim() || post.excerpt;
-  const nodes: ReactNode[] = [];
-  const pattern = /~~([^~]+)~~|==([^=]+)==/g;
-  let cursor = 0;
-  let match: RegExpExecArray | null;
-  const plain = (text: string, key: string): ReactNode | ReactNode[] => (highlight ? highlightMatches(text, highlight, key) : text);
-  while ((match = pattern.exec(content)) !== null) {
-    if (match.index > cursor) nodes.push(plain(content.slice(cursor, match.index), `lead-${match.index}`));
-    if (match[1]) nodes.push(<del key={`strike-${match.index}`}>{match[1]}</del>);
-    else nodes.push(<mark key={`highlight-${match.index}`} className="visitor-highlight rounded-[3px] px-1 py-0.5 text-inherit">{match[2]}</mark>);
-    cursor = match.index + match[0].length;
-  }
-  if (cursor < content.length) nodes.push(plain(content.slice(cursor), `tail-${cursor}`));
-  return nodes.length ? nodes : [plain(content, "only")];
+  return renderFeedInline(content, highlight, "feed");
 }
 
 export function NoteCard({ post, language, highlight }: { post: Post; language: VisitorLanguage; highlight?: string }) {
   const displayedSource = sourceLabel(null, post.source_url, language === "en" ? "Source" : "Kaynak");
+  const postHref = languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en");
   return (
-    <article className="visitor-card group relative rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
-      <Link
-        href={languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en")}
-        className="visitor-copy visitor-serif block text-[18px] font-normal leading-[1.52] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[21px] sm:leading-[1.5]"
-      >
-        {feedContent(post, highlight)}
-      </Link>
-      <div className="mt-2.5 flex min-w-0 items-center justify-end font-mono text-[11px] font-normal leading-[1.6]">
-        {post.source_url
-          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 inline-block max-w-full min-w-0 truncate border-b border-line text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource} ↗</a>
-          : <span title={displayedSource} className="visitor-source min-w-0 truncate text-faint">{displayedSource}</span>}
+    <article className="visitor-card group relative overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 shadow-[0_1px_2px_rgba(0,0,0,.018)]">
+      {post.cover_path && (
+        <div className="relative aspect-[20/7] w-full bg-surface-3">
+          {isOptimizableImage(post.cover_path)
+            ? <Image src={post.cover_path} alt="" fill sizes="(max-width: 767px) 100vw, 640px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
+            // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
+            : <img src={post.cover_path} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
+          <PostImageActions postId={post.id} href={postHref} title={post.title} language={language} />
+        </div>
+      )}
+      <div className="min-w-0 flex-1 px-5 py-4 sm:px-6 sm:py-5">
+        <Link
+          href={postHref}
+          className="visitor-copy visitor-serif block whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[21px] sm:leading-[1.5]"
+        >
+          {feedContent(post, highlight)}
+        </Link>
+        <div className="mt-2.5 flex min-w-0 items-center justify-end font-mono text-[11px] font-normal leading-[1.6]">
+          {post.source_url
+            ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 inline-block max-w-full min-w-0 truncate border-b border-line text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource} ↗</a>
+            : <span title={displayedSource} className="visitor-source min-w-0 truncate text-faint">{displayedSource}</span>}
+        </div>
       </div>
     </article>
   );

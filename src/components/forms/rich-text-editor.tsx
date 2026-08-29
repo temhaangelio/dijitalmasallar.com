@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bold, Eraser, Heading1, Heading2, Highlighter, Italic, Link2, Maximize2, Minimize2, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean };
+type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean; onPasteText?: (value: string) => string | false };
 type ToolButtonProps = { label: string; shortcut?: string; onPress: () => void; children: React.ReactNode };
 
 function ToolButton({ label, shortcut, onPress, children }: ToolButtonProps) {
@@ -56,7 +56,7 @@ function nodeToMarkdown(node: Node): string {
 
 function editorToMarkdown(editor: HTMLElement) { return Array.from(editor.childNodes).map(nodeToMarkdown).join("").replace(/\n{3,}/g, "\n\n").trim(); }
 
-export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar = true }: RichTextEditorProps) {
+export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar = true, onPasteText }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -85,7 +85,17 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
     if (key === "i") { event.preventDefault(); command("italic"); }
     if (key === "k") { event.preventDefault(); addLink(); }
   }
-  function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) { event.preventDefault(); document.execCommand("insertText", false, event.clipboardData.getData("text/plain")); syncValue(); }
+  function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const text = event.clipboardData.getData("text/plain");
+    const replacement = onPasteText?.(text);
+    if (replacement !== undefined && replacement !== false) {
+      if (editorRef.current) editorRef.current.innerHTML = markdownToHtml(replacement);
+      return;
+    }
+    document.execCommand("insertText", false, text);
+    syncValue();
+  }
 
   return (
     <div className={cn("relative overflow-hidden rounded-field border border-transparent bg-surface-2 transition focus-within:border-ink focus-within:bg-white", fullscreen && "fixed inset-0 z-[200] rounded-none border-0 bg-white") }>

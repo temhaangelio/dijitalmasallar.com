@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { RssAddFeedButton } from "@/components/features/rss/rss-add-feed-dialog";
 import { RssReaderLayout } from "@/components/features/rss/rss-reader-layout";
+import { buttonVariants } from "@/components/ui/button";
 import { isRssReaderAvailable } from "@/lib/rss/availability";
 import { listFeeds, listItems } from "@/services/rss";
 import { getSiteSettings } from "@/services/settings";
@@ -22,8 +23,6 @@ function lastFetchNote(value: string | null) {
 
 export default async function RssPage({ searchParams }: { searchParams: Promise<{ feed?: string; filter?: string }> }) {
   const [params, settings] = await Promise.all([searchParams, getSiteSettings()]);
-  // AppShell used to enforce this while also rendering the dashboard sidebar. Keep the gate even
-  // though the reader now has its own full-page shell.
   if (!settings.moduleRss || !isRssReaderAvailable()) redirect("/dashboard");
 
   const feeds = listFeeds();
@@ -37,36 +36,25 @@ export default async function RssPage({ searchParams }: { searchParams: Promise<
   const lastFetchedAt = feeds.reduce<string | null>((latest, feed) => (feed.lastFetchedAt && (!latest || feed.lastFetchedAt > latest) ? feed.lastFetchedAt : latest), null);
 
   return (
-    <main className="min-h-dvh bg-ink/10 p-2 sm:p-4">
-      <section
-        aria-labelledby="rss-reader-title"
-        className="mx-auto min-h-[calc(100dvh-1rem)] max-w-[1920px] overflow-clip rounded-[24px] bg-canvas shadow-[0_24px_80px_rgba(0,0,0,.18)] sm:min-h-[calc(100dvh-2rem)] sm:rounded-[30px]"
-      >
-        <header className="flex items-center justify-between gap-5 border-b border-line px-5 py-4 sm:px-7 lg:px-9">
-          <div className="min-w-0">
-            <h1 id="rss-reader-title" className="text-[28px] font-bold leading-none tracking-[-.045em] text-ink">RSS</h1>
-            <p className="mt-1.5 truncate text-[14px] font-medium text-muted">
-              {feeds.length} kaynak · {unreadTotal} okunmamış · {lastFetchNote(lastFetchedAt)}
-            </p>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2">
-            <RssAddFeedButton />
-            <Link
-              href="/dashboard"
-              aria-label="RSS okuyucuyu kapat"
-              title="Kapat"
-              className="grid size-10 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-            >
-              <X className="size-5" aria-hidden="true" />
+    <main className="admin-page min-h-dvh px-4 py-5 sm:px-6 sm:py-7 lg:px-10 xl:h-dvh xl:overflow-hidden">
+      <div className="mx-auto w-full max-w-[1600px] xl:flex xl:h-full xl:flex-col">
+        <header className="grid gap-3 pb-5 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+          <div className="justify-self-start">
+            <Link href="/dashboard" className={buttonVariants({ variant: "outline" })}>
+              <ArrowLeft className="size-4" aria-hidden="true" />
+              Panele geri dön
             </Link>
           </div>
+          <div className="text-center">
+            <h1 className="page-title">RSS</h1>
+            <p className="page-note">{feeds.length} kaynak · {unreadTotal} okunmamış · {lastFetchNote(lastFetchedAt)}</p>
+          </div>
+          <div className="justify-self-start sm:justify-self-end">
+            <RssAddFeedButton />
+          </div>
         </header>
-
-        <div className="p-4 sm:p-6 lg:p-8">
-          <RssReaderLayout feeds={feeds} items={items} activeFeedId={activeFeedId} unreadOnly={unreadOnly} unreadTotal={unreadTotal} />
-        </div>
-      </section>
+        <RssReaderLayout feeds={feeds} items={items} activeFeedId={activeFeedId} unreadOnly={unreadOnly} unreadTotal={unreadTotal} />
+      </div>
     </main>
   );
 }

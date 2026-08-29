@@ -27,13 +27,13 @@ export function Sidebar({ active, siteName, modules }: { active: string; siteNam
     <nav className="flex flex-col gap-1">
       {items.filter(([, , module]) => !module || modules[module]).map(([label, href, , Icon]) => {
         const selected = active === href || (href === "/ayarlar" && active.startsWith("/ayarlar/"));
-        return <Link key={href} href={href} aria-label={label} title={label} className={`sidebar-item relative text-[15px] transition-colors ${selected ? "bg-ink font-semibold text-white" : "font-medium text-ink-2 hover:bg-white hover:text-ink"}`}>
+        return <Link key={href} href={href} aria-label={label} title={label} className={`sidebar-item relative text-[15px] transition-colors ${selected ? "bg-ink font-semibold text-ink-contrast" : "font-medium text-ink-2 hover:bg-surface-2 hover:text-ink"}`}>
           <Icon size={18} className="shrink-0" aria-hidden="true" />
           <span className="sidebar-expanded-only truncate">{label}</span>
-          {selected && <span aria-hidden="true" className="sidebar-expanded-only absolute right-3 top-2 size-1.5 rounded-full bg-white" />}
+          {selected && <span aria-hidden="true" className="sidebar-expanded-only absolute right-3 top-2 size-1.5 rounded-full bg-ink-contrast" />}
         </Link>;
       })}
-      <Link href="/" aria-label="Siteyi gör" title="Siteyi gör" className="sidebar-item mt-2 text-[15px] font-medium text-muted transition-colors hover:bg-white hover:text-ink">
+      <Link href="/" aria-label="Siteyi gör" title="Siteyi gör" className="sidebar-item mt-2 text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
         <ArrowUpRight size={18} className="shrink-0" aria-hidden="true" />
         <span className="sidebar-expanded-only truncate">Siteyi gör</span>
       </Link>

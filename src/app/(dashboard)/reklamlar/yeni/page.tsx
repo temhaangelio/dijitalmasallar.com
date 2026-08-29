@@ -10,7 +10,6 @@ export default function NewAdPage() {
     <AppShell active="/reklamlar">
       <PageHeader
         title="Yeni reklam"
-        note="Ziyaretçi akışında gösterilecek reklamı hazırlayın"
         actions={<Link href="/reklamlar" className={buttonVariants({ variant: "outline" })}><ArrowLeft className="size-4" aria-hidden="true" />Reklamlara dön</Link>}
       />
       <AdForm />

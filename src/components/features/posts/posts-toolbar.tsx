@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownUp, Search, X } from "lucide-react";
+import { ArrowDownUp, LoaderCircle, Search, X } from "lucide-react";
 import { ActionMenu } from "@/components/ui/action-menu";
 import { Input } from "@/components/ui/input";
 import type { PostSort } from "@/services/posts";
@@ -15,7 +15,7 @@ export function PostsToolbar({
   onQueryChange,
   language,
   onLanguageChange,
-  languagePending,
+  pendingLanguage,
   sort,
   onSortChange,
 }: {
@@ -23,7 +23,7 @@ export function PostsToolbar({
   onQueryChange: (value: string) => void;
   language: "tr" | "en";
   onLanguageChange: (value: "tr" | "en") => void;
-  languagePending: boolean;
+  pendingLanguage: "tr" | "en" | null;
   sort: PostSort;
   onSortChange: (value: PostSort) => void;
 }) {
@@ -53,11 +53,12 @@ export function PostsToolbar({
             <button
               key={value}
               type="button"
-              disabled={languagePending}
+              disabled={pendingLanguage !== null}
               aria-pressed={language === value}
               onClick={() => onLanguageChange(value)}
               className={`${segment} ${language === value ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
             >
+              {pendingLanguage === value ? <LoaderCircle className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
               {value === "tr" ? "Türkçe" : "İngilizce"}
             </button>
           ))}

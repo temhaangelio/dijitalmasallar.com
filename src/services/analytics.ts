@@ -1,6 +1,6 @@
 import "server-only";
 
-export type AnalyticsRange = 7 | 30;
+export type AnalyticsRange = 1 | 7 | 30 | 365;
 type VisitRow = { timestamp?: string; requestPath?: string; referrerHostname?: string; country?: string; pageviews: number; visitors: number };
 type AggregateResponse = { data?: VisitRow[]; error?: { message?: string } };
 
@@ -19,6 +19,8 @@ export type AnalyticsData = {
 
 const API_URL = "https://api.vercel.com/v1/query/web-analytics/visits/aggregate";
 const VERCEL_PROJECT = "dijinews";
+const aggregateLimit = 100;
+const dailyRangeLimit = 62;
 
 function dateOnly(date: Date) { return date.toISOString().slice(0, 10); }
 function addDays(date: Date, amount: number) { const next = new Date(date); next.setUTCDate(next.getUTCDate() + amount); return next; }
@@ -29,12 +31,24 @@ function addDays(date: Date, amount: number) { const next = new Date(date); next
  * from the token alone.
  */
 async function aggregate(token: string, projectId: string, teamId: string | undefined, since: string, until: string, by: string, limit: number) {
-  const params = new URLSearchParams({ projectId, since, until, by, limit: String(limit) });
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), aggregateLimit);
+  const params = new URLSearchParams({ projectId, since, until, by, limit: String(safeLimit) });
   if (teamId) params.set("teamId", teamId);
   const response = await fetch(`${API_URL}?${params}`, { headers: { Authorization: `Bearer ${token}` }, next: { revalidate: 300 } });
   const payload = await response.json() as AggregateResponse;
   if (!response.ok || payload.error || !Array.isArray(payload.data)) throw new Error(`Vercel Analytics ${response.status}: ${payload.error?.message ?? "Veri alınamadı."}`);
   return payload.data;
+}
+
+/** Vercel accepts at most 62 calendar days when grouping visits by day. */
+async function aggregateDaily(token: string, projectId: string, teamId: string | undefined, since: Date, until: Date) {
+  const requests: Promise<VisitRow[]>[] = [];
+  for (let cursor = since; cursor <= until; cursor = addDays(cursor, dailyRangeLimit)) {
+    const chunkUntil = new Date(Math.min(addDays(cursor, dailyRangeLimit - 1).getTime(), until.getTime()));
+    const chunkDays = Math.round((chunkUntil.getTime() - cursor.getTime()) / 86_400_000) + 1;
+    requests.push(aggregate(token, projectId, teamId, dateOnly(cursor), dateOnly(chunkUntil), "day", chunkDays));
+  }
+  return (await Promise.all(requests)).flat();
 }
 
 function sum(rows: VisitRow[], field: "pageviews" | "visitors") { return rows.reduce((total, row) => total + (Number(row[field]) || 0), 0); }
@@ -65,18 +79,15 @@ export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData 
     const previousSinceDate = addDays(previousUntilDate, -(days - 1));
     const currentSince = dateOnly(currentSinceDate);
     const currentUntil = dateOnly(today);
-    const previousSince = dateOnly(previousSinceDate);
-    const previousUntil = dateOnly(previousUntilDate);
-
     const [dailyRows, pageRows, sourceRows, countryRows] = await Promise.all([
-      aggregate(token, projectId, teamId, currentSince, currentUntil, "day", days),
-      aggregate(token, projectId, teamId, currentSince, currentUntil, "requestPath", 7),
-      aggregate(token, projectId, teamId, currentSince, currentUntil, "referrerHostname", 5),
-      aggregate(token, projectId, teamId, currentSince, currentUntil, "country", 5),
+      aggregateDaily(token, projectId, teamId, currentSinceDate, today),
+      aggregate(token, projectId, teamId, currentSince, currentUntil, "requestPath", aggregateLimit),
+      aggregate(token, projectId, teamId, currentSince, currentUntil, "referrerHostname", aggregateLimit),
+      aggregate(token, projectId, teamId, currentSince, currentUntil, "country", aggregateLimit),
     ]);
     let previousRows: VisitRow[] | null = null;
     try {
-      previousRows = await aggregate(token, projectId, teamId, previousSince, previousUntil, "day", days);
+      previousRows = await aggregateDaily(token, projectId, teamId, previousSinceDate, previousUntilDate);
     } catch (error) {
       console.warn(JSON.stringify({ level: "warn", message: "Vercel Analytics karşılaştırma dönemi kullanılamıyor", days, error: error instanceof Error ? error.message : String(error) }));
     }

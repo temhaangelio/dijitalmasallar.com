@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
@@ -6,6 +7,7 @@ import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
 import { languageHref } from "@/lib/visitor-language";
+import { isOptimizableImage } from "@/lib/images";
 import { sourceLabel } from "@/lib/source-label";
 import { absoluteUrl, jsonLd, postDescription, postHeadline, siteUrl } from "@/lib/seo";
 import { getNextPublishedPost, getPublishedPostById } from "@/services/posts";
@@ -110,8 +112,17 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[640px] pt-11 sm:pt-14">
-        <article className="visitor-article rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
-          <div className="visitor-muted mb-8 border-b border-line pb-5 font-mono">
+        <article className="visitor-article overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 shadow-[0_1px_2px_rgba(0,0,0,.018)]">
+          {post.cover_path && (
+            <div className="relative aspect-[16/9] w-full bg-surface-3">
+              {isOptimizableImage(post.cover_path)
+                ? <Image src={post.cover_path} alt={headline} fill priority sizes="(max-width: 700px) 100vw, 640px" className="object-cover" />
+                // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
+                : <img src={post.cover_path} alt={headline} decoding="async" className="absolute inset-0 size-full object-cover" />}
+            </div>
+          )}
+          <div className="px-5 py-5 sm:px-6 sm:py-6">
+            <div className="visitor-muted mb-8 border-b border-line pb-5 font-mono">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
               <time dateTime={publishedAt} className="text-[11px] font-medium leading-none tabular-nums text-accent sm:text-[12px]">
                 {timeLabel(publishedAt, language)}
@@ -129,6 +140,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
               ) : null}
             </div>
           )}
+          </div>
         </article>
 
         {nextPost && (

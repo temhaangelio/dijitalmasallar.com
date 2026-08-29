@@ -7,16 +7,14 @@ import { Skeleton } from "@/components/feedback/states";
  */
 
 /**
- * Matches `PageHeader` to the pixel: `.page-title` is 34px with `line-height: 1`, and `.page-note`
- * sits 6px below at a 15px font size (~20px tall). `actionWidth` is omitted entirely — rather than
- * zero-width — on pages without an action, so the header's 24px gap does not appear out of nowhere.
+ * Matches `PageHeader` to the pixel. `actionWidth` is omitted entirely — rather than zero-width —
+ * on pages without an action, so the header's 24px gap does not appear out of nowhere.
  */
 export function PageHeaderSkeleton({ actionWidth }: { actionWidth?: string }) {
   return (
     <header className="page-header">
       <div>
         <Skeleton className="h-[34px] w-40" />
-        <Skeleton className="mt-1.5 h-5 w-28" />
       </div>
       {actionWidth ? <Skeleton className={`h-11 rounded-full ${actionWidth}`} /> : null}
     </header>

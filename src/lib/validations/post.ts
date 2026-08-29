@@ -12,6 +12,7 @@ export const postSchema = z.object({
   tr: turkishPostSchema,
   en: englishPostSchema,
   sourceUrl: z.string().trim().url("Geçerli bir kaynak bağlantısı girin."),
+  featured: z.boolean(),
   status: z.enum(["scheduled", "published"]),
   scheduledAt: z.string().optional(),
   publishedAt: z.string().optional(),
