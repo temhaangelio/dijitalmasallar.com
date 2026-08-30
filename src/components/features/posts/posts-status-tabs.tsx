@@ -37,7 +37,7 @@ export function PostsStatusTabs({
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(tab.value)}
-            className={`flex h-[132px] flex-col justify-between rounded-card p-6 text-left transition-colors xl:h-24 xl:p-5 ${selected ? "bg-ink text-white" : "bg-surface text-ink hover:bg-surface-2"}`}
+            className={`flex h-[132px] flex-col justify-between rounded-card p-6 text-left transition-colors xl:h-24 xl:p-5 ${selected ? "bg-ink text-white" : "bg-surface-2 text-ink hover:bg-surface-3"}`}
           >
             <span className={`text-[15px] font-semibold ${selected ? "text-white" : "text-ink-2"}`}>{tab.label}</span>
             <span className="text-[44px] font-bold leading-none tracking-[-.05em] tabular-nums xl:text-[34px]">{tab.count.toLocaleString("tr-TR")}</span>

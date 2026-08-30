@@ -48,8 +48,8 @@ export function RssReaderLayout({
 
   return (
     <div
-      className={`grid items-start gap-5 transition-[grid-template-columns] duration-300 xl:min-h-0 xl:flex-1 xl:items-stretch ${
-        sourcesCollapsed ? "xl:grid-cols-[56px_minmax(0,1fr)]" : "xl:grid-cols-[280px_minmax(0,1fr)]"
+      className={`relative xl:min-h-0 xl:flex-1 ${
+        sourcesCollapsed ? "block" : "grid items-start gap-5 transition-[grid-template-columns] duration-300 xl:grid-cols-[248px_minmax(0,1fr)] xl:items-stretch"
       }`}
     >
       <RssFeedPanel

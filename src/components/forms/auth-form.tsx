@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -31,11 +31,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
   });
   const fieldError = (name: string) => (errors as Record<string, { message?: string }>)[name]?.message;
   return <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-    {(mode === "login" || mode === "forgot") && <FormField label="E-posta" htmlFor="email" error={fieldError("email")}><Input id="email" type="email" autoComplete="email" {...register("email" as never)} /></FormField>}
-    {(mode === "login" || mode === "reset") && <FormField label="Şifre" htmlFor="password" error={fieldError("password")}><div className="relative"><Input id="password" className={mode === "login" ? "pr-12" : undefined} type={mode === "login" && showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} {...register("password" as never)} />{mode === "login" && <button type="button" className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-field text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword((visible) => !visible)}>{showPassword ? <EyeOff aria-hidden="true" size={19} /> : <Eye aria-hidden="true" size={19} />}</button>}</div></FormField>}
+    {(mode === "login" || mode === "forgot") && <FormField label="E-posta adresi" htmlFor="email" error={fieldError("email")}><Input id="email" type="email" inputMode="email" autoCapitalize="none" autoComplete="email" placeholder="adiniz@ornek.com" className="bg-surface" {...register("email" as never)} /></FormField>}
+    {(mode === "login" || mode === "reset") && <FormField label={mode === "reset" ? "Yeni şifre" : "Şifre"} htmlFor="password" error={fieldError("password")}><div className="relative"><Input id="password" className="bg-surface pr-12" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} placeholder="••••••••" {...register("password" as never)} /><button type="button" className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-field text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword((visible) => !visible)}>{showPassword ? <EyeOff aria-hidden="true" size={19} /> : <Eye aria-hidden="true" size={19} />}</button></div></FormField>}
     {mode === "reset" && <FormField label="Şifreyi tekrar girin" htmlFor="confirmPassword" error={fieldError("confirmPassword")}><Input id="confirmPassword" type="password" autoComplete="new-password" {...register("confirmPassword" as never)} /></FormField>}
-    {mode === "login" && <div className="text-right"><Link className="text-sm font-semibold underline underline-offset-4" href="/sifremi-unuttum">Şifremi unuttum</Link></div>}
+    {mode === "login" && <div className="flex justify-end"><Link className="group inline-flex items-center gap-1.5 text-sm font-semibold text-ink-2 transition-colors hover:text-ink" href="/sifremi-unuttum">Şifremi unuttum <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" /></Link></div>}
     {message && <p aria-live="polite" className={`rounded-field p-3 text-sm ${message.ok ? "bg-success-surface text-success" : "bg-danger-surface text-danger"}`}>{message.text}</p>}
-    <Button className="w-full" disabled={pending}>{pending ? "İşleniyor…" : mode === "login" ? "Giriş yap" : mode === "forgot" ? "Bağlantı gönder" : "Şifreyi güncelle"}</Button>
+    <Button className="w-full" size="lg" disabled={pending}>{pending ? "İşleniyor…" : mode === "login" ? "Giriş yap" : mode === "forgot" ? "Yenileme bağlantısı gönder" : "Şifreyi güncelle"}</Button>
+    {mode !== "login" ? <div className="pt-1 text-center"><Link href="/giris" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"><ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" /> Giriş ekranına dön</Link></div> : null}
   </form>;
 }

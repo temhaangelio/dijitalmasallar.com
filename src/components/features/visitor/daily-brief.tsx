@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { isOptimizableImage } from "@/lib/images";
 import { summaryLine } from "@/lib/post-content";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
@@ -20,9 +22,31 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
   const paragraphs = [items.slice(0, splitAt), items.slice(splitAt)].filter((paragraph) => paragraph.length);
   const canExpand = items.length > 1;
   const visibleParagraphs = expanded ? paragraphs : [items.slice(0, 1)];
+  const collagePosts = posts.filter((post, index, all) => post.cover_path && all.findIndex((item) => item.cover_path === post.cover_path) === index);
+  const collageColumns = collagePosts.length <= 2 ? collagePosts.length : collagePosts.length <= 4 ? 2 : Math.ceil(collagePosts.length / 2);
+  const collageRows = collagePosts.length <= 2 ? "auto-rows-[150px] sm:auto-rows-[190px]" : collagePosts.length <= 4 ? "auto-rows-[100px] sm:auto-rows-[120px]" : "auto-rows-[90px] sm:auto-rows-[110px]";
+
+  function collageSpan(index: number) {
+    if (index !== 0) return "";
+    if (collagePosts.length === 3) return "row-span-2";
+    if (collagePosts.length > 4 && collagePosts.length % 2 === 1) return "col-span-2";
+    return "";
+  }
 
   return (
-    <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
+    <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
+      {collagePosts.length ? (
+        <div className={`-mx-5 -mt-5 mb-5 grid gap-0.5 bg-line sm:-mx-6 sm:-mt-6 sm:mb-6 ${collageRows}`} style={{ gridTemplateColumns: `repeat(${collageColumns}, minmax(0, 1fr))` }} aria-label={isEnglish ? "Images from today’s stories" : "Bugünkü haberlerin görselleri"}>
+          {collagePosts.map((post, index) => (
+            <Link key={post.id} href={languageHref(`/haber/${post.id}`, language)} aria-label={post.title || (isEnglish ? "Open story" : "Haberi aç")} className={`group relative min-w-0 overflow-hidden bg-surface-3 ${collageSpan(index)}`}>
+              {isOptimizableImage(post.cover_path)
+                ? <Image src={post.cover_path} alt="" fill sizes={collagePosts.length === 1 ? "(max-width: 640px) 100vw, 640px" : "(max-width: 640px) 50vw, 320px"} className="object-cover transition-transform duration-500 group-hover:scale-[1.025]" />
+                // eslint-disable-next-line @next/next/no-img-element -- source-discovered images may use official hosts outside the optimizer allow-list
+                : <img src={post.cover_path ?? ""} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.025]" />}
+            </Link>
+          ))}
+        </div>
+      ) : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="daily-brief-title" className="font-mono text-[11px] font-semibold uppercase leading-none tracking-[.2em] text-accent">
           {isEnglish ? "Today’s brief" : "Günün özeti"}

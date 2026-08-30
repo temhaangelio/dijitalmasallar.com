@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
+import { AiNavigationStatus } from "./ai-navigation-status";
 import { SidebarToggle } from "./sidebar-toggle";
 
 /**
@@ -14,12 +15,13 @@ import { SidebarToggle } from "./sidebar-toggle";
 const items = [
   ["Dashboard", "/dashboard", null, LayoutDashboard],
   ["Yazılar", "/yazilar", "posts", FileText],
+  ["Yapay zekâ", "/yapay-zeka", "ai", null],
   ["RSS", "/rss", "rss", Rss],
   ["Reklamlar", "/reklamlar", "ads", Megaphone],
   ["İstatistik", "/istatistik", "analytics", ChartColumn],
 ] as const;
 
-export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "rss" | "ads" | "analytics", boolean> }) {
+export function Sidebar({ active, siteName, modules, aiScanRunning }: { active: string; siteName: string; modules: Record<"posts" | "ai" | "rss" | "ads" | "analytics", boolean>; aiScanRunning: boolean }) {
   return <aside className="sidebar">
     <Link href="/dashboard" aria-label={siteName} className="flex items-center gap-3">
       <span className="brand-mark shrink-0" aria-hidden="true" /><strong className="sidebar-expanded-only block truncate text-base tracking-[-.03em]">{siteName}</strong>
@@ -28,8 +30,7 @@ export function Sidebar({ active, siteName, modules }: { active: string; siteNam
       {items.filter(([, , module]) => !module || modules[module]).map(([label, href, , Icon]) => {
         const selected = active === href;
         return <Link key={href} href={href} aria-label={label} title={label} className={`sidebar-item relative text-[15px] transition-colors ${selected ? "bg-ink font-semibold text-ink-contrast" : "font-medium text-ink-2 hover:bg-surface-2 hover:text-ink"}`}>
-          <Icon size={18} className="shrink-0" aria-hidden="true" />
-          <span className="sidebar-expanded-only truncate">{label}</span>
+          {href === "/yapay-zeka" ? <AiNavigationStatus initiallyRunning={aiScanRunning} withLabel /> : <><Icon size={18} className="shrink-0" aria-hidden="true" /><span className="sidebar-expanded-only truncate">{label}</span></>}
           {selected && <span aria-hidden="true" className="sidebar-expanded-only absolute right-3 top-2 size-1.5 rounded-full bg-ink-contrast" />}
         </Link>;
       })}

@@ -131,6 +131,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const todaysPosts = postDays[0]?.key === dateKey(new Date().toISOString())
     ? postDays[0].items.map(({ post }) => post)
     : [];
+  const showDailyBrief = todaysPosts.length >= 4;
   const adSlots = randomAdSlots(posts.length, ads);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
@@ -184,7 +185,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <div>
         {posts.length ? (
           <>
-          {todaysPosts.length ? <DailyBrief posts={todaysPosts} language={language} /> : null}
           {postDays.map((day, dayIndex) => (
           <section key={day.key} aria-label={fullDateLabel(day.publishedAt, language)} className={dayIndex ? "mt-16" : ""}>
             {/*
@@ -203,7 +203,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>
 
-            <div className="mt-[34px] flex flex-col gap-8 sm:gap-[46px]">
+            {dayIndex === 0 && showDailyBrief ? <div className="mt-[34px]"><DailyBrief posts={todaysPosts} language={language} /></div> : null}
+
+            <div className={`${dayIndex === 0 && showDailyBrief ? "" : "mt-[34px]"} flex flex-col gap-8 sm:gap-[46px]`}>
               {day.items.map(({ post, position }) => {
                 const publishedAt = post.published_at ?? post.created_at;
                 return (

@@ -31,7 +31,7 @@ export function RssPageLoading() {
     <ShellSkeleton active="/rss">
       <div className="w-full xl:flex xl:h-[calc(100dvh-72px)] xl:min-h-0 xl:flex-col" role="status" aria-label="RSS kaynakları yükleniyor">
         <PageHeaderSkeleton actionWidth="w-64" />
-        <div className="grid items-start gap-5 xl:min-h-0 xl:flex-1 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid items-start gap-5 xl:min-h-0 xl:flex-1 xl:grid-cols-[248px_minmax(0,1fr)]">
           <div className="card space-y-5">
             <Skeleton className="h-7 w-32" />
             <Skeleton className="h-12 w-full rounded-field" />

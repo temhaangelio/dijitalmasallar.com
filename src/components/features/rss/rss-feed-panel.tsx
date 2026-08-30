@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { AlertCircle, PanelLeftClose, PanelLeftOpen, Pause, Pencil, Play, Rss, Trash2 } from "lucide-react";
 import { removeFeedAction, toggleFeedAction } from "@/app/(dashboard)/rss/actions";
-import { RssAddFeedButton } from "@/components/features/rss/rss-add-feed-dialog";
 import { RssRenameFeedDialog } from "@/components/features/rss/rss-rename-feed-dialog";
 import { ActionMenu } from "@/components/ui/action-menu";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -65,7 +64,7 @@ export function RssFeedPanel({
 
   return (
     <>
-      <div id="rss-feed-panel" className={collapsed ? "flex justify-start lg:justify-center" : "card overflow-hidden p-0 xl:flex xl:min-h-0 xl:flex-col"}>
+      <div id="rss-feed-panel" className={collapsed ? "absolute left-1 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2" : "card overflow-hidden p-0 xl:flex xl:min-h-0 xl:flex-col"}>
         {collapsed ? (
           <button
             type="button"
@@ -74,23 +73,18 @@ export function RssFeedPanel({
             aria-controls="rss-feed-panel"
             title="Kaynak listesini aç"
             onClick={() => onCollapsedChange(false)}
-            className="relative grid size-12 shrink-0 place-items-center rounded-2xl border border-line bg-surface text-muted shadow-soft transition-all hover:-translate-y-0.5 hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="relative grid size-10 shrink-0 place-items-center rounded-xl border border-line bg-surface text-muted shadow-soft transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             <PanelLeftOpen className="size-[18px]" aria-hidden="true" />
             {unreadTotal > 0 && <span className="absolute -right-1.5 -top-1.5"><UnreadBadge count={unreadTotal} onDark={false} /></span>}
           </button>
         ) : (
           <>
-            <div className="border-b border-line/80 bg-surface-2/45 px-5 pb-4 pt-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-ink text-white shadow-sm">
-                    <Rss className="size-[17px]" aria-hidden="true" />
-                  </span>
-                  <div className="min-w-0">
-                    <h2 className="text-[18px] font-bold tracking-[-.025em] text-ink">Kaynaklar</h2>
-                    <p className="mt-0.5 text-[12px] font-medium text-muted">{feeds.length} kaynak takip ediliyor</p>
-                  </div>
+            <div className="border-b border-line px-4 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-baseline gap-2">
+                  <h2 className="text-[15px] font-semibold text-ink">Kaynaklar</h2>
+                  <span className="text-[11px] font-medium text-muted">{feeds.length}</span>
                 </div>
                 <button
                   type="button"
@@ -99,25 +93,21 @@ export function RssFeedPanel({
                   aria-controls="rss-feed-panel"
                   title="Kaynak listesini sola kapat"
                   onClick={() => onCollapsedChange(true)}
-                  className="grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-surface-3 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                  className="grid size-8 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                 >
                   <PanelLeftClose className="size-[18px]" aria-hidden="true" />
                 </button>
               </div>
-
-              <div className="mt-4 [&>button]:w-full">
-                <RssAddFeedButton variant="secondary" size="sm" />
-              </div>
             </div>
 
-            <nav className="flex flex-col gap-1.5 p-3 xl:min-h-0 xl:overflow-y-auto" aria-label="Takip edilen kaynaklar">
+            <nav className="flex flex-col gap-0.5 p-2 xl:min-h-0 xl:overflow-y-auto" aria-label="Takip edilen kaynaklar">
               <Link
                 href="/rss"
                 aria-current={activeFeedId ? undefined : "page"}
-                className={`mb-1 flex min-h-12 items-center justify-between gap-3 rounded-2xl px-3.5 text-[14px] transition-all ${activeFeedId ? "font-semibold text-ink-2 hover:bg-surface-2" : "bg-ink font-semibold text-white shadow-sm"}`}
+                className={`mb-1 flex min-h-10 items-center justify-between gap-3 rounded-xl px-3 text-[13px] transition-colors ${activeFeedId ? "font-medium text-ink-2 hover:bg-surface-2" : "bg-surface-2 font-semibold text-ink"}`}
               >
-                <span className="flex items-center gap-2.5"><Rss className="size-4 opacity-70" aria-hidden="true" />Tüm haberler</span>
-                <UnreadBadge count={unreadTotal} onDark={!activeFeedId} />
+                <span className="flex items-center gap-2"><Rss className="size-3.5 text-muted" aria-hidden="true" />Tüm haberler</span>
+                <UnreadBadge count={unreadTotal} onDark={false} />
               </Link>
 
               {feeds.length === 0 && (
@@ -130,24 +120,15 @@ export function RssFeedPanel({
               {feeds.map((feed) => {
                 const selected = feed.id === activeFeedId;
                 return (
-                  <div key={feed.id} className={`group flex items-center gap-1 rounded-2xl pr-1.5 transition-all ${selected ? "bg-ink text-white shadow-sm" : "text-ink-2 hover:bg-surface-2"}`}>
-                    <Link href={`/rss?feed=${feed.id}`} aria-current={selected ? "page" : undefined} className="flex min-h-[54px] min-w-0 flex-1 items-center gap-2.5 px-3 py-2">
-                      <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${selected ? "bg-white/10 text-white" : "bg-surface-2 text-muted group-hover:bg-surface-3"}`}>
-                        {feed.lastError ? (
-                          <AlertCircle className="size-4 text-danger" aria-label={`Hata: ${feed.lastError}`} />
-                        ) : !feed.active ? (
-                          <Pause className="size-4" aria-label="Duraklatıldı" />
-                        ) : <Rss className="size-3.5" aria-hidden="true" />}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[14px] font-semibold">{feed.title || hostname(feed.url)}</span>
-                        <span className={`mt-0.5 block truncate text-[11px] font-medium ${selected ? "text-white/55" : "text-faint"}`}>{hostname(feed.url)}</span>
-                      </span>
+                  <div key={feed.id} className={`group flex items-center gap-0.5 rounded-xl pr-1 transition-colors ${selected ? "bg-surface-2 text-ink" : "text-ink-2 hover:bg-surface-2/70"}`}>
+                    <Link href={`/rss?feed=${feed.id}`} aria-current={selected ? "page" : undefined} title={hostname(feed.url)} className="flex min-h-10 min-w-0 flex-1 items-center gap-2.5 px-3 py-1.5">
+                      {feed.lastError ? <AlertCircle className="size-3.5 shrink-0 text-danger" aria-label={`Hata: ${feed.lastError}`} /> : <span className={`size-1.5 shrink-0 rounded-full ${feed.active ? "bg-line-strong" : "bg-muted"}`} aria-label={feed.active ? "Aktif" : "Duraklatıldı"} />}
+                      <span className={`block min-w-0 flex-1 truncate text-[13px] ${selected ? "font-semibold" : "font-medium"}`}>{feed.title || hostname(feed.url)}</span>
                     </Link>
-                    <UnreadBadge count={feed.unreadCount} onDark={selected} />
+                    <UnreadBadge count={feed.unreadCount} onDark={false} />
                     <ActionMenu
                       label={`${feed.title || feed.url} kaynağı işlemleri`}
-                      triggerClassName={selected ? "text-white/70 hover:bg-white/10 hover:text-white" : undefined}
+                      triggerClassName="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
                       items={[
                         {
                           label: "Adı düzenle",

@@ -1,5 +1,17 @@
 import Link from "next/link";
 
-export function AuthShell({ title, note, children, footer }: { title: string; note: string; children: React.ReactNode; footer?: React.ReactNode }) {
-  return <main className="grid min-h-screen place-items-center px-4 py-10"><section className="w-full max-w-[460px] rounded-card bg-white p-7 shadow-sm sm:p-10"><Link href="/" className="mb-10 flex items-center gap-3"><span className="brand-mark" aria-hidden="true" /><strong className="block">diji.news</strong></Link><h1 className="page-title !text-[32px]">{title}</h1><p className="mb-8 mt-3 text-[15px] leading-relaxed text-muted">{note}</p>{children}{footer && <div className="mt-7 border-t border-line pt-6 text-center text-sm text-ink-2">{footer}</div>}</section></main>;
+export function AuthShell({ title, children, footer }: { title: string; note: string; children: React.ReactNode; footer?: React.ReactNode }) {
+  return (
+    <main className="admin-page grid min-h-screen place-items-center bg-canvas px-4 py-8 sm:py-12">
+      <section className="w-full max-w-[460px] rounded-card border border-line bg-surface-2/35 p-6 sm:p-9">
+        <h1 className="sr-only">{title}</h1>
+        <Link href="/" className="mb-9 inline-flex items-center gap-3 rounded-full pr-3 text-ink transition-opacity hover:opacity-70">
+          <span className="brand-mark" aria-hidden="true" />
+          <strong className="text-[15px] font-semibold">diji.news</strong>
+        </Link>
+        {children}
+        {footer ? <div className="mt-7 border-t border-line pt-6 text-center text-sm text-ink-2">{footer}</div> : null}
+      </section>
+    </main>
+  );
 }

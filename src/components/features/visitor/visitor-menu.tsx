@@ -39,11 +39,11 @@ export function VisitorMenu({ language, pushPublicKey }: { language: VisitorLang
         <Settings size={18} aria-hidden="true" />
       </button>
 
-      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Settings" : "Ayarlar"} closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
+      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Settings" : "Ayarlar"} titleClassName="visitor-copy visitor-serif text-[26px] font-normal leading-none tracking-normal" closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
         <section className="divide-y divide-line border-t border-line text-left" aria-label={isEnglish ? "Settings" : "Ayarlar"}>
           {settings.map((row) => (
             <div key={row.label} className="grid gap-3 py-4 sm:grid-cols-[100px_minmax(0,1fr)] sm:items-center sm:gap-5">
-              <h3 className="font-mono text-[10px] font-medium uppercase leading-none tracking-[.16em] text-muted sm:text-[11px]">{row.label}</h3>
+              <h3 className="font-mono text-[10px] font-semibold uppercase leading-none tracking-[.18em] text-muted sm:text-[11px]">{row.label}</h3>
               <div className="min-w-0 sm:justify-self-end">{row.control}</div>
             </div>
           ))}

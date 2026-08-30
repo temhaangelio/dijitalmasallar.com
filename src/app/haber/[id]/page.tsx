@@ -137,9 +137,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
           </div>
           {post.source_url && (
             <div className="visitor-muted mt-9 flex justify-end font-mono text-[11px] font-normal leading-[1.6]">
-              {post.source_url ? (
-                <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
-              ) : null}
+              <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
             </div>
           )}
           </div>
