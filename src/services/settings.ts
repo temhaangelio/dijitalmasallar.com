@@ -1,8 +1,5 @@
 import "server-only";
 
-import { cache } from "react";
-import { createAdminClient } from "@/lib/supabase/admin";
-
 export type SiteSettings = {
   siteName: string;
   domain: string;
@@ -35,7 +32,7 @@ export const defaultSiteSettings: SiteSettings = {
   homeTitle: "Kısa ve özgün teknoloji notları",
   feedLayout: "short",
   postsPerPage: 7,
-  contactEmail: "merhaba@diji.news",
+  contactEmail: "temhaangelio@gmail.com",
   maintenanceMode: false,
   modulePosts: true,
   moduleRss: true,
@@ -45,42 +42,7 @@ export const defaultSiteSettings: SiteSettings = {
   updatedAt: null,
 };
 
-const settingKeys = {
-  diji_site_name: "siteName",
-  diji_domain: "domain",
-  diji_language: "language",
-  diji_description: "description",
-  diji_description_en: "descriptionEn",
-  about_text: "aboutText",
-  about_text_en: "aboutTextEn",
-  home_intro_text: "description",
-  home_title: "homeTitle",
-  diji_feed_layout: "feedLayout",
-  home_posts_per_page: "postsPerPage",
-  contact_email: "contactEmail",
-  maintenance_mode: "maintenanceMode",
-  module_posts: "modulePosts",
-  module_rss: "moduleRss",
-  module_ads: "moduleAds",
-  module_analytics: "moduleAnalytics",
-  module_push: "modulePush",
-} as const;
-
-export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
-  try {
-    const { data, error } = await createAdminClient().from("site_settings").select("key,value,updated_at");
-    if (error) return defaultSiteSettings;
-    const settings: SiteSettings = { ...defaultSiteSettings };
-    let updatedAt: string | null = null;
-    for (const row of data ?? []) {
-      const property = settingKeys[row.key as keyof typeof settingKeys];
-      if (property && row.value !== null && row.value !== undefined) Object.assign(settings, { [property]: row.value });
-      if (row.updated_at && (!updatedAt || row.updated_at > updatedAt)) updatedAt = row.updated_at;
-    }
-    settings.postsPerPage = Math.min(Math.max(Number(settings.postsPerPage) || 7, 3), 20);
-    settings.updatedAt = updatedAt;
-    return settings;
-  } catch {
-    return defaultSiteSettings;
-  }
-});
+/** Site identity and feature availability are deployment constants, not editable content. */
+export async function getSiteSettings(): Promise<SiteSettings> {
+  return defaultSiteSettings;
+}

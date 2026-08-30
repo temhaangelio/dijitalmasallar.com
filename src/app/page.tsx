@@ -128,6 +128,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
   const postDays = groupPostsByDay(posts);
+  const todaysPosts = postDays[0]?.key === dateKey(new Date().toISOString())
+    ? postDays[0].items.map(({ post }) => post)
+    : [];
   const adSlots = randomAdSlots(posts.length, ads);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
@@ -181,7 +184,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <div>
         {posts.length ? (
           <>
-          <DailyBrief posts={postDays[0].items.map(({ post }) => post)} language={language} />
+          {todaysPosts.length ? <DailyBrief posts={todaysPosts} language={language} /> : null}
           {postDays.map((day, dayIndex) => (
           <section key={day.key} aria-label={fullDateLabel(day.publishedAt, language)} className={dayIndex ? "mt-16" : ""}>
             {/*

@@ -43,6 +43,7 @@ export function PostForm({ posts, combinedEntry = false }: { posts?: PostTransla
       en: { body: posts?.en?.body ?? "" },
       sourceUrl: sharedPost?.source_url ?? "",
       featured: sharedPost?.featured ?? false,
+      aiGeneratedImage: sharedPost?.ai_generated_image ?? false,
       status: sharedPost?.status === "scheduled" ? "scheduled" : "published",
       scheduledAt: localDateTime(sharedPost?.scheduled_at ?? null),
       publishedAt: sharedPost?.status === "published" ? localDateTime(sharedPost.created_at) : "",
@@ -129,6 +130,13 @@ export function PostForm({ posts, combinedEntry = false }: { posts?: PostTransla
               <p className="mt-1 text-xs leading-5 text-muted">Bu yazıyı öne çıkan içerik olarak işaretle.</p>
             </div>
             <Controller name="featured" control={control} render={({ field }) => <Switch label="Öne çıkan yazı" checked={field.value} onCheckedChange={field.onChange} />} />
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-field border border-line bg-surface-2 px-4 py-3.5">
+            <div className="min-w-0">
+              <strong className="block text-sm text-ink">Yapay zekâ ile oluşturulan görsel</strong>
+              <p className="mt-1 text-xs leading-5 text-muted">Görselde “Bu fotoğraf yapay zekâ ile yapılmıştır.” ibaresini gösterir.</p>
+            </div>
+            <Controller name="aiGeneratedImage" control={control} render={({ field }) => <Switch label="Yapay zekâ görseli ibaresi" checked={field.value} onCheckedChange={field.onChange} />} />
           </div>
           {editing && status === "published" && <FormField label="Yayın tarihi" htmlFor="publishedAt" error={errors.publishedAt?.message} hint="Akış sıralaması bu tarih ve saate göre güncellenir."><Input id="publishedAt" type="datetime-local" {...register("publishedAt")} /></FormField>}
           {status === "scheduled" && <FormField label="Yayın tarihi" htmlFor="scheduledAt" error={errors.scheduledAt?.message}><Input id="scheduledAt" type="datetime-local" {...register("scheduledAt")} /></FormField>}

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AiImageNotice } from "@/components/features/visitor/ai-image-notice";
 import { PostImageActions } from "@/components/features/visitor/post-image-actions";
 import { sourceLabel } from "@/lib/source-label";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
@@ -76,12 +77,13 @@ export function NoteCard({ post, language, highlight }: { post: Post; language: 
   return (
     <article className="visitor-card group relative overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 shadow-[0_1px_2px_rgba(0,0,0,.018)]">
       {post.cover_path && (
-        <div className="relative aspect-[20/7] w-full bg-surface-3">
+        <div className="relative aspect-[2/1] w-full bg-surface-3">
           {isOptimizableImage(post.cover_path)
             ? <Image src={post.cover_path} alt="" fill sizes="(max-width: 767px) 100vw, 640px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
             // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
             : <img src={post.cover_path} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
           <PostImageActions postId={post.id} href={postHref} title={post.title} language={language} />
+          {post.ai_generated_image ? <AiImageNotice language={language} /> : null}
         </div>
       )}
       <div className="min-w-0 flex-1 px-5 py-4 sm:px-6 sm:py-5">

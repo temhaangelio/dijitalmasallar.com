@@ -7,8 +7,6 @@ const privatePaths = [
   "/yazilar/",
   "/reklamlar/",
   "/istatistik/",
-  "/ayarlar/",
-  "/profil/",
   "/giris/",
   "/sifremi-unuttum/",
   "/sifre-yenile/",

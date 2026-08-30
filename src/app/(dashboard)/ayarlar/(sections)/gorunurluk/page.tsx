@@ -1,3 +1,3 @@
-import { SettingsSectionPage } from "@/components/features/settings/settings-section-page";
+import { redirect } from "next/navigation";
 
-export default function Page() { return <SettingsSectionPage section="visibility" />; }
+export default function Page() { redirect("/dashboard"); }

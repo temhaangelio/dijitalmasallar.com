@@ -287,6 +287,14 @@ export function markAllRead(feedId?: string) {
   else rssDatabase().prepare("update rss_items set read = 1 where read = 0").run();
 }
 
+/** Permanently removes read entries while leaving their feeds and unread entries untouched. */
+export function removeReadItems(feedId?: string) {
+  const result = feedId
+    ? rssDatabase().prepare("delete from rss_items where read = 1 and feed_id = ?").run(feedId)
+    : rssDatabase().prepare("delete from rss_items where read = 1").run();
+  return Number(result.changes);
+}
+
 /**
  * Pulls every active feed. One unreachable source records its error on its own row and leaves the
  * rest of the refresh untouched, which is why failures are collected rather than thrown.

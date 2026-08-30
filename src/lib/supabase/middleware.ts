@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { safeNextPath } from "@/lib/env";
 
-const protectedPaths = ["/dashboard", "/yazilar", "/reklamlar", "/istatistik", "/ayarlar", "/profil"];
+const protectedPaths = ["/dashboard", "/yazilar", "/reklamlar", "/istatistik"];
 const authPaths = ["/giris", "/sifremi-unuttum"];
 
 export async function updateSession(request: NextRequest) {

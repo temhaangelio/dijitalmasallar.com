@@ -21,6 +21,10 @@ function dayLabel(value: string, days: AnalyticsRange) {
   return new Intl.DateTimeFormat("tr-TR", days === 7 ? { weekday: "short" } : { day: "numeric", month: "short" }).format(new Date(`${value}T12:00:00Z`));
 }
 
+function pageHref(path: string) {
+  return path.startsWith("/") && !path.startsWith("//") ? path : "/";
+}
+
 export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { analytics: AnalyticsData | null; range: AnalyticsRange; missingEnv?: string[] }) {
   const [openList, setOpenList] = useState<"sources" | "pages" | "countries" | null>(null);
   const ranges: { days: AnalyticsRange; label: string; href: string }[] = [
@@ -99,7 +103,7 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
 
       <Card className="xl:col-span-8 xl:min-h-0 xl:overflow-hidden xl:p-5">
         <div className="flex justify-between"><h2 className="section-title">En çok ziyaret edilenler</h2><span className="text-muted">{range === 365 ? "Tümü" : `${range} gün`}</span></div>
-        <div className="mt-3 divide-y divide-line">{analytics.topPages.slice(0, 3).map((page, index) => <div key={page.path} className="grid grid-cols-[36px_minmax(0,1fr)_80px_90px] gap-3 py-1.5"><span className="font-semibold text-muted">{String(index + 1).padStart(2, "0")}</span><strong className="truncate">{page.path === "/" ? "Ana sayfa" : page.path}</strong><span className="text-right text-muted">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)}</span></div>)}</div>
+        <div className="mt-3 divide-y divide-line">{analytics.topPages.slice(0, 3).map((page, index) => <Link key={page.path} href={pageHref(page.path)} target="_blank" rel="noopener noreferrer" className="grid grid-cols-[36px_minmax(0,1fr)_80px_90px] gap-3 rounded-lg py-1.5 transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"><span className="font-semibold text-muted">{String(index + 1).padStart(2, "0")}</span><strong className="truncate underline decoration-line-strong underline-offset-4">{page.path === "/" ? "Ana sayfa" : page.path}</strong><span className="text-right text-muted">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)}</span></Link>)}</div>
         <button type="button" onClick={() => setOpenList("pages")} className="mt-3 text-sm font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">Tümünü göster</button>
       </Card>
 
@@ -118,7 +122,7 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
       >
         <div className="mt-5 max-h-[60dvh] overflow-y-auto pr-2">
           {openList === "sources" && <div className="space-y-4">{analytics.sources.map((source) => <div key={source.label}><div className="mb-2 flex justify-between gap-3 text-sm font-semibold"><span className="truncate">{source.label}</span><span>{number.format(source.visitors)} okur · %{Math.round(source.percentage)}</span></div><div className="h-2 rounded-full bg-line"><div className="h-full rounded-full bg-ink" style={{ width: `${Math.max(source.percentage, 1)}%` }} /></div></div>)}</div>}
-          {openList === "pages" && <div className="divide-y divide-line">{analytics.topPages.map((page, index) => <div key={page.path} className="grid grid-cols-[36px_minmax(0,1fr)_90px_100px] gap-3 py-3 text-sm"><span className="font-semibold text-muted">{String(index + 1).padStart(2, "0")}</span><strong className="truncate">{page.path === "/" ? "Ana sayfa" : page.path}</strong><span className="text-right text-muted">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)} görüntüleme</span></div>)}</div>}
+          {openList === "pages" && <div className="divide-y divide-line">{analytics.topPages.map((page, index) => <Link key={page.path} href={pageHref(page.path)} target="_blank" rel="noopener noreferrer" className="grid grid-cols-[36px_minmax(0,1fr)_90px_100px] gap-3 rounded-lg py-3 text-sm transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"><span className="font-semibold text-muted">{String(index + 1).padStart(2, "0")}</span><strong className="truncate underline decoration-line-strong underline-offset-4">{page.path === "/" ? "Ana sayfa" : page.path}</strong><span className="text-right text-muted">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)} görüntüleme</span></Link>)}</div>}
           {openList === "countries" && <div className="divide-y divide-line">{analytics.countries.map((country) => <div key={country.code} className="flex items-center justify-between gap-4 py-3"><span className="font-semibold">{country.label}</span><span className="text-muted">{number.format(country.visitors)} okur · %{Math.round(country.percentage)}</span></div>)}</div>}
         </div>
       </AnalyticsDialog>

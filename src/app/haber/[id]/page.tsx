@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { AiImageNotice } from "@/components/features/visitor/ai-image-notice";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
@@ -119,6 +120,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
                 ? <Image src={post.cover_path} alt={headline} fill priority sizes="(max-width: 700px) 100vw, 640px" className="object-cover" />
                 // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
                 : <img src={post.cover_path} alt={headline} decoding="async" className="absolute inset-0 size-full object-cover" />}
+              {post.ai_generated_image ? <AiImageNotice language={language} /> : null}
             </div>
           )}
           <div className="px-5 py-5 sm:px-6 sm:py-6">

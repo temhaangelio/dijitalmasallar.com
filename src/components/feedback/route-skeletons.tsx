@@ -28,10 +28,10 @@ function Field({ height = "h-12" }: { height?: string }) {
 
 export function RssPageLoading() {
   return (
-    <main className="admin-page min-h-dvh px-4 py-5 sm:px-6 sm:py-7 lg:px-10">
-      <div className="mx-auto w-full max-w-[1600px]" role="status" aria-label="RSS kaynakları yükleniyor">
+    <ShellSkeleton active="/rss">
+      <div className="w-full xl:flex xl:h-[calc(100dvh-72px)] xl:min-h-0 xl:flex-col" role="status" aria-label="RSS kaynakları yükleniyor">
         <PageHeaderSkeleton actionWidth="w-64" />
-        <div className="grid items-start gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid items-start gap-5 xl:min-h-0 xl:flex-1 xl:grid-cols-[280px_minmax(0,1fr)]">
           <div className="card space-y-5">
             <Skeleton className="h-7 w-32" />
             <Skeleton className="h-12 w-full rounded-field" />
@@ -59,7 +59,7 @@ export function RssPageLoading() {
           </div>
         </div>
       </div>
-    </main>
+    </ShellSkeleton>
   );
 }
 
@@ -87,10 +87,9 @@ export function DashboardLoading() {
             </div>
           </div>
           <div className="card xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-            <Skeleton className="h-7 w-40" />
-            <div className="mt-6 grid grid-cols-7 gap-y-4">
-              {Array.from({ length: 35 }, (_, index) => <Skeleton key={index} className="mx-auto size-8 rounded-full" />)}
-            </div>
+            <div className="flex justify-between"><Skeleton className="h-7 w-40" /><Skeleton className="h-4 w-24" /></div>
+            <div className="mt-5 grid grid-cols-3 gap-3">{[0, 1, 2].map((index) => <Skeleton key={index} className="h-20 rounded-field" />)}</div>
+            <Skeleton className="mt-4 h-16 w-full rounded-field" />
           </div>
           <div className="card xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-40" />
@@ -225,83 +224,6 @@ export function AdFormLoading() {
         </div>
       </div>
     </ShellSkeleton>
-  );
-}
-
-/* ---------------------------------------------------------------- /profil */
-
-export function ProfilePageLoading() {
-  return (
-    <ShellSkeleton active="/profil">
-      <div role="status" aria-label="Profil yükleniyor">
-        <PageHeaderSkeleton />
-        <div className="grid gap-5 xl:grid-cols-12">
-          <div className="card xl:col-span-8">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-              <Skeleton className="size-24 shrink-0 rounded-card" />
-              <div className="min-w-0 flex-1">
-                <Skeleton className="h-8 w-56" />
-                <Skeleton className="mt-3 h-4 w-48" />
-                <Skeleton className="mt-3 h-3 w-64" />
-              </div>
-            </div>
-            <div className="mt-8 grid gap-3 border-t border-line pt-6 sm:grid-cols-3">
-              {[0, 1, 2].map((index) => (
-                <div key={index} className="rounded-field bg-surface-2 p-4">
-                  <Skeleton className="mb-5 size-5" />
-                  <Skeleton className="h-3 w-20" />
-                  <Skeleton className="mt-2 h-5 w-24" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-5 xl:col-span-4">
-            <div className="card space-y-5"><Skeleton className="h-7 w-40" /><Field /><Field /><Skeleton className="h-11 w-full rounded-full" /></div>
-            <div className="card"><Skeleton className="h-7 w-24" /><div className="mt-5 space-y-4"><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-full" /></div></div>
-            <div className="card"><Skeleton className="h-6 w-24" /><Skeleton className="mt-2 h-3 w-full" /><Skeleton className="mt-5 h-11 w-full rounded-full" /></div>
-          </div>
-        </div>
-      </div>
-    </ShellSkeleton>
-  );
-}
-
-/* ---------------------------------------------------------------- /ayarlar */
-
-export function SettingsIndexLoading() {
-  return (
-    <ShellSkeleton active="/ayarlar">
-      <div className="mx-auto w-full max-w-[1200px]" role="status" aria-label="Ayarlar yükleniyor">
-        <PageHeaderSkeleton />
-        <div className="grid w-full gap-4 sm:grid-cols-2">
-          {[0, 1, 2, 3, 4].map((index) => (
-            <div key={index} className="flex min-h-32 items-center gap-5 rounded-card border border-ink/[0.05] bg-surface p-6">
-              <Skeleton className="size-14 shrink-0 rounded-panel" />
-              <div className="min-w-0 flex-1"><Skeleton className="h-5 w-32" /><Skeleton className="mt-2 h-4 w-full" /></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </ShellSkeleton>
-  );
-}
-
-/**
- * Only the form: `ayarlar/(sections)/layout.tsx` keeps the shell, heading and tab strip mounted
- * across tab changes, so a fallback that redrew them would make the tabs flicker.
- */
-export function SettingsSectionLoading() {
-  return (
-    <div className="w-full space-y-5" role="status" aria-label="Ayarlar yükleniyor">
-      <div className="card space-y-5">
-        <Skeleton className="h-7 w-48" />
-        <div className="grid gap-5 sm:grid-cols-2"><Field /><Field /></div>
-        <div className="grid gap-5 sm:grid-cols-2"><Field height="h-28" /><Field height="h-28" /></div>
-        <div className="grid gap-5 sm:grid-cols-2"><Field height="h-36" /><Field height="h-36" /></div>
-        <Field />
-      </div>
-      <div className="flex justify-end gap-2"><Skeleton className="h-11 w-24 rounded-full" /><Skeleton className="h-11 w-24 rounded-full" /></div>
-    </div>
   );
 }
 

@@ -5,7 +5,7 @@ import { safeNextPath, getAppUrl, isSupabaseConfigured } from "../src/lib/env.ts
 describe("safeNextPath", () => {
   test("keeps in-app paths", () => {
     assert.equal(safeNextPath("/yazilar"), "/yazilar");
-    assert.equal(safeNextPath("/ayarlar/genel?sekme=1"), "/ayarlar/genel?sekme=1");
+    assert.equal(safeNextPath("/istatistik?aralik=all"), "/istatistik?aralik=all");
   });
 
   test("rejects protocol-relative and absolute URLs", () => {

@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, Megaphone, Rss, Settings2 } from "lucide-react";
+import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
 import { Skeleton } from "@/components/feedback/states";
 
 const items = [
@@ -7,7 +7,7 @@ const items = [
   ["RSS", "/rss", Rss],
   ["Reklamlar", "/reklamlar", Megaphone],
   ["İstatistik", "/istatistik", ChartColumn],
-  ["Ayarlar", "/ayarlar", Settings2],
+  ["Çıkış yap", "logout", LogOut],
 ] as const;
 
 /**

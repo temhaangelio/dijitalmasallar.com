@@ -1,7 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { postSchema } from "../src/lib/validations/post.ts";
-import { settingsSchema } from "../src/lib/validations/settings.ts";
 
 const hour = 60 * 60 * 1000;
 const future = () => new Date(Date.now() + 24 * hour).toISOString();
@@ -13,6 +12,7 @@ function basePost(overrides: Record<string, unknown> = {}) {
     en: { body: "y".repeat(60) },
     sourceUrl: "https://example.com/haber",
     featured: false,
+    aiGeneratedImage: false,
     status: "published",
     ...overrides,
   };
@@ -44,36 +44,4 @@ describe("post validation", () => {
     assert.equal(postSchema.safeParse(basePost({ publishedAt: "not-a-date" })).success, false);
   });
 
-});
-
-describe("settings validation", () => {
-  const base = {
-    siteName: "diji.news", domain: "diji.news",
-    description: "Türkçe açıklama metni.", descriptionEn: "English description text.",
-    aboutText: "Hakkında metni en az yirmi karakter uzunluğunda olmalı.", aboutTextEn: "The about text has to be at least twenty characters long.",
-    language: "tr", feedLayout: "short", postsPerPage: 7,
-    contactEmail: "merhaba@diji.news", maintenanceMode: false,
-    modulePosts: true, moduleRss: true, moduleAds: true, moduleAnalytics: true, modulePush: true,
-  };
-
-  test("accepts the defaults", () => {
-    assert.equal(settingsSchema.safeParse(base).success, true);
-  });
-
-  test("clamps postsPerPage to 3–20 and requires an integer", () => {
-    assert.equal(settingsSchema.safeParse({ ...base, postsPerPage: 2 }).success, false);
-    assert.equal(settingsSchema.safeParse({ ...base, postsPerPage: 21 }).success, false);
-    assert.equal(settingsSchema.safeParse({ ...base, postsPerPage: 7.5 }).success, false);
-  });
-
-  test("rejects an about text shorter than 20 characters", () => {
-    assert.equal(settingsSchema.safeParse({ ...base, aboutText: "kısa" }).success, false);
-    assert.equal(settingsSchema.safeParse({ ...base, aboutTextEn: "short" }).success, false);
-  });
-
-  test("rejects unknown enum values and a malformed contact address", () => {
-    assert.equal(settingsSchema.safeParse({ ...base, feedLayout: "grid" }).success, false);
-    assert.equal(settingsSchema.safeParse({ ...base, language: "de" }).success, false);
-    assert.equal(settingsSchema.safeParse({ ...base, contactEmail: "merhaba" }).success, false);
-  });
 });

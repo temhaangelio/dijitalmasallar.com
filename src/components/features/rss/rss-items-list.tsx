@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from "react";
-import { ArrowDown, ArrowUpRight, CheckCheck, Circle, CircleCheck, FileText, RefreshCw } from "lucide-react";
-import { markAllReadAction, refreshFeedsAction, toggleItemReadAction } from "@/app/(dashboard)/rss/actions";
+import { ArrowDown, ArrowUpRight, CheckCheck, Circle, CircleCheck, FileText, RefreshCw, Trash2 } from "lucide-react";
+import { markAllReadAction, refreshFeedsAction, removeReadItemsAction, toggleItemReadAction } from "@/app/(dashboard)/rss/actions";
 import { EmptyState } from "@/components/feedback/states";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/components/ui/toast";
 import type { RssItem } from "@/services/rss";
@@ -32,6 +33,7 @@ export function RssItemsList({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [removeReadOpen, setRemoveReadOpen] = useState(false);
 
   /*
    * Read state is held on the client rather than re-read from the server after every change, and
@@ -67,6 +69,15 @@ export function RssItemsList({
       setReadOverrides({});
       router.refresh();
     });
+  }
+
+  async function removeRead() {
+    const result = await removeReadItemsAction(activeFeedId);
+    showToast(result.message, result.success ? "success" : "error");
+    if (!result.success) return false;
+    setReadOverrides({});
+    router.refresh();
+    return true;
   }
 
   /*
@@ -158,7 +169,10 @@ export function RssItemsList({
             })}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="secondary" size="sm" disabled={pending || !hasFeeds} onClick={() => setRemoveReadOpen(true)}>
+              <Trash2 className="size-4" aria-hidden="true" />Okunmuşları sil
+            </Button>
             <Button type="button" variant="secondary" size="sm" disabled={pending || !hasFeeds} onClick={() => runServerAction(() => markAllReadAction(activeFeedId))}>
               <CheckCheck className="size-4" aria-hidden="true" />Tümünü okundu işaretle
             </Button>
@@ -293,6 +307,15 @@ export function RssItemsList({
           </div>
         </aside>
       )}
+      <ConfirmDialog
+        open={removeReadOpen}
+        onOpenChange={setRemoveReadOpen}
+        title="Okunmuş içerikler silinsin mi?"
+        description={activeFeedId ? "Bu kaynaktaki okunmuş içerikler kalıcı olarak silinecek. Okunmamış içerikler ve kaynak korunacak." : "Tüm kaynaklardaki okunmuş içerikler kalıcı olarak silinecek. Okunmamış içerikler ve kaynaklar korunacak."}
+        confirmLabel="Okunmuşları sil"
+        variant="destructive"
+        onConfirm={removeRead}
+      />
     </div>
   );
 }

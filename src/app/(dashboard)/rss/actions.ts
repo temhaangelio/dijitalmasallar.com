@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { isRssReaderAvailable } from "@/lib/rss/availability";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { isUuid } from "@/lib/utils";
-import { addFeed, addPageSource, markAllRead, markItemRead, noFeedFoundMessage, refreshFeeds, removeFeed, renameFeed, setFeedActive } from "@/services/rss";
+import { addFeed, addPageSource, markAllRead, markItemRead, noFeedFoundMessage, refreshFeeds, removeFeed, removeReadItems, renameFeed, setFeedActive } from "@/services/rss";
 
 type ActionResult = { success: boolean; message: string };
 /** `canFollowPage` tells the dialog that scraping the page is still worth offering. */
@@ -131,4 +131,16 @@ export async function markAllReadAction(feedId?: string): Promise<ActionResult> 
   markAllRead(feedId);
   revalidatePath("/rss");
   return { success: true, message: "Tümü okundu işaretlendi." };
+}
+
+export async function removeReadItemsAction(feedId?: string): Promise<ActionResult> {
+  const denied = await accessError();
+  if (denied) return denied;
+  if (feedId && !isUuid(feedId)) return { success: false, message: "Geçersiz kaynak." };
+  const removed = removeReadItems(feedId);
+  revalidatePath("/rss");
+  return {
+    success: true,
+    message: removed ? `${removed} okunmuş içerik silindi.` : "Silinecek okunmuş içerik yok.",
+  };
 }

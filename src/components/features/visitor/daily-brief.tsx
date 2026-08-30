@@ -23,9 +23,15 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
 
   return (
     <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
-      <h2 id="daily-brief-title" className="font-mono text-[11px] font-semibold uppercase leading-none tracking-[.2em] text-accent">
-        {isEnglish ? "Today’s brief" : "Günün özeti"}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="daily-brief-title" className="font-mono text-[11px] font-semibold uppercase leading-none tracking-[.2em] text-accent">
+          {isEnglish ? "Today’s brief" : "Günün özeti"}
+        </h2>
+        <span className="inline-flex items-center gap-2 font-mono text-[9px] font-normal uppercase tracking-[.12em] text-muted sm:text-[10px]">
+          <span className="size-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
+          {isEnglish ? "Day in progress" : "Gün devam ediyor"}
+        </span>
+      </div>
 
       <div id="daily-brief-content" className="mt-6 space-y-4 sm:mt-7 sm:space-y-5">
         {visibleParagraphs.map((paragraph, paragraphIndex) => (

@@ -9,8 +9,6 @@ const privateRoutePrefixes = [
   "/rss",
   "/reklamlar",
   "/istatistik",
-  "/ayarlar",
-  "/profil",
   "/giris",
   "/sifremi-unuttum",
   "/sifre-yenile",

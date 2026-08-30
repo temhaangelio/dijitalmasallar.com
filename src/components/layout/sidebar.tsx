@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, Megaphone, Rss, Settings2 } from "lucide-react";
+import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
+import { logoutAction } from "@/app/(auth)/actions";
 import { SidebarToggle } from "./sidebar-toggle";
 
 /**
@@ -16,7 +17,6 @@ const items = [
   ["RSS", "/rss", "rss", Rss],
   ["Reklamlar", "/reklamlar", "ads", Megaphone],
   ["İstatistik", "/istatistik", "analytics", ChartColumn],
-  ["Ayarlar", "/ayarlar", null, Settings2],
 ] as const;
 
 export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "rss" | "ads" | "analytics", boolean> }) {
@@ -26,13 +26,19 @@ export function Sidebar({ active, siteName, modules }: { active: string; siteNam
     </Link>
     <nav className="flex flex-col gap-1">
       {items.filter(([, , module]) => !module || modules[module]).map(([label, href, , Icon]) => {
-        const selected = active === href || (href === "/ayarlar" && active.startsWith("/ayarlar/"));
+        const selected = active === href;
         return <Link key={href} href={href} aria-label={label} title={label} className={`sidebar-item relative text-[15px] transition-colors ${selected ? "bg-ink font-semibold text-ink-contrast" : "font-medium text-ink-2 hover:bg-surface-2 hover:text-ink"}`}>
           <Icon size={18} className="shrink-0" aria-hidden="true" />
           <span className="sidebar-expanded-only truncate">{label}</span>
           {selected && <span aria-hidden="true" className="sidebar-expanded-only absolute right-3 top-2 size-1.5 rounded-full bg-ink-contrast" />}
         </Link>;
       })}
+      <form action={logoutAction}>
+        <button type="submit" aria-label="Çıkış yap" title="Çıkış yap" className="sidebar-item w-full text-left text-[15px] font-medium text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink">
+          <LogOut size={18} className="shrink-0" aria-hidden="true" />
+          <span className="sidebar-expanded-only truncate">Çıkış yap</span>
+        </button>
+      </form>
       <Link href="/" aria-label="Siteyi gör" title="Siteyi gör" className="sidebar-item mt-2 text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
         <ArrowUpRight size={18} className="shrink-0" aria-hidden="true" />
         <span className="sidebar-expanded-only truncate">Siteyi gör</span>
