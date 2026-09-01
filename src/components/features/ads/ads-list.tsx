@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { ExternalLink, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
 import { deleteAdAction, toggleAdAction, updateAdLanguageAction } from "@/app/(dashboard)/reklamlar/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { Badge } from "@/components/ui/badge";
@@ -88,6 +88,9 @@ export function AdsList({ ads }: { ads: Advertisement[] }) {
                   <ExternalLink className="size-4" aria-hidden="true" />{hostname(ad.target_url)}
                 </a>
                 <div className="flex items-center gap-2">
+                  <Link href={`/reklamlar/${ad.id}/duzenle`} aria-label={`${ad.title} reklamını düzenle`} className="flex min-h-9 items-center gap-1.5 rounded-full px-2 text-sm font-semibold text-muted transition-colors hover:bg-surface-2 hover:text-ink">
+                    <Pencil className="size-4" aria-hidden="true" />Düzenle
+                  </Link>
                   <Select
                     aria-label={`${ad.title} reklam dili`}
                     value={ad.language}

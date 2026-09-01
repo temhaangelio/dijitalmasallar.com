@@ -80,7 +80,7 @@ function AdCard({ ad }: { ad: Advertisement }) {
  * Ads only enter the feed once the reader is past this many notes, so the first screens stay clean.
  * The last note is still kept ad-free, hence the `- 1`.
  */
-const adsAfterPostCount = 20;
+const adsAfterPostCount = 10;
 
 function randomAdSlots(postCount: number, ads: Advertisement[]) {
   const slots = new Map<number, Advertisement>();

@@ -54,6 +54,56 @@ export async function createAdAction(formData: FormData): Promise<ActionResult> 
   return { success: true, message: "Reklam eklendi." };
 }
 
+export async function updateAdAction(id: string, formData: FormData): Promise<ActionResult> {
+  if (!isUuid(id)) return { success: false, message: "Geçersiz reklam." };
+  const access = await getAuthorizedAdminClient();
+  if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
+  const title = text(formData, "title");
+  const description = text(formData, "description");
+  const ctaLabel = text(formData, "ctaLabel");
+  const targetUrl = text(formData, "targetUrl");
+  const language = text(formData, "language");
+  const active = formData.get("active") === "true";
+  const removeImage = formData.get("removeImage") === "true";
+  if (language !== "tr" && language !== "en") return { success: false, message: "Geçerli bir reklam dili seçin." };
+  if (title.length < 3 || title.length > 100) return { success: false, message: "Reklam başlığı 3–100 karakter olmalı." };
+  if (description.length < 10 || description.length > 240) return { success: false, message: "Açıklama 10–240 karakter olmalı." };
+  if (ctaLabel.length < 2 || ctaLabel.length > 30) return { success: false, message: "Buton metni 2–30 karakter olmalı." };
+  try { const url = new URL(targetUrl); if (!["http:", "https:"].includes(url.protocol)) throw new Error(); } catch { return { success: false, message: "Geçerli bir http veya https adresi girin." }; }
+
+  const { data: current, error: currentError } = await access.admin.from("ad_units").select("id,image_url").eq("id", id).maybeSingle();
+  if (currentError || !current) return { success: false, message: "Reklam bulunamadı." };
+
+  const image = formData.get("image");
+  let uploadedPath: string | null = null;
+  let imageUrl = removeImage ? null : current.image_url;
+  if (image instanceof File && image.size > 0) {
+    if (!acceptedImages.has(image.type)) return { success: false, message: "Görsel JPG, PNG, WebP veya GIF olmalı." };
+    if (image.size > 5 * 1024 * 1024) return { success: false, message: "Görsel 5 MB’dan küçük olmalı." };
+    const extension = image.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "webp";
+    uploadedPath = `${access.user.id}/${randomUUID()}.${extension}`;
+    const { error: uploadError } = await access.admin.storage.from("ad-images").upload(uploadedPath, image, { contentType: image.type, upsert: false });
+    if (uploadError) return { success: false, message: "Reklam görseli yüklenemedi." };
+    imageUrl = access.admin.storage.from("ad-images").getPublicUrl(uploadedPath).data.publicUrl;
+  }
+
+  const { data, error } = await access.admin.from("ad_units").update({
+    label: language === "en" ? "AD" : "REKLAM", title, description, cta_label: ctaLabel,
+    target_url: targetUrl, image_url: imageUrl, language, active, updated_at: new Date().toISOString(),
+  }).eq("id", id).select("id").maybeSingle();
+  if (error || !data) {
+    if (uploadedPath) await access.admin.storage.from("ad-images").remove([uploadedPath]);
+    return { success: false, message: "Reklam güncellenemedi." };
+  }
+
+  if ((uploadedPath || removeImage) && current.image_url) {
+    const oldPath = storagePathFromUrl(current.image_url);
+    if (oldPath) await access.admin.storage.from("ad-images").remove([oldPath]);
+  }
+  revalidatePath("/"); revalidatePath("/reklamlar"); revalidatePath(`/reklamlar/${id}/duzenle`);
+  return { success: true, message: "Reklam güncellendi." };
+}
+
 export async function updateAdLanguageAction(id: string, language: "tr" | "en"): Promise<ActionResult> {
   if (!isUuid(id) || (language !== "tr" && language !== "en")) return { success: false, message: "Geçersiz reklam dili." };
   const access = await getAuthorizedAdminClient();

@@ -60,6 +60,18 @@ function truncate(value: string, limit: number) {
   return value.length > limit ? `${value.slice(0, limit - 3).trimEnd()}…` : value;
 }
 
+/** Finds the opening sentence without treating initialisms such as “U.S.” as sentence endings. */
+function firstSentence(value: string) {
+  const endings = value.matchAll(/[.!?](?:\s|$)/g);
+  for (const ending of endings) {
+    const punctuationIndex = ending.index;
+    const candidate = value.slice(0, punctuationIndex + 1);
+    if (ending[0][0] === "." && /(?:\b[A-Za-z]\.){2,}$/.test(candidate)) continue;
+    return candidate.trim();
+  }
+  return value;
+}
+
 /**
  * An authored post starts with `# Title`, a blank line, the excerpt, a blank line, then the body.
  * Anything else — imported notes, posts saved with the title/excerpt toggles off — falls back to
@@ -73,9 +85,9 @@ export function parsePostContent(value: string): ParsedPostContent {
   const clean = stripMarkdown(value);
   // Falling back to the whole string rather than a pre-sliced one lets `truncate` add the ellipsis;
   // slicing first produced a title cut mid-word with no indication that it had been shortened.
-  const firstSentence = clean.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || clean;
+  const openingSentence = firstSentence(clean);
   return {
-    title: truncate(firstSentence, titleLimit),
+    title: truncate(openingSentence, titleLimit),
     excerpt: truncate(clean, excerptLimit),
     body: value,
   };
@@ -91,6 +103,6 @@ export function parsePostContent(value: string): ParsedPostContent {
  */
 export function summaryLine(post: { excerpt: string; body: string }, limit = 150) {
   const source = post.excerpt.trim() || stripMarkdown(post.body.replace(/^#\s+[^\n]+\n+/, ""));
-  const sentence = source.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || source;
+  const sentence = firstSentence(source);
   return truncate(sentence, limit);
 }

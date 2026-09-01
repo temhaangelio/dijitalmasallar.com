@@ -108,6 +108,13 @@ describe("summaryLine", () => {
     assert.equal(summaryLine({ excerpt: "İlk cümle. İkinci cümle.", body: "" }), "İlk cümle.");
   });
 
+  test("does not stop at periods inside an English initialism", () => {
+    assert.equal(
+      summaryLine({ excerpt: "", body: "The U.S. Department of War launched a new system. It will serve staff." }),
+      "The U.S. Department of War launched a new system.",
+    );
+  });
+
   test("falls back to the opening sentence of the body, without its title", () => {
     assert.equal(summaryLine({ excerpt: "", body: "# Başlık\n\nGövdenin ilk cümlesi. Sonrası." }), "Gövdenin ilk cümlesi.");
   });

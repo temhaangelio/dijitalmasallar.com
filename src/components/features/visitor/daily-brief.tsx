@@ -23,41 +23,43 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
   const canExpand = items.length > 1;
   const visibleParagraphs = expanded ? paragraphs : [items.slice(0, 1)];
   const collagePosts = posts.filter((post, index, all) => post.cover_path && all.findIndex((item) => item.cover_path === post.cover_path) === index);
-  const collageColumns = collagePosts.length <= 2 ? collagePosts.length : collagePosts.length <= 4 ? 2 : Math.ceil(collagePosts.length / 2);
-  const collageRows = collagePosts.length <= 2 ? "auto-rows-[150px] sm:auto-rows-[190px]" : collagePosts.length <= 4 ? "auto-rows-[100px] sm:auto-rows-[120px]" : "auto-rows-[90px] sm:auto-rows-[110px]";
-
-  function collageSpan(index: number) {
-    if (index !== 0) return "";
-    if (collagePosts.length === 3) return "row-span-2";
-    if (collagePosts.length > 4 && collagePosts.length % 2 === 1) return "col-span-2";
-    return "";
-  }
+  const collageRowBreak = collagePosts.length <= 2 ? collagePosts.length : Math.ceil(collagePosts.length / 2);
+  const collageRows = collagePosts.length
+    ? [collagePosts.slice(0, collageRowBreak), collagePosts.slice(collageRowBreak)].filter((row) => row.length)
+    : [];
+  const briefHeader = (
+    <div className={collagePosts.length ? "pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/55 px-5 text-center" : "flex flex-wrap items-center justify-between gap-3"}>
+      <h2 id="daily-brief-title" className={`font-mono font-semibold uppercase leading-none tracking-[.18em] ${collagePosts.length ? "text-[16px] text-white drop-shadow-sm sm:text-[18px]" : "text-[11px] text-accent"}`}>
+        {isEnglish ? "Today’s brief" : "Günün özeti"}
+      </h2>
+      <span className={`inline-flex items-center gap-2 font-mono text-[9px] font-normal uppercase tracking-[.12em] sm:text-[10px] ${collagePosts.length ? "absolute right-5 top-5 text-white/85 drop-shadow-sm sm:right-6 sm:top-6" : "text-muted"}`}>
+        <span className={`size-1.5 animate-pulse rounded-full ${collagePosts.length ? "bg-white" : "bg-accent"}`} aria-hidden="true" />
+        {isEnglish ? "Day in progress" : "Gün devam ediyor"}
+      </span>
+    </div>
+  );
 
   return (
     <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
       {collagePosts.length ? (
-        <div className={`-mx-5 -mt-5 mb-5 grid gap-0.5 bg-line sm:-mx-6 sm:-mt-6 sm:mb-6 ${collageRows}`} style={{ gridTemplateColumns: `repeat(${collageColumns}, minmax(0, 1fr))` }} aria-label={isEnglish ? "Images from today’s stories" : "Bugünkü haberlerin görselleri"}>
-          {collagePosts.map((post, index) => (
-            <Link key={post.id} href={languageHref(`/haber/${post.id}`, language)} aria-label={post.title || (isEnglish ? "Open story" : "Haberi aç")} className={`group relative min-w-0 overflow-hidden bg-surface-3 ${collageSpan(index)}`}>
-              {isOptimizableImage(post.cover_path)
-                ? <Image src={post.cover_path} alt="" fill sizes={collagePosts.length === 1 ? "(max-width: 640px) 100vw, 640px" : "(max-width: 640px) 50vw, 320px"} className="object-cover transition-transform duration-500 group-hover:scale-[1.025]" />
-                // eslint-disable-next-line @next/next/no-img-element -- source-discovered images may use official hosts outside the optimizer allow-list
-                : <img src={post.cover_path ?? ""} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.025]" />}
-            </Link>
+        <div className={`relative -mx-5 -mt-5 mb-5 grid gap-0.5 bg-line sm:-mx-6 sm:-mt-6 sm:mb-6 ${collageRows.length === 1 ? "h-[150px] sm:h-[190px]" : "h-[200px] grid-rows-2 sm:h-[240px]"}`} aria-label={isEnglish ? "Images from today’s stories" : "Bugünkü haberlerin görselleri"}>
+          {briefHeader}
+          {collageRows.map((row, rowIndex) => (
+            <div key={rowIndex} className="grid min-h-0 gap-0.5" style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}>
+              {row.map((post) => (
+                <Link key={post.id} href={languageHref(`/haber/${post.id}`, language)} aria-label={post.title || (isEnglish ? "Open story" : "Haberi aç")} className="group relative min-w-0 overflow-hidden bg-surface-3">
+                  {isOptimizableImage(post.cover_path)
+                    ? <Image src={post.cover_path} alt="" fill sizes={row.length === 1 ? "(max-width: 640px) 100vw, 640px" : `(max-width: 640px) ${Math.ceil(100 / row.length)}vw, ${Math.ceil(640 / row.length)}px`} className="object-cover transition-transform duration-500 group-hover:scale-[1.025]" />
+                    // eslint-disable-next-line @next/next/no-img-element -- source-discovered images may use official hosts outside the optimizer allow-list
+                    : <img src={post.cover_path ?? ""} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.025]" />}
+                </Link>
+              ))}
+            </div>
           ))}
         </div>
-      ) : null}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="daily-brief-title" className="font-mono text-[11px] font-semibold uppercase leading-none tracking-[.2em] text-accent">
-          {isEnglish ? "Today’s brief" : "Günün özeti"}
-        </h2>
-        <span className="inline-flex items-center gap-2 font-mono text-[9px] font-normal uppercase tracking-[.12em] text-muted sm:text-[10px]">
-          <span className="size-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
-          {isEnglish ? "Day in progress" : "Gün devam ediyor"}
-        </span>
-      </div>
+      ) : briefHeader}
 
-      <div id="daily-brief-content" className="mt-6 space-y-4 sm:mt-7 sm:space-y-5">
+      <div id="daily-brief-content" className={`${collagePosts.length ? "" : "mt-6 sm:mt-7"} space-y-4 sm:space-y-5`}>
         {visibleParagraphs.map((paragraph, paragraphIndex) => (
           <p key={paragraphIndex} className="visitor-serif max-w-[600px] text-[18px] font-normal leading-[1.52] text-ink sm:text-[21px] sm:leading-[1.5]">
             {paragraph.map(({ post, summary }, itemIndex) => (

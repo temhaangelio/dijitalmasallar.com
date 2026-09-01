@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
+import { isUuid } from "@/lib/utils";
 
 export type Advertisement = {
   id: string;
@@ -27,6 +28,19 @@ export async function getAds(): Promise<Advertisement[]> {
     return data as Advertisement[];
   } catch {
     return [];
+  }
+}
+
+export async function getAdById(id: string): Promise<Advertisement | null> {
+  if (!isUuid(id)) return null;
+  try {
+    const access = await getAuthorizedAdminClient();
+    if (!access) return null;
+    const { data, error } = await access.admin.from("ad_units").select(columns).eq("id", id).maybeSingle();
+    if (error || !data) return null;
+    return data as Advertisement;
+  } catch {
+    return null;
   }
 }
 
