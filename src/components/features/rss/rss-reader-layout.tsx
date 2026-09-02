@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { RssFeedPanel } from "@/components/features/rss/rss-feed-panel";
 import { RssItemsList } from "@/components/features/rss/rss-items-list";
 import type { RssFeed, RssItem } from "@/services/rss";
@@ -36,6 +36,12 @@ export function RssReaderLayout({
   unreadTotal: number;
 }) {
   const sourcesCollapsed = useSyncExternalStore(subscribeToSourcesCollapsed, getSourcesCollapsed, () => false);
+  const [unreadDeltas, setUnreadDeltas] = useState<Record<string, number>>({});
+  const liveFeeds = feeds.map((feed) => ({
+    ...feed,
+    unreadCount: Math.max(0, feed.unreadCount + (unreadDeltas[feed.id] ?? 0)),
+  }));
+  const liveUnreadTotal = Math.max(0, unreadTotal + Object.values(unreadDeltas).reduce((total, delta) => total + delta, 0));
 
   function changeSourcesCollapsed(collapsed: boolean) {
     try {
@@ -46,6 +52,10 @@ export function RssReaderLayout({
     }
   }
 
+  function changeUnreadCount(feedId: string, delta: number) {
+    setUnreadDeltas((current) => ({ ...current, [feedId]: (current[feedId] ?? 0) + delta }));
+  }
+
   return (
     <div
       className={`relative xl:min-h-0 xl:flex-1 ${
@@ -53,9 +63,9 @@ export function RssReaderLayout({
       }`}
     >
       <RssFeedPanel
-        feeds={feeds}
+        feeds={liveFeeds}
         activeFeedId={activeFeedId}
-        unreadTotal={unreadTotal}
+        unreadTotal={liveUnreadTotal}
         collapsed={sourcesCollapsed}
         onCollapsedChange={changeSourcesCollapsed}
       />
@@ -65,6 +75,7 @@ export function RssReaderLayout({
         activeFeedId={activeFeedId}
         unreadOnly={unreadOnly}
         hasFeeds={feeds.length > 0}
+        onUnreadCountChange={changeUnreadCount}
       />
     </div>
   );

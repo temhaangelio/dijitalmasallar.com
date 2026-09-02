@@ -9,7 +9,7 @@ import { getBilingualPostsPage, getScheduledPostCount } from "@/services/posts";
 export default async function PostsPage({ searchParams }: { searchParams: Promise<{ dil?: string }> }) {
   const params = await searchParams;
   const language = params.dil === "en" ? "en" : "tr";
-  const pageSize = 3;
+  const pageSize = 5;
   const [{ tr: turkish, en: english }, scheduledTotal] = await Promise.all([getBilingualPostsPage(1, pageSize), getScheduledPostCount()]);
   const result = language === "en" ? english : turkish;
 

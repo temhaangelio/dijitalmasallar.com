@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { randomInt } from "node:crypto";
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
@@ -51,47 +50,38 @@ function AdCard({ ad }: { ad: Advertisement }) {
       target="_blank"
       rel="sponsored noopener noreferrer"
       aria-label={`${ad.label}: ${ad.title}`}
-      className="visitor-panel group block border-y border-line py-[30px]"
+      className="visitor-card group block overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 shadow-[0_1px_2px_rgba(0,0,0,.018)] transition-colors hover:border-line-strong"
     >
-      <div className={ad.image_url ? "grid items-center gap-5 sm:grid-cols-[minmax(0,1fr)_180px] sm:gap-8" : "block"}>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="h-px w-5 bg-accent" aria-hidden="true" />
-            <span className="visitor-muted font-mono text-[10px] font-medium uppercase tracking-[.18em] text-accent">{ad.label}</span>
-          </div>
-          <h2 className="visitor-heading mt-3 text-[length:var(--vt-h3)] font-bold leading-[1.12] tracking-[-.035em] transition-colors group-hover:text-ink-2">{ad.title}</h2>
-          <p className="visitor-copy mt-2 max-w-[500px] text-[length:var(--vt-small)] font-normal leading-[1.6] text-muted">{ad.description}</p>
-          <span className="mt-4 inline-block border-b border-ink pb-1 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-ink transition-colors group-hover:border-accent group-hover:text-accent">{ad.cta_label}</span>
+      {ad.image_url ? (
+        <div className="relative aspect-[2/1] w-full overflow-hidden bg-surface-3">
+          {isOptimizableImage(ad.image_url)
+            ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 767px) 100vw, 640px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
+            // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
+            : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
         </div>
-        {ad.image_url && (
-          <div className="relative order-first aspect-[16/9] overflow-hidden rounded-[16px] bg-surface-2 sm:order-last sm:aspect-square">
-            {isOptimizableImage(ad.image_url)
-              ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 639px) 100vw, 180px" className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025]" />
-              // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
-              : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025]" />}
-          </div>
-        )}
+      ) : null}
+
+      <div className="px-5 py-4 sm:px-6 sm:py-5">
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[.18em] text-accent">{ad.label}</span>
+        <h2 className="visitor-serif mt-3 text-[20px] font-semibold leading-[1.28] tracking-[-.02em] text-ink transition-colors group-hover:text-accent sm:text-[23px]">{ad.title}</h2>
+        <p className="visitor-copy mt-2.5 text-[15px] font-normal leading-[1.6] text-muted [text-wrap:pretty] sm:text-[16px]">{ad.description}</p>
+        <div className="mt-4 flex justify-end">
+          <span className="visitor-source border-b border-line pb-0.5 font-mono text-[11px] font-normal leading-[1.6] text-muted transition-colors group-hover:border-accent group-hover:text-accent">{ad.cta_label} ↗</span>
+        </div>
       </div>
     </a>
   );
 }
 
-/**
- * Ads only enter the feed once the reader is past this many notes, so the first screens stay clean.
- * The last note is still kept ad-free, hence the `- 1`.
- */
-const adsAfterPostCount = 10;
+const adInterval = 6;
 
-function randomAdSlots(postCount: number, ads: Advertisement[]) {
+/** Places an ad after every sixth note and cycles through the active ads in order. */
+function createAdSlots(postCount: number, ads: Advertisement[]) {
   const slots = new Map<number, Advertisement>();
-  if (postCount < adsAfterPostCount + 2 || !ads.length) return slots;
-  const candidates = Array.from({ length: postCount - 1 - adsAfterPostCount }, (_, index) => index + adsAfterPostCount);
-  if (!candidates.length) return slots;
-  for (let index = candidates.length - 1; index > 0; index--) { const swap = randomInt(index + 1); [candidates[index], candidates[swap]] = [candidates[swap], candidates[index]]; }
-  const shuffledAds = [...ads];
-  for (let index = shuffledAds.length - 1; index > 0; index--) { const swap = randomInt(index + 1); [shuffledAds[index], shuffledAds[swap]] = [shuffledAds[swap], shuffledAds[index]]; }
-  const count = Math.min(shuffledAds.length, Math.max(1, Math.floor((postCount - adsAfterPostCount) / 3)), candidates.length);
-  for (let index = 0; index < count; index++) slots.set(candidates[index], shuffledAds[index]);
+  if (postCount < adInterval || !ads.length) return slots;
+  for (let position = adInterval - 1, adIndex = 0; position < postCount; position += adInterval, adIndex++) {
+    slots.set(position, ads[adIndex % ads.length]);
+  }
   return slots;
 }
 
@@ -132,7 +122,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     ? postDays[0].items.map(({ post }) => post)
     : [];
   const showDailyBrief = todaysPosts.length >= 4;
-  const adSlots = randomAdSlots(posts.length, ads);
+  const adSlots = createAdSlots(posts.length, ads);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
   const structuredData = {

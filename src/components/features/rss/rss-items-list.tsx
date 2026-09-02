@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from "react";
-import { ArrowDown, ArrowUpRight, CheckCheck, Circle, CircleCheck, FileText, RefreshCw, Trash2 } from "lucide-react";
+import { ArrowUpRight, CheckCheck, Circle, CircleCheck, FileText, RefreshCw, Trash2 } from "lucide-react";
 import { markAllReadAction, refreshFeedsAction, removeReadItemsAction, toggleItemReadAction } from "@/app/(dashboard)/rss/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -25,11 +25,13 @@ export function RssItemsList({
   activeFeedId,
   unreadOnly,
   hasFeeds,
+  onUnreadCountChange,
 }: {
   items: RssItem[];
   activeFeedId?: string;
   unreadOnly: boolean;
   hasFeeds: boolean;
+  onUnreadCountChange: (feedId: string, delta: number) => void;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -51,12 +53,30 @@ export function RssItemsList({
   const [visibleCount, setVisibleCount] = useState(itemPageSize);
   const shownItems = items.map((item) => (item.id in readOverrides ? { ...item, read: readOverrides[item.id] } : item));
   const visibleItems = shownItems.slice(0, visibleCount);
+  const loadMoreRef = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+    if (!sentinel || visibleCount >= shownItems.length) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) setVisibleCount((count) => Math.min(count + itemPageSize, shownItems.length));
+      },
+      { rootMargin: "240px 0px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [shownItems.length, visibleCount]);
 
   function setRead(item: RssItem, read: boolean) {
+    if (item.read === read) return;
+    const unreadDelta = read ? -1 : 1;
     setReadOverrides((current) => ({ ...current, [item.id]: read }));
+    onUnreadCountChange(item.feedId, unreadDelta);
     void toggleItemReadAction(item.id, read).then((result) => {
       if (result.success) return;
       setReadOverrides((current) => ({ ...current, [item.id]: !read }));
+      onUnreadCountChange(item.feedId, -unreadDelta);
       showToast(result.message, "error");
     });
   }
@@ -146,7 +166,7 @@ export function RssItemsList({
   };
 
   const titleClass = (read: boolean) =>
-    `min-w-0 flex-1 truncate text-[17px] leading-[1.45] tracking-[-.015em] ${read ? "font-medium text-muted" : "font-semibold text-ink"}`;
+    `min-w-0 flex-1 truncate text-[17px] leading-[1.45] tracking-[-.015em] group-focus-within:text-white ${read ? "font-medium text-muted" : "font-semibold text-ink"}`;
 
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,.8fr)] xl:h-full xl:min-h-0 xl:items-stretch">
@@ -196,19 +216,19 @@ export function RssItemsList({
               {visibleItems.map((item) => (
                 <li
                   key={item.id}
-                  className={`group relative -mx-2 flex items-center gap-3.5 rounded-xl px-2 py-3 transition-colors focus-within:bg-surface-2 ${item.read ? "opacity-55" : ""}`}
+                  className={`group relative -mx-2 flex items-center gap-3.5 rounded-xl px-2 py-3 transition-colors focus-within:bg-ink focus-within:opacity-100 ${item.read ? "opacity-55" : ""}`}
                 >
                   {/* The cursor. `focus-within` rather than `focus-visible`: clicking a headline and
                       then arrowing on is a normal way to start, and `focus-visible` paints nothing
                       after a mouse click — which would leave you arrowing blind. */}
-                  <span aria-hidden="true" className="absolute inset-y-1.5 left-0 hidden w-[3px] rounded-full bg-ink group-focus-within:block" />
+                  <span aria-hidden="true" className="absolute inset-y-1.5 left-0 hidden w-[3px] rounded-full bg-white group-focus-within:block" />
 
                   <button
                     type="button"
                     tabIndex={-1}
                     onClick={() => setRead(item, !item.read)}
                     aria-label={item.read ? `“${item.title}” okunmadı işaretle` : `“${item.title}” okundu işaretle`}
-                    className="grid size-8 shrink-0 place-items-center rounded-full text-faint transition-colors hover:bg-surface-3 hover:text-ink"
+                    className="grid size-8 shrink-0 place-items-center rounded-full text-faint transition-colors hover:bg-surface-3 hover:text-ink group-focus-within:text-white group-focus-within:hover:bg-white/10"
                   >
                     {item.read ? <CircleCheck className="size-[18px]" aria-hidden="true" /> : <Circle className="size-[18px]" aria-hidden="true" />}
                   </button>
@@ -238,26 +258,15 @@ export function RssItemsList({
                       tabIndex={-1}
                       aria-label={`“${item.title}” kaynağını yeni sekmede aç`}
                       title="Kaynağı yeni sekmede aç"
-                      className="grid size-8 shrink-0 place-items-center rounded-full text-muted opacity-0 transition-opacity hover:bg-surface-3 hover:text-ink group-focus-within:opacity-100 group-hover:opacity-100"
+                      className="grid size-8 shrink-0 place-items-center rounded-full text-muted opacity-0 transition-all hover:bg-surface-3 hover:text-ink group-focus-within:text-white group-focus-within:opacity-100 group-focus-within:hover:bg-white/10 group-hover:opacity-100"
                     >
                       <ArrowUpRight className="size-[18px]" aria-hidden="true" />
                     </a>
                   )}
                 </li>
               ))}
+              {visibleItems.length < shownItems.length ? <li ref={loadMoreRef} className="h-px" aria-hidden="true" /> : null}
             </ul>
-
-            {visibleItems.length < shownItems.length && (
-              <button
-                type="button"
-                aria-controls="rss-items"
-                onClick={() => setVisibleCount((count) => Math.min(count + itemPageSize, shownItems.length))}
-                className="group mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-surface-2 px-5 text-[14px] font-semibold text-ink transition-colors hover:bg-surface-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              >
-                Daha fazla yükle
-                <ArrowDown className="size-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
-              </button>
-            )}
           </>
         ) : (
           <div className="mt-5">

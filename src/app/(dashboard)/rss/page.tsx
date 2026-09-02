@@ -41,7 +41,14 @@ export default async function RssPage({ searchParams }: { searchParams: Promise<
           note={`${feeds.length} kaynak · ${unreadTotal} okunmamış · ${lastFetchNote(lastFetchedAt)}`}
           actions={<RssAddFeedButton />}
         />
-        <RssReaderLayout feeds={feeds} items={items} activeFeedId={activeFeedId} unreadOnly={unreadOnly} unreadTotal={unreadTotal} />
+        <RssReaderLayout
+          key={feeds.map((feed) => `${feed.id}:${feed.unreadCount}`).join("|")}
+          feeds={feeds}
+          items={items}
+          activeFeedId={activeFeedId}
+          unreadOnly={unreadOnly}
+          unreadTotal={unreadTotal}
+        />
       </div>
     </AppShell>
   );

@@ -28,12 +28,12 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
     ? [collagePosts.slice(0, collageRowBreak), collagePosts.slice(collageRowBreak)].filter((row) => row.length)
     : [];
   const briefHeader = (
-    <div className={collagePosts.length ? "pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/55 px-5 text-center" : "flex flex-wrap items-center justify-between gap-3"}>
-      <h2 id="daily-brief-title" className={`font-mono font-semibold uppercase leading-none tracking-[.18em] ${collagePosts.length ? "text-[16px] text-white drop-shadow-sm sm:text-[18px]" : "text-[11px] text-accent"}`}>
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="daily-brief-title" className="font-mono text-[11px] font-semibold uppercase leading-none tracking-[.18em] text-accent">
         {isEnglish ? "Today’s brief" : "Günün özeti"}
       </h2>
-      <span className={`inline-flex items-center gap-2 font-mono text-[9px] font-normal uppercase tracking-[.12em] sm:text-[10px] ${collagePosts.length ? "absolute right-5 top-5 text-white/85 drop-shadow-sm sm:right-6 sm:top-6" : "text-muted"}`}>
-        <span className={`size-1.5 animate-pulse rounded-full ${collagePosts.length ? "bg-white" : "bg-accent"}`} aria-hidden="true" />
+      <span className="inline-flex items-center gap-2 font-mono text-[9px] font-medium uppercase tracking-[.12em] text-muted sm:text-[10px]">
+        <span className="size-1.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
         {isEnglish ? "Day in progress" : "Gün devam ediyor"}
       </span>
     </div>
@@ -43,7 +43,6 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
     <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
       {collagePosts.length ? (
         <div className={`relative -mx-5 -mt-5 mb-5 grid gap-0.5 bg-line sm:-mx-6 sm:-mt-6 sm:mb-6 ${collageRows.length === 1 ? "h-[150px] sm:h-[190px]" : "h-[200px] grid-rows-2 sm:h-[240px]"}`} aria-label={isEnglish ? "Images from today’s stories" : "Bugünkü haberlerin görselleri"}>
-          {briefHeader}
           {collageRows.map((row, rowIndex) => (
             <div key={rowIndex} className="grid min-h-0 gap-0.5" style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}>
               {row.map((post) => (
@@ -57,9 +56,11 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
             </div>
           ))}
         </div>
-      ) : briefHeader}
+      ) : null}
 
-      <div id="daily-brief-content" className={`${collagePosts.length ? "" : "mt-6 sm:mt-7"} space-y-4 sm:space-y-5`}>
+      {briefHeader}
+
+      <div id="daily-brief-content" className="mt-6 space-y-4 sm:mt-7 sm:space-y-5">
         {visibleParagraphs.map((paragraph, paragraphIndex) => (
           <p key={paragraphIndex} className="visitor-serif max-w-[600px] text-[18px] font-normal leading-[1.52] text-ink sm:text-[21px] sm:leading-[1.5]">
             {paragraph.map(({ post, summary }, itemIndex) => (
