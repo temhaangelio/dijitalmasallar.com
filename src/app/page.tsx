@@ -64,7 +64,7 @@ function AdCard({ ad }: { ad: Advertisement }) {
       <div className="px-5 py-4 sm:px-6 sm:py-5">
         <span className="font-mono text-[10px] font-medium uppercase tracking-[.18em] text-accent">{ad.label}</span>
         <h2 className="visitor-serif mt-3 text-[20px] font-semibold leading-[1.28] tracking-[-.02em] text-ink transition-colors group-hover:text-accent sm:text-[23px]">{ad.title}</h2>
-        <p className="visitor-copy mt-2.5 text-[15px] font-normal leading-[1.6] text-muted [text-wrap:pretty] sm:text-[16px]">{ad.description}</p>
+        <p className="visitor-copy visitor-serif mt-3 whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink [text-wrap:pretty] sm:text-[21px] sm:leading-[1.5]">{ad.description}</p>
         <div className="mt-4 flex justify-end">
           <span className="visitor-source border-b border-line pb-0.5 font-mono text-[11px] font-normal leading-[1.6] text-muted transition-colors group-hover:border-accent group-hover:text-accent">{ad.cta_label} ↗</span>
         </div>

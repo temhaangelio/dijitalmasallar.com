@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createPostAction } from "@/app/(dashboard)/yazilar/actions";
-import { getAiCandidate, getAiDiscovery, removeAiDiscovery, setAiCandidateStatus } from "@/lib/ai-news/local-db";
+import { dismissAiDiscovery, getAiCandidate, getAiDiscovery, setAiAgentInstructions, setAiCandidateStatus } from "@/lib/ai-news/local-db";
 import { sourceForUrl } from "@/lib/ai-news/sources";
 import { beginAiScan, finishAiScan, getAiScanState, type AiScanState } from "@/lib/ai-news/job";
 import { isLocalToolAvailable } from "@/lib/local-tools";
@@ -27,11 +27,12 @@ export async function scanAiNewsAction(): Promise<ActionResult> {
   after(async () => {
     try {
       const result = await scanOfficialAiNews(existingUrls);
-      const message = `${result.sourcesChecked} resmî kaynak tarandı · ${result.created} yeni haber başlığı bulundu.`;
+      const shortage = result.eligible < result.requested ? ` · yalnızca ${result.eligible} uygun yeni kaynak bulundu` : "";
+      const message = `${result.sourcesChecked} resmî kaynak tarandı · ${result.created}/${result.requested} hedef haber bulundu${shortage}.`;
       finishAiScan("completed", message);
     } catch (error) {
       const rawMessage = error instanceof Error ? error.message : "Tarama tamamlanamadı.";
-      finishAiScan("failed", rawMessage.includes("fetch failed") ? "Ollama’ya ulaşılamadı. Ollama’yı ve qwen3.5:9b modelini kontrol edin." : rawMessage);
+      finishAiScan("failed", rawMessage.includes("fetch failed") ? "DeepSeek API’ye ulaşılamadı. İnternet bağlantısını kontrol edin." : rawMessage);
     }
   });
   return { success: true, message: "Haber taraması arka planda başlatıldı." };
@@ -40,6 +41,15 @@ export async function scanAiNewsAction(): Promise<ActionResult> {
 export async function getAiScanStateAction(): Promise<AiScanState> {
   if (!await authorizedAccess()) return { status: "failed", message: "Yetkisiz işlem.", startedAt: null, finishedAt: null };
   return getAiScanState();
+}
+
+export async function updateAiAgentInstructionsAction(instructions: string): Promise<ActionResult> {
+  if (!await authorizedAccess()) return { success: false, message: "Bu işlem için yerel yönetici oturumu gerekir." };
+  const normalized = instructions.replace(/\r\n?/g, "\n").trim();
+  if (normalized.length < 40 || normalized.length > 4_000) return { success: false, message: "Ajan talimatı 40–4.000 karakter arasında olmalı." };
+  setAiAgentInstructions(normalized);
+  revalidatePath("/yapay-zeka");
+  return { success: true, message: "Ajan talimatı güncellendi." };
 }
 
 export async function generateAiCandidateAction(id: string): Promise<ActionResult> {
@@ -59,7 +69,7 @@ export async function deleteAiDiscoveryAction(id: string): Promise<ActionResult>
   const access = await authorizedAccess();
   if (!access) return { success: false, message: "Bu işlem için yerel yönetici oturumu gerekir." };
   if (!isUuid(id) || !getAiDiscovery(id)) return { success: false, message: "Geçersiz haber başlığı." };
-  removeAiDiscovery(id);
+  dismissAiDiscovery(id);
   revalidatePath("/yapay-zeka");
   return { success: true, message: "Haber başlığı listeden silindi." };
 }

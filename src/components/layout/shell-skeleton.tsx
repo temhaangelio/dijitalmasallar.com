@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
+import { ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
 import { Skeleton } from "@/components/feedback/states";
 
 const items = [
@@ -7,7 +7,6 @@ const items = [
   ["RSS", "/rss", Rss],
   ["Reklamlar", "/reklamlar", Megaphone],
   ["İstatistik", "/istatistik", ChartColumn],
-  ["Çıkış yap", "logout", LogOut],
 ] as const;
 
 /**
@@ -36,11 +35,13 @@ export function ShellSkeleton({ active, children }: { active: string; children: 
               <span className="sidebar-expanded-only">{label}</span>
             </div>
           ))}
-          <div className="sidebar-item mt-2 text-[15px] font-medium text-muted">
-            <ArrowUpRight size={18} className="shrink-0" />
-            <span className="sidebar-expanded-only">Siteyi gör</span>
-          </div>
         </nav>
+        <div className="mt-auto border-t border-line/70 pt-4">
+          <div className="sidebar-item text-[15px] font-medium text-muted">
+            <LogOut size={18} className="shrink-0" />
+            <span className="sidebar-expanded-only">Çıkış yap</span>
+          </div>
+        </div>
       </aside>
       <div className="min-w-0 flex-1">
         <div className="mobile-bar">

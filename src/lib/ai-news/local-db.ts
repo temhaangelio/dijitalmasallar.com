@@ -14,6 +14,17 @@ type ConnectionHolder = { [connectionKey]?: DatabaseSync };
 let migratedConnection: DatabaseSync | null = null;
 
 const schema = `
+create table if not exists ai_news_settings (
+  id integer primary key check (id = 1),
+  instructions text not null,
+  updated_at text not null
+);
+
+create table if not exists ai_news_ignored_urls (
+  source_url text primary key,
+  ignored_at text not null
+);
+
 create table if not exists ai_news_candidates (
   id text primary key,
   source_name text not null,
@@ -40,6 +51,8 @@ create table if not exists ai_news_discoveries (
 );
 create index if not exists ai_news_discoveries_date_idx on ai_news_discoveries(source_published_at desc);
 `;
+
+export const defaultAiAgentInstructions = "Yalnızca teknoloji, yapay zekâ, bilim ve dijital kültürde geniş bir okur kitlesi için önemli, yeni ve somut gelişmeleri öne çıkar. Kurumsal reklamları, etkinlik duyurularını, küçük ürün güncellemelerini ve yinelenen haberleri ele. Resmî kaynaktaki olguların dışına çıkma; sakin, açık ve tarafsız bir yayın dili kullan.";
 
 function database() {
   const holder = globalThis as ConnectionHolder;
@@ -108,6 +121,10 @@ export function hasAiDiscoveryUrl(url: string) {
   return Boolean(database().prepare("select 1 from ai_news_discoveries where source_url = ? limit 1").get(url));
 }
 
+export function hasIgnoredAiDiscoveryUrl(url: string) {
+  return Boolean(database().prepare("select 1 from ai_news_ignored_urls where source_url = ? limit 1").get(url));
+}
+
 export function insertAiDiscovery(discovery: AiNewsDiscovery & { articleText: string }) {
   database().prepare(`insert or ignore into ai_news_discoveries
     (id, source_name, source_url, source_published_at, title, title_tr, article_text, created_at) values (?, ?, ?, ?, ?, ?, ?, ?)`)
@@ -127,6 +144,15 @@ export function removeAiDiscovery(id: string) {
   database().prepare("delete from ai_news_discoveries where id = ?").run(id);
 }
 
+export function dismissAiDiscovery(id: string) {
+  const row = database().prepare("select source_url from ai_news_discoveries where id = ?").get(id);
+  if (!row) return false;
+  database().prepare("insert or replace into ai_news_ignored_urls (source_url, ignored_at) values (?, ?)")
+    .run(String(row.source_url), new Date().toISOString());
+  database().prepare("delete from ai_news_discoveries where id = ?").run(id);
+  return true;
+}
+
 export function insertAiCandidate(candidate: AiNewsCandidate) {
   database().prepare(`insert or ignore into ai_news_candidates
     (id, source_name, source_url, source_published_at, title_tr, title_en, content_tr, content_en, status, created_at)
@@ -136,6 +162,17 @@ export function insertAiCandidate(candidate: AiNewsCandidate) {
 
 export function setAiCandidateStatus(id: string, status: AiCandidateStatus) {
   database().prepare("update ai_news_candidates set status = ? where id = ?").run(status, id);
+}
+
+export function getAiAgentInstructions() {
+  const row = database().prepare("select instructions from ai_news_settings where id = 1").get();
+  return row ? String(row.instructions) : defaultAiAgentInstructions;
+}
+
+export function setAiAgentInstructions(instructions: string) {
+  database().prepare(`insert into ai_news_settings (id, instructions, updated_at) values (1, ?, ?)
+    on conflict(id) do update set instructions = excluded.instructions, updated_at = excluded.updated_at`)
+    .run(instructions, new Date().toISOString());
 }
 
 export { databaseFile as aiNewsDatabaseFile };

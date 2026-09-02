@@ -1,17 +1,18 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import { getAiDiscovery, hasAiCandidateUrl, hasAiDiscoveryUrl, insertAiCandidate, insertAiDiscovery, listUntranslatedAiDiscoveries, removeAiDiscovery, setAiDiscoveryTitleTr } from "@/lib/ai-news/local-db";
+import { getAiAgentInstructions, getAiDiscovery, hasAiCandidateUrl, hasAiDiscoveryUrl, hasIgnoredAiDiscoveryUrl, insertAiCandidate, insertAiDiscovery, listUntranslatedAiDiscoveries, removeAiDiscovery, setAiDiscoveryTitleTr } from "@/lib/ai-news/local-db";
 import { officialAiSources, sourceForUrl } from "@/lib/ai-news/sources";
-import type { AiNewsCandidate, OfficialAiSource } from "@/lib/ai-news/types";
+import type { OfficialAiSource } from "@/lib/ai-news/types";
 
-const ollamaUrl = "http://127.0.0.1:11434";
-const model = "qwen3.5:9b";
+const deepseekUrl = "https://api.deepseek.com/chat/completions";
+const model = process.env.DEEPSEEK_MODEL?.trim() || "deepseek-v4-flash";
 const recencyMs = 7 * 24 * 60 * 60 * 1000;
 const articlePath = /\/(newsroom|news|blog|stories|story|press|research|technology|artificial-intelligence|ai|discover|index)(?:\/|$|-)/i;
 
 type DiscoveredArticle = { source: OfficialAiSource; url: string; title: string; publishedAt: string; text: string };
-type OllamaDraft = { title_tr: string; title_en: string; content_tr: string; content_en: string };
+type AiDraft = { title_tr: string; title_en: string; content_tr: string; content_en: string };
+type DeepSeekResponse = { choices?: { finish_reason?: string; message?: { content?: string | null } }[]; error?: { message?: string } };
 
 function decodeHtml(value: string) {
   return value.replace(/&amp;/g, "&").replace(/&quot;/g, "\"").replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)));
@@ -63,7 +64,7 @@ function linksFromIndex(html: string, source: OfficialAiSource) {
       links.set(url, title);
     } catch { /* A malformed publisher link is simply not a candidate. */ }
   }
-  return [...links].slice(0, 5);
+  return [...links].slice(0, 10);
 }
 
 function publishedDate(html: string) {
@@ -99,92 +100,132 @@ function sentenceCount(value: string, locale: "tr" | "en") {
   return [...new Intl.Segmenter(locale, { granularity: "sentence" }).segment(value.trim())].filter((part) => part.segment.trim()).length;
 }
 
-function validDraft(draft: OllamaDraft) {
+function validDraft(draft: AiDraft) {
   return draft.title_tr.trim().length >= 8 && draft.title_en.trim().length >= 8
     && draft.content_tr.trim().length >= 250 && draft.content_tr.trim().length <= 400
     && draft.content_en.trim().length >= 250 && draft.content_en.trim().length <= 400
     && sentenceCount(draft.content_tr, "tr") === 3 && sentenceCount(draft.content_en, "en") === 3;
 }
 
-const draftSchema = {
-  type: "object",
-  properties: {
-    title_tr: { type: "string" }, title_en: { type: "string" },
-    content_tr: { type: "string" }, content_en: { type: "string" },
-  },
-  required: ["title_tr", "title_en", "content_tr", "content_en"],
-  additionalProperties: false,
-};
+function deepseekApiKey() {
+  return process.env.DEEPSEEK_API_KEY?.trim() || "";
+}
 
-async function createDraft(article: DiscoveredArticle): Promise<OllamaDraft | null> {
+async function deepseekJson<T>(prompt: string, maxTokens: number): Promise<T> {
+  const apiKey = deepseekApiKey();
+  if (!apiKey) throw new Error("DEEPSEEK_API_KEY tanımlı değil.");
+  const response = await fetch(deepseekUrl, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: "Yalnızca istenen JSON nesnesini döndür. Markdown veya açıklama ekleme." },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+      thinking: { type: "disabled" },
+      temperature: 0.2,
+      max_tokens: maxTokens,
+      stream: false,
+    }),
+    signal: AbortSignal.timeout(120_000),
+    cache: "no-store",
+  });
+  const payload = await response.json().catch(() => ({})) as DeepSeekResponse;
+  if (!response.ok) {
+    const detail = payload.error?.message?.trim();
+    throw new Error(detail ? `DeepSeek API ${response.status}: ${detail}` : `DeepSeek API ${response.status} yanıtı verdi.`);
+  }
+  const choice = payload.choices?.[0];
+  if (choice?.finish_reason === "length") throw new Error("DeepSeek yanıtı tamamlanmadan kesildi.");
+  const content = choice?.message?.content;
+  if (!content) throw new Error("DeepSeek boş yanıt döndürdü.");
+  try {
+    return JSON.parse(content) as T;
+  } catch {
+    throw new Error("DeepSeek geçerli JSON döndürmedi.");
+  }
+}
+
+async function createDraft(article: DiscoveredArticle, instructions: string): Promise<AiDraft | null> {
   const prompt = `Aşağıdaki resmî kaynak metninden diji.news için Türkçe ve İngilizce kısa haber yaz.
 Kurallar: Her dildeki haber boşluklar dahil 250-400 karakter ve tam 3 cümle olmalı. Başlık kısa olmalı. Yalnızca kaynakta açıkça bulunan olguları kullan; yorum, övgü, tahmin, alıntı ve kaynak bağlantısı ekleme. Şirket adlarını değiştirme.
+Editörün ajan talimatı: ${instructions}
+Şu anahtarlarla bir JSON nesnesi döndür: title_tr, title_en, content_tr, content_en.
 Kaynak: ${article.source.name}\nBaşlık: ${article.title}\nYayın tarihi: ${article.publishedAt}\nMetin: ${article.text}`;
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    const response = await fetch(`${ollamaUrl}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model, stream: false, think: false, format: draftSchema, options: { temperature: 0.2, num_ctx: 16_384 }, messages: [{ role: "user", content: prompt }] }),
-      signal: AbortSignal.timeout(120_000),
-    });
-    if (!response.ok) throw new Error(`Ollama ${response.status} yanıtı verdi.`);
-    const payload = await response.json() as { message?: { content?: string } };
     try {
-      const draft = JSON.parse(payload.message?.content ?? "") as OllamaDraft;
+      const draft = await deepseekJson<AiDraft>(prompt, 1_500);
       if (validDraft(draft)) return draft;
-    } catch { /* Retry once when the local model ignores its JSON contract. */ }
+    } catch (error) {
+      if (attempt === 1 || (error instanceof Error && error.message.startsWith("DeepSeek API"))) throw error;
+    }
   }
   return null;
 }
 
-export async function ollamaStatus() {
-  try {
-    const response = await fetch(`${ollamaUrl}/api/tags`, { signal: AbortSignal.timeout(2_000), cache: "no-store" });
-    if (!response.ok) return { online: false, modelReady: false };
-    const payload = await response.json() as { models?: { name: string }[] };
-    return { online: true, modelReady: Boolean(payload.models?.some((item) => item.name === model || item.name.startsWith(`${model}:`))) };
-  } catch {
-    return { online: false, modelReady: false };
-  }
+export function deepseekStatus() {
+  return { configured: Boolean(deepseekApiKey()), model };
 }
 
-async function translateHeadlines(titles: string[]) {
+async function translateHeadlines(titles: string[], instructions: string) {
   if (!titles.length) return [];
-  const response = await fetch(`${ollamaUrl}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model, stream: false, think: false, options: { temperature: 0.1, num_ctx: 8_192 },
-      format: { type: "object", properties: { translations: { type: "array", items: { type: "string" }, minItems: titles.length, maxItems: titles.length } }, required: ["translations"], additionalProperties: false },
-      messages: [{ role: "user", content: `Aşağıdaki teknoloji haber başlıklarını doğal ve kısa Türkçe başlıklara çevir. Özel isimleri ve ürün adlarını koru. Açıklama ekleme ve sıralamayı değiştirme.\n${JSON.stringify(titles)}` }],
-    }),
-    signal: AbortSignal.timeout(90_000),
-  });
-  if (!response.ok) throw new Error(`Ollama ${response.status} yanıtı verdi.`);
-  const payload = await response.json() as { message?: { content?: string } };
-  const parsed = JSON.parse(payload.message?.content ?? "") as { translations?: unknown[] };
+  const parsed = await deepseekJson<{ translations?: unknown[] }>(`Aşağıdaki teknoloji haber başlıklarını doğal ve kısa Türkçe başlıklara çevir. Özel isimleri ve ürün adlarını koru. Açıklama ekleme ve sıralamayı değiştirme. Aynı sayıda öğe içeren translations dizisine sahip bir JSON nesnesi döndür.\nEditörün ajan talimatı: ${instructions}\n${JSON.stringify(titles)}`, 2_000);
   if (!Array.isArray(parsed.translations) || parsed.translations.length !== titles.length || parsed.translations.some((title) => typeof title !== "string" || title.trim().length < 5)) {
     throw new Error("Model başlık çevirilerini geçerli biçimde döndürmedi.");
   }
   return parsed.translations.map((title) => String(title).trim());
 }
 
+function requestedHeadlineCount(instructions: string) {
+  const value = instructions.match(/\b(\d{1,2})\s*(?:(?:adet|tane)\s+)?haber\b/i)?.[1];
+  return Math.min(30, Math.max(1, value ? Number(value) : 10));
+}
+
+async function selectHeadlines(articles: DiscoveredArticle[], instructions: string, requested: number) {
+  if (!articles.length) return [];
+  const target = Math.min(requested, articles.length);
+  const choices = articles.map((article, index) => ({ index, source: article.source.name, title: article.title, published_at: article.publishedAt }));
+  const parsed = await deepseekJson<{ items?: unknown[] }>(`Aşağıdaki resmî kaynak haberlerini editörün ajan talimatına göre değerlendir. En güçlü ${target} haberi seç ve başlıklarını doğal, kısa Türkçe olarak yaz. Tam olarak ${target} farklı öğe döndür. Yanıt; index ve title_tr alanlarına sahip nesnelerden oluşan items dizisi olmalı. Kaynakta olmayan bilgi ekleme.\nEditörün ajan talimatı: ${instructions}\nHaberler: ${JSON.stringify(choices)}`, 3_000);
+  if (!Array.isArray(parsed.items)) throw new Error("DeepSeek haber seçimini geçerli biçimde döndürmedi.");
+  const selected = new Map<number, string>();
+  for (const item of parsed.items) {
+    if (!item || typeof item !== "object") throw new Error("DeepSeek haber seçimini geçerli biçimde döndürmedi.");
+    const index = Number((item as { index?: unknown }).index);
+    const titleTr = (item as { title_tr?: unknown }).title_tr;
+    if (!Number.isInteger(index) || index < 0 || index >= articles.length || typeof titleTr !== "string" || titleTr.trim().length < 5) {
+      throw new Error("DeepSeek haber seçimini geçerli biçimde döndürmedi.");
+    }
+    selected.set(index, titleTr.trim());
+  }
+  if (selected.size < target) {
+    const missingIndexes = articles.map((_, index) => index).filter((index) => !selected.has(index)).slice(0, target - selected.size);
+    const translations = await translateHeadlines(missingIndexes.map((index) => articles[index].title), instructions);
+    missingIndexes.forEach((index, translationIndex) => selected.set(index, translations[translationIndex]));
+  }
+  return [...selected].slice(0, target).map(([index, titleTr]) => ({ article: articles[index], titleTr }));
+}
+
 export async function scanOfficialAiNews(existingUrls: ReadonlySet<string>) {
+  const instructions = getAiAgentInstructions();
+  const requested = requestedHeadlineCount(instructions);
   const discovered = await Promise.allSettled(officialAiSources.map(discoverFromSource));
   const articles = discovered.flatMap((result) => result.status === "fulfilled" ? result.value : [])
-    .filter((article) => !existingUrls.has(article.url) && !hasAiCandidateUrl(article.url) && !hasAiDiscoveryUrl(article.url))
+    .filter((article) => !existingUrls.has(article.url) && !hasAiCandidateUrl(article.url) && !hasAiDiscoveryUrl(article.url) && !hasIgnoredAiDiscoveryUrl(article.url))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-    .slice(0, 30);
+    .slice(0, Math.min(60, Math.max(30, requested * 3)));
   const untranslated = listUntranslatedAiDiscoveries();
-  const translations = await translateHeadlines([...untranslated.map((item) => item.title), ...articles.map((article) => article.title)]);
+  const translations = await translateHeadlines(untranslated.map((item) => item.title), instructions);
   untranslated.forEach((item, index) => setAiDiscoveryTitleTr(item.id, translations[index]));
-  for (const [index, article] of articles.entries()) {
+  const selected = await selectHeadlines(articles, instructions, requested);
+  for (const { article, titleTr } of selected) {
     insertAiDiscovery({
       id: randomUUID(), sourceName: article.source.name, sourceUrl: article.url, sourcePublishedAt: article.publishedAt,
-      title: article.title, titleTr: translations[untranslated.length + index], articleText: article.text, createdAt: new Date().toISOString(),
+      title: article.title, titleTr, articleText: article.text, createdAt: new Date().toISOString(),
     });
   }
-  return { sourcesChecked: discovered.length, created: articles.length };
+  return { sourcesChecked: discovered.length, created: selected.length, requested, eligible: articles.length };
 }
 
 export async function generateAiCandidate(discoveryId: string) {
@@ -195,7 +236,7 @@ export async function generateAiCandidate(discoveryId: string) {
   const draft = await createDraft({
     source, url: discovery.sourceUrl, title: discovery.title,
     publishedAt: discovery.sourcePublishedAt, text: discovery.articleText,
-  });
+  }, getAiAgentInstructions());
   if (!draft) throw new Error("Model 3 cümle ve 250–400 karakter kurallarını karşılayan bir taslak üretemedi.");
   insertAiCandidate({
     id: randomUUID(), sourceName: discovery.sourceName, sourceUrl: discovery.sourceUrl,

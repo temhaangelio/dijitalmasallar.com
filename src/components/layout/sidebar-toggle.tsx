@@ -62,10 +62,9 @@ export function SidebarToggle() {
       aria-expanded={expanded}
       aria-label={label}
       title={label}
-      className="sidebar-item mt-auto text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+      className="sidebar-toggle-control grid size-8 place-items-center rounded-full border border-line bg-canvas text-muted shadow-sm transition-colors hover:border-line-strong hover:bg-surface-2 hover:text-ink"
     >
-      {expanded ? <PanelLeftClose size={18} className="shrink-0" aria-hidden="true" /> : <PanelLeftOpen size={18} className="shrink-0" aria-hidden="true" />}
-      <span className="sidebar-expanded-only">Daralt</span>
+      {expanded ? <PanelLeftClose size={15} aria-hidden="true" /> : <PanelLeftOpen size={15} aria-hidden="true" />}
     </button>
   );
 }

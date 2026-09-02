@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { FavoritesList } from "@/components/features/visitor/favorites-list";
 import { VisitorShell } from "@/components/layout/visitor-shell";
-import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
+import { resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 

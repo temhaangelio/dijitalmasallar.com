@@ -18,8 +18,7 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
   if (!items.length) return null;
 
   const isEnglish = language === "en";
-  const splitAt = Math.ceil(items.length / 2);
-  const paragraphs = [items.slice(0, splitAt), items.slice(splitAt)].filter((paragraph) => paragraph.length);
+  const paragraphs = [items.slice(0, 1), items.slice(1)].filter((paragraph) => paragraph.length);
   const canExpand = items.length > 1;
   const visibleParagraphs = expanded ? paragraphs : [items.slice(0, 1)];
   const collagePosts = posts.filter((post, index, all) => post.cover_path && all.findIndex((item) => item.cover_path === post.cover_path) === index);
@@ -42,16 +41,16 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
   return (
     <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
       {collagePosts.length ? (
-        <div className={`relative -mx-5 -mt-5 mb-5 grid gap-0.5 bg-line sm:-mx-6 sm:-mt-6 sm:mb-6 ${collageRows.length === 1 ? "h-[150px] sm:h-[190px]" : "h-[200px] grid-rows-2 sm:h-[240px]"}`} aria-label={isEnglish ? "Images from today’s stories" : "Bugünkü haberlerin görselleri"}>
+        <div className={`relative -mx-5 -mt-5 mb-5 grid gap-0.5 bg-line sm:-mx-6 sm:-mt-6 sm:mb-6 ${collageRows.length === 1 ? "h-[150px] sm:h-[190px]" : "h-[200px] grid-rows-2 sm:h-[240px]"}`} role="img" aria-label={isEnglish ? "Images from today’s stories" : "Bugünkü haberlerin görselleri"}>
           {collageRows.map((row, rowIndex) => (
             <div key={rowIndex} className="grid min-h-0 gap-0.5" style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}>
               {row.map((post) => (
-                <Link key={post.id} href={languageHref(`/haber/${post.id}`, language)} aria-label={post.title || (isEnglish ? "Open story" : "Haberi aç")} className="group relative min-w-0 overflow-hidden bg-surface-3">
+                <div key={post.id} className="relative min-w-0 overflow-hidden bg-surface-3">
                   {isOptimizableImage(post.cover_path)
-                    ? <Image src={post.cover_path} alt="" fill sizes={row.length === 1 ? "(max-width: 640px) 100vw, 640px" : `(max-width: 640px) ${Math.ceil(100 / row.length)}vw, ${Math.ceil(640 / row.length)}px`} className="object-cover transition-transform duration-500 group-hover:scale-[1.025]" />
+                    ? <Image src={post.cover_path} alt="" fill sizes={row.length === 1 ? "(max-width: 640px) 100vw, 640px" : `(max-width: 640px) ${Math.ceil(100 / row.length)}vw, ${Math.ceil(640 / row.length)}px`} className="object-cover" />
                     // eslint-disable-next-line @next/next/no-img-element -- source-discovered images may use official hosts outside the optimizer allow-list
-                    : <img src={post.cover_path ?? ""} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.025]" />}
-                </Link>
+                    : <img src={post.cover_path ?? ""} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
+                </div>
               ))}
             </div>
           ))}

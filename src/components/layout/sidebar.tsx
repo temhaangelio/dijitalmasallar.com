@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
+import { ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
 import { AiNavigationStatus } from "./ai-navigation-status";
 import { SidebarToggle } from "./sidebar-toggle";
@@ -26,6 +26,7 @@ export function Sidebar({ active, siteName, modules, aiScanRunning }: { active: 
     <Link href="/dashboard" aria-label={siteName} className="flex items-center gap-3">
       <span className="brand-mark shrink-0" aria-hidden="true" /><strong className="sidebar-expanded-only block truncate text-base tracking-[-.03em]">{siteName}</strong>
     </Link>
+    <SidebarToggle />
     <nav className="flex flex-col gap-1">
       {items.filter(([, , module]) => !module || modules[module]).map(([label, href, , Icon]) => {
         const selected = active === href;
@@ -34,17 +35,12 @@ export function Sidebar({ active, siteName, modules, aiScanRunning }: { active: 
           {selected && <span aria-hidden="true" className="sidebar-expanded-only absolute right-3 top-2 size-1.5 rounded-full bg-ink-contrast" />}
         </Link>;
       })}
-      <form action={logoutAction}>
-        <button type="submit" aria-label="Çıkış yap" title="Çıkış yap" className="sidebar-item w-full text-left text-[15px] font-medium text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink">
-          <LogOut size={18} className="shrink-0" aria-hidden="true" />
-          <span className="sidebar-expanded-only truncate">Çıkış yap</span>
-        </button>
-      </form>
-      <Link href="/" aria-label="Siteyi gör" title="Siteyi gör" className="sidebar-item mt-2 text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
-        <ArrowUpRight size={18} className="shrink-0" aria-hidden="true" />
-        <span className="sidebar-expanded-only truncate">Siteyi gör</span>
-      </Link>
     </nav>
-    <SidebarToggle />
+    <form action={logoutAction} className="mt-auto border-t border-line/70 pt-4">
+      <button type="submit" aria-label="Çıkış yap" title="Çıkış yap" className="sidebar-item w-full text-left text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
+        <LogOut size={18} className="shrink-0" aria-hidden="true" />
+        <span className="sidebar-expanded-only truncate">Çıkış yap</span>
+      </button>
+    </form>
   </aside>;
 }

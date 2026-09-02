@@ -33,7 +33,6 @@ export async function VisitorShell({
   // The key is only handed out when the panel switch is on and the VAPID pair is configured; with an
   // empty key the toggle can register the worker but never subscribe.
   const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
-
   return (
     <div lang={language} className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-6 pb-10 text-ink sm:px-8">
       {showHeader ? <nav className="visitor-nav flex w-full max-w-[900px] flex-col items-center pb-4 pt-12 text-center sm:pb-6 sm:pt-16" aria-label={language === "en" ? "Site" : "Site"}>
