@@ -1,4 +1,4 @@
-# diji.news
+# dijitalmasallar.com
 
 Claude Design referanslarından dönüştürülmüş, yayın yönetimi için üretime hazır Next.js uygulaması. Yönetim paneli; yazılar, ekip, istatistik ve yayın ayarlarını tek bir tasarım sistemi altında toplar.
 
@@ -25,7 +25,7 @@ Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını payla�
 
 - `posts`: yazı listeleme, oluşturma, güncelleme, silme ve ileri tarihli yayın
 - `admin_users` + Supabase Auth Admin API: ekip ve rol bilgileri
-- `site_settings`: diji.news’e ait `diji_*` anahtarlı yayın ayarları
+- `site_settings`: dijitalmasallar.com’a ait `diji_*` anahtarlı yayın ayarları
 
 ### Migration ve RLS
 
@@ -55,7 +55,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
-VAPID_SUBJECT=mailto:merhaba@diji.news
+VAPID_SUBJECT=mailto:merhaba@dijitalmasallar.com
 ```
 
 VAPID anahtarları web push için gerekir; ikisi de tanımlı değilse bildirim arayüzü hiç görünmez.

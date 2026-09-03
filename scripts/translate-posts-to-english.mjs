@@ -16,7 +16,7 @@ const limit = Math.max(0, Number(process.env.TRANSLATE_LIMIT || 0));
 const concurrency = Math.min(Math.max(Number(process.env.TRANSLATE_CONCURRENCY || 3), 1), 5);
 
 function translationId(sourceId) {
-  const bytes = Buffer.from(createHash("sha1").update(`diji.news:english:${sourceId}`).digest().subarray(0, 16));
+  const bytes = Buffer.from(createHash("sha1").update(`dijitalmasallar.com:english:${sourceId}`).digest().subarray(0, 16));
   bytes[6] = (bytes[6] & 0x0f) | 0x50;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
   const hex = bytes.toString("hex");

@@ -30,7 +30,7 @@ export function isPushConfigured() {
 
 function configure() {
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT?.trim() || "mailto:merhaba@diji.news",
+    process.env.VAPID_SUBJECT?.trim() || "mailto:merhaba@dijitalmasallar.com",
     pushPublicKey(),
     process.env.VAPID_PRIVATE_KEY!.trim(),
   );

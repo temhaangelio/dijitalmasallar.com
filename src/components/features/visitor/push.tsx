@@ -462,14 +462,14 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
   return (
     <aside
       className="install-banner fixed inset-x-0 bottom-0 z-[150] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
-      aria-label={isEnglish ? "Install diji.news" : "diji.news'i yükle"}
+      aria-label={isEnglish ? "Install dijitalmasallar.com" : "dijitalmasallar.com'u yükle"}
     >
       <div className="visitor-panel mx-auto flex w-full max-w-[560px] items-center gap-4 rounded-[24px] border border-line-strong bg-surface p-4 shadow-modal">
         {/* The mark is black on black in the dark theme, so it carries a hairline of its own. */}
         <Image src="/icon-192.png" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px] border border-line-strong" />
         <div className="min-w-0 flex-1">
           <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold tracking-[-.02em]">
-            {isEnglish ? "Add diji.news to your home screen" : "diji.news'i ana ekranınıza ekleyin"}
+            {isEnglish ? "Add dijitalmasallar.com to your home screen" : "dijitalmasallar.com'u ana ekranınıza ekleyin"}
           </strong>
           <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">
             {status === "ready"

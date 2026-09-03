@@ -6,7 +6,7 @@ import { DatabaseSync } from "node:sqlite";
 import type { AiCandidateStatus, AiNewsCandidate, AiNewsDiscovery } from "./types";
 
 const databaseFile = process.env.AI_NEWS_DB_PATH?.trim() || path.join(process.cwd(), "data", "ai-news.db");
-const connectionKey = Symbol.for("diji.news/ai-news-database");
+const connectionKey = Symbol.for("dijitalmasallar.com/ai-news-database");
 type ConnectionHolder = { [connectionKey]?: DatabaseSync };
 // Next.js keeps the global connection alive across development hot reloads, while module state is
 // recreated. This marker makes every new module evaluation re-apply idempotent schema additions to

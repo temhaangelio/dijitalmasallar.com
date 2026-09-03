@@ -22,8 +22,8 @@ export type SiteSettings = {
 };
 
 export const defaultSiteSettings: SiteSettings = {
-  siteName: "diji.news",
-  domain: "diji.news",
+  siteName: "dijitalmasallar.com",
+  domain: "dijitalmasallar.com",
   language: "tr",
   description: "Teknoloji, yapay zekâ, bilim ve dijital kültür yoğunluklu kısa ve güncel paylaşımlar.",
   descriptionEn: "Concise and current notes focused on technology, artificial intelligence, science, and digital culture.",

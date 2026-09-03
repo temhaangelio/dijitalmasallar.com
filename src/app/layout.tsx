@@ -15,15 +15,15 @@ const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["op
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: { default: "diji.news", template: "%s · diji.news" },
+  title: { default: "dijitalmasallar.com", template: "%s · dijitalmasallar.com" },
   description: "Concise, sourced news notes on technology, artificial intelligence, science, and digital culture.",
   keywords: ["technology news", "artificial intelligence", "science news", "digital culture", "teknoloji haberleri", "yapay zekâ", "bilim"],
   authors: [{ name: "Temha Angelio", url: "https://www.temhaangelio.com/" }],
-  applicationName: "diji.news",
-  appleWebApp: { capable: true, title: "diji.news", statusBarStyle: "default" },
+  applicationName: "dijitalmasallar.com",
+  appleWebApp: { capable: true, title: "dijitalmasallar.com", statusBarStyle: "default" },
   category: "technology",
-  creator: "diji.news",
-  publisher: "diji.news",
+  creator: "dijitalmasallar.com",
+  publisher: "dijitalmasallar.com",
   robots: {
     index: true,
     follow: true,
@@ -31,14 +31,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "diji.news",
-    title: "diji.news",
+    siteName: "dijitalmasallar.com",
+    title: "dijitalmasallar.com",
     description: "Concise, sourced news notes on technology, artificial intelligence, science, and digital culture.",
     url: "/",
     locale: "en_US",
     alternateLocale: ["tr_TR"],
   },
-  twitter: { card: "summary", title: "diji.news", description: "Concise, sourced news notes on technology, artificial intelligence, science, and digital culture." },
+  twitter: { card: "summary", title: "dijitalmasallar.com", description: "Concise, sourced news notes on technology, artificial intelligence, science, and digital culture." },
   verification: { google: "I2Kgl2_qfu24MNHBQscd-jvFyhuFIBiaXULF5QOYOaA" },
 };
 

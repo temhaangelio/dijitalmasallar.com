@@ -7,7 +7,7 @@ export function AuthShell({ title, children, footer }: { title: string; note: st
         <h1 className="sr-only">{title}</h1>
         <Link href="/" className="mb-9 inline-flex items-center gap-3 rounded-full pr-3 text-ink transition-opacity hover:opacity-70">
           <span className="brand-mark" aria-hidden="true" />
-          <strong className="text-[15px] font-semibold">diji.news</strong>
+          <strong className="text-[15px] font-semibold">dijitalmasallar.com</strong>
         </Link>
         {children}
         {footer ? <div className="mt-7 border-t border-line pt-6 text-center text-sm text-ink-2">{footer}</div> : null}

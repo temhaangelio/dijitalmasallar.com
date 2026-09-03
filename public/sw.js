@@ -1,5 +1,5 @@
 /*
- * diji.news service worker.
+ * dijitalmasallar.com service worker.
  *
  * It exists for two things: web push, and making the site installable. It deliberately caches
  * nothing — a news feed that serves yesterday's notes from a cache is worse than one that says it
@@ -26,7 +26,7 @@ self.addEventListener("push", (event) => {
     payload = { body: event.data.text() };
   }
 
-  const title = payload.title || "diji.news";
+  const title = payload.title || "dijitalmasallar.com";
   const options = {
     body: payload.body || "",
     icon: "/icon-192.png",

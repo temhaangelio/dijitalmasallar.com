@@ -78,7 +78,7 @@ const feedAccept = "application/rss+xml, application/atom+xml, application/xml;q
 export async function download(url: string, options: DownloadOptions = {}) {
   const headers: Record<string, string> = {
     accept: options.accept ?? feedAccept,
-    "user-agent": options.userAgent ?? "diji.news RSS reader",
+    "user-agent": options.userAgent ?? "dijitalmasallar.com RSS reader",
   };
   if (options.etag) headers["if-none-match"] = options.etag;
   if (options.lastModified) headers["if-modified-since"] = options.lastModified;

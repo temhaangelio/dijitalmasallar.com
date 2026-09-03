@@ -55,7 +55,7 @@ create index if not exists rss_items_unread_idx on rss_items(read, published_at 
  * which would leave a growing pile of open handles on the same file. The connection is parked on
  * `globalThis` so hot reloads reuse it.
  */
-const connectionKey = Symbol.for("diji.news/rss-database");
+const connectionKey = Symbol.for("dijitalmasallar.com/rss-database");
 type ConnectionHolder = { [connectionKey]?: DatabaseSync };
 
 /**

@@ -4,7 +4,7 @@ import { emailSchema, loginSchema, passwordSchema, resetPasswordSchema } from ".
 
 describe("auth validation", () => {
   test("normalises and validates e-mail", () => {
-    assert.equal(emailSchema.safeParse("  okur@diji.news  ").data, "okur@diji.news");
+    assert.equal(emailSchema.safeParse("  okur@dijitalmasallar.com  ").data, "okur@dijitalmasallar.com");
     assert.equal(emailSchema.safeParse("okur@").success, false);
     assert.equal(emailSchema.safeParse("").success, false);
   });
@@ -17,8 +17,8 @@ describe("auth validation", () => {
   });
 
   test("login needs a non-empty password but does not enforce the policy", () => {
-    assert.equal(loginSchema.safeParse({ email: "admin@diji.news", password: "x" }).success, true);
-    assert.equal(loginSchema.safeParse({ email: "admin@diji.news", password: "" }).success, false);
+    assert.equal(loginSchema.safeParse({ email: "admin@dijitalmasallar.com", password: "x" }).success, true);
+    assert.equal(loginSchema.safeParse({ email: "admin@dijitalmasallar.com", password: "" }).success, false);
   });
 
   test("reset requires the two passwords to match", () => {

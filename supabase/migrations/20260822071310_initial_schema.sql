@@ -69,8 +69,8 @@ create table public.diji_post_analytics (
 
 create table public.diji_site_settings (
   id boolean primary key default true check (id),
-  site_name text not null default 'diji.news',
-  domain text not null default 'diji.news',
+  site_name text not null default 'dijitalmasallar.com',
+  domain text not null default 'dijitalmasallar.com',
   description text not null default '',
   language text not null default 'tr' check (language in ('tr','en')),
   feed_layout text not null default 'short' check (feed_layout in ('short','card','classic')),

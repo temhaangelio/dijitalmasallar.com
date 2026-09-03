@@ -35,8 +35,8 @@ describe("safeNextPath", () => {
 
 describe("getAppUrl", () => {
   test("prefers the configured URL and drops the trailing slash", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://diji.news/";
-    assert.equal(getAppUrl(), "https://diji.news");
+    process.env.NEXT_PUBLIC_APP_URL = "https://dijitalmasallar.com/";
+    assert.equal(getAppUrl(), "https://dijitalmasallar.com");
     delete process.env.NEXT_PUBLIC_APP_URL;
   });
 

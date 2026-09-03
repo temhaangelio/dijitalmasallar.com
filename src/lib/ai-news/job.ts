@@ -7,7 +7,7 @@ export type AiScanState = {
   finishedAt: string | null;
 };
 
-const jobKey = Symbol.for("diji.news/ai-news-scan-job");
+const jobKey = Symbol.for("dijitalmasallar.com/ai-news-scan-job");
 type JobHolder = { [jobKey]?: AiScanState };
 
 function holder() {

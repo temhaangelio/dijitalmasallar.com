@@ -1,9 +1,9 @@
 import type { Post } from "@/types/database";
 
-export function siteUrl(domain = "diji.news") {
+export function siteUrl(domain = "dijitalmasallar.com") {
   const normalized = domain.trim().replace(/\/$/, "");
   if (/^https?:\/\//i.test(normalized)) return normalized;
-  return `https://${normalized || "diji.news"}`;
+  return `https://${normalized || "dijitalmasallar.com"}`;
 }
 
 export function absoluteUrl(baseUrl: string, path: string) {

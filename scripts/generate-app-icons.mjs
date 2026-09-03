@@ -1,5 +1,5 @@
 /**
- * Draws the diji.news mark — the `.brand-mark` from `globals.css` — into the PNGs the browser, the
+ * Draws the dijitalmasallar.com mark — the `.brand-mark` from `globals.css` — into the PNGs the browser, the
  * manifest and iOS ask for, and writes them straight into the repo.
  *
  * Rather than pulling in an image library, the mark is rendered by hand: it is one rounded square
