@@ -70,18 +70,18 @@ describe("isSupabaseConfigured", () => {
 import { defaultVisitorLanguage, languageFromAcceptLanguage, languageHref, resolveVisitorLanguage } from "../src/lib/visitor-language.ts";
 
 describe("resolveVisitorLanguage", () => {
-  test("English is the primary language", () => {
-    assert.equal(defaultVisitorLanguage, "en");
-    assert.equal(resolveVisitorLanguage(undefined), "en");
-    assert.equal(resolveVisitorLanguage(null), "en");
-    assert.equal(resolveVisitorLanguage(""), "en");
+  test("Turkish is the primary language", () => {
+    assert.equal(defaultVisitorLanguage, "tr");
+    assert.equal(resolveVisitorLanguage(undefined), "tr");
+    assert.equal(resolveVisitorLanguage(null), "tr");
+    assert.equal(resolveVisitorLanguage(""), "tr");
     assert.equal(resolveVisitorLanguage("en"), "en");
   });
 
-  test("only an explicit tr switches to Turkish", () => {
+  test("only an explicit en switches to English", () => {
     assert.equal(resolveVisitorLanguage("tr"), "tr");
-    assert.equal(resolveVisitorLanguage("TR"), "en");
-    assert.equal(resolveVisitorLanguage("de"), "en");
+    assert.equal(resolveVisitorLanguage("EN"), "tr");
+    assert.equal(resolveVisitorLanguage("de"), "tr");
   });
 });
 
@@ -91,10 +91,10 @@ describe("languageFromAcceptLanguage", () => {
     assert.equal(languageFromAcceptLanguage("tr,en;q=0.5"), "tr");
   });
 
-  test("uses English for every other primary language", () => {
+  test("selects English only when it is the browser's primary language", () => {
     assert.equal(languageFromAcceptLanguage("en-US,en;q=0.9,tr;q=0.8"), "en");
-    assert.equal(languageFromAcceptLanguage("de-DE,tr;q=0.9"), "en");
-    assert.equal(languageFromAcceptLanguage(null), "en");
+    assert.equal(languageFromAcceptLanguage("de-DE,tr;q=0.9"), "tr");
+    assert.equal(languageFromAcceptLanguage(null), "tr");
   });
 
   test("honours quality weights", () => {
@@ -104,18 +104,18 @@ describe("languageFromAcceptLanguage", () => {
 
 describe("languageHref", () => {
   test("leaves the default language out of the URL", () => {
-    assert.equal(languageHref("/", "en"), "/");
-    assert.equal(languageHref("/hakkinda", "en"), "/hakkinda");
-    assert.equal(languageHref("/haber/abc", "en"), "/haber/abc");
+    assert.equal(languageHref("/", "tr"), "/");
+    assert.equal(languageHref("/hakkinda", "tr"), "/hakkinda");
+    assert.equal(languageHref("/haber/abc", "tr"), "/haber/abc");
   });
 
-  test("marks Turkish explicitly", () => {
-    assert.equal(languageHref("/", "tr"), "/?lang=tr");
-    assert.equal(languageHref("/hakkinda", "tr"), "/hakkinda?lang=tr");
+  test("marks English explicitly", () => {
+    assert.equal(languageHref("/", "en"), "/?lang=en");
+    assert.equal(languageHref("/hakkinda", "en"), "/hakkinda?lang=en");
   });
 
   test("merges extra query values", () => {
-    assert.equal(languageHref("/", "en", { limit: 20 }), "/?limit=20");
-    assert.equal(languageHref("/", "tr", { limit: 20 }), "/?lang=tr&limit=20");
+    assert.equal(languageHref("/", "tr", { limit: 20 }), "/?limit=20");
+    assert.equal(languageHref("/", "en", { limit: 20 }), "/?lang=en&limit=20");
   });
 });

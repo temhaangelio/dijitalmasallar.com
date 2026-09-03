@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/ui/brand-mark";
 
 export function AuthShell({ title, children, footer }: { title: string; note: string; children: React.ReactNode; footer?: React.ReactNode }) {
   return (
@@ -6,7 +7,7 @@ export function AuthShell({ title, children, footer }: { title: string; note: st
       <section className="w-full max-w-[460px] rounded-card border border-line bg-surface-2/35 p-6 sm:p-9">
         <h1 className="sr-only">{title}</h1>
         <Link href="/" className="mb-9 inline-flex items-center gap-3 rounded-full pr-3 text-ink transition-opacity hover:opacity-70">
-          <span className="brand-mark" aria-hidden="true" />
+          <BrandMark />
           <strong className="text-[15px] font-semibold">dijitalmasallar.com</strong>
         </Link>
         {children}

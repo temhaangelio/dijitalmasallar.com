@@ -22,7 +22,7 @@ export type SiteSettings = {
 };
 
 export const defaultSiteSettings: SiteSettings = {
-  siteName: "dijitalmasallar.com",
+  siteName: "Dijital Masallar",
   domain: "dijitalmasallar.com",
   language: "tr",
   description: "Teknoloji, yapay zekâ, bilim ve dijital kültür yoğunluklu kısa ve güncel paylaşımlar.",

@@ -28,7 +28,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     description,
     alternates: {
       canonical,
-      languages: { en: "/", tr: "/?lang=tr", "x-default": "/" },
+      languages: { tr: "/", en: "/?lang=en", "x-default": "/" },
       types: { "application/rss+xml": languageHref("/feed.xml", language) },
     },
     openGraph: {
@@ -173,8 +173,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-[25] h-[calc(env(safe-area-inset-top)+36px)] bg-canvas sm:hidden" aria-hidden="true" />
-
       <main className="mt-9 flex w-full max-w-[640px] flex-col sm:mt-14">
         <div>
         {posts.length ? (

@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const alternates = {
       en: absoluteUrl(baseUrl, languageHref(path, "en")),
       tr: absoluteUrl(baseUrl, languageHref(path, "tr")),
-      "x-default": absoluteUrl(baseUrl, languageHref(path, "en")),
+      "x-default": absoluteUrl(baseUrl, languageHref(path, "tr")),
     };
     const shared = {
       lastModified: settings.updatedAt ?? undefined,
@@ -38,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const alternates = {
         en: absoluteUrl(baseUrl, languageHref(path, "en")),
         tr: absoluteUrl(baseUrl, languageHref(path, "tr")),
-        "x-default": absoluteUrl(baseUrl, languageHref(path, "en")),
+        "x-default": absoluteUrl(baseUrl, languageHref(path, "tr")),
       };
       const shared = {
         lastModified: post.published_at ?? post.created_at,

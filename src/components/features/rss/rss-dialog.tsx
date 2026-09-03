@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { BrandMark } from "@/components/ui/brand-mark";
 
 /**
  * The modal shell the RSS dialogs share: portal, backdrop, focus trap, Escape, scroll lock.
@@ -71,7 +72,7 @@ export function RssDialog({
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className={`flex items-start gap-5 ${hideIdentity ? "justify-end" : "justify-between"}`}>
-          {!hideIdentity ? <span className="brand-mark !size-11 shrink-0" aria-hidden="true" /> : null}
+          {!hideIdentity ? <BrandMark className="!size-11 shrink-0" /> : null}
           <button type="button" disabled={busy} aria-label="Pencereyi kapat" onClick={onClose} className="grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink disabled:opacity-50">
             <X size={18} />
           </button>

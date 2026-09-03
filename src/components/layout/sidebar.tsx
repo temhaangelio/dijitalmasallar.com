@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bot, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
+import { BrandMark } from "@/components/ui/brand-mark";
 import { SidebarToggle } from "./sidebar-toggle";
 
 /**
@@ -23,7 +24,7 @@ const items = [
 export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "ai" | "rss" | "ads" | "analytics", boolean> }) {
   return <aside className="sidebar">
     <Link href="/dashboard" aria-label={siteName} className="flex items-center gap-3">
-      <span className="brand-mark shrink-0" aria-hidden="true" /><strong className="sidebar-expanded-only block truncate text-base tracking-[-.03em]">{siteName}</strong>
+      <BrandMark className="shrink-0" /><strong className="sidebar-expanded-only block truncate text-base tracking-[-.03em]">{siteName}</strong>
     </Link>
     <nav className="flex flex-col gap-1">
       {items.filter(([, , module]) => !module || modules[module]).map(([label, href, , Icon]) => {

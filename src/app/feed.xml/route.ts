@@ -10,7 +10,7 @@ function xml(value: string) {
 }
 
 export async function GET(request: Request) {
-  const language = new URL(request.url).searchParams.get("lang") === "tr" ? "tr" : "en";
+  const language = new URL(request.url).searchParams.get("lang") === "en" ? "en" : "tr";
   const [settings, posts] = await Promise.all([getSiteSettings(), getPosts(1, 50, language)]);
   const baseUrl = siteUrl(settings.domain);
   const feedUrl = absoluteUrl(baseUrl, languageHref("/feed.xml", language));

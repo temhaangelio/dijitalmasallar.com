@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Heart } from "lucide-react";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
@@ -12,7 +13,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   return {
     title: { absolute: `${title} · ${settings.siteName}` },
     description,
-    alternates: { canonical: languageHref("/about", language), languages: { en: "/about", tr: "/about?lang=tr", "x-default": "/about" }, types: { "application/rss+xml": languageHref("/feed.xml", language) } },
+    alternates: { canonical: languageHref("/about", language), languages: { tr: "/about", en: "/about?lang=en", "x-default": "/about" }, types: { "application/rss+xml": languageHref("/feed.xml", language) } },
     openGraph: { type: "website", siteName: settings.siteName, title: `${title} · ${settings.siteName}`, description, url: languageHref("/about", language), locale: isEnglish ? "en_US" : "tr_TR" },
     twitter: { card: "summary", title: `${title} · ${settings.siteName}`, description },
   };
@@ -45,6 +46,10 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             </p>
           </section>
         </div>
+        <p className="mt-5 flex items-center justify-center gap-1.5 text-center font-mono text-[11px] font-normal tracking-[.08em] text-accent">
+          <Heart className="size-3 fill-current" strokeWidth={1.8} aria-hidden="true" />
+          {isEnglish ? "Made with love in Bursa." : "Bursa’da sevgiyle üretiliyor."}
+        </p>
       </main>
     </VisitorShell>
   );

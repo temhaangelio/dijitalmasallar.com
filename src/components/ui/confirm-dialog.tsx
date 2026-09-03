@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandMark } from "@/components/ui/brand-mark";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -84,7 +85,7 @@ export function ConfirmDialog({
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-5">
-          <span className="brand-mark !size-11 shrink-0" aria-hidden="true" />
+          <BrandMark className="!size-11 shrink-0" />
           <button type="button" disabled={pending} aria-label="Onay penceresini kapat" onClick={() => onOpenChange(false)} className="grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink disabled:opacity-50">
             <X size={18} />
           </button>

@@ -118,11 +118,22 @@
     background: color-mix(in srgb, var(--color-surface-2) 28%, var(--color-canvas));
   }
   .sidebar { position: relative; width: 248px; flex: 0 0 248px; padding: 32px 20px 28px 28px; display: flex; flex-direction: column; gap: 28px; }
-  .brand-mark { width: 40px; height: 40px; border-radius: 13px; background: var(--color-ink); padding: 9px; }
-  .brand-mark::after { content: ""; display: block; width: 9px; height: 9px; border-radius: 50%; background: var(--color-surface); }
-  /* For placing the mark on an ink-coloured surface, e.g. the toast. */
-  .brand-mark-inverse { background: var(--color-surface); }
-  .brand-mark-inverse::after { background: var(--color-ink); }
+  .brand-mark {
+    display: inline-block;
+    position: relative;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    color: var(--color-ink-contrast);
+    overflow: hidden;
+    background: var(--color-ink);
+  }
+  .brand-mark > svg { display: block; width: 100%; height: 100%; }
+  .brand-bit { transform-box: fill-box; transform-origin: center; animation: brand-bit-stream 360ms cubic-bezier(.22, 1, .36, 1); }
+  .brand-bit-zero,
+  .brand-bit-one { fill: #fff; }
+  .brand-bit-decimal { fill: rgb(255 255 255 / .52); }
   .main { min-width: 0; flex: 1; padding: 32px 40px 40px 32px; }
 
   /*
@@ -304,11 +315,59 @@ html[data-visitor-theme="dark"] .visitor-page {
 .visitor-page .visitor-markdown h1,
 .visitor-page .visitor-markdown h2 { text-wrap: balance; }
 
+.visitor-binary-backdrop {
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: 100vw;
+  height: 390px;
+  overflow: hidden;
+  transform: translateX(-50%);
+  color: var(--color-ink);
+  background:
+    radial-gradient(ellipse 38% 58% at 12% 0%, color-mix(in srgb, var(--color-accent) 9%, transparent), transparent 78%),
+    radial-gradient(ellipse 42% 64% at 90% 3%, color-mix(in srgb, var(--color-ink) 4%, transparent), transparent 78%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-surface-2) 54%, transparent), transparent 95%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgb(0 0 0 / .68) 73%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgb(0 0 0 / .68) 73%, transparent 100%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.visitor-binary-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, currentColor .65px, transparent .75px);
+  background-size: 22px 22px;
+  opacity: .045;
+  -webkit-mask-image: radial-gradient(ellipse 72% 80% at 50% 0%, #000, transparent 78%);
+  mask-image: radial-gradient(ellipse 72% 80% at 50% 0%, #000, transparent 78%);
+}
+
+.visitor-binary-backdrop span {
+  position: absolute;
+  display: block;
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  z-index: 1;
+}
+
 @keyframes diji-loading-orbit {
   0%, 100% { transform: translate(0, 0); }
   25% { transform: translate(var(--diji-loading-travel, 20px), 0); }
   50% { transform: translate(var(--diji-loading-travel, 20px), var(--diji-loading-travel, 20px)); }
   75% { transform: translate(0, var(--diji-loading-travel, 20px)); }
+}
+
+@keyframes brand-bit-stream {
+  from { opacity: 0; transform: translateY(-9px) scale(.9); filter: blur(1.5px); }
+  65% { opacity: 1; }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-bit { animation: none; }
 }
 
 @keyframes visitor-sheet-backdrop-in {
@@ -342,15 +401,6 @@ html[data-visitor-theme="dark"] .visitor-page {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding-top: env(safe-area-inset-top);
-  }
-  .visitor-page::before {
-    content: "";
-    position: fixed;
-    inset: 0 0 auto;
-    z-index: 25;
-    height: env(safe-area-inset-top);
-    background: var(--color-canvas);
-    pointer-events: none;
   }
   .visitor-page .font-mono {
     font-family: var(--font-plex-mono), monospace;

@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { Toaster, toast as sonnerToast } from "sonner";
+import { BrandMark } from "@/components/ui/brand-mark";
 
 type ToastVariant = "success" | "error" | "info";
 
@@ -18,7 +19,7 @@ function ToastCard({ id, message, variant }: { id: string | number; message: str
       role={variant === "error" ? "alert" : "status"}
       className="on-dark flex w-[min(390px,calc(100vw-32px))] items-start gap-3 rounded-panel border border-white/10 bg-ink p-3.5 text-white shadow-modal"
     >
-      <span className="brand-mark brand-mark-inverse !size-10 shrink-0 !rounded-chip" aria-hidden="true" />
+      <BrandMark className="!size-10 shrink-0 !rounded-chip" />
       <div className="min-w-0 flex-1 pt-0.5">
         <strong className="block text-[13px] text-white">{titles[variant]}</strong>
         <p className="mt-1 text-[13px] leading-5 text-on-dark">{message}</p>

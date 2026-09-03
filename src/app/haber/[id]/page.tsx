@@ -51,7 +51,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
     description,
     alternates: {
       canonical,
-      languages: { en: path, tr: `${path}?lang=tr`, "x-default": path },
+      languages: { tr: path, en: `${path}?lang=en`, "x-default": path },
       types: { "application/rss+xml": languageHref("/feed.xml", language) },
     },
     openGraph: {

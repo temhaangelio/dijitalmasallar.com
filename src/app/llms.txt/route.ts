@@ -33,7 +33,7 @@ export async function GET() {
     `- [About](${absoluteUrl(baseUrl, "/about")})`,
     `- [XML sitemap](${absoluteUrl(baseUrl, "/sitemap.xml")})`,
     `- [English RSS feed](${absoluteUrl(baseUrl, "/feed.xml")})`,
-    `- [Türkçe RSS akışı](${absoluteUrl(baseUrl, "/feed.xml?lang=tr")})`,
+    `- [Türkçe RSS akışı](${absoluteUrl(baseUrl, "/feed.xml")})`,
     "",
     "## Latest English notes",
     "",
