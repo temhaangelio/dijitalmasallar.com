@@ -253,7 +253,7 @@ export function PushNavButton({ language, publicKey }: { language: VisitorLangua
       aria-pressed={on}
       aria-label={label}
       title={label}
-      className="grid size-9 place-items-center rounded-[12px] bg-ink text-ink-contrast shadow-[0_2px_8px_rgba(0,0,0,.12)] transition-all hover:-translate-y-px hover:opacity-80 hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-60"
+      className="visitor-top-control grid size-9 place-items-center rounded-[12px] bg-ink text-ink-contrast shadow-[0_2px_8px_rgba(0,0,0,.12)] transition-all hover:-translate-y-px hover:opacity-80 hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-60"
     >
       {on ? <BellRing size={17} aria-hidden="true" /> : state === "blocked" ? <BellOff size={17} aria-hidden="true" /> : <Bell size={17} aria-hidden="true" />}
     </button>
