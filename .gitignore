@@ -9,6 +9,16 @@ supabase/.temp/
 
 # Local RSS reader database (node:sqlite), never committed.
 data/
+
+# Local-only admin tools. These remain available in development but are not shipped to Git/Vercel.
+src/app/(dashboard)/rss/
+src/app/(dashboard)/yapay-zeka/
+src/components/features/rss/
+src/lib/rss/
+src/lib/ai-news/
+src/services/rss.ts
+tests/rss-parse.test.mts
+tests/rss-scrape.test.mts
 *.tsbuildinfo
 
 # Local design mock-ups are not application source.

@@ -10,11 +10,20 @@ describe("admin source tracking", () => {
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"));
 
-  it("does not exclude admin application source from Git", () => {
+  it("keeps shared admin application source in Git", () => {
     assert.equal(applicationRules.some((rule) => rule.startsWith("src/app/(auth)")), false);
-    assert.equal(applicationRules.some((rule) => rule.startsWith("src/app/(dashboard)")), false);
-    assert.equal(applicationRules.some((rule) => rule.startsWith("src/components/")), false);
-    assert.equal(applicationRules.some((rule) => rule.startsWith("src/services/")), false);
+    assert.equal(applicationRules.includes("src/app/(dashboard)/dashboard/"), false);
+    assert.equal(applicationRules.includes("src/components/layout/"), false);
+    assert.equal(applicationRules.includes("src/services/posts.ts"), false);
+  });
+
+  it("excludes RSS and AI tools from Git", () => {
+    assert.equal(applicationRules.includes("src/app/(dashboard)/rss/"), true);
+    assert.equal(applicationRules.includes("src/app/(dashboard)/yapay-zeka/"), true);
+    assert.equal(applicationRules.includes("src/components/features/rss/"), true);
+    assert.equal(applicationRules.includes("src/lib/rss/"), true);
+    assert.equal(applicationRules.includes("src/lib/ai-news/"), true);
+    assert.equal(applicationRules.includes("src/services/rss.ts"), true);
   });
 
   it("continues to exclude the local RSS database", () => {

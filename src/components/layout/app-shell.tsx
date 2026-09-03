@@ -1,7 +1,6 @@
 import { Sidebar } from "./sidebar";
 import { MobileNavigation } from "./mobile-navigation";
 import { getSiteSettings } from "@/services/settings";
-import { isRssReaderAvailable } from "@/lib/rss/availability";
 import { isLocalToolAvailable } from "@/lib/local-tools";
 import { redirect } from "next/navigation";
 
@@ -9,7 +8,8 @@ type Modules = { posts: boolean; ai: boolean; rss: boolean; ads: boolean; analyt
 
 export async function AppShell({ active, children }: { active: string; children: React.ReactNode }) {
   const settings = await getSiteSettings();
-  const modules: Modules = { posts: settings.modulePosts, ai: isLocalToolAvailable(), rss: settings.moduleRss && isRssReaderAvailable(), ads: settings.moduleAds, analytics: settings.moduleAnalytics };
+  const localToolsAvailable = isLocalToolAvailable();
+  const modules: Modules = { posts: settings.modulePosts, ai: localToolsAvailable, rss: settings.moduleRss && localToolsAvailable, ads: settings.moduleAds, analytics: settings.moduleAnalytics };
   const routeModules: Record<string, keyof Modules> = { "/yazilar": "posts", "/yapay-zeka": "ai", "/rss": "rss", "/reklamlar": "ads", "/istatistik": "analytics" };
   const activeModule = routeModules[active];
   if (activeModule && !modules[activeModule]) redirect("/dashboard");

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Activity, Eye, Gauge, Users } from "lucide-react";
 import { ErrorState } from "@/components/feedback/states";
-import { RssDialog as AnalyticsDialog } from "@/components/features/rss/rss-dialog";
+import { AppDialog as AnalyticsDialog } from "@/components/ui/app-dialog";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

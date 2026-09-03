@@ -5,17 +5,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { BrandMark } from "@/components/ui/brand-mark";
 
-/**
- * The modal shell the RSS dialogs share: portal, backdrop, focus trap, Escape, scroll lock.
- *
- * `ConfirmDialog` is deliberately not reused — it is an `alertdialog` built around a yes/no
- * decision, while these own a form and can fail in ways worth reading. Rather than duplicating the
- * trap in each of them, the behaviour lives here and each dialog supplies only its own body.
- *
- * `busy` blocks Escape and the backdrop while a request is in flight, so a slow fetch cannot be
- * dismissed halfway and leave the caller wondering whether it happened.
- */
-export function RssDialog({
+export function AppDialog({
   title,
   onClose,
   busy = false,
@@ -82,14 +72,5 @@ export function RssDialog({
       </div>
     </div>,
     document.body,
-  );
-}
-
-/** The shared look for a failure shown inside a dialog, next to the field that caused it. */
-export function RssDialogError({ id, children }: { id?: string; children: ReactNode }) {
-  return (
-    <div id={id} role="alert" className="mt-3 rounded-field bg-danger-surface p-3 text-sm font-medium text-danger">
-      {children}
-    </div>
   );
 }

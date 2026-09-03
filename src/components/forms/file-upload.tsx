@@ -2,7 +2,7 @@
 
 import { ImagePlus, Scissors, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { RssDialog } from "@/components/features/rss/rss-dialog";
+import { AppDialog } from "@/components/ui/app-dialog";
 import { Button } from "@/components/ui/button";
 
 const accepted = ["image/jpeg", "image/png", "image/webp"];
@@ -134,7 +134,7 @@ export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChan
       {error && <p role="alert" className="mt-2 text-[13px] text-danger">{error}</p>}
 
       {cropSource ? (
-        <RssDialog title="Kapak görselini kırp" onClose={closeCrop} busy={processing} hideIdentity panelClassName="!max-w-[720px] !bg-canvas">
+        <AppDialog title="Kapak görselini kırp" onClose={closeCrop} busy={processing} hideIdentity panelClassName="!max-w-[720px] !bg-canvas">
           <div className="mt-2">
             <div className="relative aspect-video overflow-hidden rounded-field bg-ink">
               {/* eslint-disable-next-line @next/next/no-img-element -- local object URL used only inside the crop preview */}
@@ -167,7 +167,7 @@ export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChan
               <Button type="button" disabled={processing} onClick={() => void applyCrop()}>{processing ? "Hazırlanıyor…" : "Kırpmayı uygula"}</Button>
             </div>
           </div>
-        </RssDialog>
+        </AppDialog>
       ) : null}
     </div>
   );
