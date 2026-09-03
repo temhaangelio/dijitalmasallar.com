@@ -30,7 +30,7 @@ describe("parseBilingualPostPaste", () => {
 
   test("removes utc and utm tracking parameters from the source", () => {
     const parsed = parseBilingualPostPaste(
-      "TR: Türkçe içerik burada. EN: English content here. https://example.com/news?id=42&utm_source=chatgpt&utc=3&utm_campaign=technology",
+      "TR: Türkçe içerik burada. EN: English content here. https://example.com/news?id=42&utm_source=newsletter&utc=3&utm_campaign=technology",
     );
     assert.equal(parsed?.sourceUrl, "https://example.com/news?id=42");
   });

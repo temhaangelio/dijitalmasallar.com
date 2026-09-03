@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { AiImageNotice } from "@/components/features/visitor/ai-image-notice";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
@@ -53,6 +52,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
     alternates: {
       canonical,
       languages: { en: path, tr: `${path}?lang=tr`, "x-default": path },
+      types: { "application/rss+xml": languageHref("/feed.xml", language) },
     },
     openGraph: {
       type: "article",
@@ -94,6 +94,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     "@id": `${canonicalUrl}#article`,
+    url: canonicalUrl,
     headline,
     description,
     articleBody: cleanMetadataText(post.body),
@@ -102,10 +103,12 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     inLanguage: language,
     isAccessibleForFree: true,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
-    author: { "@type": "Organization", name: settings.siteName, url: baseUrl },
+    author: { "@type": "Person", name: "Temha Angelio", url: "https://www.temhaangelio.com/" },
     publisher: { "@type": "NewsMediaOrganization", "@id": `${baseUrl}/#organization`, name: settings.siteName, url: baseUrl },
     image: post.cover_path ? [post.cover_path] : undefined,
     isBasedOn: post.source_url || undefined,
+    articleSection: language === "en" ? "Technology" : "Teknoloji",
+    keywords: language === "en" ? ["technology", "artificial intelligence", "science", "digital culture"] : ["teknoloji", "yapay zekâ", "bilim", "dijital kültür"],
   };
 
   return (
@@ -120,7 +123,6 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
                 ? <Image src={post.cover_path} alt={headline} fill priority sizes="(max-width: 700px) 100vw, 640px" className="object-cover" />
                 // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
                 : <img src={post.cover_path} alt={headline} decoding="async" className="absolute inset-0 size-full object-cover" />}
-              {post.ai_generated_image ? <AiImageNotice language={language} /> : null}
             </div>
           )}
           <div className="px-5 py-5 sm:px-6 sm:py-6">

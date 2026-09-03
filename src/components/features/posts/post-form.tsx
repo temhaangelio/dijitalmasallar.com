@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
-import { Check, Clock3, Save, Sparkles } from "lucide-react";
+import { Check, Clock3, Save } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { createPostAction, updatePostAction } from "@/app/(dashboard)/yazilar/actions";
 import { FormField } from "@/components/forms/form-field";
@@ -43,7 +43,6 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
       en: { body: posts?.en?.body ?? "" },
       sourceUrl: sharedPost?.source_url ?? "",
       featured: sharedPost?.featured ?? false,
-      aiGeneratedImage: sharedPost?.ai_generated_image ?? false,
       status: sharedPost?.status === "scheduled" ? "scheduled" : "published",
       scheduledAt: localDateTime(sharedPost?.scheduled_at ?? null),
       publishedAt: sharedPost?.status === "published" ? localDateTime(sharedPost.created_at) : "",
@@ -126,16 +125,12 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
         <div className="card space-y-5">
           <div>
             <h3 className="mb-2 text-sm font-semibold">Kapak görseli <span className="font-normal text-muted">(isteğe bağlı)</span></h3>
-            {sharedPost?.cover_path && !removeCover && !coverImage ? <div className="mb-3 overflow-hidden rounded-field bg-surface-3"><div className="relative aspect-[4/3]">{isOptimizableImage(sharedPost.cover_path)
+            {sharedPost?.cover_path && !removeCover && !coverImage ? <div className="mb-3 overflow-hidden rounded-field bg-surface-3"><div className="relative aspect-video">{isOptimizableImage(sharedPost.cover_path)
               ? <Image src={sharedPost.cover_path} alt="Mevcut kapak görseli" fill sizes="360px" className="object-cover" />
               // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
               : <img src={sharedPost.cover_path} alt="Mevcut kapak görseli" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}</div><button type="button" onClick={() => setRemoveCover(true)} className="w-full px-4 py-3 text-left text-sm font-semibold text-danger hover:bg-danger-surface">Mevcut görseli kaldır</button></div> : null}
             <FileUpload onChange={(file) => { setCoverImage(file); if (file) setRemoveCover(false); }} label={sharedPost?.cover_path && !removeCover ? "Kapak görselini değiştir" : "Kapak görseli seç"} />
             {removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(false)} className="mt-2 text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
-          </div>
-          <div className="flex items-center justify-between gap-4 rounded-field border border-line bg-surface-2 px-4 py-3.5">
-            <strong className="flex items-center gap-1.5 text-sm text-ink"><Sparkles className="size-3.5" aria-hidden="true" /> Yapay zekâ görseli</strong>
-            <Controller name="aiGeneratedImage" control={control} render={({ field }) => <Switch label="Yapay zekâ görseli ibaresi" checked={field.value} onCheckedChange={field.onChange} />} />
           </div>
           <div className="flex items-center justify-between gap-4 rounded-field border border-line bg-surface-2 px-4 py-3.5">
             <strong className="text-sm text-ink">Öne çıkan yazı</strong>

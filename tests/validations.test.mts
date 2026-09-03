@@ -12,7 +12,6 @@ function basePost(overrides: Record<string, unknown> = {}) {
     en: { body: "y".repeat(60) },
     sourceUrl: "https://example.com/haber",
     featured: false,
-    aiGeneratedImage: false,
     status: "published",
     ...overrides,
   };

@@ -1,5 +1,5 @@
 import { languageHref } from "@/lib/visitor-language";
-import { absoluteUrl, plainText, postHeadline, siteUrl } from "@/lib/seo";
+import { absoluteUrl, plainText, postDescription, postHeadline, siteUrl } from "@/lib/seo";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -21,21 +21,27 @@ export async function GET() {
     "",
     `> ${markdownText(settings.descriptionEn)}`,
     "",
-    `${markdownText(settings.aboutTextEn)} Türkçe açıklama: ${markdownText(settings.aboutText)}`,
+    "## About / Hakkında",
+    "",
+    `English: ${markdownText(settings.descriptionEn)} ${markdownText(settings.aboutTextEn)}`,
+    "",
+    `Türkçe: ${markdownText(settings.description)} ${markdownText(settings.aboutText)}`,
     "",
     "## Canonical resources",
     "",
     `- [Home](${absoluteUrl(baseUrl, "/")})`,
     `- [About](${absoluteUrl(baseUrl, "/about")})`,
     `- [XML sitemap](${absoluteUrl(baseUrl, "/sitemap.xml")})`,
+    `- [English RSS feed](${absoluteUrl(baseUrl, "/feed.xml")})`,
+    `- [Türkçe RSS akışı](${absoluteUrl(baseUrl, "/feed.xml?lang=tr")})`,
     "",
     "## Latest English notes",
     "",
-    ...englishPosts.filter((post) => post.status === "published").map((post) => `- [${markdownText(postHeadline(post))}](${absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, "en"))})`),
+    ...englishPosts.filter((post) => post.status === "published").map((post) => `- [${markdownText(postHeadline(post))}](${absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, "en"))}): ${markdownText(postDescription(post))}`),
     "",
     "## Son Türkçe notlar",
     "",
-    ...turkishPosts.filter((post) => post.status === "published").map((post) => `- [${markdownText(postHeadline(post))}](${absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, "tr"))})`),
+    ...turkishPosts.filter((post) => post.status === "published").map((post) => `- [${markdownText(postHeadline(post))}](${absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, "tr"))}): ${markdownText(postDescription(post))}`),
     "",
   ];
   return new Response(lines.join("\n"), {

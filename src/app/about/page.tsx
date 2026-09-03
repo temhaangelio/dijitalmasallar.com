@@ -7,10 +7,14 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const language = resolveVisitorLanguage((await searchParams).lang);
   const settings = await getSiteSettings();
   const isEnglish = language === "en";
+  const title = isEnglish ? "About" : "Hakkında";
+  const description = isEnglish ? settings.descriptionEn : settings.description;
   return {
-    title: { absolute: `${isEnglish ? "About" : "Hakkında"} · ${settings.siteName}` },
-    description: isEnglish ? settings.descriptionEn : settings.description,
-    alternates: { canonical: languageHref("/about", language), languages: { en: "/about", tr: "/about?lang=tr", "x-default": "/about" } },
+    title: { absolute: `${title} · ${settings.siteName}` },
+    description,
+    alternates: { canonical: languageHref("/about", language), languages: { en: "/about", tr: "/about?lang=tr", "x-default": "/about" }, types: { "application/rss+xml": languageHref("/feed.xml", language) } },
+    openGraph: { type: "website", siteName: settings.siteName, title: `${title} · ${settings.siteName}`, description, url: languageHref("/about", language), locale: isEnglish ? "en_US" : "tr_TR" },
+    twitter: { card: "summary", title: `${title} · ${settings.siteName}`, description },
   };
 }
 

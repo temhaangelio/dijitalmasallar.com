@@ -12,7 +12,7 @@ describe("sourceLabel", () => {
   });
 
   it("supports legacy Twitter links", () => {
-    assert.equal(sourceLabel(null, "https://mobile.twitter.com/OpenAI/status/123456789", "Kaynak"), "@OpenAI");
+    assert.equal(sourceLabel(null, "https://mobile.twitter.com/ExampleTech/status/123456789", "Kaynak"), "@ExampleTech");
   });
 
   it("does not treat X system paths as usernames", () => {

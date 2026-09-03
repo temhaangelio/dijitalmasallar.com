@@ -6,8 +6,8 @@ import { parsePostContent } from "@/lib/post-content";
 import { isUuid } from "@/lib/utils";
 import type { Post } from "@/types/database";
 
-type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; source_url: string | null; cover_path: string | null; featured: boolean; ai_generated_image: boolean; created_at: string; author_id: string | null };
-const postColumns = "id,content_tr,content_en,legacy_english_id,source_url,cover_path,featured,ai_generated_image,created_at,author_id";
+type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; source_url: string | null; cover_path: string | null; featured: boolean; created_at: string; author_id: string | null };
+const postColumns = "id,content_tr,content_en,legacy_english_id,source_url,cover_path,featured,created_at,author_id";
 export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc";
 export type PostPublicationFilter = "all" | "published" | "scheduled";
 
@@ -26,7 +26,6 @@ function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
     cover_path: row.cover_path,
     source_url: row.source_url,
     featured: row.featured,
-    ai_generated_image: row.ai_generated_image,
     published_at: scheduled ? null : row.created_at,
     scheduled_at: scheduled ? row.created_at : null,
     reads: 0,

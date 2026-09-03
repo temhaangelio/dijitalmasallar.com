@@ -14,19 +14,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
   const baseUrl = siteUrl(settings.domain);
   const staticPaths = ["/", "/about"];
-  const staticEntries: MetadataRoute.Sitemap = staticPaths.map((path, index) => ({
-    url: absoluteUrl(baseUrl, languageHref(path, "en")),
-    lastModified: settings.updatedAt ?? undefined,
-    changeFrequency: index === 0 ? "hourly" : "monthly",
-    priority: index === 0 ? 1 : 0.6,
-    alternates: {
-      languages: {
-        en: absoluteUrl(baseUrl, languageHref(path, "en")),
-        tr: absoluteUrl(baseUrl, languageHref(path, "tr")),
-        "x-default": absoluteUrl(baseUrl, languageHref(path, "en")),
-      },
-    },
-  }));
+  const staticEntries: MetadataRoute.Sitemap = staticPaths.flatMap((path, index) => {
+    const alternates = {
+      en: absoluteUrl(baseUrl, languageHref(path, "en")),
+      tr: absoluteUrl(baseUrl, languageHref(path, "tr")),
+      "x-default": absoluteUrl(baseUrl, languageHref(path, "en")),
+    };
+    const shared = {
+      lastModified: settings.updatedAt ?? undefined,
+      changeFrequency: index === 0 ? "hourly" as const : "monthly" as const,
+      priority: index === 0 ? 1 : 0.6,
+      alternates: { languages: alternates },
+    };
+    return [{ url: alternates.en, ...shared }, { url: alternates.tr, ...shared }];
+  });
 
   const byId = new Map(englishPosts.map((post) => [post.id, post]));
   for (const post of turkishPosts) if (!byId.has(post.id)) byId.set(post.id, post);
@@ -44,6 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "never" as const,
         priority: 0.8,
         alternates: { languages: alternates },
+        images: post.cover_path ? [post.cover_path] : undefined,
       };
       return [
         { url: alternates.en, ...shared },

@@ -29,6 +29,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     alternates: {
       canonical,
       languages: { en: "/", tr: "/?lang=tr", "x-default": "/" },
+      types: { "application/rss+xml": languageHref("/feed.xml", language) },
     },
     openGraph: {
       type: "website",
@@ -135,6 +136,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         url: baseUrl,
         description: language === "en" ? settings.descriptionEn : settings.description,
         email: settings.contactEmail,
+        founder: { "@type": "Person", name: "Temha Angelio", url: "https://www.temhaangelio.com/" },
+        knowsAbout: ["Technology", "Artificial intelligence", "Science", "Digital culture"],
       },
       {
         "@type": "WebSite",
@@ -143,6 +146,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         url: homeUrl,
         inLanguage: language,
         publisher: { "@id": `${baseUrl}/#organization` },
+        potentialAction: { "@type": "ReadAction", target: homeUrl },
       },
       {
         "@type": "CollectionPage",

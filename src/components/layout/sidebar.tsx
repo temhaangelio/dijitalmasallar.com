@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
+import { Bot, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
-import { AiNavigationStatus } from "./ai-navigation-status";
 import { SidebarToggle } from "./sidebar-toggle";
 
 /**
@@ -15,32 +14,34 @@ import { SidebarToggle } from "./sidebar-toggle";
 const items = [
   ["Dashboard", "/dashboard", null, LayoutDashboard],
   ["Yazılar", "/yazilar", "posts", FileText],
-  ["Yapay zekâ", "/yapay-zeka", "ai", null],
+  ["Yapay zekâ", "/yapay-zeka", "ai", Bot],
   ["RSS", "/rss", "rss", Rss],
   ["Reklamlar", "/reklamlar", "ads", Megaphone],
   ["İstatistik", "/istatistik", "analytics", ChartColumn],
 ] as const;
 
-export function Sidebar({ active, siteName, modules, aiScanRunning }: { active: string; siteName: string; modules: Record<"posts" | "ai" | "rss" | "ads" | "analytics", boolean>; aiScanRunning: boolean }) {
+export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: Record<"posts" | "ai" | "rss" | "ads" | "analytics", boolean> }) {
   return <aside className="sidebar">
     <Link href="/dashboard" aria-label={siteName} className="flex items-center gap-3">
       <span className="brand-mark shrink-0" aria-hidden="true" /><strong className="sidebar-expanded-only block truncate text-base tracking-[-.03em]">{siteName}</strong>
     </Link>
-    <SidebarToggle />
     <nav className="flex flex-col gap-1">
       {items.filter(([, , module]) => !module || modules[module]).map(([label, href, , Icon]) => {
         const selected = active === href;
         return <Link key={href} href={href} aria-label={label} title={label} className={`sidebar-item relative text-[15px] transition-colors ${selected ? "bg-ink font-semibold text-ink-contrast" : "font-medium text-ink-2 hover:bg-surface-2 hover:text-ink"}`}>
-          {href === "/yapay-zeka" ? <AiNavigationStatus initiallyRunning={aiScanRunning} withLabel /> : <><Icon size={18} className="shrink-0" aria-hidden="true" /><span className="sidebar-expanded-only truncate">{label}</span></>}
+          <Icon size={18} className="shrink-0" aria-hidden="true" /><span className="sidebar-expanded-only truncate">{label}</span>
           {selected && <span aria-hidden="true" className="sidebar-expanded-only absolute right-3 top-2 size-1.5 rounded-full bg-ink-contrast" />}
         </Link>;
       })}
     </nav>
-    <form action={logoutAction} className="mt-auto border-t border-line/70 pt-4">
-      <button type="submit" aria-label="Çıkış yap" title="Çıkış yap" className="sidebar-item w-full text-left text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
-        <LogOut size={18} className="shrink-0" aria-hidden="true" />
-        <span className="sidebar-expanded-only truncate">Çıkış yap</span>
-      </button>
-    </form>
+    <div className="sidebar-footer mt-auto flex items-center gap-2 border-t border-line/70 pt-4">
+      <form action={logoutAction} className="min-w-0 flex-1">
+        <button type="submit" aria-label="Çıkış yap" title="Çıkış yap" className="sidebar-item w-full text-left text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
+          <LogOut size={18} className="shrink-0" aria-hidden="true" />
+          <span className="sidebar-expanded-only truncate">Çıkış yap</span>
+        </button>
+      </form>
+      <SidebarToggle />
+    </div>
   </aside>;
 }

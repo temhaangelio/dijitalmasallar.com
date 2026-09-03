@@ -16,7 +16,9 @@ const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["op
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: "diji.news", template: "%s · diji.news" },
-  description: "Teknoloji, yapay zekâ, bilim ve dijital kültür odaklı kısa ve güncel haber notları.",
+  description: "Concise, sourced news notes on technology, artificial intelligence, science, and digital culture.",
+  keywords: ["technology news", "artificial intelligence", "science news", "digital culture", "teknoloji haberleri", "yapay zekâ", "bilim"],
+  authors: [{ name: "Temha Angelio", url: "https://www.temhaangelio.com/" }],
   applicationName: "diji.news",
   appleWebApp: { capable: true, title: "diji.news", statusBarStyle: "default" },
   category: "technology",
@@ -31,12 +33,12 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "diji.news",
     title: "diji.news",
-    description: "Teknoloji, yapay zekâ, bilim ve dijital kültür odaklı kısa ve güncel haber notları.",
+    description: "Concise, sourced news notes on technology, artificial intelligence, science, and digital culture.",
     url: "/",
     locale: "en_US",
     alternateLocale: ["tr_TR"],
   },
-  twitter: { card: "summary", title: "diji.news", description: "Kısa ve güncel teknoloji, yapay zekâ, bilim ve dijital kültür notları." },
+  twitter: { card: "summary", title: "diji.news", description: "Concise, sourced news notes on technology, artificial intelligence, science, and digital culture." },
   verification: { google: "I2Kgl2_qfu24MNHBQscd-jvFyhuFIBiaXULF5QOYOaA" },
 };
 

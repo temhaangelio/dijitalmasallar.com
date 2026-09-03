@@ -15,9 +15,9 @@ import { notifyNewPost } from "@/services/push";
 const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc"];
 const postStatuses: PostPublicationFilter[] = ["all", "published", "scheduled"];
 const acceptedImages = new Set(["image/jpeg", "image/png", "image/webp"]);
-const maxCoverWidth = 800;
-const maxCoverHeight = 600;
-const coverQuality = 75;
+const maxCoverWidth = 1200;
+const maxCoverHeight = 675;
+const coverQuality = 85;
 
 function storagePathFromUrl(value: string | null) {
   if (!value) return null;
@@ -32,11 +32,18 @@ async function uploadCover(access: NonNullable<Awaited<ReturnType<typeof getAuth
   if (image.size > 5 * 1024 * 1024) return { url: null, path: null, error: "Görsel 5 MB’dan küçük olmalı." };
   let optimized: Buffer;
   try {
-    optimized = await sharp(Buffer.from(await image.arrayBuffer()))
-      .rotate()
-      .resize({ width: maxCoverWidth, height: maxCoverHeight, fit: "inside", withoutEnlargement: true })
-      .webp({ quality: coverQuality, effort: 4 })
-      .toBuffer();
+    const source = Buffer.from(await image.arrayBuffer());
+    const metadata = await sharp(source).metadata();
+    const isPreparedWebp = image.type === "image/webp"
+      && metadata.width === maxCoverWidth
+      && metadata.height === maxCoverHeight;
+    optimized = isPreparedWebp
+      ? source
+      : await sharp(source)
+          .rotate()
+          .resize({ width: maxCoverWidth, height: maxCoverHeight, fit: "inside", withoutEnlargement: true })
+          .webp({ quality: coverQuality, effort: 4 })
+          .toBuffer();
   } catch {
     return { url: null, path: null, error: "Görsel işlenemedi. Başka bir JPG, PNG veya WebP deneyin." };
   }
@@ -93,7 +100,6 @@ export async function createPostAction(input: unknown, image: File | null = null
     source_url: parsed.data.sourceUrl,
     cover_path: coverUrl,
     featured: parsed.data.featured,
-    ai_generated_image: parsed.data.aiGeneratedImage,
     author_id: access.user.id,
     created_at: createdAt,
   }).select("id").single();
@@ -134,7 +140,6 @@ export async function updatePostAction(id: string, input: unknown, image: File |
     source_url: parsed.data.sourceUrl,
     cover_path: cover.url ?? discoveredCoverUrl ?? (removeCover ? null : current.cover_path),
     featured: parsed.data.featured,
-    ai_generated_image: parsed.data.aiGeneratedImage,
     created_at: createdAt,
   }).eq("id", current.id);
   if (error) {

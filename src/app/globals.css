@@ -123,7 +123,7 @@
   /* For placing the mark on an ink-coloured surface, e.g. the toast. */
   .brand-mark-inverse { background: var(--color-surface); }
   .brand-mark-inverse::after { background: var(--color-ink); }
-  .main { min-width: 0; flex: 1; padding: 32px 40px 40px 12px; }
+  .main { min-width: 0; flex: 1; padding: 32px 40px 40px 32px; }
 
   /*
    * Collapsed sidebar. The attribute is stamped on <html> by `AdminSidebarScript` before the first
@@ -135,11 +135,12 @@
    * selector's specificity, so a `padding-inline: 0` here could never have beaten a `px-4` there.
    */
   .sidebar-item { display: flex; align-items: center; gap: 12px; height: 44px; padding-inline: 16px; border-radius: var(--radius-chip); }
-  .sidebar-toggle-control { position: absolute; right: -16px; top: 82px; z-index: 10; }
+  .sidebar-toggle-control { position: static; }
 
   html[data-admin-sidebar="collapsed"] .sidebar { width: 84px; flex-basis: 84px; padding-left: 22px; padding-right: 22px; }
   html[data-admin-sidebar="collapsed"] .sidebar-expanded-only { display: none; }
   html[data-admin-sidebar="collapsed"] .sidebar-item { justify-content: center; gap: 0; padding-inline: 0; }
+  html[data-admin-sidebar="collapsed"] .sidebar-footer { flex-direction: column; }
   .page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 0 4px 24px; }
   .page-title { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -.045em; line-height: 1; }
   .page-note { margin-top: 6px; color: var(--color-muted); font-size: 15px; font-weight: 500; }

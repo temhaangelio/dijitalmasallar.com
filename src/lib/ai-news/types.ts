@@ -22,9 +22,3 @@ export type AiNewsDiscovery = {
   titleTr: string;
   createdAt: string;
 };
-
-export type OfficialAiSource = {
-  name: string;
-  url: string;
-  host: string;
-};
