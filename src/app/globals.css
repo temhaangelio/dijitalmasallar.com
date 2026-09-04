@@ -225,6 +225,10 @@ html[data-visitor-theme="dark"] .visitor-page {
   --color-danger: #ff8078;
   --color-danger-surface: #2d1512;
 
+  /* A softer sand tone replaces the brick accent on dark surfaces. The light theme keeps the
+     original editorial red, while dates, links and small labels feel calmer at night. */
+  --color-accent: #d2a176;
+
   --focus-ring: #f2f2f2;
 
 }

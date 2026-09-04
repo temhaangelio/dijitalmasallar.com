@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useId, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 export function VisitorBottomSheet({ open, title, titleClassName, closeLabel, onOpenChange, children }: { open: boolean; title: string; titleClassName?: string; closeLabel: string; onOpenChange: (open: boolean) => void; children: ReactNode }) {
   const titleId = useId();
@@ -19,8 +20,9 @@ export function VisitorBottomSheet({ open, title, titleClassName, closeLabel, on
   }, [onOpenChange, open]);
 
   if (!open) return null;
+  const portalRoot = document.querySelector<HTMLElement>(".visitor-page") ?? document.body;
 
-  return (
+  return createPortal(
     <div className="visitor-sheet-backdrop fixed inset-0 z-[200] flex items-end justify-center bg-ink/20 px-0 backdrop-blur-[2px] sm:items-center sm:px-6" role="presentation" onMouseDown={() => onOpenChange(false)}>
       <section className="visitor-sheet-panel w-full max-w-[560px] overflow-hidden rounded-t-[24px] border border-line-strong bg-surface text-ink shadow-modal sm:rounded-[24px]" role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
         <div className="flex justify-center pb-1 pt-3 sm:hidden" aria-hidden="true"><span className="h-[3px] w-9 rounded-full bg-line-strong" /></div>
@@ -34,6 +36,7 @@ export function VisitorBottomSheet({ open, title, titleClassName, closeLabel, on
           {children}
         </div>
       </section>
-    </div>
+    </div>,
+    portalRoot,
   );
 }

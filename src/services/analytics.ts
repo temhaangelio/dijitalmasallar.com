@@ -18,7 +18,8 @@ export type AnalyticsData = {
 };
 
 const API_URL = "https://api.vercel.com/v1/query/web-analytics/visits/aggregate";
-const VERCEL_PROJECT = "dijinews";
+const VERCEL_PROJECT = "prj_agJ1DNyO6Nx93L5LkB2HybD84632";
+const VERCEL_TEAM = "team_cTqEVmnoxddvk7Srj1cf6gDO";
 const aggregateLimit = 100;
 const dailyRangeLimit = 62;
 
@@ -26,9 +27,9 @@ function dateOnly(date: Date) { return date.toISOString().slice(0, 10); }
 function addDays(date: Date, amount: number) { const next = new Date(date); next.setUTCDate(next.getUTCDate() + amount); return next; }
 
 /**
- * `teamId` is optional on purpose: a Hobby account has no team, and sending the parameter empty (or
- * with someone else's id) makes Vercel reject the request. Personal-account projects are resolved
- * from the token alone.
+ * `teamId` is optional at the request layer because genuinely personal Hobby projects do not have
+ * one. This project lives in the owner's Pro workspace, which Vercel represents as a team even
+ * though it is managed by one person.
  */
 async function aggregate(token: string, projectId: string, teamId: string | undefined, since: string, until: string, by: string, limit: number) {
   const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), aggregateLimit);
@@ -78,7 +79,7 @@ export function missingAnalyticsEnv(): string[] {
 export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData | null> {
   const token = process.env.VERCEL_ANALYTICS_TOKEN?.trim();
   const projectId = process.env.VERCEL_PROJECT_ID?.trim() || VERCEL_PROJECT;
-  const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID?.trim() || undefined;
+  const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID?.trim() || VERCEL_TEAM;
   if (!token) return null;
   try {
     const now = new Date();
