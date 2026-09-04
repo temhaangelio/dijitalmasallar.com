@@ -416,6 +416,20 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-top-control {
     -moz-osx-font-smoothing: grayscale;
     padding-top: env(safe-area-inset-top);
   }
+  /* With `black-translucent`, iOS lets the document extend below its status bar. Keep that area on
+     the active canvas colour while the feed scrolls, instead of allowing article text to show
+     through behind the clock and system icons. */
+  .visitor-page::before {
+    content: "";
+    position: fixed;
+    z-index: 90;
+    inset: 0 0 auto;
+    height: env(safe-area-inset-top);
+    /* iOS renders white system symbols for `black-translucent`; keep their backing reliably dark
+       even when the reader switches the page itself to the light theme. */
+    background: #0f0f0f;
+    pointer-events: none;
+  }
   .visitor-page .font-mono {
     font-family: var(--font-plex-mono), monospace;
     font-kerning: normal;

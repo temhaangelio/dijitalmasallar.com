@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   keywords: ["technology news", "artificial intelligence", "science news", "digital culture", "teknoloji haberleri", "yapay zekâ", "bilim"],
   authors: [{ name: "Temha Angelio", url: "https://www.temhaangelio.com/" }],
   applicationName: "dijitalmasallar.com",
-  appleWebApp: { capable: true, title: "dijitalmasallar.com", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "dijitalmasallar.com", statusBarStyle: "black-translucent" },
   category: "technology",
   creator: "dijitalmasallar.com",
   publisher: "dijitalmasallar.com",
@@ -49,10 +49,6 @@ export const metadata: Metadata = {
  */
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f8f5" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },
-  ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

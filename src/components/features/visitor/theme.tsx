@@ -18,7 +18,7 @@ const darkThemeColor = "#0f0f0f";
  * variant yet, and leaving the attribute unset there keeps it on the light tokens.
  */
 export function ThemeScript() {
-  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);}catch(e){}})();`;
+  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");document.querySelectorAll('meta[name="theme-color"]').forEach(function(n){n.remove()});var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
@@ -57,13 +57,17 @@ function resolve(preference: ThemePreference) {
 }
 
 function syncBrowserThemeColor(theme: "light" | "dark") {
-  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"][data-diji-theme]');
+  const metas = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')];
+  let meta = metas.find((candidate) => candidate.hasAttribute("data-diji-theme")) ?? metas[0];
+  metas.forEach((candidate) => { if (candidate !== meta) candidate.remove(); });
   if (!meta) {
     meta = document.createElement("meta");
     meta.name = "theme-color";
     meta.dataset.dijiTheme = "";
     document.head.appendChild(meta);
   }
+  meta.removeAttribute("media");
+  meta.dataset.dijiTheme = "";
   meta.content = theme === "dark" ? darkThemeColor : lightThemeColor;
 }
 
