@@ -16,9 +16,15 @@ const darkThemeColor = "#0f0f0f";
  * Runs before the first paint, inline in the document, so the page never flashes light before the
  * stored preference is read. Only rendered by the visitor shell — the admin panel has no dark
  * variant yet, and leaving the attribute unset there keeps it on the light tokens.
+ *
+ * The `theme-color` pass runs twice. At head time it cannot see the media-conditional pair the
+ * `viewport` export renders, because those tags are parsed after this script — leaving the dark one
+ * standing, and a browser picks the *last* matching tag, so a reader who chose light on a dark
+ * system would still get a dark status bar. Repeating the pass once the document is parsed clears
+ * them, after they have done the one job they exist for: giving Safari a colour for its first paint.
  */
 export function ThemeScript() {
-  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");document.querySelectorAll('meta[name="theme-color"]').forEach(function(n){n.remove()});var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);}catch(e){}})();`;
+  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");var a=function(){document.querySelectorAll('meta[name="theme-color"]').forEach(function(n){n.remove()});var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);};a();document.addEventListener("DOMContentLoaded",a);}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
