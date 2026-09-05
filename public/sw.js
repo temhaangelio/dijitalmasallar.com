@@ -29,7 +29,7 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "dijitalmasallar.com";
   const options = {
     body: payload.body || "",
-    icon: "/icon-192.png",
+    icon: "/icon-192.png?v=6",
     badge: "/badge-96.png",
     lang: payload.lang || "en",
     // One note replaces the previous one rather than stacking a column of them, and `renotify`

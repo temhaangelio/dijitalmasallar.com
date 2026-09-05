@@ -16,8 +16,8 @@ export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {
       {visitorNavItems.filter((item) => headerPaths.has(item.href)).map((item) => {
         const current = pathname === item.href;
         const href = languageHref(item.href, language);
-        const className = `visitor-tap border-b pb-1.5 visitor-sans text-[12px] font-semibold leading-none uppercase tracking-[.16em] transition-colors sm:text-[13px] ${
-          current ? "border-accent text-accent" : "border-transparent text-muted hover:border-accent hover:text-accent"
+        const className = `visitor-tap visitor-nav-link pb-1.5 visitor-sans text-[11px] font-semibold leading-none uppercase tracking-[.12em] sm:tracking-[.16em] transition-colors sm:text-[13px] ${
+          current ? "text-accent" : "text-muted hover:text-accent"
         }`;
         return (
           <Link

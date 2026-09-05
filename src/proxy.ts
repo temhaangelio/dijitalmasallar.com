@@ -5,4 +5,5 @@ export async function proxy(request: NextRequest) {
   return updateSession(request);
 }
 
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };
+// Public reading routes do not need an auth refresh on every request.
+export const config = { matcher: ["/dashboard/:path*", "/yazilar/:path*", "/reklamlar/:path*", "/istatistik/:path*", "/rss/:path*", "/yapay-zeka/:path*", "/giris", "/sifremi-unuttum", "/sifre-yenile", "/auth/:path*"] };

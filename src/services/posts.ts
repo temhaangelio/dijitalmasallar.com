@@ -53,6 +53,19 @@ export async function getPosts(page = 1, pageSize = 20, language: "tr" | "en" = 
   }
 }
 
+/** Fetch the brief independently of feed pagination, including only published notes. */
+export async function getBriefPosts(since: string, until: string, language: "tr" | "en"): Promise<Post[]> {
+  if (!isSupabaseConfigured()) return demoPosts.filter(post => post.created_at >= since && post.created_at <= until);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.from("posts").select(postColumns)
+      .gte("created_at", since).lte("created_at", until)
+      .order("created_at", { ascending: false }).limit(500);
+    if (error) throw error;
+    return (data as PostRow[]).map(row => mapPost(row, language));
+  } catch { return []; }
+}
+
 /** How many notes one favourites request may ask for. Well past any real reading list. */
 export const maxPostsByIds = 200;
 
@@ -151,31 +164,10 @@ export async function getPostsPage(page = 1, pageSize = 20, language: "tr" | "en
     const { rows, total } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), language, search, status);
     const totalPages = Math.max(Math.ceil(total / safePageSize), 1);
     if (requestedPage > totalPages) return getPostsPage(totalPages, safePageSize, language, sort, search, status);
-    return { posts: rows.map((row) => mapPost(row, language)), total, page: requestedPage, totalPages };
-  } catch {
-    return demoPage(requestedPage, safePageSize, language, search, status);
-  }
-}
-
-/**
- * Turkish and English live in two columns of the same row, so one query serves both tabs of the
- * posts table. Fetching each language separately doubled the round-trips and the exact-count scans.
- */
-export async function getBilingualPostsPage(page = 1, pageSize = 20, sort: PostSort = "newest"): Promise<Record<"tr" | "en", PostsPageResult>> {
-  const safePageSize = clampPageSize(pageSize);
-  const requestedPage = clampPage(page);
-  if (!isSupabaseConfigured()) return { tr: demoPage(requestedPage, safePageSize, "tr"), en: demoPage(requestedPage, safePageSize, "en") };
-  try {
-    const { rows, total } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), "tr");
-    const totalPages = Math.max(Math.ceil(total / safePageSize), 1);
-    if (requestedPage > totalPages) return getBilingualPostsPage(totalPages, safePageSize, sort);
-    const shared = { total, page: requestedPage, totalPages };
-    return {
-      tr: { posts: rows.map((row) => mapPost(row, "tr")), ...shared },
-      en: { posts: rows.map((row) => mapPost(row, "en")), ...shared },
-    };
-  } catch {
-    return { tr: demoPage(requestedPage, safePageSize, "tr"), en: demoPage(requestedPage, safePageSize, "en") };
+    return { posts: rows.map((row) => ({ ...mapPost(row, language), body: "" })), total, page: requestedPage, totalPages };
+  } catch (error) {
+    console.error("Admin posts lookup failed");
+    throw error;
   }
 }
 
@@ -253,12 +245,13 @@ export type DashboardPostStats = {
   publishedThisWeek: number;
   publishedThisMonth: number;
   publishedDaysThisMonth: number[];
+  scheduledTotal: number;
   scheduled: Post[];
   recent: Post[];
 };
 
 export async function getDashboardPostStats(): Promise<DashboardPostStats> {
-  const empty = { total: 0, publishedThisWeek: 0, publishedThisMonth: 0, publishedDaysThisMonth: [], scheduled: [], recent: [] };
+  const empty = { total: 0, publishedThisWeek: 0, publishedThisMonth: 0, publishedDaysThisMonth: [], scheduledTotal: 0, scheduled: [], recent: [] };
   try {
     const access = await getAuthorizedAdminClient();
     if (!access) return empty;
@@ -273,24 +266,23 @@ export async function getDashboardPostStats(): Promise<DashboardPostStats> {
     const weekStartDay = new Date(localDay); weekStartDay.setUTCDate(localDay.getUTCDate() - weekday + 1);
     const isoAtIstanbulMidnight = (date: Date) => `${date.toISOString().slice(0, 10)}T00:00:00+03:00`;
     const monthStart = `${year}-${String(month).padStart(2, "0")}-01T00:00:00+03:00`;
-    const nextMonth = new Date(Date.UTC(year, month, 1));
-    const nextMonthStart = isoAtIstanbulMidnight(nextMonth);
     const nowIso = now.toISOString();
 
     const [totalResult, weekResult, monthResult, scheduledResult, recentResult] = await Promise.all([
       access.admin.from("posts").select("id", { count: "exact", head: true }),
       access.admin.from("posts").select("id", { count: "exact", head: true }).gte("created_at", isoAtIstanbulMidnight(weekStartDay)).lte("created_at", nowIso),
-      access.admin.from("posts").select("created_at").gte("created_at", monthStart).lte("created_at", nowIso),
-      access.admin.from("posts").select(postColumns).gt("created_at", nowIso).lt("created_at", nextMonthStart).order("created_at").limit(20),
-      access.admin.from("posts").select(postColumns).order("created_at", { ascending: false }).limit(3),
+      access.admin.from("posts").select("created_at", { count: "exact" }).gte("created_at", monthStart).lte("created_at", nowIso),
+      access.admin.from("posts").select(postColumns, { count: "exact" }).gt("created_at", nowIso).order("created_at").limit(3),
+      access.admin.from("posts").select(postColumns).lte("created_at", nowIso).order("created_at", { ascending: false }).limit(4),
     ]);
     if (totalResult.error || weekResult.error || monthResult.error || scheduledResult.error || recentResult.error) return empty;
     const monthDates = monthResult.data ?? [];
     return {
       total: totalResult.count ?? 0,
       publishedThisWeek: weekResult.count ?? 0,
-      publishedThisMonth: monthDates.length,
-      publishedDaysThisMonth: [...new Set(monthDates.map((row) => new Date(row.created_at).getDate()))],
+      publishedThisMonth: monthResult.count ?? monthDates.length,
+      publishedDaysThisMonth: [...new Set(monthDates.map((row) => Number(new Intl.DateTimeFormat("en", { timeZone: "Europe/Istanbul", day: "numeric" }).format(new Date(row.created_at)))))],
+      scheduledTotal: scheduledResult.count ?? 0,
       scheduled: (scheduledResult.data as PostRow[]).map((row) => mapPost(row, "tr")),
       recent: (recentResult.data as PostRow[]).map((row) => mapPost(row, "tr")),
     };

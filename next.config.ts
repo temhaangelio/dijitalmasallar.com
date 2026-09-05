@@ -61,6 +61,7 @@ const nextConfig: NextConfig = {
     // The public routes were renamed when English became the primary language. Kept permanently so
     // shared links and search results do not break.
     return [
+      { source: "/ayarlar/:path*", destination: "/dashboard", permanent: true },
       { source: "/hakkinda", destination: "/about", permanent: true },
       // The reader's own preferences moved onto the about page; the old address keeps working.
       { source: "/settings", destination: "/about", permanent: true },

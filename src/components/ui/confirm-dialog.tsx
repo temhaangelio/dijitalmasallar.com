@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useModalFocus } from "@/components/hooks/use-modal-focus";
 import { BrandMark } from "@/components/ui/brand-mark";
 
 type ConfirmDialogProps = {
@@ -34,71 +35,52 @@ export function ConfirmDialog({
   const panelRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const [pending, setPending] = useState(false);
-  useEffect(() => {
-    if (!open) return;
-
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    cancelRef.current?.focus();
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !pending) onOpenChange(false);
-      if (event.key !== "Tab") return;
-      const focusable = panelRef.current?.querySelectorAll<HTMLElement>("button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])");
-      if (!focusable?.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
-      previouslyFocused?.focus();
-    };
-  }, [open, onOpenChange, pending]);
+  const [failure, setFailure] = useState<string | null>(null);
+  function closeDialog() { setFailure(null); onOpenChange(false); }
+  useModalFocus({ open, busy: pending, panelRef, initialFocusRef: cancelRef, onClose: closeDialog });
 
   if (!open) return null;
 
   async function confirm() {
     setPending(true);
+    setFailure(null);
     try {
       const shouldClose = await onConfirm();
-      if (shouldClose !== false) onOpenChange(false);
+      if (shouldClose !== false) closeDialog();
+    } catch {
+      setFailure("İşlem tamamlanamadı. Lütfen tekrar deneyin.");
     } finally {
       setPending(false);
     }
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-ink/35 px-4 py-8 backdrop-blur-[2px]" onMouseDown={() => !pending && onOpenChange(false)}>
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-ink/35 px-4 py-8 backdrop-blur-[2px]" onMouseDown={() => !pending && closeDialog()}>
       <div
         ref={panelRef}
+        tabIndex={-1}
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="w-full max-w-[440px] rounded-card bg-white p-6 shadow-modal sm:p-7"
+        className="w-full max-w-[440px] max-h-[calc(100dvh-32px)] overflow-y-auto rounded-[18px] border border-line bg-surface p-6 shadow-pop sm:p-7"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-5">
           <BrandMark className="!size-11 shrink-0" />
-          <button type="button" disabled={pending} aria-label="Onay penceresini kapat" onClick={() => onOpenChange(false)} className="grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink disabled:opacity-50">
+          <button type="button" disabled={pending} aria-label="Onay penceresini kapat" onClick={closeDialog} className="grid size-11 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink disabled:opacity-50">
             <X size={18} />
           </button>
         </div>
-        <h2 id={titleId} className="mt-5 text-[26px] font-bold leading-tight tracking-[-.04em]">{title}</h2>
+        <h2 id={titleId} className="mt-5 font-[family-name:var(--font-source-serif)] text-[26px] font-medium leading-tight tracking-[-.04em]">{title}</h2>
         <p id={descriptionId} className="mt-2 text-[15px] font-medium leading-relaxed text-muted">{description}</p>
-        {error && <p role="alert" className="mt-4 rounded-field bg-danger-surface p-3 text-sm font-medium text-danger">{error}</p>}
+        {(error || failure) && <p role="alert" className="mt-4 rounded-field bg-danger-surface p-3 text-sm font-medium text-danger">{error || failure}</p>}
         <div className="mt-7 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button ref={cancelRef} type="button" variant="secondary" disabled={pending} onClick={() => onOpenChange(false)}>{cancelLabel}</Button>
+          <Button ref={cancelRef} type="button" variant="secondary" disabled={pending} onClick={closeDialog}>{cancelLabel}</Button>
           <Button type="button" disabled={pending} onClick={confirm} variant={variant === "destructive" ? "danger" : "primary"}>{pending ? "İşleniyor…" : confirmLabel}</Button>
         </div>
       </div>
     </div>,
-    document.body,
+    document.querySelector<HTMLElement>(".admin-page") ?? document.body,
   );
 }

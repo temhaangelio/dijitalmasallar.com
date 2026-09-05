@@ -1,73 +1,60 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { Suspense } from "react";
+import { ArrowRight, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/feedback/states";
 import { getAnalytics } from "@/services/analytics";
 import { getDashboardPostStats } from "@/services/posts";
+import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
 
-const timeZone = "Europe/Istanbul";
-
-function relativeTime(value: string) {
-  const elapsed = Date.now() - new Date(value).getTime();
-  const hours = Math.max(1, Math.floor(elapsed / 3_600_000));
-  if (hours < 24) return `${hours} saat önce`;
-  return `${Math.floor(hours / 24)} gün önce`;
-}
-
-function scheduledTime(value: string) {
-  return new Intl.DateTimeFormat("tr-TR", { timeZone, day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+async function ViewsCard() {
+  const analytics = await getAnalytics(7, true);
+  const max = Math.max(...(analytics?.daily.map(day => day.pageviews) ?? [0]), 1);
+  return <Card>
+    <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="section-title">Okur hareketi</h2><Link href="/istatistik" className="inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-ink">Son 7 gün<ArrowRight size={15} /></Link></div>
+    {analytics ? <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-end sm:gap-10">
+      <div className="shrink-0"><strong className="text-3xl font-medium tabular-nums tracking-tight">{analytics.pageviews.toLocaleString("tr-TR")}</strong><p className="mt-1 text-xs text-muted">Görüntüleme · {analytics.visitors.toLocaleString("tr-TR")} ziyaretçi</p></div>
+      <div className="flex h-24 min-w-0 flex-1 items-end gap-2" role="img" aria-label={`Son 7 günde ${analytics.pageviews} görüntüleme`}>{analytics.daily.map(day => <span key={day.date} className="flex-1 rounded-t bg-ink/75" title={`${day.date}: ${day.pageviews}`} style={{ height: `${Math.max(day.pageviews / max * 100, 3)}%` }} />)}</div>
+    </div> : <p className="py-8 text-sm leading-6 text-muted">İstatistik verisi şu anda alınamıyor. Yazılarınızı yönetmeye devam edebilirsiniz.</p>}
+  </Card>;
 }
 
 export default async function DashboardPage() {
-  const [postStats, analytics] = await Promise.all([getDashboardPostStats(), getAnalytics(7)]);
-  const now = new Date();
-  const numericParts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
-  const numberPart = (type: Intl.DateTimeFormatPartTypes) => Number(numericParts.find((item) => item.type === type)?.value ?? 0);
-  const year = numberPart("year");
-  const month = numberPart("month");
-  const today = numberPart("day");
-  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const monthName = new Intl.DateTimeFormat("tr-TR", { timeZone, month: "long" }).format(now);
-  const monthActivity = Math.round((postStats.publishedDaysThisMonth.length / Math.max(today, 1)) * 100);
-  const publishedDays = new Set(postStats.publishedDaysThisMonth);
-  const nextScheduled = postStats.scheduled[0];
-  const maxViews = Math.max(...(analytics?.daily.map((day) => day.pageviews) ?? [0]), 1);
-  const pageviewsChange = analytics?.pageviewsChange;
-
-  return (
-    <AppShell active="/dashboard">
-      <PageHeader title="Dashboard" actions={<Link href="/yazilar/yeni" className={buttonVariants()}>Yeni yazı <ArrowRight className="size-4" aria-hidden="true" /></Link>} />
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:h-[calc(100dvh-130px)] xl:grid-cols-12 xl:grid-rows-2">
-        <Card className="flex min-h-[300px] flex-col xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-          <div className="flex justify-between text-[26px] font-bold capitalize tracking-[-.04em]"><span>{monthName}</span><span className="text-muted">%{monthActivity}</span></div>
-          <div className="my-auto grid grid-cols-7 place-items-center gap-x-3 gap-y-4 py-5 xl:gap-y-[clamp(.5rem,1.4vh,1rem)] xl:py-2">{Array.from({ length: daysInMonth }, (_, index) => <span key={index} title={`${index + 1} ${monthName}`} className={`size-[13px] rounded-full ${publishedDays.has(index + 1) ? "bg-ink" : "bg-line-strong"}`} />)}</div>
-          <p className="text-sm font-medium text-muted">Bu ay {postStats.publishedThisMonth} yazı, {publishedDays.size} yayın günü</p>
-        </Card>
-        <Card className="flex min-h-[300px] flex-col xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-          <div className="flex justify-between"><h2 className="section-title">Son yazılar</h2><span className="text-[15px] font-medium text-muted">{postStats.total.toLocaleString("tr-TR")} yazı</span></div>
-          <div className="mt-5 grid flex-1 auto-rows-fr gap-2">{postStats.recent.length ? postStats.recent.map((post) => <Link href={`/yazilar/${post.id}/duzenle`} key={post.id} className="flex min-h-0 gap-3 rounded-field px-1 py-2 transition-colors hover:bg-surface-2"><span className={`w-[3px] shrink-0 rounded-full ${post.status === "published" ? "bg-ink" : "bg-line-strong"}`} /><div className="min-w-0 self-center"><strong className="line-clamp-2 block text-base tracking-[-.022em]">{post.title}</strong><small className="text-sm font-medium text-muted">{post.status === "published" ? "Yayında" : "Planlı"} · {relativeTime(post.created_at)}</small></div></Link>) : <p className="self-center text-sm text-muted">Henüz yazı bulunmuyor.</p>}</div>
-        </Card>
-        <Card className="flex flex-col xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-          <div className="flex items-center justify-between"><h2 className="section-title">Editör özeti</h2><span className="text-sm font-medium text-muted">Güncel durum</span></div>
-          <div className="mt-5 grid flex-1 grid-cols-3 gap-3 xl:mt-4">
-            {[
-              ["Bu hafta", postStats.publishedThisWeek],
-              ["Bu ay", postStats.publishedThisMonth],
-              ["Planlı", postStats.scheduled.length],
-            ].map(([label, value]) => <div key={label} className="flex flex-col justify-center rounded-field bg-surface-2 px-4 py-3"><small className="font-medium text-muted">{label}</small><strong className="mt-1 block text-[clamp(1.5rem,2.2vw,2rem)] leading-none tracking-[-.04em]">{value}</strong></div>)}
+  const stats = await getDashboardPostStats();
+  const today = new Date();
+  const key = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit" }).format(today);
+  const [year, month, day] = key.split("-").map(Number);
+  const monthName = new Intl.DateTimeFormat("tr-TR", { timeZone: "Europe/Istanbul", month: "long", year: "numeric" }).format(today);
+  const days = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const offset = (new Date(Date.UTC(year, month - 1, 1)).getUTCDay() + 6) % 7;
+  const published = new Set(stats.publishedDaysThisMonth);
+  const next = stats.scheduled[0];
+  return <AppShell active="/dashboard">
+    <PageHeader title="Genel bakış" note={fullDateLabel(today.toISOString(), "tr")} actions={<Link href="/yazilar/yeni" className={buttonVariants()}><Plus size={17} />Yeni yazı</Link>} />
+    <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-5">
+      {[["Bu hafta", stats.publishedThisWeek], ["Bu ay", stats.publishedThisMonth], ["Planlı", stats.scheduledTotal]].map(([label, value]) => <Card key={label} className="!px-4 !py-5 sm:!px-6"><p className="text-xs text-muted">{label}</p><strong className="mt-2 block text-[28px] font-medium leading-none tabular-nums tracking-tight sm:text-[34px]">{Number(value).toLocaleString("tr-TR")}</strong></Card>)}
+    </div>
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(300px,1fr)]">
+      <Card>
+        <div className="mb-2 flex items-center justify-between gap-3"><h2 className="section-title">Son notlar</h2><Link href="/yazilar" className="inline-flex min-h-11 items-center gap-2 text-xs text-muted hover:text-ink">Tümü · {stats.total.toLocaleString("tr-TR")}<ArrowRight size={14} /></Link></div>
+        <div className="divide-y divide-line">{stats.recent.length ? stats.recent.map(post => <Link prefetch={false} href={`/yazilar/${post.id}/duzenle`} key={post.id} className="group block rounded-lg py-4"><time dateTime={post.created_at} className="text-[11px] tabular-nums text-muted">{fullDateLabel(post.created_at, "tr")} · {timeLabel(post.created_at, "tr")}</time><h3 className="mt-1.5 line-clamp-2 font-[family-name:var(--font-source-serif)] text-[19px] leading-snug text-ink group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-4">{post.title}</h3></Link>) : <p className="py-10 text-sm text-muted">Henüz yayımlanmış not bulunmuyor.</p>}</div>
+      </Card>
+      <div className="space-y-6">
+        <Card>
+          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="section-title capitalize">{monthName}</h2><span className="text-xs text-muted">{published.size} yayın günü</span></div>
+          <div className="mt-5 grid grid-cols-7 gap-1 text-center">
+            {["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pa"].map(label => <span key={label} className="pb-2 text-[10px] font-medium text-muted">{label}</span>)}
+            {Array.from({ length: offset }, (_, index) => <span key={`empty-${index}`} />)}
+            {Array.from({ length: days }, (_, index) => <span key={index} title={`${index + 1} ${monthName}${published.has(index + 1) ? " · Yayın var" : ""}`} aria-current={index + 1 === day ? "date" : undefined} className={`mx-auto grid size-8 place-items-center rounded-full text-xs tabular-nums ${published.has(index + 1) ? "bg-ink text-white" : "text-muted"} ${index + 1 === day ? "ring-1 ring-line-strong ring-offset-2 ring-offset-surface" : ""}`}>{index + 1}</span>)}
           </div>
-          {nextScheduled ? (
-            <Link href={`/yazilar/${nextScheduled.id}/duzenle`} className="group mt-4 flex items-center justify-between gap-4 rounded-field border border-line px-4 py-3 transition-colors hover:bg-surface-2">
-              <div className="min-w-0"><small className="font-medium text-muted">Sıradaki planlı yayın · {scheduledTime(nextScheduled.scheduled_at ?? nextScheduled.created_at)}</small><strong className="mt-1 block truncate text-[15px]">{nextScheduled.title}</strong></div><ArrowRight className="size-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </Link>
-          ) : (
-            <div className="mt-4 flex items-center justify-between gap-4 rounded-field border border-dashed border-line px-4 py-3"><p className="text-sm text-muted">Planlanmış bir yazı bulunmuyor.</p><Link href="/yazilar/yeni" className="shrink-0 text-sm font-semibold underline decoration-line-strong underline-offset-4">Yazı ekle</Link></div>
-          )}
+          <p className="mt-5 text-[11px] text-muted">Dolu günlerde en az bir not yayımlandı.</p>
         </Card>
-        <Card className="flex flex-col xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5"><div className="flex justify-between"><h2 className="section-title">Görüntüleme</h2><span className="text-muted">Son 7 gün</span></div>{analytics ? <><div className="mt-4 text-[clamp(2rem,3vw,2.75rem)] font-bold tracking-[-.05em]">{analytics.pageviews.toLocaleString("tr-TR")} {pageviewsChange !== null && pageviewsChange !== undefined ? <span className="text-[15px] text-muted">{pageviewsChange >= 0 ? "+" : ""}%{pageviewsChange.toFixed(1).replace(".", ",")}</span> : null}</div><div className="mt-5 flex min-h-20 flex-1 items-end gap-2">{analytics.daily.map((day) => <span key={day.date} className="flex-1 rounded bg-ink" title={`${day.date}: ${day.pageviews.toLocaleString("tr-TR")}`} style={{ height: `${Math.max((day.pageviews / maxViews) * 100, 3)}%` }} />)}</div></> : <p className="my-auto text-sm text-muted">Vercel Analytics verisi şu anda alınamıyor.</p>}</Card>
+        <Card><h2 className="section-title">Sıradaki yayın</h2>{next ? <Link prefetch={false} href={`/yazilar/${next.id}/duzenle`} className="mt-4 block rounded-lg"><time dateTime={next.created_at} className="text-xs text-muted">{fullDateLabel(next.created_at, "tr")} · {timeLabel(next.created_at, "tr")}</time><p className="mt-2 line-clamp-2 font-[family-name:var(--font-source-serif)] text-lg leading-snug">{next.title}</p></Link> : <p className="mt-3 text-sm leading-6 text-muted">Planlanmış bir not bulunmuyor.</p>}</Card>
       </div>
-    </AppShell>
-  );
+      <div className="xl:col-span-2"><Suspense fallback={<Card><Skeleton className="h-6 w-40" /><Skeleton className="mt-5 h-24 w-full" /><span role="status" className="sr-only">Okur hareketi yükleniyor</span></Card>}><ViewsCard /></Suspense></div>
+    </div>
+  </AppShell>;
 }

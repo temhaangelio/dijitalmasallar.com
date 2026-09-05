@@ -1,27 +1,13 @@
 import { headers } from "next/headers";
+import { createAttemptStore } from "@/lib/rate-limit-store";
 
-/**
- * A per-IP limiter for public server actions such as push subscriptions.
- *
- * It is deliberately in-memory: the counters live in one server instance and reset on deploy, which
- * is enough to stop a single client hammering an endpoint, and avoids a round-trip to the database
- * on every attempt. A distributed limit would need shared storage.
- */
-export function createRateLimiter({ windowMs, maxAttempts }: { windowMs: number; maxAttempts: number }) {
-  const attempts = new Map<string, { count: number; resetAt: number }>();
-
+/** Best-effort per-instance abuse protection; the hosting proxy must sanitize client IP headers. */
+export function createRateLimiter(options: { windowMs: number; maxAttempts: number }) {
+  const attempts = createAttemptStore(options);
   return async function rateLimited() {
     const requestHeaders = await headers();
-    const ip = (requestHeaders.get("x-forwarded-for") || requestHeaders.get("x-real-ip") || "unknown").split(",")[0].trim();
-    const now = Date.now();
-    const current = attempts.get(ip);
-    if (!current || current.resetAt <= now) {
-      attempts.set(ip, { count: 1, resetAt: now + windowMs });
-      return false;
-    }
-    current.count += 1;
-    // The oldest key is dropped rather than the whole map, so one busy period cannot grow unbounded.
-    if (attempts.size > 5000) attempts.delete(attempts.keys().next().value ?? ip);
-    return current.count > maxAttempts;
+    const forwarded = process.env.VERCEL ? requestHeaders.get("x-vercel-forwarded-for") : requestHeaders.get("x-forwarded-for");
+    const ip = (forwarded || requestHeaders.get("x-real-ip") || "unknown").split(",")[0].trim();
+    return attempts.consume(ip);
   };
 }

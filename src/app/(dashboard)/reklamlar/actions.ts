@@ -3,18 +3,17 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
+import { inspectRasterUpload } from "@/lib/validate-image-upload";
+import { publicStoragePath } from "@/lib/storage-path";
 import { isUuid } from "@/lib/utils";
 
 type ActionResult = { success: boolean; message: string };
-const acceptedImages = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+
 
 function text(formData: FormData, key: string) { return String(formData.get(key) ?? "").trim(); }
 
 function storagePathFromUrl(value: string | null) {
-  if (!value) return null;
-  const marker = "/storage/v1/object/public/ad-images/";
-  const index = value.indexOf(marker);
-  return index === -1 ? null : decodeURIComponent(value.slice(index + marker.length));
+  return publicStoragePath(value, "ad-images", process.env.NEXT_PUBLIC_SUPABASE_URL);
 }
 
 export async function createAdAction(formData: FormData): Promise<ActionResult> {
@@ -36,11 +35,11 @@ export async function createAdAction(formData: FormData): Promise<ActionResult> 
   let imageUrl: string | null = null;
   let uploadedPath: string | null = null;
   if (image instanceof File && image.size > 0) {
-    if (!acceptedImages.has(image.type)) return { success: false, message: "Görsel JPG, PNG, WebP veya GIF olmalı." };
-    if (image.size > 5 * 1024 * 1024) return { success: false, message: "Görsel 5 MB’dan küçük olmalı." };
-    const extension = image.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "webp";
-    uploadedPath = `${access.user.id}/${randomUUID()}.${extension}`;
-    const { error: uploadError } = await access.admin.storage.from("ad-images").upload(uploadedPath, image, { contentType: image.type, upsert: false });
+    let prepared: Awaited<ReturnType<typeof inspectRasterUpload>>;
+    try { prepared = await inspectRasterUpload(image); }
+    catch { return { success: false, message: "Geçerli, en fazla 5 MB boyutunda bir JPG, PNG, WebP veya GIF seçin." }; }
+    uploadedPath = `${access.user.id}/${randomUUID()}.${prepared.extension}`;
+    const { error: uploadError } = await access.admin.storage.from("ad-images").upload(uploadedPath, prepared.bytes, { contentType: prepared.contentType, upsert: false });
     if (uploadError) return { success: false, message: "Reklam görseli yüklenemedi." };
     imageUrl = access.admin.storage.from("ad-images").getPublicUrl(uploadedPath).data.publicUrl;
   }
@@ -78,11 +77,11 @@ export async function updateAdAction(id: string, formData: FormData): Promise<Ac
   let uploadedPath: string | null = null;
   let imageUrl = removeImage ? null : current.image_url;
   if (image instanceof File && image.size > 0) {
-    if (!acceptedImages.has(image.type)) return { success: false, message: "Görsel JPG, PNG, WebP veya GIF olmalı." };
-    if (image.size > 5 * 1024 * 1024) return { success: false, message: "Görsel 5 MB’dan küçük olmalı." };
-    const extension = image.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "webp";
-    uploadedPath = `${access.user.id}/${randomUUID()}.${extension}`;
-    const { error: uploadError } = await access.admin.storage.from("ad-images").upload(uploadedPath, image, { contentType: image.type, upsert: false });
+    let prepared: Awaited<ReturnType<typeof inspectRasterUpload>>;
+    try { prepared = await inspectRasterUpload(image); }
+    catch { return { success: false, message: "Geçerli, en fazla 5 MB boyutunda bir JPG, PNG, WebP veya GIF seçin." }; }
+    uploadedPath = `${access.user.id}/${randomUUID()}.${prepared.extension}`;
+    const { error: uploadError } = await access.admin.storage.from("ad-images").upload(uploadedPath, prepared.bytes, { contentType: prepared.contentType, upsert: false });
     if (uploadError) return { success: false, message: "Reklam görseli yüklenemedi." };
     imageUrl = access.admin.storage.from("ad-images").getPublicUrl(uploadedPath).data.publicUrl;
   }
@@ -115,7 +114,7 @@ export async function updateAdLanguageAction(id: string, language: "tr" | "en"):
 }
 
 export async function toggleAdAction(id: string, active: boolean): Promise<ActionResult> {
-  if (!isUuid(id)) return { success: false, message: "Geçersiz reklam." };
+  if (!isUuid(id) || typeof active !== "boolean") return { success: false, message: "Geçersiz reklam." };
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
   const { error } = await access.admin.from("ad_units").update({ active, updated_at: new Date().toISOString() }).eq("id", id);

@@ -16,7 +16,7 @@ const buttonVariants = cva(
         /** High-emphasis destructive action: the confirm button of a delete dialog. */
         danger: "bg-danger text-white hover:bg-danger-strong active:bg-danger-strong",
       },
-      size: { sm: "min-h-9 px-4 text-[13px]", md: "min-h-11 px-5 text-sm", lg: "min-h-12 px-6 text-sm" },
+      size: { sm: "min-h-11 px-4 text-[13px]", md: "min-h-11 px-5 text-sm", lg: "min-h-12 px-6 text-sm" },
     },
     defaultVariants: { variant: "primary", size: "md" },
   },

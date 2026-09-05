@@ -7,6 +7,8 @@ import { after } from "next/server";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 import { parsePostContent } from "@/lib/post-content";
 import { discoverSourceImage } from "@/lib/source-image";
+import { inspectRasterUpload } from "@/lib/validate-image-upload";
+import { publicStoragePath } from "@/lib/storage-path";
 import { isUuid } from "@/lib/utils";
 import { postSchema } from "@/lib/validations/post";
 import { getPostsPage, type PostPublicationFilter, type PostSort } from "@/services/posts";
@@ -20,26 +22,24 @@ const maxCoverHeight = 675;
 const coverQuality = 85;
 
 function storagePathFromUrl(value: string | null) {
-  if (!value) return null;
-  const marker = "/storage/v1/object/public/diji-post-media/";
-  const index = value.indexOf(marker);
-  return index === -1 ? null : decodeURIComponent(value.slice(index + marker.length));
+  return publicStoragePath(value, "diji-post-media", process.env.NEXT_PUBLIC_SUPABASE_URL);
 }
 
 async function uploadCover(access: NonNullable<Awaited<ReturnType<typeof getAuthorizedAdminClient>>>, image: File | null) {
+  if (image !== null && !(image instanceof File)) return { url: null, path: null, error: "Geçersiz görsel dosyası." };
   if (!image || image.size === 0) return { url: null, path: null, error: null };
   if (!acceptedImages.has(image.type)) return { url: null, path: null, error: "Görsel JPG, PNG veya WebP olmalı." };
   if (image.size > 5 * 1024 * 1024) return { url: null, path: null, error: "Görsel 5 MB’dan küçük olmalı." };
   let optimized: Buffer;
   try {
-    const source = Buffer.from(await image.arrayBuffer());
-    const metadata = await sharp(source).metadata();
+    const { bytes: source } = await inspectRasterUpload(image);
+    const metadata = await sharp(source, { limitInputPixels: 25_000_000 }).metadata();
     const isPreparedWebp = image.type === "image/webp"
       && metadata.width === maxCoverWidth
       && metadata.height === maxCoverHeight;
     optimized = isPreparedWebp
       ? source
-      : await sharp(source)
+      : await sharp(source, { limitInputPixels: 25_000_000 })
           .rotate()
           .resize({ width: maxCoverWidth, height: maxCoverHeight, fit: "inside", withoutEnlargement: true })
           .webp({ quality: coverQuality, effort: 4 })
@@ -54,7 +54,7 @@ async function uploadCover(access: NonNullable<Awaited<ReturnType<typeof getAuth
 }
 
 export async function loadMorePostsAction(page: number, pageSize = 20, language: "tr" | "en" = "tr", sort: PostSort = "newest", search = "", status: PostPublicationFilter = "all") {
-  const safePage = Number.isInteger(page) && page >= 1 ? page : 1;
+  const safePage = Number.isSafeInteger(page) && page >= 1 ? Math.min(page, 100_000) : 1;
   const safePageSize = Number.isInteger(pageSize) ? Math.min(Math.max(pageSize, 1), 50) : 20;
   const access = await getAuthorizedAdminClient();
   if (!access) return { success: false as const, message: "Bu işlem için yönetici yetkisi gerekir." };
@@ -62,7 +62,7 @@ export async function loadMorePostsAction(page: number, pageSize = 20, language:
   try {
     const safeSort = postSorts.includes(sort) ? sort : "newest";
     const safeStatus = postStatuses.includes(status) ? status : "all";
-    const result = await getPostsPage(safePage, safePageSize, language, safeSort, String(search).slice(0, 120), safeStatus);
+    const result = await getPostsPage(safePage, safePageSize, language === "en" ? "en" : "tr", safeSort, String(search).slice(0, 120), safeStatus);
     return { success: true as const, ...result };
   } catch {
     return { success: false as const, message: "Yazılar yüklenemedi. Lütfen tekrar deneyin." };

@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { safeNextPath } from "@/lib/env";
 
-const protectedPaths = ["/dashboard", "/yazilar", "/reklamlar", "/istatistik"];
+const protectedPaths = ["/dashboard", "/yazilar", "/reklamlar", "/istatistik", "/rss", "/yapay-zeka"];
 const authPaths = ["/giris", "/sifremi-unuttum"];
 
 export async function updateSession(request: NextRequest) {
@@ -23,15 +23,21 @@ export async function updateSession(request: NextRequest) {
   const { data: claimsData } = await supabase.auth.getClaims();
   const user = claimsData?.claims;
   const pathname = request.nextUrl.pathname;
-  if (!user && protectedPaths.some((path) => pathname.startsWith(path))) {
+  if (!user && protectedPaths.some((path) => (pathname === path || pathname.startsWith(`${path}/`)))) {
     const login = request.nextUrl.clone();
     login.pathname = "/giris";
     login.searchParams.set("next", safeNextPath(pathname));
-    return NextResponse.redirect(login);
+    const redirected = NextResponse.redirect(login);
+    response.cookies.getAll().forEach(cookie => redirected.cookies.set(cookie));
+    return redirected;
   }
-  if (user && authPaths.some((path) => pathname.startsWith(path))) {
+  if (user && authPaths.some((path) => (pathname === path || pathname.startsWith(`${path}/`)))) {
     const { data: isAdmin } = await supabase.rpc("is_admin");
-    if (isAdmin === true) return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (isAdmin === true) {
+      const redirected = NextResponse.redirect(new URL("/dashboard", request.url));
+      response.cookies.getAll().forEach(cookie => redirected.cookies.set(cookie));
+      return redirected;
+    }
   }
   return response;
 }

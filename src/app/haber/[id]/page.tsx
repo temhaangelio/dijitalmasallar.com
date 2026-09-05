@@ -1,3 +1,5 @@
+import { ZoomableImage } from "@/components/features/visitor/zoomable-image";
+import { noteInitialTone } from "@/lib/note-initial";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { splitAfterFirstParagraph } from "@/lib/post-content";
@@ -124,7 +126,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[640px] pt-4 sm:pt-6">
-        <article className="visitor-card visitor-article">
+        <article data-initial-tone={noteInitialTone(post.id)} className="visitor-card visitor-article">
           <div className="px-4 py-5 sm:px-6 sm:py-6">
         <header className="visitor-sans mb-5 flex items-center justify-between gap-3 border-b border-line pb-4 sm:mb-6">
           <Link href={languageHref("/", language)} className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md pr-2 text-[13px] font-medium text-muted transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent">
@@ -141,12 +143,12 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
             <MarkdownPreview value={paragraphs.first} />
           </div>
           {post.cover_path && (
-            <div className="relative my-5 aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-surface-3">
+            <ZoomableImage src={post.cover_path} alt={headline} language={language} className="relative my-5 block aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-surface-3">
               {isOptimizableImage(post.cover_path)
                 ? <Image src={post.cover_path} alt={headline} fill priority sizes="(max-width: 700px) 100vw, 640px" className="object-cover" />
                 // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
                 : <img src={post.cover_path} alt={headline} decoding="async" className="absolute inset-0 size-full object-cover" />}
-            </div>
+            </ZoomableImage>
           )}
           {paragraphs.rest ? <div className="visitor-markdown visitor-serif mt-5"><MarkdownPreview value={paragraphs.rest} /></div> : null}
           <div className="mt-3 flex min-w-0 items-center justify-between gap-3 visitor-sans text-[11px] font-normal leading-[1.6]">

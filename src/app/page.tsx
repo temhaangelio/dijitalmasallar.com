@@ -6,12 +6,13 @@ import { DailyBrief } from "@/components/features/visitor/daily-brief";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
-import { getPosts } from "@/services/posts";
+import { getBriefPosts, getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
 import { dateKey, dateLabel, fullDateLabel, timeLabel } from "@/lib/visitor-date";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
+import { selectDailyBrief } from "@/lib/daily-brief";
 import type { Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -114,15 +115,20 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
   // One extra row is enough to decide whether the automatic "more notes" control is needed.
   const fetchCount = Math.min(visiblePostCount + 1, 500);
-  const [postData, ads] = await Promise.all([getPosts(1, fetchCount, language), settings.moduleAds ? getActiveAds(language) : Promise.resolve([])]);
+  const now = new Date();
+  const yesterdayKey = dateKey(new Date(now.getTime() - 86_400_000).toISOString());
+  const [postData, ads, briefCandidates] = await Promise.all([
+    getPosts(1, fetchCount, language),
+    settings.moduleAds ? getActiveAds(language) : Promise.resolve([]),
+    getBriefPosts(new Date(`${yesterdayKey}T00:00:00+03:00`).toISOString(), now.toISOString(), language),
+  ]);
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
   const postDays = groupPostsByDay(posts);
-  const todaysPosts = postDays[0]?.key === dateKey(new Date().toISOString())
-    ? postDays[0].items.map(({ post }) => post)
-    : [];
-  const showDailyBrief = todaysPosts.length >= 4;
+  const { posts: briefPosts, isYesterday: isYesterdayBrief } = selectDailyBrief(briefCandidates, now);
+  const showDailyBrief = briefPosts.length > 0;
+  const briefDate = briefPosts[0]?.published_at ?? briefPosts[0]?.created_at ?? now.toISOString();
   const adSlots = createAdSlots(posts.length, ads);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
@@ -177,6 +183,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <div>
         {posts.length ? (
           <>
+          {showDailyBrief ? <DailyBrief posts={briefPosts} language={language} date={briefDate} dateLabel={dateLabel(briefDate, language)} yesterday={isYesterdayBrief} /> : null}
           {postDays.map((day, dayIndex) => (
           <section key={day.key} aria-label={fullDateLabel(day.publishedAt, language)} className={dayIndex ? "mt-16" : ""}>
             {/*
@@ -184,7 +191,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               over the notes with the feed sliding underneath it, and on iOS it sat in the strip
               behind the status bar where the page shows through.
             */}
-            {dayIndex === 0 && showDailyBrief ? null : <div className="pb-3">
+            {dayIndex === 0 && showDailyBrief && !isYesterdayBrief ? null : <div className="pb-3">
               <div className="flex items-center gap-3 sm:gap-3.5">
                 <span
                   title={fullDateLabel(day.publishedAt, language)}
@@ -196,7 +203,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>}
 
-            {dayIndex === 0 && showDailyBrief ? <DailyBrief posts={todaysPosts} language={language} date={day.publishedAt} dateLabel={dateLabel(day.publishedAt, language)} /> : null}
 
             <div className={`${dayIndex === 0 && showDailyBrief ? "" : "mt-5"} flex flex-col gap-7 sm:gap-9`}>
               {day.items.map(({ post, position }) => {

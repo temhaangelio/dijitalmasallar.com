@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { ZoomableImage } from "@/components/features/visitor/zoomable-image";
+import { noteInitialTone } from "@/lib/note-initial";
 import { splitAfterFirstParagraph } from "@/lib/post-content";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -83,21 +85,21 @@ export function NoteCard({ post, language, highlight, priority = false }: { post
   const displayedSource = sourceLabel(null, post.source_url, language === "en" ? "Source" : "Kaynak");
   const postHref = languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en");
   return (
-    <article className="visitor-card group relative transition-colors hover:border-line-strong">
+    <article data-initial-tone={noteInitialTone(post.id)} className="visitor-card group relative transition-colors hover:border-line-strong">
       <div className="min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6">
         <Link
           href={postHref}
-          className="visitor-card-link visitor-copy visitor-serif block whitespace-pre-line text-[20px] font-normal leading-[1.55] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] sm:text-[23px] sm:leading-[1.55]"
+          className="visitor-note-initial visitor-card-link visitor-copy visitor-serif block whitespace-pre-line text-[20px] font-normal leading-[1.55] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] sm:text-[23px] sm:leading-[1.55]"
         >
           {first}
         </Link>
         {post.cover_path && (
-          <Link href={postHref} tabIndex={-1} aria-hidden="true" className="relative z-10 mt-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
+          <ZoomableImage src={post.cover_path} alt={post.title} language={language} className="relative z-10 mt-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
             {isOptimizableImage(post.cover_path)
               ? <Image src={post.cover_path} alt={post.title} fill priority={priority} sizes="(max-width: 680px) calc(100vw - 72px), 590px" className="object-cover" />
               // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
               : <img src={post.cover_path} alt={post.title} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : undefined} decoding="async" className="absolute inset-0 size-full object-cover" />}
-          </Link>
+          </ZoomableImage>
         )}
         {rest.length > 0 ? (
           <div className="visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] leading-[1.65] text-ink sm:text-[20px] sm:leading-[1.6]">

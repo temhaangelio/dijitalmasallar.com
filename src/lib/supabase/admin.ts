@@ -14,9 +14,9 @@ export function createAdminClient() {
 export const getAuthorizedAdminClient = cache(async () => {
   try {
     const sessionClient = await createClient();
-    const { data: claimsData, error: claimsError } = await sessionClient.auth.getClaims();
-    const claims = claimsData?.claims;
-    if (claimsError || !claims?.sub || typeof claims.email !== "string") return null;
+    // Confirm the account still exists and is active, not just that its JWT signature is valid.
+    const { data: { user }, error: userError } = await sessionClient.auth.getUser();
+    if (userError || !user?.id || !user.email) return null;
 
     const { data: isAdmin, error: roleError } = await sessionClient.rpc("is_admin");
     if (roleError || isAdmin !== true) return null;
@@ -24,9 +24,9 @@ export const getAuthorizedAdminClient = cache(async () => {
     return {
       admin: createAdminClient(),
       user: {
-        id: claims.sub,
-        email: claims.email,
-        user_metadata: claims.user_metadata ?? {},
+        id: user.id,
+        email: user.email,
+        user_metadata: user.user_metadata ?? {},
       },
     };
   } catch {

@@ -1,4 +1,5 @@
 import "server-only";
+import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
 
 export type AnalyticsRange = 1 | 7 | 30 | 365;
 type VisitRow = { timestamp?: string; environment?: string; requestPath?: string; referrerHostname?: string; country?: string; pageviews: number; visitors: number };
@@ -35,7 +36,7 @@ async function aggregate(token: string, projectId: string, teamId: string | unde
   const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), aggregateLimit);
   const params = new URLSearchParams({ projectId, since, until, by, limit: String(safeLimit) });
   if (teamId) params.set("teamId", teamId);
-  const response = await fetch(`${API_URL}?${params}`, { headers: { Authorization: `Bearer ${token}` }, next: { revalidate: 300 } });
+  const response = await fetch(`${API_URL}?${params}`, { headers: { Authorization: `Bearer ${token}` }, next: { revalidate: 300 }, signal: AbortSignal.timeout(8000) });
   const payload = await response.json() as AggregateResponse;
   if (!response.ok || payload.error || !Array.isArray(payload.data)) throw new Error(`Vercel Analytics ${response.status}: ${payload.error?.message ?? "Veri alınamadı."}`);
   return payload.data;
@@ -76,13 +77,15 @@ export function missingAnalyticsEnv(): string[] {
   return requiredEnv.filter((name) => !process.env[name]?.trim());
 }
 
-export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData | null> {
+export async function getAnalytics(days: AnalyticsRange, summaryOnly = false): Promise<AnalyticsData | null> {
+  if (!await getAuthorizedAdminClient()) return null;
   const token = process.env.VERCEL_ANALYTICS_TOKEN?.trim();
   const projectId = process.env.VERCEL_PROJECT_ID?.trim() || VERCEL_PROJECT;
   const teamId = process.env.VERCEL_ANALYTICS_TEAM_ID?.trim() || VERCEL_TEAM;
   if (!token) return null;
   try {
-    const now = new Date();
+    // Stable windows let repeated visits reuse the five-minute fetch cache.
+    const now = new Date(Math.floor(Date.now() / 300_000) * 300_000);
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     const currentSinceDate = new Date(now.getTime() - days * 86_400_000);
     const previousUntilDate = currentSinceDate;
@@ -90,21 +93,16 @@ export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData 
     const currentSince = currentSinceDate.toISOString();
     const currentUntil = now.toISOString();
     const chartSinceDate = addDays(today, -(days - 1));
-    const [totals, dailyRows, pageRows, sourceRows, countryRows] = await Promise.all([
+    const [totals, dailyRows, pageRows, sourceRows, countryRows, previousTotals] = await Promise.all([
       aggregateTotals(token, projectId, teamId, currentSince, currentUntil),
       days === 1
         ? aggregate(token, projectId, teamId, currentSince, currentUntil, "hour", 25)
         : aggregateDaily(token, projectId, teamId, chartSinceDate, today),
-      aggregate(token, projectId, teamId, currentSince, currentUntil, "requestPath", aggregateLimit),
-      aggregate(token, projectId, teamId, currentSince, currentUntil, "referrerHostname", aggregateLimit),
-      aggregate(token, projectId, teamId, currentSince, currentUntil, "country", aggregateLimit),
+      summaryOnly ? Promise.resolve([]) : aggregate(token, projectId, teamId, currentSince, currentUntil, "requestPath", aggregateLimit),
+      summaryOnly ? Promise.resolve([]) : aggregate(token, projectId, teamId, currentSince, currentUntil, "referrerHostname", aggregateLimit),
+      summaryOnly ? Promise.resolve([]) : aggregate(token, projectId, teamId, currentSince, currentUntil, "country", aggregateLimit),
+      aggregateTotals(token, projectId, teamId, previousSinceDate.toISOString(), previousUntilDate.toISOString()).catch(() => null),
     ]);
-    let previousTotals: { pageviews: number; visitors: number } | null = null;
-    try {
-      previousTotals = await aggregateTotals(token, projectId, teamId, previousSinceDate.toISOString(), previousUntilDate.toISOString());
-    } catch (error) {
-      console.warn(JSON.stringify({ level: "warn", message: "Vercel Analytics karşılaştırma dönemi kullanılamıyor", days, error: error instanceof Error ? error.message : String(error) }));
-    }
 
     const daily = days === 1
       ? dailyRows.map((row) => ({ date: row.timestamp ?? "", pageviews: Number(row.pageviews) || 0, visitors: Number(row.visitors) || 0 }))
@@ -130,7 +128,7 @@ export async function getAnalytics(days: AnalyticsRange): Promise<AnalyticsData 
       topPages: pageRows.filter((row) => row.requestPath && row.requestPath !== "Others").map((row) => ({ path: row.requestPath!, pageviews: Number(row.pageviews) || 0, visitors: Number(row.visitors) || 0 })).sort((a, b) => b.visitors - a.visitors || b.pageviews - a.pageviews),
       sources: sourceRows.map((row) => ({ label: sourceLabel(row.referrerHostname ?? ""), pageviews: Number(row.pageviews) || 0, visitors: Number(row.visitors) || 0, percentage: ((Number(row.visitors) || 0) / visitorTotal) * 100 })).sort((a, b) => b.visitors - a.visitors),
       countries: countryRows.map((row) => { const code = row.country ?? "Others"; const countryVisitors = Number(row.visitors) || 0; return { code, label: code === "Others" ? "Diğer" : regionNames.of(code) ?? code, visitors: countryVisitors, percentage: (countryVisitors / visitorTotal) * 100 }; }).sort((a, b) => b.visitors - a.visitors),
-      updatedAt: new Date().toISOString(),
+      updatedAt: now.toISOString(),
     };
   } catch (error) {
     console.error(JSON.stringify({ level: "error", message: "Vercel Analytics verisi alınamadı", days, error: error instanceof Error ? error.message : String(error) }));

@@ -1,13 +1,8 @@
-import { ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { adminNavItems } from "./admin-nav-items";
 import { Skeleton } from "@/components/feedback/states";
 
-const items = [
-  ["Dashboard", "/dashboard", LayoutDashboard],
-  ["Yazılar", "/yazilar", FileText],
-  ["RSS", "/rss", Rss],
-  ["Reklamlar", "/reklamlar", Megaphone],
-  ["İstatistik", "/istatistik", ChartColumn],
-] as const;
+
 
 /**
  * `AppShell` is rendered by each page rather than by the dashboard layout, so `loading.tsx` replaces
@@ -29,8 +24,8 @@ export function ShellSkeleton({ active, children }: { active: string; children: 
           <Skeleton className="sidebar-expanded-only h-4 w-24" />
         </div>
         <nav className="flex flex-col gap-1">
-          {items.map(([label, href, Icon]) => (
-            <div key={href} className={`sidebar-item text-[15px] ${active === href ? "bg-ink font-semibold text-ink-contrast" : "font-medium text-ink-2"}`}>
+          {adminNavItems.map(({ label, href, icon: Icon }) => (
+            <div key={href} className={`sidebar-item text-[15px] ${active === href ? "bg-surface-3 font-semibold text-ink" : "font-medium text-ink-2"}`}>
               <Icon size={18} className="shrink-0" />
               <span className="sidebar-expanded-only">{label}</span>
             </div>

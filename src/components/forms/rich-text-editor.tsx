@@ -8,7 +8,7 @@ type RichTextEditorProps = { id: string; name: string; value: string; onChange: 
 type ToolButtonProps = { label: string; shortcut?: string; onPress: () => void; children: React.ReactNode };
 
 function ToolButton({ label, shortcut, onPress, children }: ToolButtonProps) {
-  return <button type="button" aria-label={label} title={shortcut ? `${label} (${shortcut})` : label} onMouseDown={(event) => event.preventDefault()} onClick={onPress} className="grid size-9 shrink-0 place-items-center rounded-full text-white transition-colors hover:bg-white/15 focus-visible:outline-white">{children}</button>;
+  return <button type="button" aria-label={label} title={shortcut ? `${label} (${shortcut})` : label} onMouseDown={(event) => event.preventDefault()} onClick={onPress} className="grid size-11 shrink-0 place-items-center rounded-lg text-ink-2 transition-colors hover:bg-surface-3 hover:text-ink">{children}</button>;
 }
 
 function escapeHtml(value: string) { return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
@@ -99,7 +99,7 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
 
   return (
     <div className={cn("relative overflow-hidden rounded-field border border-transparent bg-surface-2 transition focus-within:border-ink focus-within:bg-white", fullscreen && "fixed inset-0 z-[200] rounded-none border-0 bg-white") }>
-      {showToolbar ? <div role="toolbar" aria-label="Metin biçimlendirme" className="absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] items-center gap-0.5 overflow-x-auto rounded-full bg-ink px-2 py-1.5 shadow-soft [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {showToolbar ? <div role="toolbar" aria-label="Metin biçimlendirme" className="absolute right-3 top-3 z-10 flex max-w-[calc(100%_-_24px)] items-center gap-0.5 overflow-x-auto rounded-xl border border-line bg-surface px-1 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ToolButton label="Kalın" shortcut="⌘B" onPress={() => command("bold")}><Bold className="size-[17px]" /></ToolButton>
         <ToolButton label="İtalik" shortcut="⌘I" onPress={() => command("italic")}><Italic className="size-[17px]" /></ToolButton>
         <ToolButton label="Vurgula" onPress={() => command("hiliteColor", "#eaeaea")}><Highlighter className="size-[17px]" /></ToolButton>
@@ -114,7 +114,7 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
         <ToolButton label={fullscreen ? "Tam ekrandan çık" : "Tam ekran"} shortcut={fullscreen ? "Esc" : undefined} onPress={() => setFullscreen((current) => !current)}>{fullscreen ? <Minimize2 className="size-[17px]" /> : <Maximize2 className="size-[17px]" />}</ToolButton>
       </div> : null}
       <input type="hidden" name={name} value={value} readOnly />
-      <div ref={editorRef} id={id} role="textbox" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[360px] px-5 pb-5 text-[16px] leading-7 text-ink outline-none [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-ink [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-line [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-highlight [&_mark]:px-0.5", showToolbar ? "pt-[76px]" : "pt-5", fullscreen && "mx-auto h-screen w-full max-w-5xl overflow-y-auto px-8 pb-20 pt-24 text-[18px] leading-8 sm:px-16")} />
+      <div ref={editorRef} id={id} role="textbox" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[360px] px-5 pb-5 font-[family-name:var(--font-source-serif)] text-[19px] leading-7 text-ink outline-none [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-ink [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-line [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-highlight [&_mark]:px-0.5", showToolbar ? "pt-[76px]" : "pt-5", fullscreen && "mx-auto h-screen w-full max-w-5xl overflow-y-auto px-8 pb-20 pt-24 text-[18px] leading-8 sm:px-16")} />
     </div>
   );
 }

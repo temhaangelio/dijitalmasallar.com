@@ -1,17 +1,17 @@
 import { z } from "zod";
 
 const englishPostSchema = z.object({
-  body: z.string().trim().min(50, "İçerik en az 50 karakter olmalı."),
+  body: z.string().trim().min(50, "İçerik en az 50 karakter olmalı.").max(30_000, "İçerik en fazla 30.000 karakter olmalı."),
 });
 
 const turkishPostSchema = z.object({
-  body: z.string().trim().min(50, "İçerik en az 50 karakter olmalı."),
+  body: z.string().trim().min(50, "İçerik en az 50 karakter olmalı.").max(30_000, "İçerik en fazla 30.000 karakter olmalı."),
 });
 
 export const postSchema = z.object({
   tr: turkishPostSchema,
   en: englishPostSchema,
-  sourceUrl: z.string().trim().url("Geçerli bir kaynak bağlantısı girin."),
+  sourceUrl: z.string().trim().max(2048, "Kaynak bağlantısı çok uzun.").url("Geçerli bir kaynak bağlantısı girin.").refine(value => /^https?:\/\//i.test(value), "Kaynak bağlantısı http veya https ile başlamalı."),
   featured: z.boolean(),
   status: z.enum(["scheduled", "published"]),
   scheduledAt: z.string().optional(),

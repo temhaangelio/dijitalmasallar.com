@@ -87,9 +87,9 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           <div>
             <h2 className="section-title">İçerik</h2>
           </div>
-          <div role="tablist" aria-label="İçerik dili" className="grid grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64">
+          <div role="group" aria-label="İçerik dili" className="grid grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64">
               {(["tr", "en"] as const).map((language) => (
-                <button key={language} type="button" role="tab" aria-selected={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`h-10 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-white hover:text-ink"}`}>
+                <button key={language} type="button" aria-pressed={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`min-h-11 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-white hover:text-ink"}`}>
                   {language === "tr" ? "Türkçe" : "English"}
                 </button>
               ))}

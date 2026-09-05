@@ -80,7 +80,7 @@ export async function VisitorShell({
         header carries two alignments at once this way, and the site states its identity twice — as
         a glyph in the corner and as a logotype in the middle.
       */}
-      <nav data-intro={!compact && !reading ? "true" : undefined} className="visitor-nav relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-5 pt-6 text-center sm:pb-7 sm:pt-8" aria-label="Site">
+      <nav className="visitor-nav relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-5 pt-6 text-center sm:pb-7 sm:pt-8" aria-label="Site">
         {!reading && <div className="visitor-header-signals" aria-hidden="true">
           {headerSignals.map((signal, index) => <span key={index} className="visitor-header-signal" style={{
             left: `${signal.left}%`, top: `${signal.top}%`, fontSize: `${signal.size}px`,
@@ -118,7 +118,7 @@ export async function VisitorShell({
         </Link>}
 
         {compact || reading ? null : (
-          <p className="visitor-copy visitor-serif mt-4 max-w-[42ch] text-[15px] font-normal leading-[1.5] text-muted [text-wrap:balance] sm:mt-5 sm:text-[19px]">{description}</p>
+          <p className="visitor-copy visitor-serif mt-4 max-w-[42ch] text-[16px] font-normal leading-[1.6] text-ink-2 [text-wrap:balance] sm:mt-5 sm:text-[19px]"><span className="visitor-slogan-highlight">{description}</span></p>
         )}
 
         {reading ? null : <VisitorHeaderNav language={language} />}

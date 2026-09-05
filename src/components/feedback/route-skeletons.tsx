@@ -66,44 +66,14 @@ export function RssPageLoading() {
 /* ---------------------------------------------------------------- /dashboard */
 
 export function DashboardLoading() {
-  return (
-    <ShellSkeleton active="/dashboard">
-      <div role="status" aria-label="Panel yükleniyor">
-        <PageHeaderSkeleton actionWidth="w-36" />
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:h-[calc(100dvh-130px)] xl:grid-cols-12 xl:grid-rows-2">
-          <div className="card min-h-[300px] xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-            <Skeleton className="h-7 w-full" />
-            <div className="mt-7 grid grid-cols-7 gap-3">
-              {Array.from({ length: 28 }, (_, index) => <Skeleton key={index} className="size-[13px] rounded-full" />)}
-            </div>
-            <Skeleton className="mt-8 h-4 w-3/4" />
-          </div>
-          <div className="card min-h-[300px] xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-            <Skeleton className="h-7 w-40" />
-            <div className="mt-6 space-y-4">
-              {[0, 1, 2].map((index) => (
-                <div key={index}><Skeleton className="h-4 w-4/5" /><Skeleton className="mt-2 h-3 w-1/3" /></div>
-              ))}
-            </div>
-          </div>
-          <div className="card xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-            <div className="flex justify-between"><Skeleton className="h-7 w-40" /><Skeleton className="h-4 w-24" /></div>
-            <div className="mt-5 grid grid-cols-3 gap-3">{[0, 1, 2].map((index) => <Skeleton key={index} className="h-20 rounded-field" />)}</div>
-            <Skeleton className="mt-4 h-16 w-full rounded-field" />
-          </div>
-          <div className="card xl:col-span-6 xl:min-h-0 xl:overflow-hidden xl:p-5">
-            <Skeleton className="h-7 w-40" />
-            <Skeleton className="mt-4 h-10 w-32" />
-            <div className="mt-8 flex h-24 items-end gap-2">
-              {[60, 80, 45, 95, 55, 70, 40].map((height, index) => (
-                <Skeleton key={index} className="flex-1 rounded" style={{ height: `${height}%` }} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </ShellSkeleton>
-  );
+  return <ShellSkeleton active="/dashboard"><div role="status" aria-label="Genel bakış yükleniyor">
+    <PageHeaderSkeleton actionWidth="w-32" />
+    <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-5">{[0, 1, 2].map(index => <div key={index} className="card"><Skeleton className="h-3 w-14" /><Skeleton className="mt-3 h-8 w-16" /></div>)}</div>
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(300px,1fr)]">
+      <div className="card"><Skeleton className="mb-6 h-7 w-32" />{[0, 1, 2, 3].map(index => <div key={index} className="space-y-3 py-4"><Skeleton className="h-3 w-28" /><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-3/4" /></div>)}</div>
+      <div className="space-y-6"><div className="card"><Skeleton className="h-7 w-32" /><Skeleton className="mt-5 h-48 w-full rounded-xl" /></div><div className="card"><Skeleton className="h-7 w-36" /><Skeleton className="mt-4 h-5 w-full" /></div></div>
+    </div>
+  </div></ShellSkeleton>;
 }
 
 /* ---------------------------------------------------------------- /yazilar */
@@ -113,7 +83,7 @@ export function PostsPageLoading() {
     <ShellSkeleton active="/yazilar">
       <div className="mx-auto w-full max-w-[1600px]" role="status" aria-label="Yazılar yükleniyor">
         <PageHeaderSkeleton actionWidth="w-36" />
-        <StatCardsSkeleton count={3} className="mb-5 grid grid-cols-2 gap-5 sm:grid-cols-3 xl:mb-4 xl:gap-4 [&>div]:xl:h-24 [&>div]:xl:p-5" />
+        <div className="mb-5 flex gap-2">{[0, 1, 2].map(index => <Skeleton key={index} className="h-11 w-24 rounded-full" />)}</div>
         <div className="card xl:p-5">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <Skeleton className="h-12 w-full max-w-md rounded-field" />
