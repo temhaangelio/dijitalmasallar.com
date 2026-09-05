@@ -63,11 +63,11 @@ function AdCard({ ad }: { ad: Advertisement }) {
       ) : null}
 
       <div className="px-4 py-4 sm:px-6 sm:py-5">
-        <span className="font-mono text-[10px] font-medium uppercase tracking-[.18em] text-accent">{ad.label}</span>
+        <span className="visitor-sans text-[10px] font-medium uppercase tracking-[.18em] text-accent">{ad.label}</span>
         <h2 className="visitor-serif mt-3 text-[20px] font-semibold leading-[1.28] tracking-[-.02em] text-ink transition-colors group-hover:text-accent sm:text-[23px]">{ad.title}</h2>
         <p className="visitor-copy visitor-serif mt-3 whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink [text-wrap:pretty] sm:text-[21px] sm:leading-[1.5]">{ad.description}</p>
         <div className="mt-4 flex justify-end">
-          <span className="visitor-source border-b border-line pb-0.5 font-mono text-[11px] font-normal leading-[1.6] text-muted transition-colors group-hover:border-accent group-hover:text-accent">{ad.cta_label} ↗</span>
+          <span className="visitor-source border-b border-line pb-0.5 visitor-sans text-[11px] font-normal leading-[1.6] text-muted transition-colors group-hover:border-accent group-hover:text-accent">{ad.cta_label} ↗</span>
         </div>
       </div>
     </a>
@@ -173,7 +173,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
-      <main className="mt-9 flex w-full max-w-[640px] flex-col sm:mt-14">
+      <main className="mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
         <div>
         {posts.length ? (
           <>
@@ -184,21 +184,21 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               over the notes with the feed sliding underneath it, and on iOS it sat in the strip
               behind the status bar where the page shows through.
             */}
-            <div className="pb-3">
+            {dayIndex === 0 && showDailyBrief ? null : <div className="pb-3">
               <div className="flex items-center gap-3 sm:gap-3.5">
                 <span
                   title={fullDateLabel(day.publishedAt, language)}
-                  className="shrink-0 font-mono text-[10px] font-medium leading-none uppercase tracking-[.2em] text-accent sm:text-[11px]"
+                  className="shrink-0 visitor-sans text-[10px] font-medium leading-none uppercase tracking-[.2em] text-accent sm:text-[11px]"
                 >
                   {dateLabel(day.publishedAt, language)}
                 </span>
                 <span className="h-px min-w-6 flex-1 bg-line-strong" aria-hidden="true" />
               </div>
-            </div>
+            </div>}
 
-            {dayIndex === 0 && showDailyBrief ? <div className="mt-[34px]"><DailyBrief posts={todaysPosts} language={language} /></div> : null}
+            {dayIndex === 0 && showDailyBrief ? <DailyBrief posts={todaysPosts} language={language} date={day.publishedAt} dateLabel={dateLabel(day.publishedAt, language)} /> : null}
 
-            <div className={`${dayIndex === 0 && showDailyBrief ? "" : "mt-[34px]"} flex flex-col gap-8 sm:gap-[46px]`}>
+            <div className={`${dayIndex === 0 && showDailyBrief ? "" : "mt-5"} flex flex-col gap-7 sm:gap-9`}>
               {day.items.map(({ post, position }) => {
                 const publishedAt = post.published_at ?? post.created_at;
                 return (
@@ -207,12 +207,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                       <time
                         dateTime={publishedAt}
                         title={fullDateLabel(publishedAt, language)}
-                        className="visitor-muted mb-2.5 inline-flex items-center font-mono text-[11px] font-medium leading-none tabular-nums text-accent sm:mb-3 sm:text-[12px]"
+                        className="mb-2.5 inline-flex items-center visitor-sans text-[11px] font-medium leading-none tabular-nums text-accent sm:mb-3 sm:text-[12px]"
                       >
                         {timeLabel(publishedAt, language)}
-                        {position === 0 ? <span className="ml-2 size-1.5 shrink-0 animate-pulse rounded-full bg-accent" aria-hidden="true" /> : null}
+                        {position === 0 ? <span className="ml-2 size-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" /> : null}
                       </time>
-                      <NoteCard post={post} language={language} />
+                      <NoteCard post={post} language={language} priority={position === 0} />
                     </div>
                     {adSlots.has(position) && <AdCard ad={adSlots.get(position)!} />}
                   </Fragment>
@@ -239,7 +239,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               {/* Without scripting there is no observer to fire, so the feed keeps a plain link. */}
               <noscript>
                 <div className="flex justify-center py-14">
-                  <a href={nextHref} className="border-b border-ink pb-1.5 font-mono text-[11px] font-medium uppercase tracking-[.18em] text-ink hover:border-accent hover:text-accent">
+                  <a href={nextHref} className="border-b border-ink pb-1.5 visitor-sans text-[11px] font-medium uppercase tracking-[.18em] text-ink hover:border-accent hover:text-accent">
                     {language === "en" ? "More notes" : "Daha fazla not"}
                   </a>
                 </div>

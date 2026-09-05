@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, BellOff, BellRing, Share, SquarePlus, X } from "lucide-react";
+import { Bell, BellOff, BellRing, LoaderCircle, Share, SquarePlus, X } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { subscribeToPushAction, unsubscribeFromPushAction } from "@/app/actions/push";
 import { showToast } from "@/components/ui/toast";
@@ -213,7 +213,9 @@ export function PushNavButton({ language, publicKey }: { language: VisitorLangua
   const isEnglish = language === "en";
   const configured = Boolean(publicKey);
   const on = state === "on";
-  const label = !configured
+  const label = pending
+    ? (on ? (isEnglish ? "Turning notifications off" : "Bildirimler kapatılıyor") : (isEnglish ? "Turning notifications on" : "Bildirimler açılıyor"))
+    : !configured
     ? (isEnglish ? "Notifications are not configured" : "Bildirimler yapılandırılmamış")
     : state === "loading"
     ? (isEnglish ? "Checking notifications" : "Bildirimler kontrol ediliyor")
@@ -251,11 +253,12 @@ export function PushNavButton({ language, publicKey }: { language: VisitorLangua
       onClick={handleClick}
       disabled={disabled}
       aria-pressed={on}
+      aria-busy={pending || state === "loading"}
       aria-label={label}
       title={label}
       className="visitor-top-control disabled:cursor-not-allowed disabled:opacity-55"
     >
-      {on ? <BellRing size={17} aria-hidden="true" /> : state === "blocked" ? <BellOff size={17} aria-hidden="true" /> : <Bell size={17} aria-hidden="true" />}
+      {configured && (pending || state === "loading") ? <LoaderCircle size={18} strokeWidth={1.8} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : on ? <BellRing size={18} strokeWidth={1.8} aria-hidden="true" /> : state === "blocked" ? <BellOff size={18} strokeWidth={1.8} aria-hidden="true" /> : <Bell size={18} strokeWidth={1.8} aria-hidden="true" />}
     </button>
   );
 }
@@ -264,7 +267,19 @@ export function PushToggle({ language, publicKey }: { language: VisitorLanguage;
   const { state, pending, turnOn, turnOff } = usePushSubscription(language, publicKey);
   const isEnglish = language === "en";
 
-  if (state === "loading") return <span className="visitor-muted text-[length:var(--vt-ui)] text-muted">…</span>;
+  if (state === "loading" || pending) {
+    const loadingLabel = state === "loading"
+      ? (isEnglish ? "Checking…" : "Kontrol ediliyor…")
+      : state === "on"
+        ? (isEnglish ? "Turning off…" : "Kapatılıyor…")
+        : (isEnglish ? "Turning on…" : "Açılıyor…");
+    return (
+      <span role="status" className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-2 px-3 text-xs text-muted">
+        <LoaderCircle className="size-4 shrink-0 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+        {loadingLabel}
+      </span>
+    );
+  }
 
   if (state === "unsupported" || state === "needs-install" || state === "blocked") {
     const note = state === "needs-install"

@@ -1,7 +1,8 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useTransition } from "react";
 
 /**
  * The feed keeps going on its own: when the end of the list comes into view, the page navigates to
@@ -17,7 +18,7 @@ import { useEffect, useRef, useState } from "react";
 export function AutoLoadMore({ href, label }: { href: string; label: string }) {
   const router = useRouter();
   const sentinel = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, startTransition] = useTransition();
 
   useEffect(() => {
     const node = sentinel.current;
@@ -29,8 +30,7 @@ export function AutoLoadMore({ href, label }: { href: string; label: string }) {
     const observer = new IntersectionObserver((entries) => {
       if (!entries[0]?.isIntersecting || requested) return;
       requested = true;
-      setLoading(true);
-      router.replace(href, { scroll: false });
+      startTransition(() => router.replace(href, { scroll: false }));
     }, { rootMargin: "800px 0px" });
 
     observer.observe(node);
@@ -38,12 +38,10 @@ export function AutoLoadMore({ href, label }: { href: string; label: string }) {
   }, [href, router]);
 
   return (
-    <div ref={sentinel} className="flex min-h-16 items-center justify-center py-14" aria-live="polite" aria-busy={loading}>
+    <div ref={sentinel} className="flex min-h-24 items-center justify-center py-6" role="status" aria-live="polite" aria-atomic="true">
       {loading ? (
-        <span className="visitor-muted inline-flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-muted">
-          <span className="relative block size-5 rounded-[7px] border border-line bg-surface-2/70 shadow-[0_1px_2px_rgba(0,0,0,.025)]" aria-hidden="true">
-            <span className="diji-loading-dot absolute left-[3px] top-[3px] size-1.5 rounded-full bg-ink-2 [--diji-loading-travel:8px]" />
-          </span>
+        <span className="visitor-sans inline-flex min-h-11 items-center gap-2.5 rounded-full bg-surface-2/60 px-4 text-[13px] font-normal leading-5 text-muted">
+          <LoaderCircle className="size-4 shrink-0 animate-spin text-accent motion-reduce:animate-none" strokeWidth={1.6} aria-hidden="true" />
           {label}
         </span>
       ) : null}

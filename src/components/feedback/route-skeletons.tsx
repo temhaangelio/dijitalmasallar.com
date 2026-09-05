@@ -270,7 +270,7 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
   return (
     <>
       {withCount ? <Skeleton className="mb-4 ml-1 h-3 w-32" /> : null}
-      <div className="flex flex-col gap-8 sm:gap-[46px]">
+      <div className="flex flex-col gap-7 sm:gap-9">
         {Array.from({ length: count }, (_, index) => (
           <div key={index}>
             <Skeleton className="mb-2.5 h-3 w-12" />
@@ -278,7 +278,8 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
               <Skeleton className="h-6 w-full" />
               <Skeleton className="mt-2 h-6 w-11/12" />
               <Skeleton className="mt-2 h-6 w-2/3" />
-              <Skeleton className="ml-auto mt-4 h-2.5 w-24" />
+              <Skeleton className="mt-5 aspect-video w-full rounded-[10px]" />
+              <Skeleton className="ml-auto mt-3 h-11 w-24 rounded-full" />
             </div>
           </div>
         ))}
@@ -292,48 +293,28 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
 export function VisitorFeedLoading() {
   return (
     <VisitorShellSkeleton label="Akış yükleniyor">
-      <div className="mt-9 w-full max-w-[640px] sm:mt-14">
-        <div className="mb-14 rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
-          <Skeleton className="h-2.5 w-28" />
-          <div className="mt-6 space-y-4">
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-11/12" />
-            <Skeleton className="h-6 w-4/5" />
-          </div>
+      <div className="mt-6 w-full max-w-[640px] sm:mt-9">
+        <div className="mb-7 flex h-[92px] items-center justify-between rounded-[16px] bg-surface-2/65 px-5 sm:mb-9">
+          <div><Skeleton className="h-3 w-28" /><Skeleton className="mt-2 h-5 w-32" /></div>
+          <Skeleton className="h-11 w-20 rounded-full" />
         </div>
-        <div className="mb-[46px] flex items-center gap-3.5"><Skeleton className="h-2.5 w-32" /><Skeleton className="h-px flex-1" /></div>
-        <VisitorNoteCardsSkeleton count={4} />
+        <VisitorNoteCardsSkeleton count={3} />
       </div>
     </VisitorShellSkeleton>
   );
 }
 
-/* -------------------------------------------------------- /haber/[id] */
-
 export function VisitorArticleLoading() {
   return (
-    <VisitorShellSkeleton label="Haber yükleniyor">
-      <main className="w-full max-w-[640px] pt-11 sm:pt-14">
-        <article className="rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-6">
-          <div className="mb-8 border-b border-line pb-5">
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-3 w-10" />
-              <Skeleton className="h-3 w-32" />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-[94%]" />
-            <Skeleton className="h-6 w-4/5" />
-            <div className="h-2" />
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-11/12" />
-            <Skeleton className="h-6 w-3/4" />
-          </div>
-
-          <div className="mt-9 flex justify-end">
-            <Skeleton className="h-3 w-32" />
+    <VisitorShellSkeleton label="Haber yükleniyor" reading>
+      <main className="w-full max-w-[640px] pt-4 sm:pt-6">
+        <article className="visitor-card">
+          <div className="space-y-3 px-4 py-5 sm:px-6 sm:py-6">
+            <div className="mb-5 flex min-h-15 items-center justify-between gap-3 border-b border-line pb-4 sm:mb-6"><Skeleton className="h-4 w-24" /><Skeleton className="h-5 w-32" /></div>
+            <Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-11/12" /><Skeleton className="h-6 w-3/4" />
+            <Skeleton className="my-5 aspect-video w-full rounded-[10px]" />
+            <Skeleton className="mt-6 h-6 w-full" /><Skeleton className="h-6 w-11/12" />
+            <div className="flex items-center justify-between pt-3"><Skeleton className="h-3 w-24" /><Skeleton className="h-11 w-24 rounded-full" /></div>
           </div>
         </article>
       </main>
@@ -341,38 +322,27 @@ export function VisitorArticleLoading() {
   );
 }
 
-/* ----------------------------------------------- /about, /contact */
-
-/** Mirrors the current 640px, card-free editorial About page. */
 export function VisitorAboutLoading() {
   return (
-    <VisitorShellSkeleton label="Hakkında yükleniyor" showHeader={false}>
-      <main className="w-full max-w-[640px] pb-6 pt-12 sm:pt-16">
-        <article>
-          <Skeleton className="mb-8 size-20 rounded-[24px] sm:size-28 sm:rounded-[32px]" />
-          <header>
-            <Skeleton className="h-8 w-32" />
-            <Skeleton className="mt-2 h-5 w-4/5" />
-            <Skeleton className="mt-6 h-0.5 w-12 rounded-none" />
-          </header>
+    <VisitorShellSkeleton label="Hakkında yükleniyor" compact>
+      <main className="mt-6 w-full max-w-[640px] sm:mt-9">
+        <div className="mb-6"><Skeleton className="h-9 w-32" /><Skeleton className="mt-2 h-6 w-64 max-w-full" /></div>
+        <div className="visitor-card px-5 py-6 sm:p-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[176px_minmax(0,1fr)] md:items-center md:gap-7"><div className="min-w-0 space-y-3 md:col-start-2 md:row-start-1"><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-4/5" /><Skeleton className="h-6 w-3/4" /></div><Skeleton className="size-36 justify-self-center sm:size-40 md:col-start-1 md:row-start-1 md:size-44" /></div>
+          <div className="mt-5 space-y-3">{["w-full", "w-11/12", "w-full", "w-4/5"].map((width, index) => <Skeleton key={index} className={`h-6 ${width}`} />)}</div>
+          <div className="mt-6 border-t border-line pt-5"><Skeleton className="h-3 w-48" /><Skeleton className="mt-4 h-5 w-48" /><div className="mt-4 flex gap-1">{[0,1,2,3].map(i => <Skeleton key={i} className="size-11 rounded-full" />)}</div></div>
+        </div>
+      </main>
+    </VisitorShellSkeleton>
+  );
+}
 
-          <div className="mt-9 sm:mt-10">
-            <div className="space-y-3">
-              <Skeleton className="h-2.5 w-24" />
-              <Skeleton className="mt-4 h-7 w-full" />
-              <Skeleton className="h-7 w-11/12" />
-              <Skeleton className="mt-4 h-5 w-4/5" />
-            </div>
-            <div className="mt-9 grid gap-4 border-t border-line pt-8 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-8">
-              <Skeleton className="h-3 w-16" />
-              <div className="space-y-3"><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-5/6" /><Skeleton className="h-5 w-2/3" /></div>
-            </div>
-            <div className="mt-8 grid gap-4 border-t border-line pt-8 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-8">
-              <Skeleton className="h-3 w-20" />
-              <div className="space-y-3"><Skeleton className="h-5 w-4/5" /><Skeleton className="h-4 w-44" /></div>
-            </div>
-          </div>
-        </article>
+export function VisitorFavoritesLoading() {
+  return (
+    <VisitorShellSkeleton label="Favoriler yükleniyor" compact>
+      <main className="mt-6 w-full max-w-[640px] sm:mt-9">
+        <div className="mb-6"><Skeleton className="h-9 w-32" /><Skeleton className="mt-2 h-6 w-80 max-w-full" /></div>
+        <VisitorNoteCardsSkeleton count={2} />
       </main>
     </VisitorShellSkeleton>
   );

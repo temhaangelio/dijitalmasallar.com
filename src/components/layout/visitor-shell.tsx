@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
-import { LanguageShortcut } from "@/components/features/visitor/language-shortcut";
+import { LanguageLink } from "@/components/features/visitor/language-link";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
@@ -10,6 +10,19 @@ import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 import { darkThemeColor, lightThemeColor, themeCookie } from "@/lib/visitor-theme";
 import { isPushConfigured, pushPublicKey } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
+
+// Fixed positions avoid hydration changes; CSS handles the entire animation.
+const headerSignals = [
+  { value: "0", left: 5, top: 31, size: 32 },
+  { value: "1", left: 16, top: 66, size: 40 },
+  { value: "1", left: 25, top: 14, size: 26 },
+  { value: "0", left: 9, top: 76, size: 24 },
+  { value: "0", left: 83, top: 23, size: 38 },
+  { value: "1", left: 91, top: 58, size: 30 },
+  { value: "0", left: 75, top: 80, size: 28 },
+  { value: "1", left: 91, top: 79, size: 24 },
+];
+
 
 /**
  * The public pages share one frame: canvas background, 720px column, brand nav and footer.
@@ -27,6 +40,7 @@ export async function VisitorShell({
   children,
   showHeader = true,
   compact = false,
+  reading = false,
 }: {
   language: VisitorLanguage;
   siteName: string;
@@ -34,6 +48,7 @@ export async function VisitorShell({
   showHeader?: boolean;
   /** Drops the tagline. A story page has its own subject; the site's pitch is not it. */
   compact?: boolean;
+  reading?: boolean;
 }) {
   const settings = await getSiteSettings();
   const description = language === "en" ? settings.descriptionEn : settings.description;
@@ -57,20 +72,31 @@ export async function VisitorShell({
             <meta name="theme-color" media="(prefers-color-scheme: dark)" content={darkThemeColor} />
           </>}
       {showHeader ? <>
-      <div className="visitor-masthead-backdrop" aria-hidden="true" />
       {/*
-        The masthead runs on one centre axis: mark and name are a single lockup, the tagline sits
-        under it, and a rule closes the block off from the page. The mark used to sit alone in the
-        top-left corner while the name was centred, which gave the header two axes at once and made
-        the site say its own name twice, in two typefaces, in two places.
+        The mark anchors the top-left corner as a way home; the name, the tagline and the navigation
+        run down the centre under it.
 
-        The controls stay in their own row above. They cannot share the lockup's line: centred, the
-        name leaves about 180px of clear space beside it on a 375px screen and the controls need 120.
-        The language switch anchors that row's left end, which the brand mark used to occupy.
+        The two are separate on purpose, at the reader's request. Worth knowing about the trade: the
+        header carries two alignments at once this way, and the site states its identity twice — as
+        a glyph in the corner and as a logotype in the middle.
       */}
-      <nav className="visitor-nav relative z-[1] flex w-full max-w-[900px] flex-col items-center pb-5 pt-6 text-center sm:pb-7 sm:pt-9" aria-label="Site">
-        <div className="flex w-full max-w-[640px] shrink-0 items-center justify-between gap-2">
-          <LanguageShortcut language={language} />
+      <nav data-intro={!compact && !reading ? "true" : undefined} className="visitor-nav relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-5 pt-6 text-center sm:pb-7 sm:pt-8" aria-label="Site">
+        {!reading && <div className="visitor-header-signals" aria-hidden="true">
+          {headerSignals.map((signal, index) => <span key={index} className="visitor-header-signal" style={{
+            left: `${signal.left}%`, top: `${signal.top}%`, fontSize: `${signal.size}px`,
+            animationDelay: `${-index * 1.8}s`, animationDuration: `${12 + index % 3 * 2}s`,
+          }}><span>{signal.value}</span></span>)}
+
+        </div>}
+        <div className="flex w-full shrink-0 items-center justify-between gap-2">
+          <Link
+            href={languageHref("/", language)}
+            aria-label={language === "en" ? `${siteName} home` : `${siteName} ana sayfa`}
+            className="flex min-h-11 min-w-0 items-center gap-3 transition-opacity hover:opacity-75"
+          >
+            <BrandMark className="visitor-logo-mark block shrink-0 !size-9 !rounded-[12px] sm:!size-10 sm:!rounded-[13px]" />
+            {reading ? <span className="min-w-0 font-mono text-[13px] font-bold leading-snug text-left sm:text-[18px]">{siteName}</span> : null}
+          </Link>
           <div className="flex shrink-0 items-center gap-2">
             {/* Keep the bell visible when the module is enabled, even if a deployment is missing its
                 VAPID configuration; the button then explains the configuration problem safely. */}
@@ -79,36 +105,39 @@ export async function VisitorShell({
           </div>
         </div>
 
-        <Link
+        {reading ? null : <Link
           href={languageHref("/", language)}
-          className="mt-5 flex items-center gap-3 transition-opacity hover:opacity-75 sm:mt-6 sm:gap-4"
+          className="mt-6 max-w-full truncate font-mono text-[24px] font-bold leading-[1.15] tracking-[-.01em] text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7 sm:text-[32px]"
         >
-          <BrandMark className="visitor-logo-mark block !size-10 !rounded-[13px] sm:!size-11 sm:!rounded-[14px]" />
-          {/* Monospaced glyphs already carry their own sidebearings; the −.03em the name used to be
-              set with was pulling them into each other. */}
-          <span className="font-mono text-[24px] font-bold leading-none tracking-[-.01em] text-ink antialiased [text-rendering:geometricPrecision] sm:text-[32px]">
-            {siteName}
-          </span>
-        </Link>
+          {/* Two notes on the type. Monospaced glyphs already carry their own sidebearings, so the
+              −.03em this used to be set with was pulling them into each other. And the leading has
+              to leave room under the baseline: at `leading-none` the line box is exactly the font
+              size, and `truncate` clips whatever falls outside it — which took the tail off the j
+              in Dijital. */}
+          {siteName}
+        </Link>}
 
-        {compact ? null : (
+        {compact || reading ? null : (
           <p className="visitor-copy visitor-serif mt-4 max-w-[42ch] text-[15px] font-normal leading-[1.5] text-muted [text-wrap:balance] sm:mt-5 sm:text-[19px]">{description}</p>
         )}
 
-        <VisitorHeaderNav language={language} />
+        {reading ? null : <VisitorHeaderNav language={language} />}
       </nav></> : null}
       {children}
-      <VisitorFooter siteName={siteName} />
+      <VisitorFooter siteName={siteName} language={language} />
       <ServiceWorkerRegistrar language={language} publicKey={publicKey} />
       <InstallBanner language={language} />
     </div>
   );
 }
 
-function VisitorFooter({ siteName }: { siteName: string }) {
+function VisitorFooter({ siteName, language }: { siteName: string; language: VisitorLanguage }) {
   return (
-    <footer className="visitor-footer mt-14 flex w-full max-w-[640px] justify-center border-t border-line px-1 pt-6">
-      <p className="visitor-muted font-mono text-[11px] font-normal text-muted">© {new Date().getFullYear()} {siteName}</p>
+    <footer className="visitor-footer mt-14 flex w-full max-w-[640px] flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-line px-1 pt-6">
+      <p className="visitor-muted visitor-sans text-[11px] font-normal text-muted">© {new Date().getFullYear()} {siteName}</p>
+      <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
+      <LanguageLink language={language} />
+
     </footer>
   );
 }

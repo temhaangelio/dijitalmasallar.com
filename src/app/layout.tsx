@@ -1,17 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, IBM_Plex_Mono, IBM_Plex_Sans, Montserrat, Source_Serif_4 } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
+import { AccentScript } from "@/components/features/visitor/accent-script";
 import { AppToaster } from "@/components/ui/toast";
 import { InstallScript } from "@/components/features/visitor/push";
 import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytics";
 import { ThemeScript } from "@/components/features/visitor/theme";
 import { siteUrl } from "@/lib/seo";
 
-/* `latin-ext` carries ğ, ş, İ, Ğ, Ş so Turkish never falls back to a second typeface. */
-const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist", display: "swap" });
+/*
+ * Three families, down from five.
+ *
+ * Geist was the `body` default, but both shells override it — the visitor pages and the admin panel
+ * are Plex Sans — so it was downloaded on every page to set the type in a toast. Montserrat was
+ * loaded at weight 800 for two glyphs: the 0 and the 1 inside the brand mark, which are Plex Mono
+ * now, the typeface the logotype is already set in.
+ *
+ * `latin-ext` carries ğ, ş, İ, Ğ, Ş so Turkish never falls back to a second typeface.
+ */
 const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap" });
 const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-plex-mono", display: "swap" });
-const montserrat = Montserrat({ subsets: ["latin", "latin-ext"], weight: ["800"], variable: "--font-montserrat", display: "swap" });
 const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap" });
 
 export const metadata: Metadata = {
@@ -60,8 +68,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The dark tokens themselves only apply inside `.visitor-page`.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /><InstallScript /></head>
-      <body className={`${geist.variable} ${plexSans.variable} ${plexMono.variable} ${montserrat.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <head><ThemeScript /><AccentScript /><InstallScript /></head>
+      <body className={`${plexSans.variable} ${plexMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );
 }

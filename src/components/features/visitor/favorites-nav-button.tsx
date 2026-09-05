@@ -24,7 +24,7 @@ export function FavoritesNavButton({ language }: { language: VisitorLanguage }) 
     >
       <Bookmark size={17} className={count ? "fill-current" : ""} aria-hidden="true" />
       {count ? (
-        <span className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-accent px-1 font-mono text-[9px] font-bold leading-none text-white" aria-hidden="true">
+        <span className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-accent px-1 visitor-sans text-[9px] font-bold leading-none text-white" aria-hidden="true">
           {count > 99 ? "99+" : count}
         </span>
       ) : null}

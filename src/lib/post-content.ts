@@ -106,3 +106,12 @@ export function summaryLine(post: { excerpt: string; body: string }, limit = 150
   const sentence = firstSentence(source);
   return truncate(sentence, limit);
 }
+
+/** Keep leading headings with the first paragraph when placing a cover between text blocks. */
+export function splitAfterFirstParagraph(value: string): { first: string; rest: string } {
+  const normalized = value.replace(/\r\n?/g, "\n").trim();
+  const blocks = normalized.split(/\n[ \t]*\n+/);
+  const firstParagraph = blocks.findIndex((block) => !/^#{1,6}\s+[^\n]+$/.test(block));
+  const boundary = firstParagraph < 0 ? blocks.length : firstParagraph + 1;
+  return { first: blocks.slice(0, boundary).join("\n\n"), rest: blocks.slice(boundary).join("\n\n") };
+}

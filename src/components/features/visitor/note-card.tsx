@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { splitAfterFirstParagraph } from "@/lib/post-content";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { PostImageActions } from "@/components/features/visitor/post-image-actions";
@@ -55,7 +56,7 @@ function renderFeedInline(content: string, highlight: string | undefined, keyPre
 }
 
 /** The note body as the list shows it, with paragraph breaks and inline emphasis preserved. */
-export function feedContent(post: Post, highlight?: string): ReactNode[] {
+function feedParagraphs(post: Post) {
   const withoutHeading = post.body.replace(/^#\s+[^\n]+\n+/i, "");
   const content = withoutHeading
     .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
@@ -67,34 +68,47 @@ export function feedContent(post: Post, highlight?: string): ReactNode[] {
     .replace(/ *\n */g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim() || post.excerpt;
-  return renderFeedInline(content, highlight, "feed");
+  return splitAfterFirstParagraph(content);
 }
 
-export function NoteCard({ post, language, highlight }: { post: Post; language: VisitorLanguage; highlight?: string }) {
+/**
+ * `priority` is for the one note that opens the feed. Every cover was lazy, the topmost included,
+ * so the largest thing on the first screen was fetched only after the browser had finished laying
+ * the page out — which is the page's LCP arriving late for no reason.
+ */
+export function NoteCard({ post, language, highlight, priority = false }: { post: Post; language: VisitorLanguage; highlight?: string; priority?: boolean }) {
+  const paragraphs = feedParagraphs(post);
+  const first = renderFeedInline(paragraphs.first, highlight, "first");
+  const rest = paragraphs.rest ? renderFeedInline(paragraphs.rest, highlight, "rest") : [];
   const displayedSource = sourceLabel(null, post.source_url, language === "en" ? "Source" : "Kaynak");
   const postHref = languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en");
   return (
     <article className="visitor-card group relative transition-colors hover:border-line-strong">
-      {post.cover_path && (
-        <div className="relative aspect-video w-full bg-surface-3">
-          {isOptimizableImage(post.cover_path)
-            ? <Image src={post.cover_path} alt={post.title} fill sizes="(max-width: 767px) 100vw, 640px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
-            // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
-            : <img src={post.cover_path} alt={post.title} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
-          <PostImageActions postId={post.id} href={postHref} title={post.title} language={language} />
-        </div>
-      )}
-      <div className="min-w-0 flex-1 px-4 py-4 sm:px-6 sm:py-5">
+      <div className="min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6">
         <Link
           href={postHref}
-          className="visitor-card-link visitor-copy visitor-serif block whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[21px] sm:leading-[1.5]"
+          className="visitor-card-link visitor-copy visitor-serif block whitespace-pre-line text-[20px] font-normal leading-[1.55] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] sm:text-[23px] sm:leading-[1.55]"
         >
-          {feedContent(post, highlight)}
+          {first}
         </Link>
-        <div className="mt-2.5 flex min-w-0 items-center justify-end font-mono text-[11px] font-normal leading-[1.6]">
+        {post.cover_path && (
+          <Link href={postHref} tabIndex={-1} aria-hidden="true" className="relative z-10 mt-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
+            {isOptimizableImage(post.cover_path)
+              ? <Image src={post.cover_path} alt={post.title} fill priority={priority} sizes="(max-width: 680px) calc(100vw - 72px), 590px" className="object-cover" />
+              // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
+              : <img src={post.cover_path} alt={post.title} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : undefined} decoding="async" className="absolute inset-0 size-full object-cover" />}
+          </Link>
+        )}
+        {rest.length > 0 ? (
+          <div className="visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] leading-[1.65] text-ink sm:text-[20px] sm:leading-[1.6]">
+            {rest}
+          </div>
+        ) : null}
+        <div className="mt-3 flex min-w-0 items-center justify-between gap-3 visitor-sans text-[11px] font-normal leading-[1.6]">
           {post.source_url
-            ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 inline-block max-w-full min-w-0 truncate border-b border-line text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource} ↗</a>
+            ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 block min-h-11 min-w-0 truncate py-3 text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource}<svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg></a>
             : <span title={displayedSource} className="visitor-source min-w-0 truncate text-muted">{displayedSource}</span>}
+          <PostImageActions postId={post.id} href={postHref} title={post.title} language={language} placement="inline" />
         </div>
       </div>
     </article>

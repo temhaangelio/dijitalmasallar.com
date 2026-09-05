@@ -1,53 +1,32 @@
 "use client";
 
-import { Settings } from "lucide-react";
-import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
+import { SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
-import { LanguagePicker } from "@/components/features/visitor/language-picker";
-import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
-import { ThemePicker } from "@/components/features/visitor/theme";
 import { VisitorBottomSheet } from "@/components/features/visitor/visitor-bottom-sheet";
 import type { VisitorLanguage } from "@/lib/visitor-language";
+
+// Keep preference controls off the critical path; the dialog shell opens immediately.
+const VisitorSettingsContent = dynamic(() => import("./visitor-settings-content"), {
+  loading: () => <div role="status" className="min-h-64 space-y-5 py-2">
+    <span className="sr-only">Ayarlar yükleniyor / Loading settings</span>
+    {[0, 1, 2].map((row) => <div key={row} aria-hidden="true" className="space-y-3"><div className="h-3 w-20 rounded bg-surface-3" /><div className="h-11 rounded-xl bg-surface-2" /></div>)}
+  </div>,
+});
 
 /** A focused preferences sheet; page navigation stays in the editorial header. */
 export function VisitorMenu({ language, pushPublicKey }: { language: VisitorLanguage; pushPublicKey: string }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
   const isEnglish = language === "en";
-  const settings = [
-    {
-      label: isEnglish ? "Language" : "Dil",
-      control: <LanguagePicker language={language} path={pathname} onNavigate={() => setOpen(false)} />,
-    },
-    {
-      label: isEnglish ? "Theme" : "Tema",
-      control: <ThemePicker language={language} />,
-    },
-    ...(pushPublicKey ? [{
-      label: isEnglish ? "Notifications" : "Bildirimler",
-      control: <PushToggle language={language} publicKey={pushPublicKey} />,
-    }] : []),
-    {
-      label: isEnglish ? "App" : "Uygulama",
-      control: <InstallPrompt language={language} />,
-    },
-  ];
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} aria-label={isEnglish ? "Open settings" : "Ayarları aç"} aria-expanded={open} className="visitor-top-control">
-        <Settings size={18} aria-hidden="true" />
+      <button type="button" onClick={() => setOpen(true)} aria-label={isEnglish ? "Open settings" : "Ayarları aç"} aria-expanded={open} aria-haspopup="dialog" title={isEnglish ? "Settings" : "Ayarlar"} className="visitor-top-control">
+        <SlidersHorizontal size={18} strokeWidth={1.8} aria-hidden="true" />
       </button>
 
-      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Settings" : "Ayarlar"} titleClassName="visitor-copy visitor-serif text-[26px] font-normal leading-none tracking-normal" closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
-        <section className="divide-y divide-line border-t border-line text-left" aria-label={isEnglish ? "Settings" : "Ayarlar"}>
-          {settings.map((row) => (
-            <div key={row.label} className="grid gap-3 py-4 sm:grid-cols-[100px_minmax(0,1fr)] sm:items-center sm:gap-5">
-              <h3 className="font-mono text-[10px] font-semibold uppercase leading-none tracking-[.18em] text-muted sm:text-[11px]">{row.label}</h3>
-              <div className="min-w-0 sm:justify-self-end">{row.control}</div>
-            </div>
-          ))}
-        </section>
+      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Settings" : "Ayarlar"} titleClassName="text-[20px] font-semibold leading-tight tracking-[-.02em]" closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
+        {open ? <VisitorSettingsContent language={language} pushPublicKey={pushPublicKey} onClose={() => setOpen(false)} /> : null}
       </VisitorBottomSheet>
     </>
   );

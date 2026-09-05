@@ -53,6 +53,40 @@ export async function getPosts(page = 1, pageSize = 20, language: "tr" | "en" = 
   }
 }
 
+/** How many notes one favourites request may ask for. Well past any real reading list. */
+export const maxPostsByIds = 200;
+
+/**
+ * The notes behind a set of ids, newest first.
+ *
+ * Favourites live in the reader's own browser, so the server cannot know which notes to send until
+ * the client says. The favourites page used to solve that by fetching the last 500 notes in full
+ * and letting the browser throw away the ones that were not saved — several hundred rows and their
+ * bodies over the wire on every visit, to render maybe five.
+ */
+export async function getPostsByIds(ids: string[], language: "tr" | "en" = "tr"): Promise<Post[]> {
+  const wanted = [...new Set(ids.filter(isUuid))].slice(0, maxPostsByIds);
+  if (!wanted.length) return [];
+  if (!isSupabaseConfigured()) {
+    const wantedSet = new Set(wanted);
+    return demoPosts.filter((post) => wantedSet.has(post.id));
+  }
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("posts")
+      .select(postColumns)
+      .in("id", wanted)
+      // A scheduled note is not public yet, and a favourite must not become a way to read one early.
+      .lte("created_at", new Date().toISOString())
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data as PostRow[]).map((row) => mapPost(row, language));
+  } catch {
+    return [];
+  }
+}
+
 export type PostsPageResult = { posts: Post[]; total: number; page: number; totalPages: number };
 
 const postSorts: readonly PostSort[] = ["newest", "oldest", "title-asc", "title-desc"];
