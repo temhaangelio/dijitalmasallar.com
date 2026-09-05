@@ -180,10 +180,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           {postDays.map((day, dayIndex) => (
           <section key={day.key} aria-label={fullDateLabel(day.publishedAt, language)} className={dayIndex ? "mt-16" : ""}>
             {/*
-              The heading remains pinned while its day's notes are in view; the next section's
-              heading naturally pushes it away.
+              The heading scrolls away with its day rather than pinning to the top. Pinned, it hung
+              over the notes with the feed sliding underneath it, and on iOS it sat in the strip
+              behind the status bar where the page shows through.
             */}
-            <div className="sticky top-[env(safe-area-inset-top)] z-30 -mt-3 bg-canvas py-3">
+            <div className="pb-3">
               <div className="flex items-center gap-3 sm:gap-3.5">
                 <span
                   title={fullDateLabel(day.publishedAt, language)}

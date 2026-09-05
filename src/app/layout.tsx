@@ -44,21 +44,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * The browser chrome follows the visitor theme rather than a single brand colour, so an installed
- * app does not sit under a light status bar while its own page is dark.
- *
- * Both colours are rendered into the HTML rather than left to `ThemeScript` alone. Safari tints its
- * status bar from `theme-color` as it first paints the document, and a meta the script appends
- * arrives too late for that paint — which left a light band over a dark page. The script still runs
- * afterwards and replaces these two with a single unconditional tag, so a reader whose stored
- * preference disagrees with the system setting is served the colour they chose.
+ * `themeColor` is deliberately absent here. It depends on the reader's stored preference, and this
+ * export is shared with the always-light admin panel; Next also refuses runtime data in
+ * `generateViewport` without making the whole document block on it. `VisitorShell` renders the tag
+ * instead, where the cookie is already being read and only the public pages are affected.
  */
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f8f5" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },
-  ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

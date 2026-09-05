@@ -4,27 +4,34 @@ import { useEffect, useSyncExternalStore } from "react";
 import { Segmented } from "@/components/ui/segmented";
 import { segmentClassName } from "@/components/ui/segmented-style";
 import { cn } from "@/lib/utils";
+import {
+  darkThemeColor,
+  isThemePreference,
+  lightThemeColor,
+  themeAttribute,
+  themeCookie,
+  themeCookieMaxAge,
+  themeStorageKey as storageKey,
+  type ThemePreference,
+} from "@/lib/visitor-theme";
 
-export type ThemePreference = "light" | "dark" | "system";
-
-const storageKey = "diji-news-theme";
-const themeAttribute = "data-visitor-theme";
-const lightThemeColor = "#f8f8f5";
-const darkThemeColor = "#0f0f0f";
+export type { ThemePreference };
 
 /**
  * Runs before the first paint, inline in the document, so the page never flashes light before the
  * stored preference is read. Only rendered by the visitor shell — the admin panel has no dark
  * variant yet, and leaving the attribute unset there keeps it on the light tokens.
  *
- * The `theme-color` pass runs twice. At head time it cannot see the media-conditional pair the
- * `viewport` export renders, because those tags are parsed after this script — leaving the dark one
- * standing, and a browser picks the *last* matching tag, so a reader who chose light on a dark
- * system would still get a dark status bar. Repeating the pass once the document is parsed clears
- * them, after they have done the one job they exist for: giving Safari a colour for its first paint.
+ * It also re-writes the cookie from `localStorage`, which is what carries a preference set before
+ * the cookie existed — or one a browser dropped — back to the server for the next request.
+ *
+ * The `theme-color` pass runs twice. At head time it cannot see the tags `generateViewport`
+ * renders, because those are parsed after this script; left alone, a media-conditional one could
+ * still match and, being later in the head, win. Repeating the pass once the document is parsed
+ * clears them, after they have done the one job they exist for: the first paint.
  */
 export function ThemeScript() {
-  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");var a=function(){document.querySelectorAll('meta[name="theme-color"]').forEach(function(n){n.remove()});var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);};a();document.addEventListener("DOMContentLoaded",a);}catch(e){}})();`;
+  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");if(p)document.cookie=${JSON.stringify(themeCookie)}+"="+p+";path=/;max-age=${themeCookieMaxAge};samesite=lax";var a=function(){document.querySelectorAll('meta[name="theme-color"]').forEach(function(n){n.remove()});var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);};a();document.addEventListener("DOMContentLoaded",a);}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
@@ -47,7 +54,7 @@ function subscribe(onChange: () => void) {
 function getSnapshot(): ThemePreference {
   try {
     const value = localStorage.getItem(storageKey);
-    if (value === "light" || value === "dark" || value === "system") return value;
+    if (isThemePreference(value ?? undefined)) return value as ThemePreference;
   } catch { /* Storage may be unavailable in private browsing modes. */ }
   return "system";
 }
@@ -85,6 +92,8 @@ function apply(preference: ThemePreference) {
 
 function setPreference(preference: ThemePreference) {
   try { localStorage.setItem(storageKey, preference); } catch { /* Storage may be unavailable. */ }
+  // The cookie is what the next request renders the first `theme-color` from; see `themeCookie`.
+  try { document.cookie = `${themeCookie}=${preference};path=/;max-age=${themeCookieMaxAge};samesite=lax`; } catch { /* Cookies may be blocked. */ }
   apply(preference);
   listeners.forEach((listener) => listener());
 }

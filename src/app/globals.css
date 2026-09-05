@@ -205,6 +205,41 @@ html:has(.admin-page) {
 html:has(.visitor-page) { background: #f8f8f5; }
 html[data-visitor-theme="dark"]:has(.visitor-page) { background: #0f0f0f; color-scheme: dark; }
 
+/*
+ * The backing for the iOS status bar.
+ *
+ * iOS lets the document extend below the status bar, so the feed's images and headlines scroll
+ * through behind the clock and the system icons unless something is painted there.
+ *
+ * It hangs off `html` rather than off `.visitor-page`, which is where it used to live and why it
+ * stopped working the moment the reader scrolled: `.visitor-page` carries `overflow-x: clip` for
+ * the full-bleed binary backdrop, and that clip makes the element the containing block for its own
+ * fixed descendants — so the strip was fixed to the top of the *page* rather than the top of the
+ * *viewport*, and slid away with the first scroll. `html` is clipped by nothing, so `fixed` here
+ * means what it says.
+ *
+ * The colours are literals because the tokens are declared on `.visitor-page`, one level down.
+ */
+html:has(.visitor-page)::before {
+  content: "";
+  position: fixed;
+  z-index: 90;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top);
+  /* In a browser tab iOS draws the system symbols to suit the page's own appearance, so the strip
+     carries the page's canvas: a fixed dark band would put black glyphs on black in the light
+     theme. Installed, the page runs under `black-translucent`, where iOS draws white symbols
+     whatever the theme — so there the backing stays dark in both. */
+  background: #f8f8f5;
+  pointer-events: none;
+}
+
+html[data-visitor-theme="dark"]:has(.visitor-page)::before { background: #0f0f0f; }
+
+@media (display-mode: standalone) {
+  html:has(.visitor-page)::before { background: #0f0f0f; }
+}
+
 html[data-visitor-theme="dark"] .visitor-page {
   --color-canvas: #0f0f0f;
   --color-surface: #191919;
@@ -416,26 +451,6 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-top-control {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding-top: env(safe-area-inset-top);
-  }
-  /* iOS lets the document extend below its status bar, so the feed's images and headlines would
-     otherwise scroll through behind the clock and system icons. This strip is their backing. */
-  .visitor-page::before {
-    content: "";
-    position: fixed;
-    z-index: 90;
-    inset: 0 0 auto;
-    height: env(safe-area-inset-top);
-    /* In a browser tab iOS draws the system symbols to suit the page's own appearance, so the strip
-       has to carry the page's canvas. Painting it a fixed dark put black glyphs on a black band in
-       the light theme, which is why the strip read as a hole with the feed sliding through it. */
-    background: var(--color-canvas);
-    pointer-events: none;
-  }
-
-  /* Installed, the page runs under `black-translucent`, where iOS draws white system symbols
-     whatever the page theme — so there their backing stays dark in both themes. */
-  @media (display-mode: standalone) {
-    .visitor-page::before { background: #0f0f0f; }
   }
   .visitor-page .font-mono {
     font-family: var(--font-plex-mono), monospace;
