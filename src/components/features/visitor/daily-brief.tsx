@@ -39,7 +39,7 @@ export function DailyBrief({ posts, language }: { posts: Post[]; language: Visit
   );
 
   return (
-    <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-5 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:mb-16 sm:px-6 sm:py-6">
+    <aside aria-labelledby="daily-brief-title" className="visitor-card mb-14 px-5 py-5 sm:mb-16 sm:px-6 sm:py-6">
       {collagePosts.length ? (
         <div className={`relative -mx-5 -mt-5 mb-5 grid gap-0.5 bg-line sm:-mx-6 sm:-mt-6 sm:mb-6 ${collageRows.length === 1 ? "h-[150px] sm:h-[190px]" : "h-[200px] grid-rows-2 sm:h-[240px]"}`} role="img" aria-label={isEnglish ? "Images from today’s stories" : "Bugünkü haberlerin görselleri"}>
           {collageRows.map((row, rowIndex) => (

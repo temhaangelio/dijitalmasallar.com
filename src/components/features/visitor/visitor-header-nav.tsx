@@ -16,7 +16,7 @@ export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {
       {visitorNavItems.filter((item) => headerPaths.has(item.href)).map((item) => {
         const current = pathname === item.href;
         const href = languageHref(item.href, language);
-        const className = `border-b pb-1 font-mono text-[11px] font-bold leading-none uppercase tracking-[.12em] transition-colors ${
+        const className = `border-b pb-1 font-mono text-[13px] font-bold leading-none uppercase tracking-[.12em] transition-colors ${
           current ? "border-ink text-ink" : "border-transparent text-muted hover:border-accent hover:text-accent"
         }`;
         return (

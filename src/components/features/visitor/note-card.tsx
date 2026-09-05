@@ -74,7 +74,7 @@ export function NoteCard({ post, language, highlight }: { post: Post; language: 
   const displayedSource = sourceLabel(null, post.source_url, language === "en" ? "Source" : "Kaynak");
   const postHref = languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en");
   return (
-    <article className="visitor-card group relative overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 shadow-[0_1px_2px_rgba(0,0,0,.018)]">
+    <article className="visitor-card group relative transition-colors hover:border-line-strong">
       {post.cover_path && (
         <div className="relative aspect-video w-full bg-surface-3">
           {isOptimizableImage(post.cover_path)
@@ -87,7 +87,7 @@ export function NoteCard({ post, language, highlight }: { post: Post; language: 
       <div className="min-w-0 flex-1 px-5 py-4 sm:px-6 sm:py-5">
         <Link
           href={postHref}
-          className="visitor-copy visitor-serif block whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[21px] sm:leading-[1.5]"
+          className="visitor-card-link visitor-copy visitor-serif block whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[21px] sm:leading-[1.5]"
         >
           {feedContent(post, highlight)}
         </Link>

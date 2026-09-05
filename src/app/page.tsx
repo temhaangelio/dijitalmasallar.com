@@ -51,7 +51,7 @@ function AdCard({ ad }: { ad: Advertisement }) {
       target="_blank"
       rel="sponsored noopener noreferrer"
       aria-label={`${ad.label}: ${ad.title}`}
-      className="visitor-card group block overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 shadow-[0_1px_2px_rgba(0,0,0,.018)] transition-colors hover:border-line-strong"
+      className="visitor-card group block transition-colors hover:border-line-strong"
     >
       {ad.image_url ? (
         <div className="relative aspect-[2/1] w-full overflow-hidden bg-surface-3">
@@ -222,7 +222,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           ))}
           </>
         ) : (
-          <div className="visitor-panel visitor-muted rounded-panel border border-dashed border-line-strong px-6 py-16 text-center">
+          <div className="visitor-panel visitor-muted rounded-[14px] border border-dashed border-line-strong/80 px-6 py-16 text-center">
             <p className="visitor-copy text-[length:var(--vt-small)] font-medium text-muted">{language === "en" ? "No English notes have been published yet." : "Henüz Türkçe not yayınlanmadı."}</p>
             <p className="visitor-muted mt-2 text-[length:var(--vt-ui)] text-faint">{language === "en" ? "New notes land here through the day." : "Yeni notlar gün boyunca buraya düşer."}</p>
           </div>

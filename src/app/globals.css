@@ -439,6 +439,42 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-top-control {
   /* Selection follows the theme instead of the browser's blue, which clashed with the greyscale. */
   .visitor-page ::selection { background: var(--color-highlight); color: var(--color-ink); }
 
+  /*
+   * The one card surface the public pages have.
+   *
+   * The feed note, the day's brief, the article, the about panel and the sponsor slot are the same
+   * object, and until now each of the five spelled the object out as the same string of utilities.
+   * That made the card impossible to change in one place and left the dark theme nowhere to tune
+   * it — at night a 35% surface over the near-black canvas came out a shade off the canvas itself.
+   *
+   * Tailwind emits its utilities into `@layer utilities`, which outranks this layer whatever the
+   * selector, so a call site still overrides its own padding, margin or hover border.
+   */
+  .visitor-card {
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+    border-radius: 14px;
+    background: color-mix(in oklab, var(--color-surface-2) 35%, transparent);
+    box-shadow: 0 1px 2px rgb(0 0 0 / .018);
+  }
+
+  /*
+   * A note is clickable across its whole face — the headline link stretches over the card with a
+   * `::before` — so the ring belongs on the card rather than around the words that happen to carry
+   * the href. The inner outline is dropped only for that stretched link; a source link or a button
+   * inside the same card keeps its own.
+   */
+  .visitor-card:has(.visitor-card-link:focus-visible) { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+  .visitor-card-link:focus-visible { outline: none; }
+
+  /* At night the light theme's tissue-thin wash disappears; the card needs real edges to read as
+     a surface at all. The shadow goes: on a dark canvas it only muddies the corners. */
+  html[data-visitor-theme="dark"] .visitor-page .visitor-card {
+    border-color: color-mix(in oklab, var(--color-line-strong) 62%, transparent);
+    background: color-mix(in oklab, var(--color-surface-2) 62%, transparent);
+    box-shadow: none;
+  }
+
   .visitor-sheet-backdrop { animation: visitor-sheet-backdrop-in .22s ease-out both; }
   .visitor-sheet-panel { animation: visitor-sheet-panel-in .3s cubic-bezier(.2,.8,.2,1) both; }
   /* The install invitation rises the same way a sheet does, so the two read as one family. */

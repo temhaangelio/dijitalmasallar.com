@@ -118,7 +118,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[640px] pt-11 sm:pt-14">
-        <article className="visitor-article overflow-hidden rounded-[14px] border border-line/70 bg-surface-2/35 shadow-[0_1px_2px_rgba(0,0,0,.018)]">
+        <article className="visitor-card visitor-article">
           {post.cover_path && (
             <div className="relative aspect-[16/9] w-full bg-surface-3">
               {isOptimizableImage(post.cover_path)
@@ -147,7 +147,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
           </div>
           {post.source_url && (
             <div className="visitor-muted mt-9 flex justify-end font-mono text-[11px] font-normal leading-[1.6]">
-              <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" className="visitor-source tracking-[.04em] text-ink transition-opacity hover:opacity-60">{displayedSource}</a>
+              <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source inline-block max-w-full min-w-0 truncate border-b border-line text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource} ↗</a>
             </div>
           )}
           </div>

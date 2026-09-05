@@ -25,8 +25,8 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
     <VisitorShell language={language} siteName={settings.siteName}>
       <main className="mt-10 w-full max-w-[640px] sm:mt-14">
         <div className="mb-8 border-b border-line pb-5">
-          <h1 className="visitor-heading text-[28px] font-bold leading-none tracking-[-.04em] text-ink">{isEnglish ? "Favorites" : "Favoriler"}</h1>
-          <p className="mt-2 font-mono text-[11px] font-normal leading-none tracking-[.12em] text-muted">{isEnglish ? "Saved on this device" : "Bu cihazda kaydedilenler"}</p>
+          <h1 className="visitor-copy visitor-serif text-[26px] font-normal leading-[1.3] tracking-normal text-ink sm:text-[30px]">{isEnglish ? "Favorites" : "Favoriler"}</h1>
+          <p className="mt-2 font-mono text-[11px] font-normal uppercase leading-none tracking-[.12em] text-muted">{isEnglish ? "Saved on this device" : "Bu cihazda kaydedilenler"}</p>
         </div>
         <FavoritesList posts={posts} language={language} />
       </main>
