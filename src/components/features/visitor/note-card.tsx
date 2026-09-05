@@ -84,7 +84,7 @@ export function NoteCard({ post, language, highlight }: { post: Post; language: 
           <PostImageActions postId={post.id} href={postHref} title={post.title} language={language} />
         </div>
       )}
-      <div className="min-w-0 flex-1 px-5 py-4 sm:px-6 sm:py-5">
+      <div className="min-w-0 flex-1 px-4 py-4 sm:px-6 sm:py-5">
         <Link
           href={postHref}
           className="visitor-card-link visitor-copy visitor-serif block whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] hover:text-accent sm:text-[21px] sm:leading-[1.5]"
@@ -94,7 +94,7 @@ export function NoteCard({ post, language, highlight }: { post: Post; language: 
         <div className="mt-2.5 flex min-w-0 items-center justify-end font-mono text-[11px] font-normal leading-[1.6]">
           {post.source_url
             ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 inline-block max-w-full min-w-0 truncate border-b border-line text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource} ↗</a>
-            : <span title={displayedSource} className="visitor-source min-w-0 truncate text-faint">{displayedSource}</span>}
+            : <span title={displayedSource} className="visitor-source min-w-0 truncate text-muted">{displayedSource}</span>}
         </div>
       </div>
     </article>

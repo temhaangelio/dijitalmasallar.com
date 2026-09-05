@@ -2,55 +2,46 @@
 
 import { useEffect, useState } from "react";
 
-type Bit = { value: string; revision: number };
+/*
+ * The mark counts. Four cells, read as a four-bit number, incrementing once a second and wrapping
+ * at 15 — so the digits that flip are the ones a binary counter would actually flip, the low bit
+ * every step and the high bit once a cycle.
+ *
+ * It used to pick each cell at random from a pool that included 2-9, which meant the mark spent
+ * most of its life showing things like 49 / 10 or 87 / 55: four random numerals rather than a
+ * binary anything, with every cell twitching on its own schedule.
+ */
+const cycleMs = 1000;
+const startValue = 0b0110;
 
-const weightedDigits = ["0", "0", "0", "0", "0", "0", "1", "1", "1", "1", "1", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
-function nextDigit() {
-  return weightedDigits[Math.floor(Math.random() * weightedDigits.length)] ?? "0";
+function bitsOf(value: number) {
+  return [3, 2, 1, 0].map((position) => ((value >> position) & 1 ? "1" : "0"));
 }
 
 export function BrandMark({ className = "" }: { className?: string }) {
-  const [bits, setBits] = useState<Bit[]>([
-    { value: "0", revision: 0 },
-    { value: "1", revision: 0 },
-    { value: "1", revision: 0 },
-    { value: "0", revision: 0 },
-  ]);
+  const [value, setValue] = useState(startValue);
 
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-
-    function scheduleChange() {
-      timer = setTimeout(() => {
-        setBits((current) => {
-          const next = [...current];
-          const changes = Math.random() > 0.72 ? 2 : 1;
-          const indexes = new Set<number>();
-          while (indexes.size < changes) indexes.add(Math.floor(Math.random() * next.length));
-          for (const index of indexes) {
-            const bit = next[index];
-            next[index] = { value: nextDigit(), revision: bit.revision + 1 };
-          }
-          return next;
-        });
-        scheduleChange();
-      }, 260 + Math.random() * 300);
-    }
-
-    scheduleChange();
-    return () => clearTimeout(timer);
+    // Reduced motion stopped the CSS transition but not the counter, so the digits went on
+    // changing under a reader who had asked for stillness. Now the counter stops too.
+    const stillness = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (stillness.matches) return;
+    const timer = setInterval(() => setValue((current) => (current + 1) % 16), cycleMs);
+    return () => clearInterval(timer);
   }, []);
+
+  const bits = bitsOf(value);
 
   return (
     <span className={`brand-mark ${className}`} aria-hidden="true">
       <svg viewBox="0 0 100 100" focusable="false">
         <g className="brand-bits" textAnchor="middle" fontFamily="var(--font-montserrat), Montserrat, sans-serif" fontSize="28" fontWeight="800">
           {bits.map((bit, index) => {
-            const binaryClass = bit.value === "0" ? "brand-bit-zero" : bit.value === "1" ? "brand-bit-one" : "brand-bit-decimal";
             const x = index % 2 === 0 ? 37 : 63;
             const y = index < 2 ? 45 : 72;
-            return <text key={`${index}-${bit.revision}`} className={`brand-bit ${binaryClass}`} x={x} y={y}>{bit.value}</text>;
+            /* Keyed by its own value so a cell re-mounts — and so replays the flip — only when the
+               digit it shows actually changes. */
+            return <text key={`${index}-${bit}`} className="brand-bit" x={x} y={y}>{bit}</text>;
           })}
         </g>
       </svg>

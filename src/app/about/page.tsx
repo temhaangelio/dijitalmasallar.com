@@ -34,7 +34,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             {isEnglish ? "The calm flow of the digital world" : "Dijital dünyanın sakin akışı"}
           </p>
         </div>
-        <div className="visitor-card px-5 py-5 sm:px-6 sm:py-6">
+        <div className="visitor-card px-4 py-5 sm:px-6 sm:py-6">
           <section aria-labelledby="about-purpose">
             <h2 id="about-purpose" className="font-mono text-[10px] font-semibold uppercase tracking-[.2em] text-accent sm:text-[11px]">
               {isEnglish ? "What is it?" : "Nedir?"}

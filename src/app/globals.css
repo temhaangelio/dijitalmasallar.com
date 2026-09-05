@@ -130,10 +130,7 @@
     background: var(--color-ink);
   }
   .brand-mark > svg { display: block; width: 100%; height: 100%; }
-  .brand-bit { transform-box: fill-box; transform-origin: center; animation: brand-bit-stream 360ms cubic-bezier(.22, 1, .36, 1); }
-  .brand-bit-zero,
-  .brand-bit-one { fill: #fff; }
-  .brand-bit-decimal { fill: rgb(255 255 255 / .52); }
+  .brand-bit { fill: #fff; transform-box: fill-box; transform-origin: center; animation: brand-bit-flip 260ms cubic-bezier(.2, .8, .2, 1); }
   .main { min-width: 0; flex: 1; padding: 32px 40px 40px 32px; }
 
   /*
@@ -198,9 +195,14 @@ html:has(.admin-page) {
  * and `text-white`, so flipping the tokens globally would produce a half-inverted, unreadable panel.
  * Turning the admin dark is a separate job.
  *
- * Contrast of the dark greys against the #191919 card surface:
- *   --color-muted #9a9a9a → 6.25:1 (AA, all sizes)
- *   --color-faint #757575 → 3.82:1 (AA large text / UI)
+ * Contrast against the #191919 card surface:
+ *   --color-ink   #dcdcdc → 12.05:1
+ *   --color-muted #9a9a9a →  6.25:1 (AA, all sizes)
+ *   --color-faint #757575 →  3.82:1 — below AA for text, so it is left to UI affordances only;
+ *                                     every small label that carries information uses `muted`.
+ *
+ * `ink` is deliberately short of white. At #f2f2f2 it measured 15.6:1, and that much contrast makes
+ * a serif at 21px bloom against the near-black card over a long read.
  */
 html:has(.visitor-page) { background: #f8f8f5; }
 html[data-visitor-theme="dark"]:has(.visitor-page) { background: #0f0f0f; color-scheme: dark; }
@@ -211,12 +213,11 @@ html[data-visitor-theme="dark"]:has(.visitor-page) { background: #0f0f0f; color-
  * iOS lets the document extend below the status bar, so the feed's images and headlines scroll
  * through behind the clock and the system icons unless something is painted there.
  *
- * It hangs off `html` rather than off `.visitor-page`, which is where it used to live and why it
- * stopped working the moment the reader scrolled: `.visitor-page` carries `overflow-x: clip` for
- * the full-bleed binary backdrop, and that clip makes the element the containing block for its own
- * fixed descendants — so the strip was fixed to the top of the *page* rather than the top of the
- * *viewport*, and slid away with the first scroll. `html` is clipped by nothing, so `fixed` here
- * means what it says.
+ * It hangs off `html` rather than off `.visitor-page`, where it used to live and never painted on
+ * iOS. The cause was never pinned down — a probe showed `position: fixed` resolving against the
+ * viewport correctly inside `.visitor-page` on desktop, so the `overflow-x: clip` there is not the
+ * culprit. What `html` does is remove every candidate at once: it is not a flex container, not
+ * clipped, and not positioned.
  *
  * The colours are literals because the tokens are declared on `.visitor-page`, one level down.
  */
@@ -246,7 +247,7 @@ html[data-visitor-theme="dark"] .visitor-page {
   --color-surface-2: #202020;
   --color-surface-3: #262626;
 
-  --color-ink: #f2f2f2;
+  --color-ink: #dcdcdc;
   --color-ink-contrast: #0f0f0f;
   --color-ink-2: #c4c4c4;
   --color-muted: #9a9a9a;
@@ -269,15 +270,17 @@ html[data-visitor-theme="dark"] .visitor-page {
 
 }
 
-/* Header identity stays dark in both themes. In dark mode the regular `ink` tokens invert, which
-   otherwise turns these compact controls white and makes the logo's white digits disappear. */
-html[data-visitor-theme="dark"] .visitor-page .visitor-logo-mark,
-html[data-visitor-theme="dark"] .visitor-page .visitor-top-control {
+/* The mark keeps a surface of its own in both themes. Dark inverts the `ink` tokens, which would
+   otherwise turn the chip white and take its white digits with it. */
+html[data-visitor-theme="dark"] .visitor-page .visitor-logo-mark {
   border: 1px solid #343434;
   background: #202020;
   color: #f2f2f2;
   box-shadow: 0 2px 10px rgb(0 0 0 / .28);
 }
+
+html[data-visitor-theme="dark"] .visitor-page .visitor-top-control { border-color: #313131; }
+html[data-visitor-theme="dark"] .visitor-page .visitor-top-control:hover:not(:disabled) { border-color: var(--color-ink); }
 
 /*
  * Visitor type scale.
@@ -365,42 +368,54 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-top-control {
 .visitor-page .visitor-markdown h1,
 .visitor-page .visitor-markdown h2 { text-wrap: balance; }
 
-.visitor-binary-backdrop {
+/*
+ * The wash behind the masthead.
+ *
+ * It used to be two off-centre radials — a 9% accent bloom at 12% and a grey one at 90% — which
+ * read as a pink stain in one corner and a smudge in the other, unrelated to anything on the page.
+ * One symmetric wash centred on the masthead puts the light where the name is instead.
+ */
+/*
+ * The masthead backdrop.
+ *
+ * No literal digits any more. It carried them twice — first as ten hand-placed numerals in a
+ * typeface used nowhere else, then as two columns of binary in the margins — and both times the
+ * background ended up with something in it legible enough to be read instead of felt. A backdrop
+ * that can be read is not a backdrop.
+ *
+ * What is left is tonal: a warm wash centred on the name, and a halftone field that is densest
+ * right behind it and gone before the feed begins. The binary is still in the identity — the mark
+ * is a working four-bit counter — which is a better place for it than the wallpaper.
+ */
+.visitor-masthead-backdrop {
   position: absolute;
   inset: 0 auto auto 50%;
   width: 100vw;
-  height: 390px;
+  height: 330px;
   overflow: hidden;
   transform: translateX(-50%);
   color: var(--color-ink);
   background:
-    radial-gradient(ellipse 38% 58% at 12% 0%, color-mix(in srgb, var(--color-accent) 9%, transparent), transparent 78%),
-    radial-gradient(ellipse 42% 64% at 90% 3%, color-mix(in srgb, var(--color-ink) 4%, transparent), transparent 78%),
-    linear-gradient(to bottom, color-mix(in srgb, var(--color-surface-2) 54%, transparent), transparent 95%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgb(0 0 0 / .68) 73%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgb(0 0 0 / .68) 73%, transparent 100%);
+    radial-gradient(ellipse 62% 100% at 50% -14%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 70%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-surface-2) 66%, transparent), transparent 92%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 46%, rgb(0 0 0 / .58) 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 46%, rgb(0 0 0 / .58) 72%, transparent 100%);
   pointer-events: none;
   user-select: none;
 }
 
-.visitor-binary-backdrop::after {
+/* The halftone. Tighter and slightly stronger than the field it replaces, and masked to an ellipse
+   that sits behind the lockup, so the texture reads as light around the name rather than as a
+   pattern laid over the whole band. */
+.visitor-masthead-backdrop::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, currentColor .65px, transparent .75px);
-  background-size: 22px 22px;
-  opacity: .045;
-  -webkit-mask-image: radial-gradient(ellipse 72% 80% at 50% 0%, #000, transparent 78%);
-  mask-image: radial-gradient(ellipse 72% 80% at 50% 0%, #000, transparent 78%);
-}
-
-.visitor-binary-backdrop span {
-  position: absolute;
-  display: block;
-  font-family: var(--font-montserrat), sans-serif;
-  font-weight: 700;
-  line-height: 1;
-  z-index: 1;
+  background-image: radial-gradient(circle, currentColor .6px, transparent .7px);
+  background-size: 16px 16px;
+  opacity: .055;
+  -webkit-mask-image: radial-gradient(ellipse 58% 74% at 50% 6%, #000, transparent 76%);
+  mask-image: radial-gradient(ellipse 58% 74% at 50% 6%, #000, transparent 76%);
 }
 
 @keyframes diji-loading-orbit {
@@ -410,10 +425,12 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-top-control {
   75% { transform: translate(0, var(--diji-loading-travel, 20px)); }
 }
 
-@keyframes brand-bit-stream {
-  from { opacity: 0; transform: translateY(-9px) scale(.9); filter: blur(1.5px); }
-  65% { opacity: 1; }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+/* A digit rolls up into place the way a counter's wheel does. The previous version fell in from
+   above through a 1.5px blur, which on 28px SVG text read as a smear rather than a change. */
+@keyframes brand-bit-flip {
+  from { opacity: 0; transform: translateY(42%); }
+  55% { opacity: 1; }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -459,6 +476,32 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-top-control {
   }
   /* Selection follows the theme instead of the browser's blue, which clashed with the greyscale. */
   .visitor-page ::selection { background: var(--color-highlight); color: var(--color-ink); }
+
+  /*
+   * The header's compact controls.
+   *
+   * They used to be solid black chips — and so is the brand mark, at the same size, the same
+   * radius and the same colour, so the header carried four identical black squares and the one
+   * that is the identity was indistinguishable from three utilities. These are outlines now, and
+   * the mark is the only filled object up there.
+   */
+  .visitor-top-control {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--color-ink-2);
+    transition: color .2s, border-color .2s, background-color .2s;
+  }
+  .visitor-top-control:hover:not(:disabled) {
+    border-color: var(--color-ink);
+    background: color-mix(in oklab, var(--color-surface-2) 60%, transparent);
+    color: var(--color-ink);
+  }
 
   /*
    * The one card surface the public pages have.

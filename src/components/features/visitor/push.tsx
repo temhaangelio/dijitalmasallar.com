@@ -253,7 +253,7 @@ export function PushNavButton({ language, publicKey }: { language: VisitorLangua
       aria-pressed={on}
       aria-label={label}
       title={label}
-      className="visitor-top-control grid size-9 place-items-center rounded-[12px] bg-ink text-ink-contrast shadow-[0_2px_8px_rgba(0,0,0,.12)] transition-all hover:-translate-y-px hover:opacity-80 hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-60"
+      className="visitor-top-control disabled:cursor-not-allowed disabled:opacity-55"
     >
       {on ? <BellRing size={17} aria-hidden="true" /> : state === "blocked" ? <BellOff size={17} aria-hidden="true" /> : <Bell size={17} aria-hidden="true" />}
     </button>
@@ -264,7 +264,7 @@ export function PushToggle({ language, publicKey }: { language: VisitorLanguage;
   const { state, pending, turnOn, turnOff } = usePushSubscription(language, publicKey);
   const isEnglish = language === "en";
 
-  if (state === "loading") return <span className="visitor-muted text-[length:var(--vt-ui)] text-faint">…</span>;
+  if (state === "loading") return <span className="visitor-muted text-[length:var(--vt-ui)] text-muted">…</span>;
 
   if (state === "unsupported" || state === "needs-install" || state === "blocked") {
     const note = state === "needs-install"
@@ -272,7 +272,7 @@ export function PushToggle({ language, publicKey }: { language: VisitorLanguage;
       : state === "blocked"
         ? (isEnglish ? "Blocked in your browser settings." : "Tarayıcı ayarlarınızdan engellenmiş.")
         : (isEnglish ? "Not supported by this browser." : "Bu tarayıcı desteklemiyor.");
-    return <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-faint sm:max-w-[240px] sm:text-right">{note}</span>;
+    return <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-muted sm:max-w-[240px] sm:text-right">{note}</span>;
   }
 
   const options = [
@@ -403,7 +403,7 @@ export function InstallPrompt({ language }: { language: VisitorLanguage }) {
   const isEnglish = language === "en";
 
   const note = (content: ReactNode) => (
-    <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-faint sm:max-w-[240px] sm:text-right">{content}</span>
+    <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-muted sm:max-w-[240px] sm:text-right">{content}</span>
   );
 
   if (status === "unknown") return note("…");

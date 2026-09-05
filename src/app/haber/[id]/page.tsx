@@ -114,7 +114,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
   };
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName}>
+    <VisitorShell language={language} siteName={settings.siteName} compact>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[640px] pt-11 sm:pt-14">
@@ -129,11 +129,11 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
             </div>
           )}
           {!post.cover_path && (
-            <div className="flex justify-end px-5 pt-4 sm:px-6">
+            <div className="flex justify-end px-4 pt-4 sm:px-6">
               <PostImageActions postId={post.id} href={postHref} title={headline} language={language} placement="inline" />
             </div>
           )}
-          <div className="px-5 py-5 sm:px-6 sm:py-6">
+          <div className="px-4 py-5 sm:px-6 sm:py-6">
             <div className="visitor-muted mb-8 border-b border-line pb-5 font-mono">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
               <time dateTime={publishedAt} className="text-[11px] font-medium leading-none tabular-nums text-accent sm:text-[12px]">
@@ -155,7 +155,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
 
         {nextPost && (
           <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-next group mt-8 block sm:mt-10">
-            <span className="visitor-muted font-mono text-[10px] font-medium uppercase tracking-[.18em] text-faint sm:text-[11px]">{language === "en" ? "Next story" : "Sonraki haber"}</span>
+            <span className="visitor-muted font-mono text-[10px] font-medium uppercase tracking-[.18em] text-muted sm:text-[11px]">{language === "en" ? "Next story" : "Sonraki haber"}</span>
             <div className="mt-4 flex items-start justify-between gap-6">
       <p className="visitor-copy visitor-serif max-w-[540px] text-[17px] font-normal leading-[1.55] text-ink transition-colors group-hover:text-accent sm:text-[20px] sm:leading-[1.5]">{firstSentence(nextPost.body)}</p>
               <span className="mt-1 shrink-0 text-muted transition-[transform,color] duration-300 group-hover:translate-x-1 group-hover:text-accent" aria-hidden="true"><ArrowRight size={18} strokeWidth={1.5} /></span>

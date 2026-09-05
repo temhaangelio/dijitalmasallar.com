@@ -12,21 +12,24 @@ import { Skeleton } from "@/components/feedback/states";
  */
 export function VisitorShellSkeleton({ children, label, showHeader = true }: { children: ReactNode; label: string; showHeader?: boolean }) {
   return (
-    <div className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-6 pb-10 text-ink sm:px-8" role="status" aria-label={label}>
-      {showHeader ? <div className="flex w-full max-w-[900px] flex-col items-center pb-4 pt-12 sm:pb-6 sm:pt-16">
-        <div className="flex w-full max-w-[640px] items-center justify-between">
+    <div className="visitor-page flex min-h-screen flex-col items-center bg-canvas px-4 pb-10 text-ink sm:px-8" role="status" aria-label={label}>
+      {showHeader ? <div className="flex w-full max-w-[900px] flex-col items-center pb-5 pt-6 sm:pb-7 sm:pt-9">
+        <div className="flex w-full max-w-[640px] items-center justify-between gap-2">
           <Skeleton className="size-9 rounded-[12px]" />
           <div className="flex items-center gap-2">
             {[0, 1].map((index) => <Skeleton key={index} className="size-9 rounded-[12px]" />)}
           </div>
         </div>
-        <Skeleton className="mt-8 h-7 w-32 sm:mt-10" />
-        <div className="mt-4 flex flex-col items-center gap-4">
-          <Skeleton className="h-5 w-96 max-w-full" />
+        <div className="mt-5 flex items-center gap-3 sm:mt-6 sm:gap-4">
+          <Skeleton className="size-10 rounded-[13px] sm:size-11 sm:rounded-[14px]" />
+          <Skeleton className="h-6 w-44 sm:h-8 sm:w-60" />
+        </div>
+        <div className="mt-4 flex flex-col items-center gap-3 sm:mt-5">
           <Skeleton className="h-5 w-80 max-w-full" />
-          <div className="mt-2 flex items-center gap-[22px]">
-            {["w-10", "w-14", "w-16"].map((width) => <Skeleton key={width} className={`h-3 ${width}`} />)}
-          </div>
+          <Skeleton className="h-5 w-64 max-w-full" />
+        </div>
+        <div className="mt-6 flex items-center gap-6 sm:mt-7 sm:gap-8">
+          {["w-10", "w-16", "w-20"].map((width) => <Skeleton key={width} className={`h-3 ${width}`} />)}
         </div>
       </div> : null}
       {children}

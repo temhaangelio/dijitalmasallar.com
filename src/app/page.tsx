@@ -62,7 +62,7 @@ function AdCard({ ad }: { ad: Advertisement }) {
         </div>
       ) : null}
 
-      <div className="px-5 py-4 sm:px-6 sm:py-5">
+      <div className="px-4 py-4 sm:px-6 sm:py-5">
         <span className="font-mono text-[10px] font-medium uppercase tracking-[.18em] text-accent">{ad.label}</span>
         <h2 className="visitor-serif mt-3 text-[20px] font-semibold leading-[1.28] tracking-[-.02em] text-ink transition-colors group-hover:text-accent sm:text-[23px]">{ad.title}</h2>
         <p className="visitor-copy visitor-serif mt-3 whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink [text-wrap:pretty] sm:text-[21px] sm:leading-[1.5]">{ad.description}</p>
@@ -225,7 +225,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         ) : (
           <div className="visitor-panel visitor-muted rounded-[14px] border border-dashed border-line-strong/80 px-6 py-16 text-center">
             <p className="visitor-copy text-[length:var(--vt-small)] font-medium text-muted">{language === "en" ? "No English notes have been published yet." : "Henüz Türkçe not yayınlanmadı."}</p>
-            <p className="visitor-muted mt-2 text-[length:var(--vt-ui)] text-faint">{language === "en" ? "New notes land here through the day." : "Yeni notlar gün boyunca buraya düşer."}</p>
+            <p className="visitor-muted mt-2 text-[length:var(--vt-ui)] text-muted">{language === "en" ? "New notes land here through the day." : "Yeni notlar gün boyunca buraya düşer."}</p>
           </div>
         )}
         </div>

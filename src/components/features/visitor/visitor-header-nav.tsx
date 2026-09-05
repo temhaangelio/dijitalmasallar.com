@@ -12,11 +12,11 @@ export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-6 flex items-center gap-[22px]" aria-label={language === "en" ? "Main navigation" : "Ana navigasyon"}>
+    <nav className="mt-6 flex items-center gap-6 sm:mt-7 sm:gap-8" aria-label={language === "en" ? "Main navigation" : "Ana navigasyon"}>
       {visitorNavItems.filter((item) => headerPaths.has(item.href)).map((item) => {
         const current = pathname === item.href;
         const href = languageHref(item.href, language);
-        const className = `border-b pb-1 font-mono text-[13px] font-bold leading-none uppercase tracking-[.12em] transition-colors ${
+        const className = `border-b pb-1.5 font-mono text-[12px] font-semibold leading-none uppercase tracking-[.16em] transition-colors sm:text-[13px] ${
           current ? "border-ink text-ink" : "border-transparent text-muted hover:border-accent hover:text-accent"
         }`;
         return (
