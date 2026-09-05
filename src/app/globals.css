@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Local RSS files are gitignored; include their utility classes explicitly. */
+@source "../components/features/rss";
+@source "./(dashboard)/rss";
+
 /*
  * Design tokens.
  *
@@ -723,17 +727,7 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-logo-mark .brand-bit { fi
   background-position: left 94%;
 }
 html[data-visitor-theme="dark"] .visitor-slogan-highlight {
-  background-image:
-    linear-gradient(178deg,
-      transparent 8%,
-      color-mix(in srgb, var(--color-accent) 20%, transparent) 16%,
-      color-mix(in srgb, var(--color-accent) 20%, transparent) 82%,
-      transparent 94%),
-    linear-gradient(182deg,
-      transparent 24%,
-      color-mix(in srgb, var(--color-accent) 8%, transparent) 32%,
-      color-mix(in srgb, var(--color-accent) 8%, transparent) 76%,
-      transparent 88%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 24' preserveAspectRatio='none'%3E%3Cpath d='M3 5 74 3 156 4 242 2 326 4 397 2 400 19 324 22 246 20 161 23 78 21 0 23Z' fill='%23f1d45c' fill-opacity='.25'/%3E%3Cpath d='M1 10 98 7 206 8 310 6 398 8 398 17 301 19 192 17 92 20 2 19Z' fill='%23f1d45c' fill-opacity='.08'/%3E%3C/svg%3E");
 }
 
 /* Paired colours retain contrast in both themes without changing a note on refresh. */

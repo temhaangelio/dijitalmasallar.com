@@ -161,12 +161,16 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
         </article>
 
         {nextPost && (
-          <Link href={languageHref(`/haber/${nextPost.id}`, language)} className="visitor-next group mt-8 block sm:mt-10">
-            <span className="visitor-muted visitor-sans text-[10px] font-medium uppercase tracking-[.18em] text-muted sm:text-[11px]">{language === "en" ? "Next story" : "Sonraki haber"}</span>
-            <div className="mt-4 flex items-start justify-between gap-6">
-      <p className="visitor-copy visitor-serif max-w-[540px] text-[17px] font-normal leading-[1.55] text-ink transition-colors group-hover:text-accent sm:text-[20px] sm:leading-[1.5]">{firstSentence(nextPost.body)}</p>
-              <span className="mt-1 shrink-0 text-muted transition-[transform,color] duration-300 group-hover:translate-x-1 group-hover:text-accent" aria-hidden="true"><ArrowRight size={18} strokeWidth={1.5} /></span>
+          <Link
+            href={languageHref(`/haber/${nextPost.id}`, language)}
+            className="visitor-card group mt-7 block px-5 py-5 transition-colors duration-150 hover:border-line-strong focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:mt-9 sm:px-6 sm:py-6"
+          >
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <span className="visitor-sans text-[11px] font-medium leading-5 text-muted">{language === "en" ? "Next story" : "Sonraki haber"}</span>
+              <ArrowRight className="size-[18px] shrink-0 text-muted transition-[transform,color] duration-150 group-hover:translate-x-1 group-hover:text-accent group-focus-visible:text-accent motion-reduce:transform-none motion-reduce:transition-none" strokeWidth={1.5} aria-hidden="true" />
             </div>
+            <p className="visitor-copy visitor-serif line-clamp-3 text-[19px] font-normal leading-[1.5] tracking-[-.01em] text-ink sm:text-[22px]">{firstSentence(nextPost.body)}</p>
+            <span className="visitor-sans mt-4 block truncate text-[11px] leading-5 text-muted">{sourceLabel(null, nextPost.source_url, language === "en" ? "Continue reading" : "Okumaya devam et")}</span>
           </Link>
         )}
       </main>

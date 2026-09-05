@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, Mail } from "lucide-react";
+import { Heart, Mail, Smartphone } from "lucide-react";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
@@ -60,6 +60,12 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
               : <><a href="https://www.temhaangelio.com/" target="_blank" rel="noreferrer" className={link}>Temha Angelio</a> tarafından Türkçe ve İngilizce yayımlanan bağımsız bir mikroblog.</>}{" "}{isEnglish
               ? <>Follow via <a href={languageHref("/feed.xml", language)} className={link}>RSS</a> or save notes to <Link href={languageHref("/favoriler", language)} className={link}>Favorites</Link> to read later. Saved notes stay in this browser.</>
               : <><a href={languageHref("/feed.xml", language)} className={link}>RSS</a> ile takip et, sonra okumak istediklerini <Link href={languageHref("/favoriler", language)} className={link}>Favoriler</Link>’e kaydet. Kaydettiğin notlar bu tarayıcıda saklanır.</>}</p>
+            <p className="mt-5">
+              <Smartphone className="mr-1.5 inline size-[18px] align-[-2px] text-muted" strokeWidth={1.6} aria-hidden="true" />
+              {isEnglish
+                ? <>Dijital Masallar is also a web app (PWA). Add it to your home screen and open it like an app, without an app store download. Find the steps under <span className="font-medium text-ink">Settings → Add to home screen</span>.</>
+                : <>Dijital Masallar’ı ana ekranına ekleyip uygulama gibi kullanabilirsin. Bu web uygulamasını (PWA) mağazadan indirmen gerekmez. Nasıl ekleneceğini <span className="font-medium text-ink">Ayarlar → Ana ekrana ekle</span> bölümünde bulabilirsin.</>}
+            </p>
           </div>
           <div className="mt-7 border-t border-line pt-5">
             <p className="text-xs font-medium text-muted">{isEnglish ? "Suggestions, corrections, or a hello" : "Öneri, düzeltme ya da bir merhaba"}</p>

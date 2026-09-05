@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { LoaderCircle, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
@@ -40,11 +41,11 @@ export function AdForm({ ad }: { ad?: Advertisement }) {
   }
 
   return (
-    <form onSubmit={submit} className="w-full">
-      <div className="card space-y-5">
+    <form onSubmit={submit} className="w-full max-w-[960px]">
+      <fieldset disabled={pending} className="card min-w-0 space-y-5">
         <div>
           <h2 className="section-title">Reklam içeriği</h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted">Reklam, ziyaretçi akışında yazıların arasında rastgele gösterilir.</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">Reklam, seçtiğiniz dildeki ziyaretçi akışında notların arasında gösterilir.</p>
         </div>
 
         <FormField label="Başlık" htmlFor="ad-title">
@@ -73,11 +74,11 @@ export function AdForm({ ad }: { ad?: Advertisement }) {
 
         <FormField label="Reklam görseli" htmlFor="ad-image" hint="İsteğe bağlı · JPG, PNG veya WebP · en fazla 5 MB">
           {ad?.image_url && !removeImage && !image ? <div className="mb-3 overflow-hidden rounded-field bg-surface-2">
-            <div className="relative h-44">
+            <div className="relative aspect-[2/1]">
               {isOptimizableImage(ad.image_url)
-                ? <Image src={ad.image_url} alt="Mevcut reklam görseli" fill sizes="640px" className="object-cover" />
+                ? <Image src={ad.image_url} alt="Mevcut reklam görseli" fill sizes="640px" className="object-contain" />
                 // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
-                : <img src={ad.image_url} alt="Mevcut reklam görseli" className="absolute inset-0 size-full object-cover" />}
+                : <img src={ad.image_url} alt="Mevcut reklam görseli" className="absolute inset-0 size-full object-contain" />}
             </div>
             <button type="button" onClick={() => setRemoveImage(true)} className="w-full px-4 py-3 text-left text-sm font-semibold text-danger hover:bg-danger-surface">Mevcut görseli kaldır</button>
           </div> : null}
@@ -87,16 +88,16 @@ export function AdForm({ ad }: { ad?: Advertisement }) {
 
         <div className="flex items-center justify-between gap-4 rounded-field bg-surface-2 p-4">
           <div>
-            <strong className="block text-sm">Hemen yayınla</strong>
-            <small className="mt-1 block text-muted">Kapatırsanız reklam taslak olarak saklanır.</small>
+            <strong className="block text-sm">Yayın durumu</strong>
+            <small className="mt-1 block text-muted">{active ? "Reklam ziyaretçi akışında gösterilir." : "Reklam saklanır, ziyaretçi akışında gösterilmez."}</small>
           </div>
-          <Switch checked={active} onCheckedChange={setActive} label="Reklamı hemen yayınla" />
+          <Switch checked={active} onCheckedChange={setActive} disabled={pending} label="Reklamı yayınla" />
         </div>
-      </div>
+      </fieldset>
 
-      <div className="mt-5 grid grid-cols-2 gap-2">
+      <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Link href="/reklamlar" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link>
-        <Button type="submit" disabled={pending}>{pending ? (ad ? "Güncelleniyor…" : "Kaydediliyor…") : (ad ? "Değişiklikleri kaydet" : "Reklamı ekle")}</Button>
+        <Button type="submit" disabled={pending}>{pending ? <LoaderCircle size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Save size={16} aria-hidden="true" />}{pending ? (ad ? "Güncelleniyor…" : "Kaydediliyor…") : (ad ? "Değişiklikleri kaydet" : "Reklamı ekle")}</Button>
       </div>
     </form>
   );

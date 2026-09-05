@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, BellOff, BellRing, LoaderCircle, Share, SquarePlus, X } from "lucide-react";
+import { Bell, BellOff, BellRing, Check, Compass, Download, Globe, LoaderCircle, MoreVertical, Share, SquarePlus, X } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { subscribeToPushAction, unsubscribeFromPushAction } from "@/app/actions/push";
 import { showToast } from "@/components/ui/toast";
@@ -395,49 +395,50 @@ async function runInstall() {
   notifyInstallListeners();
 }
 
-function IosInstallSteps({ language }: { language: VisitorLanguage }) {
-  const isEnglish = language === "en";
-  return (
-    <span className="inline-flex flex-wrap items-center gap-1.5">
-      <span>{isEnglish ? "Share" : "Paylaş"}</span>
-      <Share className="size-4 shrink-0" aria-hidden="true" />
-      <span aria-hidden="true">→</span>
-      <SquarePlus className="size-4 shrink-0" aria-hidden="true" />
-      <span>{isEnglish ? "Add to Home Screen" : "Ana Ekrana Ekle"}</span>
-    </span>
-  );
+function InstallSteps({ language, platform }: { language: VisitorLanguage; platform: "ios" | "android" | "desktop" }) {
+  const en = language === "en";
+  const steps: ReactNode[] = platform === "ios" ? [
+    en ? <>Open this website in <strong>Safari</strong>.</> : <>Bu siteyi <strong>Safari</strong> ile açın.</>,
+    <span key="share">{en ? "Tap " : "Tarayıcıdaki "}<strong>{en ? "Share" : "Paylaş"}</strong>{en ? " in the browser. If hidden, open the (…) menu first." : " düğmesine dokunun. Görünmüyorsa önce (…) menüsünü açın."}</span>,
+    <span key="add"><strong>{en ? "Add to Home Screen" : "Ana Ekrana Ekle"}</strong>{en ? ": scroll down the share menu to find it." : " seçeneğini bulun; gerekirse paylaşım listesini aşağı kaydırın."}</span>,
+    en ? <>Keep <strong>Open as Web App</strong> enabled if shown, then tap <strong>Add</strong>.</> : <>Varsa <strong>Web Uygulaması Olarak Aç</strong> seçeneğini açık bırakıp <strong>Ekle</strong>’ye dokunun.</>,
+  ] : platform === "android" ? [
+    en ? <>Open this website in <strong>Chrome</strong>.</> : <>Bu siteyi <strong>Chrome</strong> ile açın.</>,
+    en ? <>Tap the <strong>⋮</strong> menu at the top right.</> : <>Sağ üstteki <strong>⋮</strong> menüsüne dokunun.</>,
+    en ? <>Choose <strong>Add to home screen</strong> or <strong>Install app</strong>, then confirm with <strong>Install</strong> or <strong>Add</strong>.</> : <><strong>Ana ekrana ekle</strong> veya <strong>Uygulamayı yükle</strong> seçeneğini seçin. Ardından <strong>Yükle</strong> ya da <strong>Ekle</strong> ile onaylayın.</>,
+  ] : [
+    en ? <>In <strong>Chrome or Edge</strong>, look for the install icon beside the address bar, or the install option in the browser menu.</> : <><strong>Chrome veya Edge</strong>’de adres çubuğunun yanındaki yükleme simgesini ya da tarayıcı menüsündeki uygulama yükleme seçeneğini açın.</>,
+    en ? <>Confirm with <strong>Install</strong>. In Safari on Mac, use <strong>File → Add to Dock</strong> when available.</> : <><strong>Yükle</strong> ile onaylayın. Mac’te Safari kullanıyorsanız, varsa <strong>Dosya → Dock’a Ekle</strong> yolunu izleyin.</>,
+  ];
+  const icons = platform === "ios" ? [Compass, Share, SquarePlus, Check]
+    : platform === "android" ? [Globe, MoreVertical, SquarePlus] : [Download, Check];
+  return <div className="space-y-3 text-[13px] leading-6 text-ink-2">
+    <ol className="space-y-3">
+      {steps.map((step, index) => {
+        const Icon = icons[index];
+        return <li key={index} className="flex items-start gap-3">
+          <span aria-hidden="true" className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[10px] border border-line bg-surface-2 text-ink-2"><Icon size={17} strokeWidth={1.6} /></span>
+          <span className="min-w-0 flex-1"><span aria-hidden="true" className="mr-1.5 text-[11px] font-medium tabular-nums text-muted">{index + 1}.</span>{step}</span>
+        </li>;
+      })}
+    </ol>
+    {platform === "ios" && <p className="text-xs leading-5 text-muted">{en ? "Missing the option? At the bottom of the share list, tap Edit Actions and add Add to Home Screen." : "Seçenek yoksa paylaşım listesinin altındaki Eylemleri Düzenle bölümünden Ana Ekrana Ekle’yi ekleyin."}</p>}
+    <p className="border-t border-line pt-3 text-xs leading-5 text-muted">{en ? "Once added, open Dijital Masallar from its new icon. No app store download is needed." : "İşlem tamamlanınca Dijital Masallar’ı eklenen simgesinden açabilirsiniz. Uygulama mağazasından indirmeniz gerekmez."}</p>
+  </div>;
 }
 
-/**
- * The install control in the settings row. Chrome and Edge hand over a prompt we can trigger; Safari
- * on iOS has no such API, so it gets the one sentence that says where the button lives. It always
- * renders something — a labelled row with an empty right-hand side reads as broken.
- */
+/** The settings panel explains the route available on the current device. */
 export function InstallPrompt({ language }: { language: VisitorLanguage }) {
   const status = useSyncExternalStore(subscribeToInstall, installSnapshot, serverInstallSnapshot);
   const isEnglish = language === "en";
-
-  const note = (content: ReactNode) => (
-    <span className="visitor-muted text-[length:var(--vt-ui)] leading-6 text-muted sm:max-w-[240px] sm:text-right">{content}</span>
-  );
-
-  if (status === "unknown") return note("…");
-  if (status === "installed") return note(isEnglish ? "Already installed." : "Zaten yüklü.");
-
-  if (status === "ready") {
-    return (
-      <button
-        type="button"
-        onClick={() => { void runInstall(); }}
-        className="h-10 shrink-0 rounded-full bg-ink px-4 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
-      >
-        {isEnglish ? "Install" : "Yükle"}
-      </button>
-    );
-  }
-
-  if (isIos()) return note(<IosInstallSteps language={language} />);
-  return note(isEnglish ? "Install from your browser's menu." : "Tarayıcınızın menüsünden yükleyebilirsiniz.");
+  if (status === "unknown") return <p role="status" className="text-xs text-muted">{isEnglish ? "Checking installation…" : "Yükleme durumu kontrol ediliyor…"}</p>;
+  if (status === "installed") return <p className="text-[13px] leading-6 text-muted">{isEnglish ? "The app is installed. You can open it from its icon." : "Uygulama yüklü. Eklenen simgesinden açabilirsiniz."}</p>;
+  if (status === "ready") return <div className="space-y-3">
+    <p className="text-[13px] leading-6 text-muted">{isEnglish ? "Tap Install below, then confirm in your browser’s window. Dijital Masallar will open from its own icon." : "Aşağıdaki Yükle düğmesine dokunun, ardından tarayıcının açtığı pencerede onaylayın. Dijital Masallar kendi simgesinden açılacak."}</p>
+    <button type="button" onClick={() => { void runInstall(); }} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-5 text-[13px] font-semibold text-ink-contrast hover:opacity-85"><Download size={16} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}</button>
+  </div>;
+  const platform = isIos() ? "ios" : /Android/i.test(navigator.userAgent) ? "android" : "desktop";
+  return <InstallSteps language={language} platform={platform} />;
 }
 
 /** Dismissal is remembered for good: a reader who said no once should not be asked on every visit. */
@@ -479,24 +480,24 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
       className="install-banner fixed inset-x-0 bottom-0 z-[150] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
       aria-label={isEnglish ? "Install dijitalmasallar.com" : "dijitalmasallar.com'u yükle"}
     >
-      <div className="visitor-panel mx-auto flex w-full max-w-[560px] items-center gap-4 rounded-[24px] border border-line-strong bg-surface p-4 shadow-modal">
+      <div className="visitor-panel mx-auto flex w-full max-w-[560px] max-h-[75dvh] overflow-y-auto items-start gap-4 rounded-[24px] border border-line-strong bg-surface p-4 shadow-modal">
         {/* The mark is black on black in the dark theme, so it carries a hairline of its own. */}
-        <Image src="/icon-192.png" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px] border border-line-strong" />
+        <Image src="/icon-192.png?v=6" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px] border border-line-strong" />
         <div className="min-w-0 flex-1">
           <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold tracking-[-.02em]">
             {isEnglish ? "Add dijitalmasallar.com to your home screen" : "dijitalmasallar.com'u ana ekranınıza ekleyin"}
           </strong>
-          <p className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">
+          <div className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">
             {status === "ready"
-              ? (isEnglish ? "Opens like an app, and can bring you the day's notes." : "Uygulama gibi açılır, günün notlarını bildirimle getirir.")
-              : <IosInstallSteps language={language} />}
-          </p>
+              ? (isEnglish ? "Tap Install, then confirm in the browser’s window." : "Yükle’ye dokunun, açılan tarayıcı penceresinde onaylayın.")
+              : <details className="mt-2"><summary className="min-h-11 cursor-pointer py-3 text-[13px] font-medium text-ink">{isEnglish ? "How to add it · iPhone / iPad" : "Nasıl eklenir? · iPhone / iPad"}</summary><InstallSteps language={language} platform="ios" /></details>}
+          </div>
         </div>
         {status === "ready" ? (
           <button
             type="button"
             onClick={() => { rememberInstallDismissal(); void runInstall(); }}
-            className="h-10 shrink-0 rounded-full bg-ink px-4 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
+            className="min-h-11 shrink-0 rounded-full bg-ink px-4 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
           >
             {isEnglish ? "Install" : "Yükle"}
           </button>
@@ -505,7 +506,7 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
           type="button"
           onClick={close}
           aria-label={isEnglish ? "Dismiss" : "Kapat"}
-          className="grid size-9 shrink-0 place-items-center rounded-full text-faint transition-colors hover:bg-surface-2 hover:text-ink"
+          className="grid size-11 shrink-0 place-items-center rounded-full text-faint transition-colors hover:bg-surface-2 hover:text-ink"
         >
           <X size={17} aria-hidden="true" />
         </button>

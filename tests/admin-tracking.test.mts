@@ -17,12 +17,10 @@ describe("admin source tracking", () => {
     assert.equal(applicationRules.includes("src/services/posts.ts"), false);
   });
 
-  it("excludes RSS and AI tools from Git", () => {
+  it("excludes local RSS tools from Git", () => {
     assert.equal(applicationRules.includes("src/app/(dashboard)/rss/"), true);
-    assert.equal(applicationRules.includes("src/app/(dashboard)/yapay-zeka/"), true);
     assert.equal(applicationRules.includes("src/components/features/rss/"), true);
     assert.equal(applicationRules.includes("src/lib/rss/"), true);
-    assert.equal(applicationRules.includes("src/lib/ai-news/"), true);
     assert.equal(applicationRules.includes("src/services/rss.ts"), true);
   });
 

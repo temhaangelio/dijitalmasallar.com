@@ -16,7 +16,7 @@ export type ActionMenuItem = {
   keepOpen?: boolean;
 };
 
-export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassName, placement = "anchor" }: { label?: string; items: ActionMenuItem[]; trigger?: ReactNode; triggerClassName?: string; placement?: "anchor" | "center" }) {
+export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassName, disabled = false, placement = "anchor" }: { label?: string; items: ActionMenuItem[]; trigger?: ReactNode; triggerClassName?: string; disabled?: boolean; placement?: "anchor" | "center" }) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, right: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -60,7 +60,7 @@ export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassN
 
   return (
     <>
-      <button ref={triggerRef} type="button" aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={toggle} className={cn("grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-white hover:text-ink", triggerClassName)}>
+      <button ref={triggerRef} type="button" disabled={disabled} aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={toggle} className={cn("grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-white hover:text-ink", triggerClassName)}>
         {trigger ?? <MoreHorizontal size={18} />}
       </button>
       {open && createPortal(

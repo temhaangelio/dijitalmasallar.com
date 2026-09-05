@@ -114,11 +114,11 @@ export function AnalyticsPageLoading() {
             {[0, 1, 2, 3].map((index) => <Skeleton key={index} className="h-9 w-16 rounded-full" />)}
           </div>
         </div>
-        <StatCardsSkeleton count={4} className="grid grid-cols-2 gap-5 lg:grid-cols-4 [&>div]:xl:h-24 [&>div]:xl:p-5" />
-        <div className="mt-5 grid gap-5 xl:mt-4 xl:h-[calc(100dvh-298px)] xl:grid-cols-12 xl:grid-rows-2 xl:gap-4">
+        <StatCardsSkeleton count={4} className="grid grid-cols-2 gap-3 xl:grid-cols-4 [&>div]:min-h-[140px]" />
+        <div className="mt-5 grid gap-5 xl:grid-cols-12">
           <div className="card xl:col-span-8 xl:min-h-0 xl:overflow-hidden xl:p-5">
             <Skeleton className="h-7 w-48" />
-            <div className="mt-8 flex h-[270px] items-end gap-1.5 xl:mt-4 xl:h-[140px]">
+            <div className="mt-8 flex h-[240px] items-end gap-1.5">
               {[55, 72, 40, 88, 61, 35, 79, 50, 66, 44, 82, 58].map((height, index) => (
                 <Skeleton key={index} className="flex-1 rounded-t" style={{ height: `${height}%` }} />
               ))}
