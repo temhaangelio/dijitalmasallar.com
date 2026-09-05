@@ -26,7 +26,19 @@ export function subscribeToFavorites(onStoreChange: () => void) {
   };
 }
 
-export function PostImageActions({ postId, href, title, language }: { postId: string; href: string; title: string; language: VisitorLanguage }) {
+export function PostImageActions({
+  postId,
+  href,
+  title,
+  language,
+  placement = "overlay",
+}: {
+  postId: string;
+  href: string;
+  title: string;
+  language: VisitorLanguage;
+  placement?: "overlay" | "inline";
+}) {
   const favorite = useSyncExternalStore(
     subscribeToFavorites,
     () => readFavorites().has(postId),
@@ -67,9 +79,10 @@ export function PostImageActions({ postId, href, title, language }: { postId: st
   }
 
   const buttonClass = "grid size-10 place-items-center text-ink transition-colors hover:bg-surface-2 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-ink";
+  const placementClass = placement === "overlay" ? "absolute right-3 top-3" : "relative";
 
   return (
-    <div className="absolute right-3 top-3 z-20 flex items-center overflow-hidden rounded-full border border-line-strong/70 bg-surface/90 shadow-[0_5px_20px_rgba(21,21,15,.12)] backdrop-blur-md">
+    <div className={`${placementClass} z-20 flex items-center overflow-hidden rounded-full border border-line-strong/70 bg-surface/90 shadow-[0_5px_20px_rgba(21,21,15,.12)] backdrop-blur-md`}>
       <button type="button" onClick={sharePost} aria-label={shareLabel} title={shareLabel} className={`${buttonClass} rounded-l-full`}>
         <Share2 className="size-[17px]" strokeWidth={1.8} aria-hidden="true" />
       </button>

@@ -152,6 +152,7 @@
   html[data-admin-sidebar="collapsed"] .sidebar-expanded-only { display: none; }
   html[data-admin-sidebar="collapsed"] .sidebar-item { justify-content: center; gap: 0; padding-inline: 0; }
   html[data-admin-sidebar="collapsed"] .sidebar-footer { flex-direction: column; }
+  html[data-admin-sidebar="collapsed"] .sidebar-footer-actions { flex-direction: column; }
   .page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 0 4px 24px; }
   .page-title { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -.045em; line-height: 1; }
   .page-note { margin-top: 6px; color: var(--color-muted); font-size: 15px; font-weight: 500; }

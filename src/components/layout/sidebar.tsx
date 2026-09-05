@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot, ChartColumn, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
+import { Bot, ChartColumn, ExternalLink, FileText, LayoutDashboard, LogOut, Megaphone, Rss } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { SidebarToggle } from "./sidebar-toggle";
@@ -35,14 +35,20 @@ export function Sidebar({ active, siteName, modules }: { active: string; siteNam
         </Link>;
       })}
     </nav>
-    <div className="sidebar-footer mt-auto flex items-center gap-2 border-t border-line/70 pt-4">
-      <form action={logoutAction} className="min-w-0 flex-1">
-        <button type="submit" aria-label="Çıkış yap" title="Çıkış yap" className="sidebar-item w-full text-left text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
-          <LogOut size={18} className="shrink-0" aria-hidden="true" />
-          <span className="sidebar-expanded-only truncate">Çıkış yap</span>
-        </button>
-      </form>
-      <SidebarToggle />
+    <div className="sidebar-footer mt-auto flex flex-col gap-1 border-t border-line/70 pt-4">
+      <Link href="/" target="_blank" rel="noopener noreferrer" aria-label="Siteye git" title="Siteye git" className="sidebar-item w-full text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
+        <ExternalLink size={18} className="shrink-0" aria-hidden="true" />
+        <span className="sidebar-expanded-only truncate">Siteye git</span>
+      </Link>
+      <div className="sidebar-footer-actions flex items-center gap-2">
+        <form action={logoutAction} className="min-w-0 flex-1">
+          <button type="submit" aria-label="Çıkış yap" title="Çıkış yap" className="sidebar-item w-full text-left text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
+            <LogOut size={18} className="shrink-0" aria-hidden="true" />
+            <span className="sidebar-expanded-only truncate">Çıkış yap</span>
+          </button>
+        </form>
+        <SidebarToggle />
+      </div>
     </div>
   </aside>;
 }

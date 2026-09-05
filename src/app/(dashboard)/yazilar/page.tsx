@@ -15,7 +15,6 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
 
   return (
     <AppShell active="/yazilar">
-      <div className="mx-auto w-full max-w-[1600px]">
       <PageHeader
         title="Yazılar"
         actions={<Link href="/yazilar/yeni" className={buttonVariants()}>Yeni yazı <ArrowRight className="size-4" aria-hidden="true" /></Link>}
@@ -28,7 +27,6 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         scheduledTotal={scheduledTotal}
         pageSize={pageSize}
       />
-      </div>
     </AppShell>
   );
 }

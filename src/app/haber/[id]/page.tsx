@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { PostImageActions } from "@/components/features/visitor/post-image-actions";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
@@ -88,6 +89,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
   const nextPost = await getNextPublishedPost(post.created_at, language);
   const baseUrl = siteUrl(settings.domain);
   const canonicalUrl = absoluteUrl(baseUrl, languageHref(`/haber/${post.id}`, language));
+  const postHref = languageHref(`/haber/${post.id}`, language);
   const headline = postHeadline(post);
   const description = postDescription(post);
   const structuredData = {
@@ -123,6 +125,12 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
                 ? <Image src={post.cover_path} alt={headline} fill priority sizes="(max-width: 700px) 100vw, 640px" className="object-cover" />
                 // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
                 : <img src={post.cover_path} alt={headline} decoding="async" className="absolute inset-0 size-full object-cover" />}
+              <PostImageActions postId={post.id} href={postHref} title={headline} language={language} />
+            </div>
+          )}
+          {!post.cover_path && (
+            <div className="flex justify-end px-5 pt-4 sm:px-6">
+              <PostImageActions postId={post.id} href={postHref} title={headline} language={language} placement="inline" />
             </div>
           )}
           <div className="px-5 py-5 sm:px-6 sm:py-6">

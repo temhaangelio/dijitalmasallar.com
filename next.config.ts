@@ -34,6 +34,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.61"],
+  devIndicators: false,
   poweredByHeader: false,
   images: {
     remotePatterns: imageHost
