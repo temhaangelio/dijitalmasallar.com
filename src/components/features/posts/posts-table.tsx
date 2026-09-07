@@ -15,6 +15,7 @@ import { isOptimizableImage } from "@/lib/images";
 import { sourceLabel } from "@/lib/source-label";
 import type { Post } from "@/types/database";
 import type { PostSort } from "@/services/posts";
+import styles from "./posts-table.module.css";
 
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
 
@@ -105,25 +106,28 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
       <div aria-busy={isSearching}>
         {isSearching && <p role="status" className="mb-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Yazılar güncelleniyor…</p>}
         {posts.length ? <ul aria-label="Yazılar" className={`divide-y divide-line ${isSearching ? "opacity-50" : ""}`}>
-          {posts.map(post => <li key={post.id} className="group flex items-start gap-2 py-5 first:pt-2 last:pb-2 sm:gap-4">
+          {posts.map(post => <li key={post.id} className={`${styles.row} group flex items-start gap-2 py-3.5 first:pt-1 last:pb-1 sm:gap-4`}>
             <Link href={`/yazilar/${post.id}/duzenle`} prefetch={false} className="flex min-w-0 flex-1 items-start gap-3 rounded-lg sm:gap-4">
-              <div className="relative grid aspect-square w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-surface-3 text-faint sm:aspect-[4/3] sm:w-24">
+              <div className="relative grid aspect-[4/3] w-14 shrink-0 place-items-center overflow-hidden rounded-lg bg-surface-3 text-faint sm:w-20">
                 {post.cover_path ? isOptimizableImage(post.cover_path)
-                  ? <Image src={post.cover_path} alt="" fill sizes="(max-width: 639px) 56px, 96px" className="object-cover" />
+                  ? <Image src={post.cover_path} alt="" fill sizes="(max-width: 639px) 56px, 80px" className="object-cover" />
                   // eslint-disable-next-line @next/next/no-img-element -- external official source image
                   : <img src={post.cover_path} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
-                  : <ImageIcon className="size-5" aria-hidden="true" />}
+                  : <ImageIcon className="size-4" aria-hidden="true" />}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-5 text-muted">
+              <div className="min-w-0 flex-1 xl:max-w-[95ch]">
+                <div className="mb-1 flex flex-wrap items-center gap-x-2 text-[11px] leading-5 text-muted">
                   <time dateTime={post.created_at} className="tabular-nums">{dateFormatter.format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}</time>
-                  <span className={`rounded-full px-2 ${post.status === "scheduled" ? "bg-warning-surface text-warning" : "bg-surface-2 text-ink-2"}`}>{post.status === "scheduled" ? "Planlı" : "Yayında"}</span>
+                  {/* Published is what almost every row is; saying so on all of them said nothing.
+                      Only the exception — a post still waiting for its date — gets a label. */}
+                  {post.status === "scheduled" && <span className="rounded-full bg-warning-surface px-2 text-warning">Planlı</span>}
+                  {/* A source is worth naming; the absence of one is not worth a line of its own. */}
+                  {post.source_url && <><span aria-hidden="true">·</span><span className="min-w-0 truncate">{sourceLabel(null, post.source_url, "")}</span></>}
                 </div>
-                <h2 className="line-clamp-2 font-[family-name:var(--font-source-serif)] text-[18px] font-medium leading-snug text-ink sm:text-[20px]">{post.title || post.excerpt || "Başlıksız not"}</h2>
-                <p className="mt-2 truncate text-xs text-muted">{sourceLabel(null, post.source_url, "Kaynak yok")}</p>
+                <h2 className="line-clamp-2 font-[family-name:var(--font-source-serif)] text-[17px] font-medium leading-snug text-ink sm:text-[18px]">{post.title || post.excerpt || "Başlıksız not"}</h2>
               </div>
             </Link>
-            <button type="button" disabled={isSearching} onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} className="grid size-11 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-danger-surface hover:text-danger disabled:opacity-40"><Trash2 className="size-4" strokeWidth={1.6} aria-hidden="true" /></button>
+            <button type="button" disabled={isSearching} onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} className={`${styles.rowAction} grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-danger-surface hover:text-danger disabled:opacity-40`}><Trash2 className="size-4" strokeWidth={1.6} aria-hidden="true" /></button>
           </li>)}
         </ul> : !isSearching && <EmptyState title={filtered ? "Eşleşen yazı bulunamadı" : "Henüz yazı yok"} description={filtered ? "Arama veya filtreyi değiştirip tekrar deneyin." : "İlk yazınızı ekleyin; burada listelenecek."} />}
         <div className="mt-5 flex flex-col items-center gap-3 border-t border-line pt-5">

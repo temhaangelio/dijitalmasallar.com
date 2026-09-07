@@ -2,7 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { safeNextPath } from "@/lib/env";
 
-const protectedPaths = ["/dashboard", "/yazilar", "/reklamlar", "/istatistik", "/rss"];
+/*
+ * Every route under `(dashboard)`. The group's layout also redirects, but that redirect does not
+ * stop the response: an anonymous request still renders the panel's HTML. This list is the gate,
+ * which is why a page missing from it is served to anyone — as `/profil` was.
+ */
+const protectedPaths = ["/dashboard", "/yazilar", "/reklamlar", "/istatistik", "/rss", "/profil"];
 const authPaths = ["/giris", "/sifremi-unuttum"];
 
 export async function updateSession(request: NextRequest) {

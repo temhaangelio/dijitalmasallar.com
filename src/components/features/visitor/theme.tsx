@@ -28,10 +28,10 @@ export type { ThemePreference };
  * The `theme-color` pass runs twice. At head time it cannot see the tags `generateViewport`
  * renders, because those are parsed after this script; left alone, a media-conditional one could
  * still match and, being later in the head, win. Repeating the pass once the document is parsed
- * clears them, after they have done the one job they exist for: the first paint.
+ * updates them in place so React retains ownership during navigation.
  */
 export function ThemeScript() {
-  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");if(p)document.cookie=${JSON.stringify(themeCookie)}+"="+p+";path=/;max-age=${themeCookieMaxAge};samesite=lax";var a=function(){document.querySelectorAll('meta[name="theme-color"]').forEach(function(n){n.remove()});var m=document.createElement("meta");m.name="theme-color";m.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};m.setAttribute("data-diji-theme","");document.head.appendChild(m);};a();document.addEventListener("DOMContentLoaded",a);}catch(e){}})();`;
+  const script = `(function(){try{var p=localStorage.getItem(${JSON.stringify(storageKey)});var d=p==="dark"||((!p||p==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute(${JSON.stringify(themeAttribute)},d?"dark":"light");if(p)document.cookie=${JSON.stringify(themeCookie)}+"="+p+";path=/;max-age=${themeCookieMaxAge};samesite=lax";var a=function(){var ms=document.querySelectorAll('meta[name="theme-color"]');if(!ms.length){var m=document.createElement("meta");m.name="theme-color";m.setAttribute("data-diji-theme","");document.head.appendChild(m);ms=[m];}ms.forEach(function(n){n.removeAttribute("media");n.content=d?${JSON.stringify(darkThemeColor)}:${JSON.stringify(lightThemeColor)};});};a();document.addEventListener("DOMContentLoaded",a);}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
@@ -71,17 +71,18 @@ function resolve(preference: ThemePreference) {
 
 function syncBrowserThemeColor(theme: "light" | "dark") {
   const metas = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')];
-  let meta = metas.find((candidate) => candidate.hasAttribute("data-diji-theme")) ?? metas[0];
-  metas.forEach((candidate) => { if (candidate !== meta) candidate.remove(); });
-  if (!meta) {
-    meta = document.createElement("meta");
+  if (!metas.length) {
+    const meta = document.createElement("meta");
     meta.name = "theme-color";
     meta.dataset.dijiTheme = "";
     document.head.appendChild(meta);
+    metas.push(meta);
   }
-  meta.removeAttribute("media");
-  meta.dataset.dijiTheme = "";
-  meta.content = theme === "dark" ? darkThemeColor : lightThemeColor;
+  // React owns the server-rendered tags: removing them breaks subsequent route transitions.
+  for (const meta of metas) {
+    meta.removeAttribute("media");
+    meta.content = theme === "dark" ? darkThemeColor : lightThemeColor;
+  }
 }
 
 function apply(preference: ThemePreference) {

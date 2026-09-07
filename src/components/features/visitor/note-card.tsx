@@ -106,7 +106,7 @@ export function NoteCard({ post, language, highlight, priority = false }: { post
             {rest}
           </div>
         ) : null}
-        <div className="mt-3 flex min-w-0 items-center justify-between gap-3 visitor-sans text-[11px] font-normal leading-[1.6]">
+        <div className="mt-5 flex min-w-0 items-center justify-between gap-3 border-t border-line pt-2 visitor-sans text-[12px] font-normal leading-[1.6]">
           {post.source_url
             ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 block min-h-11 min-w-0 truncate py-3 text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource}<svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg></a>
             : <span title={displayedSource} className="visitor-source min-w-0 truncate text-muted">{displayedSource}</span>}

@@ -200,7 +200,15 @@ html:has(.admin-page) {
 }
 
 @layer components {
-  .admin-page .main { width: 100%; max-width: 1280px; margin-inline: auto; padding: 36px clamp(20px, 3vw, 48px) 64px; }
+  /*
+   * The panel fills the window.
+   *
+   * It used to stop at 1280px and centre itself, which on a wide screen left a band of empty canvas
+   * down both sides while the tables inside were still cropping their columns. Reading measure is
+   * held where it actually matters — the note bodies and the RSS preview cap their own width — so
+   * the shell has no reason to hold the rest back.
+   */
+  .admin-page .main { width: 100%; padding: 36px clamp(20px, 3vw, 48px) 64px; }
   .admin-page .sidebar { position: sticky; top: 0; height: 100dvh; overflow-y: auto; padding: 28px 18px; gap: 36px; background: var(--color-canvas); }
   .admin-page .card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 18px; box-shadow: 0 1px 2px rgb(0 0 0 / .02); }
   .admin-brand { font-family: var(--font-plex-mono), monospace; letter-spacing: -.025em; }
@@ -574,10 +582,10 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-logo-mark .brand-bit { fi
    */
   .visitor-card {
     overflow: hidden;
-    border: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
-    border-radius: 14px;
-    background: color-mix(in oklab, var(--color-surface-2) 35%, transparent);
-    box-shadow: 0 1px 2px rgb(0 0 0 / .018);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 2px 3px rgb(0 0 0 / .015), 0 8px 28px rgb(0 0 0 / .018);
   }
 
   /*
@@ -710,6 +718,27 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-logo-mark .brand-bit { fi
 .visitor-nav-link[aria-current="page"]::before {
   transform: scaleX(1);
 }
+
+/* A shared baseline connects the masthead to the reading column. */
+.visitor-wordmark {
+  font-size: clamp(22px, 5.8vw, 34px);
+  line-height: 1.3;
+  letter-spacing: -.01em;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.visitor-header-links {
+  position: relative;
+  padding-block: 8px 16px;
+  border-bottom: 1px solid var(--color-line);
+}
+.visitor-header-links .visitor-nav-link { padding-bottom: 0; }
+.visitor-header-links .visitor-nav-link::before { bottom: -17px; height: 2px; }
+.visitor-brief { scroll-margin-top: 32px; }
+.visitor-page .visitor-brief {
+  background: color-mix(in srgb, var(--color-surface-2) 48%, var(--color-canvas));
+  box-shadow: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .visitor-nav-link::before { transition: none; }
 }
@@ -745,4 +774,294 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
 html[data-visitor-theme="dark"] .visitor-note-initial::first-letter,
 html[data-visitor-theme="dark"] .visitor-article-intro > div > :first-child::first-letter {
   color: var(--note-initial-dark, var(--color-accent));
+}
+
+/*
+ * The reader fills the window instead of scrolling the page.
+ *
+ * The page used to reserve its own height with `calc(100dvh - 72px)`, which restated the admin
+ * main's padding as a number — and got it wrong by the 28px the page then overflowed by. Here the
+ * height is passed down a flex chain instead, so nothing has to know what the padding is.
+ *
+ * Only from 1280px, the width at which the reader becomes two panes that can scroll on their own.
+ * Narrower than that the panes stack, and a stacked reader in a locked window would be a reader you
+ * could not reach the bottom of.
+ */
+@media (min-width: 1280px) {
+  html:has(.rss-fit) { overflow: hidden; }
+  .shell:has(.rss-fit) { height: 100dvh; min-height: 0; }
+  .shell:has(.rss-fit) > div { display: flex; min-height: 0; flex-direction: column; }
+  .shell:has(.rss-fit) .main { display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; }
+  .rss-fit { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+}
+
+/*
+ * The feed's day index, in the right margin.
+ *
+ * The feed is one continuous stretch of a few thousand pixels and the scrollbar was the only way
+ * through it: nothing said which day you were in, and getting back to this morning meant dragging
+ * and guessing. The margin was empty, so the map goes there.
+ *
+ * Positioned against the reading column rather than the window — `left: 100%` of a 640px column,
+ * plus a 40px gutter. No viewport arithmetic, so the scrollbar's width (a gutter on one machine, an
+ * overlay on another) cannot change the spacing. It starts level with the top of the feed and goes
+ * sticky once it reaches the top of the window.
+ *
+ * Deliberately not a second reading column: widening the text was the other way to spend this
+ * space, and 640px is where the measure should stay.
+ */
+.visitor-rail { display: none; }
+
+@media (min-width: 1280px) {
+  /* Beside the daily brief, in the flow of the page. */
+  .visitor-rail {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    display: block;
+    width: 244px;
+    margin-left: 40px;
+  }
+
+  /*
+   * Pinned to the window, from the moment the feed's top reaches the line to the end of the page.
+   * Measured from the centre — the mirror of the left margin's navigation — so the gutter is the
+   * same 40px in both states and the switch is invisible.
+   */
+  .visitor-rail[data-pinned="true"] {
+    position: fixed;
+    left: 50%;
+    top: 88px;
+    margin-left: 360px;
+  }
+}
+
+.visitor-rail-inner {
+  max-height: calc(100vh - 128px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.visitor-rail-inner::-webkit-scrollbar { display: none; }
+
+.visitor-rail-day + .visitor-rail-day { margin-top: 26px; }
+
+/* The day's name, then a rule running out to the edge — the same figure the feed uses over each
+   day's notes, so the rail reads as the feed's own table of contents. */
+.visitor-rail-date {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.visitor-rail-date::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-line);
+}
+
+.visitor-rail-link {
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  padding: 7px 0 7px 14px;
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  line-height: 1.4;
+  color: var(--color-muted);
+  transition: color 140ms ease;
+}
+
+/* One hairline runs the height of each day; the marker thickens it where you are, rather than
+   adding a second mark beside it. */
+.visitor-rail-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-line);
+  transition: background-color 140ms ease, width 140ms ease;
+}
+
+.visitor-rail-time {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+}
+
+.visitor-rail-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--color-faint);
+}
+
+.visitor-rail-link:hover,
+.visitor-rail-link:focus-visible { color: var(--color-ink); }
+.visitor-rail-link:hover .visitor-rail-title,
+.visitor-rail-link:focus-visible .visitor-rail-title { color: var(--color-muted); }
+.visitor-rail-link:hover::before,
+.visitor-rail-link:focus-visible::before { background: var(--color-line-strong); }
+
+.visitor-rail-link[aria-current="true"] { color: var(--color-ink); }
+.visitor-rail-link[aria-current="true"] .visitor-rail-time { font-weight: 600; }
+.visitor-rail-link[aria-current="true"] .visitor-rail-title { color: var(--color-ink); }
+.visitor-rail-link[aria-current="true"]::before { width: 2px; background: var(--color-accent); }
+
+/* Landing from the rail should not tuck the note under the top of the window. */
+.visitor-note-anchor { scroll-margin-top: 96px; }
+
+/*
+ * The left margin's navigation, mirroring the day index on the right.
+ *
+ * Fixed and measured from the centre with `left: 50%` — which resolves against the viewport proper,
+ * unlike `100vw`, so a machine that gives its scrollbar width does not push the block off its
+ * gutter. The steps are the mirror of the rail's: half the column (320) plus a 40px gutter plus the
+ * block's own width.
+ */
+.visitor-side-nav { display: none; }
+
+@media (min-width: 1280px) {
+  .visitor-side-nav {
+    position: fixed;
+    left: 50%;
+    margin-left: -604px;
+    top: 88px;
+    z-index: 20;
+    display: block;
+    width: 244px;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 220ms ease;
+  }
+
+  .visitor-side-nav[data-shown="true"] {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visitor-side-nav { transition-duration: 0ms; transform: none; }
+}
+
+.visitor-side-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  transition: opacity 140ms ease;
+}
+
+.visitor-side-brand:hover { opacity: .75; }
+
+.visitor-side-brand-name {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-ink);
+}
+
+.visitor-side-links { margin-top: 26px; }
+
+/*
+ * A numbered index rather than a list of links with a rule beside them.
+ *
+ * The first attempt was a hairline with three small labels against it — correct, and characterless.
+ * The numerals are the site's own material: the mark is a pair of binary digits and the masthead
+ * drifts with 0s and 1s. They also give the eye a fixed left edge to run down, which a ragged set
+ * of words does not.
+ */
+.visitor-side-link {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  transition: color 160ms ease;
+}
+
+.visitor-side-index {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-faint);
+  transition: color 160ms ease;
+}
+
+.visitor-side-link:hover { color: var(--color-ink); }
+.visitor-side-link:hover .visitor-side-index { color: var(--color-accent); }
+.visitor-side-link[aria-current="page"] { color: var(--color-accent); }
+.visitor-side-link[aria-current="page"] .visitor-side-index { color: var(--color-accent); }
+
+/* The brief, reachable from anywhere in the feed instead of only from the top of it. */
+.visitor-side-brief {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 11px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 11px;
+  text-align: left;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.visitor-side-brief-label {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-source-serif), Georgia, serif;
+  font-size: 14px;
+  letter-spacing: -.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-ink-2);
+}
+
+.visitor-side-brief-count {
+  flex: none;
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-faint);
+}
+
+.visitor-side-brief:hover { border-color: var(--color-line-strong); }
+.visitor-side-brief:hover .visitor-side-brief-label { color: var(--color-accent); }
+
+.visitor-side-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-line);
 }

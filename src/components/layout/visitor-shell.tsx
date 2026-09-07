@@ -5,6 +5,7 @@ import { LanguageLink } from "@/components/features/visitor/language-link";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
+import { VisitorSideNav } from "@/components/features/visitor/side-nav";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 import { darkThemeColor, lightThemeColor, themeCookie } from "@/lib/visitor-theme";
@@ -41,6 +42,7 @@ export async function VisitorShell({
   showHeader = true,
   compact = false,
   reading = false,
+  brief,
 }: {
   language: VisitorLanguage;
   siteName: string;
@@ -49,6 +51,8 @@ export async function VisitorShell({
   /** Drops the tagline. A story page has its own subject; the site's pitch is not it. */
   compact?: boolean;
   reading?: boolean;
+  /** The feed's daily brief, so the margin navigation can reach it from anywhere on the page. */
+  brief?: { label: string; count: number };
 }) {
   const settings = await getSiteSettings();
   const description = language === "en" ? settings.descriptionEn : settings.description;
@@ -80,7 +84,7 @@ export async function VisitorShell({
         header carries two alignments at once this way, and the site states its identity twice — as
         a glyph in the corner and as a logotype in the middle.
       */}
-      <nav className="visitor-nav relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-5 pt-6 text-center sm:pb-7 sm:pt-8" aria-label="Site">
+      <nav className="visitor-nav relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
         {!reading && <div className="visitor-header-signals" aria-hidden="true">
           {headerSignals.map((signal, index) => <span key={index} className="visitor-header-signal" style={{
             left: `${signal.left}%`, top: `${signal.top}%`, fontSize: `${signal.size}px`,
@@ -107,13 +111,9 @@ export async function VisitorShell({
 
         {reading ? null : <Link
           href={languageHref("/", language)}
-          className="mt-6 max-w-full truncate font-mono text-[24px] font-bold leading-[1.15] tracking-[-.01em] text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7 sm:text-[32px]"
+          className="visitor-wordmark mt-6 max-w-full font-mono font-bold text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7"
         >
-          {/* Two notes on the type. Monospaced glyphs already carry their own sidebearings, so the
-              −.03em this used to be set with was pulling them into each other. And the leading has
-              to leave room under the baseline: at `leading-none` the line box is exactly the font
-              size, and `truncate` clips whatever falls outside it — which took the tail off the j
-              in Dijital. */}
+          {/* Fluid sizing and wrapping keep the complete name visible on narrow screens. */}
           {siteName}
         </Link>}
 
@@ -122,7 +122,10 @@ export async function VisitorShell({
         )}
 
         {reading ? null : <VisitorHeaderNav language={language} />}
-      </nav></> : null}
+      </nav>
+      {/* Wide screens only, and only once the masthead above has scrolled out of the window. */}
+      {reading ? null : <VisitorSideNav language={language} siteName={siteName} showPush={settings.modulePush} pushPublicKey={publicKey} brief={brief} />}
+      </> : null}
       {children}
       <VisitorFooter siteName={siteName} language={language} />
       <ServiceWorkerRegistrar language={language} publicKey={publicKey} />

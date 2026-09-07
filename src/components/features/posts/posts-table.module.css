@@ -1,0 +1,19 @@
+/*
+ * Delete is one keystroke from a dialog that cannot be undone, and it was drawn on every row, at
+ * full strength, forty rows deep — a column of bins running down a page whose actual job is
+ * reading titles. It stays where it was; it just waits to be approached.
+ *
+ * Where there is no pointer there is no hover to approach with, so it is simply always drawn.
+ */
+@media (hover: hover) {
+  .rowAction {
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  .row:hover .rowAction,
+  .row:focus-within .rowAction,
+  .rowAction:focus-visible {
+    opacity: 1;
+  }
+}

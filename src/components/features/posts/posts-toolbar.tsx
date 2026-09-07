@@ -7,8 +7,8 @@ import type { PostSort } from "@/services/posts";
 
 export const sortLabels: Record<PostSort, string> = { newest: "En yeni", oldest: "En eski", "title-asc": "Başlık A–Z", "title-desc": "Başlık Z–A" };
 
-const segment = "flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors disabled:cursor-wait";
-const menuTrigger = "flex min-h-11 w-auto items-center gap-2 rounded-full bg-surface-3 px-4 text-sm font-semibold text-ink hover:bg-line";
+const segment = "flex min-h-9 items-center rounded-full px-3.5 text-[13px] font-semibold transition-colors disabled:cursor-wait";
+const menuTrigger = "flex min-h-9 w-auto items-center gap-2 rounded-full border border-line px-3.5 text-[13px] font-semibold text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink";
 
 export function PostsToolbar({
   query,
@@ -42,13 +42,13 @@ export function PostsToolbar({
           className={query ? "px-11" : "pl-11"}
         />
         {query ? (
-          <button type="button" onClick={() => onQueryChange("")} aria-label="Aramayı temizle" className="absolute right-1.5 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full text-muted transition-colors hover:bg-surface-3 hover:text-ink">
+          <button type="button" onClick={() => onQueryChange("")} aria-label="Aramayı temizle" className="absolute right-1.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-muted transition-colors hover:bg-surface-3 hover:text-ink">
             <X size={16} aria-hidden="true" />
           </button>
         ) : null}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-full bg-surface-3 p-1" role="group" aria-label="Yazı dili">
+        <div className="flex rounded-full bg-surface-2 p-1" role="group" aria-label="Yazı dili">
           {(["tr", "en"] as const).map((value) => (
             <button
               key={value}
@@ -56,7 +56,7 @@ export function PostsToolbar({
               disabled={pendingLanguage !== null}
               aria-pressed={language === value}
               onClick={() => onLanguageChange(value)}
-              className={`${segment} ${language === value ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
+              className={`${segment} ${language === value ? "bg-surface text-ink shadow-sm" : "text-muted hover:text-ink"}`}
             >
               {pendingLanguage === value ? <LoaderCircle className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
               {value === "tr" ? "Türkçe" : "İngilizce"}

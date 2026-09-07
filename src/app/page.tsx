@@ -2,7 +2,8 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { Fragment } from "react";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
-import { DailyBrief } from "@/components/features/visitor/daily-brief";
+import { briefHeading, briefItems, DailyBrief } from "@/components/features/visitor/daily-brief";
+import { FeedRail, type FeedRailDay } from "@/components/features/visitor/feed-rail";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
@@ -94,6 +95,11 @@ function createAdSlots(postCount: number, ads: Advertisement[]) {
  * The flat feed position travels with every note, because the ad slots were drawn
  * against the ungrouped list and must not shift when the notes are bucketed.
  */
+/** The rail links to these, so the id is derived in one place rather than spelled out twice. */
+function noteAnchorId(postId: string) {
+  return `not-${postId}`;
+}
+
 function groupPostsByDay(posts: Post[]) {
   const days: { key: string; publishedAt: string; items: { post: Post; position: number }[] }[] = [];
   posts.forEach((post, position) => {
@@ -126,8 +132,18 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
   const postDays = groupPostsByDay(posts);
+  const railDays: FeedRailDay[] = postDays.map((day) => ({
+    key: day.key,
+    label: dateLabel(day.publishedAt, language),
+    fullLabel: fullDateLabel(day.publishedAt, language),
+    items: day.items.map(({ post }) => {
+      const publishedAt = post.published_at ?? post.created_at;
+      return { id: noteAnchorId(post.id), time: timeLabel(publishedAt, language), title: postHeadline(post) };
+    }),
+  }));
   const { posts: briefPosts, isYesterday: isYesterdayBrief } = selectDailyBrief(briefCandidates, now);
   const showDailyBrief = briefPosts.length > 0;
+  const briefCount = briefItems(briefPosts).length;
   const briefDate = briefPosts[0]?.published_at ?? briefPosts[0]?.created_at ?? now.toISOString();
   const adSlots = createAdSlots(posts.length, ads);
   const baseUrl = siteUrl(settings.domain);
@@ -176,10 +192,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   };
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName}>
+    <VisitorShell
+      language={language}
+      siteName={settings.siteName}
+      brief={showDailyBrief && briefCount ? { label: briefHeading(language, isYesterdayBrief), count: briefCount } : undefined}
+    >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
-      <main className="mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
+      <main className="relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
+        {/* Anchored to the column, not to the window: the rail begins level with the daily brief —
+            the first thing in the feed — and follows from there. */}
+        {posts.length > 1 ? <FeedRail days={railDays} label={language === "en" ? "Day index" : "Gün cetveli"} /> : null}
         <div>
         {posts.length ? (
           <>
@@ -209,7 +232,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 const publishedAt = post.published_at ?? post.created_at;
                 return (
                   <Fragment key={post.id}>
-                    <div className="group/note relative">
+                    <div id={noteAnchorId(post.id)} className="visitor-note-anchor group/note relative">
                       <time
                         dateTime={publishedAt}
                         title={fullDateLabel(publishedAt, language)}
