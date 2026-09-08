@@ -82,7 +82,9 @@
     margin: 0;
     background: var(--background);
     color: var(--foreground);
-    font-family: var(--font-plex-sans), Arial, sans-serif;
+    /* The public site's family; the admin panel sets its own on `.admin-page` below. Anything that
+       renders outside the page root on a public page — a toast — inherits this and matches. */
+    font-family: var(--font-visitor-sans), Arial, sans-serif;
     letter-spacing: -0.011em;
     -webkit-font-smoothing: antialiased;
   }
@@ -381,9 +383,8 @@ html[data-visitor-text="large"] { --visitor-text-scale: 1.12; }
    text itself, the rail's navigation — can take it from here. */
 /* Declared on the page rather than on `:root`: next/font puts `--font-*` on <body>, so a family
    built from them at the root would reference undefined properties and compute to nothing. */
-.visitor-page { --visitor-reading-family: var(--font-hyperlegible), var(--font-plex-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+.visitor-page { --visitor-reading-family: var(--font-visitor-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
 html[data-visitor-font="serif"] .visitor-page { --visitor-reading-family: var(--font-source-serif), Georgia, "Apple Color Emoji", "Segoe UI Emoji", serif; }
-html[data-visitor-font="sans"] .visitor-page { --visitor-reading-family: var(--font-plex-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
 
 /* The reading face. Atkinson Hyperlegible is the default — it was drawn to keep confusable
    letterforms apart, so it is the safest face to hand a reader who has expressed no preference —
@@ -401,9 +402,7 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
   letter-spacing: normal;
 }
 
-html[data-visitor-font="sans"] .visitor-page .visitor-serif {
-  font-family: var(--visitor-reading-family);
-}
+
 .visitor-page .visitor-markdown > div {
   font-size: calc(18px * var(--visitor-text-scale));
   font-weight: 400;
@@ -526,8 +525,8 @@ html[data-visitor-font="sans"] .visitor-page .visitor-serif {
     --color-success-surface: #f0f0f0;
     --color-warning: #333333;
     --color-warning-surface: #f0f0f0;
-    --font-mono: var(--font-plex-mono), monospace;
-    font-family: var(--font-plex-sans), Arial, sans-serif;
+    --font-mono: var(--font-visitor-mono), monospace;
+    font-family: var(--font-visitor-sans), Arial, sans-serif;
     letter-spacing: 0;
     font-kerning: normal;
     font-synthesis: none;
@@ -537,7 +536,7 @@ html[data-visitor-font="sans"] .visitor-page .visitor-serif {
     padding-top: env(safe-area-inset-top);
   }
   .visitor-page .font-mono {
-    font-family: var(--font-plex-mono), monospace;
+    font-family: var(--font-visitor-mono), monospace;
     font-kerning: normal;
     font-synthesis: none;
   }
@@ -678,7 +677,7 @@ html[data-visitor-font="sans"] .visitor-page .visitor-serif {
 
 /* Visitor typography: brand in Mono, reading in Serif, controls and metadata in Sans. */
 .visitor-page .visitor-sans,
-.visitor-page code { font-family: var(--font-plex-sans), Arial, sans-serif; }
+.visitor-page code { font-family: var(--font-visitor-sans), Arial, sans-serif; }
 
 /* Sparse binary signals frame the text; no timers, canvas, or moving layout. */
 .visitor-header-signals {
@@ -696,7 +695,7 @@ html[data-visitor-font="sans"] .visitor-page .visitor-serif {
 .visitor-header-signal {
   position: absolute;
   display: block;
-  font-family: var(--font-plex-mono), monospace;
+  font-family: var(--font-visitor-mono), monospace;
   font-weight: 500;
   line-height: 1;
   opacity: 0;
@@ -721,13 +720,13 @@ html[data-visitor-font="sans"] .visitor-page .visitor-serif {
    masked away from the edges so they never crowd the hairline. */
 .visitor-side-signals {
   position: absolute;
-  inset: 0 28px;
+  inset: 0 16px 0 24px;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
   user-select: none;
   color: var(--color-ink);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 46%, transparent 86%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 44%, transparent 84%);
 }
 .visitor-side-signals .visitor-header-signal { --signal-opacity: .1; }
 .visitor-side-nav > *:not(.visitor-side-signals) { position: relative; z-index: 1; }
@@ -811,23 +810,6 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 24' preserveAspectRatio='none'%3E%3Cpath d='M3 5 74 3 156 4 242 2 326 4 397 2 400 19 324 22 246 20 161 23 78 21 0 23Z' fill='%23f1d45c' fill-opacity='.25'/%3E%3Cpath d='M1 10 98 7 206 8 310 6 398 8 398 17 301 19 192 17 92 20 2 19Z' fill='%23f1d45c' fill-opacity='.08'/%3E%3C/svg%3E");
 }
 
-/* Paired colours retain contrast in both themes without changing a note on refresh. */
-.visitor-page [data-initial-tone="0"] { --note-initial: #a33e43; --note-initial-dark: #f39b9f; }
-.visitor-page [data-initial-tone="1"] { --note-initial: #35676d; --note-initial-dark: #8fced1; }
-.visitor-page [data-initial-tone="2"] { --note-initial: #73508d; --note-initial-dark: #c8ace6; }
-.visitor-page [data-initial-tone="3"] { --note-initial: #875d20; --note-initial-dark: #e0bf80; }
-.visitor-page [data-initial-tone="4"] { --note-initial: #476b44; --note-initial-dark: #a8cca1; }
-.visitor-page [data-initial-tone="5"] { --note-initial: #914a6c; --note-initial-dark: #e4a5c3; }
-.visitor-note-initial::first-letter,
-.visitor-article-intro > div > :first-child::first-letter {
-  font-weight: 700;
-  color: var(--note-initial, var(--color-accent));
-}
-html[data-visitor-theme="dark"] .visitor-note-initial::first-letter,
-html[data-visitor-theme="dark"] .visitor-article-intro > div > :first-child::first-letter {
-  color: var(--note-initial-dark, var(--color-accent));
-}
-
 /*
  * The reader fills the window instead of scrolling the page.
  *
@@ -870,6 +852,68 @@ html[data-visitor-theme="dark"] .visitor-article-intro > div > :first-child::fir
   margin-left: 1px;
   border-radius: 999px;
   background: var(--color-accent);
+}
+
+/*
+ * The pull-to-refresh indicator: a small pill that descends from the top edge as the finger pulls,
+ * in the brand's two digits. Its travel is the pull itself (`--ptr-pull`), so it tracks the finger;
+ * once released and refreshing it holds at the threshold and the digits take turns, the same
+ * flicker as the mark. Fixed, so it sits over the page's own rubber-band on iOS.
+ */
+.visitor-ptr {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 12px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  box-shadow: 0 6px 20px -8px rgb(0 0 0 / .18);
+  opacity: 0;
+  transform: translate(-50%, calc(var(--ptr-pull, 0px) - 100%)) scale(calc(.9 + .1 * var(--ptr-progress, 0)));
+  transition: opacity 160ms ease, transform 0ms;
+  pointer-events: none;
+}
+.visitor-ptr[data-visible] { opacity: 1; }
+.visitor-ptr[data-refreshing] { transition: opacity 160ms ease, transform 220ms cubic-bezier(.2, .8, .2, 1); }
+.visitor-ptr:not([data-visible]) { transition: opacity 200ms ease, transform 260ms cubic-bezier(.2, .8, .2, 1); }
+
+.visitor-ptr-bits {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--color-ink);
+  color: var(--color-ink-contrast);
+  font-family: var(--font-visitor-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+.visitor-ptr-bit { grid-area: 1 / 1; }
+/* Before release the digits show progress: the 0 gives way to the 1 as the threshold nears. */
+.visitor-ptr-bit:first-child { opacity: calc(1 - var(--ptr-progress, 0)); }
+.visitor-ptr-bit:last-child { opacity: var(--ptr-progress, 0); }
+.visitor-ptr[data-refreshing] .visitor-ptr-bit:first-child { animation: brand-bit-initial 1s steps(1, end) infinite; }
+.visitor-ptr[data-refreshing] .visitor-ptr-bit:last-child { animation: brand-bit-alternate 1s steps(1, end) infinite; }
+
+.visitor-ptr-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visitor-ptr[data-refreshing] .visitor-ptr-bit { animation: none; }
+  .visitor-ptr[data-refreshing] .visitor-ptr-bit:last-child { opacity: 1; }
+  .visitor-ptr[data-refreshing] .visitor-ptr-bit:first-child { opacity: 0; }
 }
 
 /* Landing on a note from a link should not tuck it under the top of the window. */
@@ -1003,11 +1047,12 @@ html[data-visitor-theme="dark"] .visitor-article-intro > div > :first-child::fir
   display: block;
   min-width: 0;
   max-width: 100%;
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
-  font-size: 20px;
-  font-weight: 700;
+  font-family: var(--font-visitor-mono), ui-monospace, monospace;
+  /* The mono cut runs wide; a size down and tighter tracking keep the name inside the rail's margin. */
+  font-size: 19px;
+  font-weight: 650;
   line-height: 1.2;
-  letter-spacing: -.02em;
+  letter-spacing: -.035em;
   white-space: nowrap;
   color: var(--color-ink);
 }

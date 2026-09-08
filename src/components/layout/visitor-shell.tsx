@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { LanguageLink } from "@/components/features/visitor/language-link";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
+import { PullToRefresh } from "@/components/features/visitor/pull-to-refresh";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { VisitorSideNav } from "@/components/features/visitor/side-nav";
@@ -128,6 +129,7 @@ export async function VisitorShell({
         <VisitorFooter siteName={siteName} language={language} />
       </div>
       <ServiceWorkerRegistrar language={language} publicKey={publicKey} />
+      <PullToRefresh language={language} />
       <InstallBanner language={language} />
     </div>
   );

@@ -23,7 +23,7 @@ import {
  * every load, and reflow under the reader.
  */
 export function FontScript() {
-  const script = `(function(){try{var e=document.documentElement;var f=localStorage.getItem(${JSON.stringify(storageKey)});e.setAttribute(${JSON.stringify(fontAttribute)},f==="sans"||f==="serif"?f:"hyperlegible");var s=localStorage.getItem(${JSON.stringify(sizeStorageKey)});e.setAttribute(${JSON.stringify(textSizeAttribute)},s==="small"||s==="large"?s:"normal");}catch(e){}})();`;
+  const script = `(function(){try{var e=document.documentElement;var f=localStorage.getItem(${JSON.stringify(storageKey)});e.setAttribute(${JSON.stringify(fontAttribute)},f==="serif"?f:"hyperlegible");var s=localStorage.getItem(${JSON.stringify(sizeStorageKey)});e.setAttribute(${JSON.stringify(textSizeAttribute)},s==="small"||s==="large"?s:"normal");}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 

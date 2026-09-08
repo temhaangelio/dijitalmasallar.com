@@ -17,13 +17,15 @@ const sideNavIcons = { "/": Newspaper, "/about": Info, "/favoriler": Bookmark } 
 
 /** The masthead's binary signals, re-placed for a tall column. Fixed positions: no hydration drift. */
 const sideSignals = [
-  { value: "1", left: 4, top: 3, size: 58, opacity: .12 },
-  { value: "0", left: 62, top: 8, size: 46, opacity: .1 },
-  { value: "0", left: 26, top: 19, size: 40, opacity: .09 },
-  { value: "1", left: 74, top: 27, size: 52, opacity: .11 },
-  { value: "1", left: 10, top: 38, size: 36, opacity: .07 },
-  { value: "0", left: 52, top: 47, size: 44, opacity: .06 },
-  { value: "1", left: 30, top: 62, size: 34, opacity: .05 },
+  // The top-right corner and the band between the tagline and the navigation: the two places the
+  // rail leaves empty, so a glyph never sits behind a word.
+  { value: "1", left: 80, top: 1, size: 64, opacity: .11 },
+  { value: "0", left: 84, top: 14, size: 40, opacity: .08 },
+  { value: "0", left: 8, top: 27, size: 56, opacity: .1 },
+  { value: "1", left: 46, top: 30, size: 44, opacity: .08 },
+  { value: "1", left: 74, top: 36, size: 36, opacity: .06 },
+  { value: "0", left: 24, top: 62, size: 40, opacity: .05 },
+  { value: "1", left: 62, top: 70, size: 32, opacity: .045 },
 ];
 
 /**

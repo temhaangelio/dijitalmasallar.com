@@ -1,5 +1,4 @@
 import { ZoomableImage } from "@/components/features/visitor/zoomable-image";
-import { noteInitialTone } from "@/lib/note-initial";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { splitAfterFirstParagraph } from "@/lib/post-content";
@@ -126,7 +125,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[640px] pt-4 sm:pt-6">
-        <article data-initial-tone={noteInitialTone(post.id)} className="visitor-card visitor-article">
+        <article className="visitor-card visitor-article">
           <div className="px-4 py-5 sm:px-6 sm:py-6">
         <header className="visitor-sans mb-5 flex items-center justify-between gap-3 border-b border-line pb-4 sm:mb-6">
           <Link href={languageHref("/", language)} className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md pr-2 text-[13px] font-medium text-muted transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent">

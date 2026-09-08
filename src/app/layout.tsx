@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible, IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
+import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { AccentScript } from "@/components/features/visitor/accent-script";
 import { AppToaster } from "@/components/ui/toast";
@@ -19,12 +19,17 @@ import { siteUrl } from "@/lib/seo";
  *
  * `latin-ext` carries ğ, ş, İ, Ğ, Ş so Turkish never falls back to a second typeface.
  */
-const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap" });
-const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-plex-mono", display: "swap" });
-const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap" });
-/* The default reading face, so it is preloaded like the rest. Source Serif stays loaded for the
-   readers who switch to it in Settings. */
-const hyperlegible = Atkinson_Hyperlegible({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-hyperlegible", display: "swap" });
+/*
+ * The public site is set in one family: Atkinson Hyperlegible Next for everything that is read
+ * and touched, and its mono cut for the wordmark and the brand's digits. Plex remains for the admin
+ * panel alone and is not preloaded, so a reader never downloads it; Source Serif stays as the
+ * optional reading face a reader can choose in Settings.
+ */
+const visitorSans = Atkinson_Hyperlegible_Next({ subsets: ["latin", "latin-ext"], variable: "--font-visitor-sans", display: "swap" });
+const visitorMono = Atkinson_Hyperlegible_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-visitor-mono", display: "swap" });
+const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap", preload: false });
+const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap", preload: false });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-plex-mono", display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -73,7 +78,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="tr" suppressHydrationWarning>
       <head><ThemeScript /><FontScript /><AccentScript /><InstallScript /></head>
-      <body className={`${plexSans.variable} ${plexMono.variable} ${sourceSerif.variable} ${hyperlegible.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable} ${plexSans.variable} ${plexMono.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );
 }

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { ZoomableImage } from "@/components/features/visitor/zoomable-image";
-import { noteInitialTone } from "@/lib/note-initial";
 import { splitAfterFirstParagraph } from "@/lib/post-content";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -110,7 +109,7 @@ export function NoteCard({ post, language, highlight, priority = false, latest =
     </ZoomableImage>
   ) : null;
   return (
-    <article data-initial-tone={noteInitialTone(post.id)} className={`visitor-card group relative transition-colors hover:border-line-strong${grid ? " xl:flex xl:flex-1 xl:flex-col" : ""}`}>
+    <article className={`visitor-card group relative transition-colors hover:border-line-strong${grid ? " xl:flex xl:flex-1 xl:flex-col" : ""}`}>
       <div className={`min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6${featured && post.cover_path ? " xl:grid xl:grid-cols-2 xl:items-start xl:gap-x-8 xl:px-7 xl:pt-7" : ""}${grid ? " xl:flex xl:flex-col xl:px-5 xl:pt-5" : ""}`}>
         <time
           dateTime={publishedAt}

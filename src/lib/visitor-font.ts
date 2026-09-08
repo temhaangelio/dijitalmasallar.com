@@ -5,25 +5,24 @@
  * pre-paint script and the settings sheet both need these names, and a `"use client"` module's
  * exports reach a Server Component as client references rather than as their values.
  *
- * Three faces, all chosen for legibility at a reading size rather than for character:
- * `hyperlegible` is Atkinson Hyperlegible — drawn by the Braille Institute to keep confusable
- * letterforms (I l 1, O 0) apart for low-vision readers — and it is the default; `serif` is
- * Source Serif 4; `sans` is IBM Plex Sans, already loaded for the interface.
+ * Two faces. `hyperlegible` is Atkinson Hyperlegible Next — the site's one family, drawn by the
+ * Braille Institute to keep confusable letterforms (I l 1, O 0) apart — and it is the default;
+ * `serif` is Source Serif 4 for readers who want a serif for long reads. (A stored `sans` from an
+ * earlier build falls back to the default.)
  */
 
-export type ReadingFont = "serif" | "sans" | "hyperlegible";
+export type ReadingFont = "hyperlegible" | "serif";
 
 export const fontStorageKey = "diji-news-font";
 export const fontAttribute = "data-visitor-font";
 
 export const readingFonts: { value: ReadingFont; label: { tr: string; en: string } }[] = [
-  { value: "hyperlegible", label: { tr: "Yüksek okunur", en: "Hyperlegible" } },
+  { value: "hyperlegible", label: { tr: "Sans", en: "Sans" } },
   { value: "serif", label: { tr: "Serif", en: "Serif" } },
-  { value: "sans", label: { tr: "Sans", en: "Sans" } },
 ];
 
 export function isReadingFont(value: string | null | undefined): value is ReadingFont {
-  return value === "serif" || value === "sans" || value === "hyperlegible";
+  return value === "hyperlegible" || value === "serif";
 }
 
 /**
