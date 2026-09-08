@@ -1,19 +1,15 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import { Fragment } from "react";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
-import { briefHeading, briefItems, DailyBrief } from "@/components/features/visitor/daily-brief";
-import { FeedRail, type FeedRailDay } from "@/components/features/visitor/feed-rail";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
-import { getBriefPosts, getPosts } from "@/services/posts";
+import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
-import { dateKey, dateLabel, fullDateLabel, timeLabel } from "@/lib/visitor-date";
+import { dateKey } from "@/lib/visitor-date";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
-import { selectDailyBrief } from "@/lib/daily-brief";
 import type { Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -46,33 +42,53 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
+/**
+ * On wide screens the ad is one cell of the grid and is built like the note beside it: the same
+ * label row over the card, the same 16:9 picture, the same type sizes, the same footer at the
+ * foot — so a row of two never has one card taller than the other.
+ */
+/**
+ * An ad takes exactly the shape of a note: the same card, the same cover, the same measure of type,
+ * so a row of two never has one cell larger than the other. Only the label and the closing line —
+ * the sponsor's call to action in place of a source — say which is which.
+ */
 function AdCard({ ad }: { ad: Advertisement }) {
   return (
-    <a
-      href={ad.target_url}
-      target="_blank"
-      rel="sponsored noopener noreferrer"
-      aria-label={`${ad.label}: ${ad.title}`}
-      className="visitor-card group block transition-colors hover:border-line-strong"
-    >
-      {ad.image_url ? (
-        <div className="relative aspect-[2/1] w-full overflow-hidden bg-surface-3">
-          {isOptimizableImage(ad.image_url)
-            ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 767px) 100vw, 640px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
-            // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
-            : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
-        </div>
-      ) : null}
+    <div className="xl:flex xl:flex-col">
+      <a
+        href={ad.target_url}
+        target="_blank"
+        rel="sponsored noopener noreferrer"
+        aria-label={`${ad.label}: ${ad.title}`}
+        className="visitor-card group block transition-colors hover:border-line-strong xl:flex xl:flex-1 xl:flex-col"
+      >
+        <div className="min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6 xl:flex xl:flex-col xl:px-5 xl:pt-5">
+          {ad.image_url ? (
+            <div className="relative mb-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
+              {isOptimizableImage(ad.image_url)
+                ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 680px) calc(100vw - 72px), (min-width: 1280px) 430px, 590px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
+                // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
+                : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
+            </div>
+          ) : null}
 
-      <div className="px-4 py-4 sm:px-6 sm:py-5">
-        <span className="visitor-sans text-[10px] font-medium uppercase tracking-[.18em] text-accent">{ad.label}</span>
-        <h2 className="visitor-serif mt-3 text-[20px] font-semibold leading-[1.28] tracking-[-.02em] text-ink transition-colors group-hover:text-accent sm:text-[23px]">{ad.title}</h2>
-        <p className="visitor-copy visitor-serif mt-3 whitespace-pre-line text-[18px] font-normal leading-[1.52] text-ink [text-wrap:pretty] sm:text-[21px] sm:leading-[1.5]">{ad.description}</p>
-        <div className="mt-4 flex justify-end">
-          <span className="visitor-source border-b border-line pb-0.5 visitor-sans text-[11px] font-normal leading-[1.6] text-muted transition-colors group-hover:border-accent group-hover:text-accent">{ad.cta_label} ↗</span>
+          <span className="visitor-note-time visitor-sans">{ad.label}</span>
+
+          <h2 className="visitor-note-body visitor-copy visitor-serif block text-[18px] font-normal leading-[1.65] text-ink transition-colors [text-wrap:pretty] group-hover:text-accent sm:text-[20px] sm:leading-[1.6]">{ad.title}</h2>
+
+          {ad.description ? (
+            <p className="visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty] sm:text-[20px] sm:leading-[1.6] xl:mt-3 xl:line-clamp-6">{ad.description}</p>
+          ) : null}
+
+          <div className="mt-5 flex min-w-0 items-center justify-between gap-3 pt-2 visitor-sans text-[12px] font-normal leading-[1.6] xl:mt-auto xl:pt-1">
+            <span className="visitor-source min-w-0 truncate text-muted transition-colors group-hover:text-accent">
+              {ad.cta_label}
+              <svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg>
+            </span>
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
+    </div>
   );
 }
 
@@ -95,7 +111,7 @@ function createAdSlots(postCount: number, ads: Advertisement[]) {
  * The flat feed position travels with every note, because the ad slots were drawn
  * against the ungrouped list and must not shift when the notes are bucketed.
  */
-/** The rail links to these, so the id is derived in one place rather than spelled out twice. */
+/** Each note carries an anchor, so a link can land on it. */
 function noteAnchorId(postId: string) {
   return `not-${postId}`;
 }
@@ -121,30 +137,14 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
   // One extra row is enough to decide whether the automatic "more notes" control is needed.
   const fetchCount = Math.min(visiblePostCount + 1, 500);
-  const now = new Date();
-  const yesterdayKey = dateKey(new Date(now.getTime() - 86_400_000).toISOString());
-  const [postData, ads, briefCandidates] = await Promise.all([
+  const [postData, ads] = await Promise.all([
     getPosts(1, fetchCount, language),
     settings.moduleAds ? getActiveAds(language) : Promise.resolve([]),
-    getBriefPosts(new Date(`${yesterdayKey}T00:00:00+03:00`).toISOString(), now.toISOString(), language),
   ]);
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
   const postDays = groupPostsByDay(posts);
-  const railDays: FeedRailDay[] = postDays.map((day) => ({
-    key: day.key,
-    label: dateLabel(day.publishedAt, language),
-    fullLabel: fullDateLabel(day.publishedAt, language),
-    items: day.items.map(({ post }) => {
-      const publishedAt = post.published_at ?? post.created_at;
-      return { id: noteAnchorId(post.id), time: timeLabel(publishedAt, language), title: postHeadline(post) };
-    }),
-  }));
-  const { posts: briefPosts, isYesterday: isYesterdayBrief } = selectDailyBrief(briefCandidates, now);
-  const showDailyBrief = briefPosts.length > 0;
-  const briefCount = briefItems(briefPosts).length;
-  const briefDate = briefPosts[0]?.published_at ?? briefPosts[0]?.created_at ?? now.toISOString();
   const adSlots = createAdSlots(posts.length, ads);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
@@ -192,64 +192,36 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   };
 
   return (
-    <VisitorShell
-      language={language}
-      siteName={settings.siteName}
-      brief={showDailyBrief && briefCount ? { label: briefHeading(language, isYesterdayBrief), count: briefCount } : undefined}
-    >
+    <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
-      <main className="relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
-        {/* Anchored to the column, not to the window: the rail begins level with the daily brief —
-            the first thing in the feed — and follows from there. */}
-        {posts.length > 1 ? <FeedRail days={railDays} label={language === "en" ? "Day index" : "Gün cetveli"} /> : null}
+      <main className="visitor-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
         <div>
         {posts.length ? (
           <>
-          {showDailyBrief ? <DailyBrief posts={briefPosts} language={language} date={briefDate} dateLabel={dateLabel(briefDate, language)} yesterday={isYesterdayBrief} /> : null}
-          {postDays.map((day, dayIndex) => (
-          <section key={day.key} aria-label={fullDateLabel(day.publishedAt, language)} className={dayIndex ? "mt-16" : ""}>
-            {/*
-              The heading scrolls away with its day rather than pinning to the top. Pinned, it hung
-              over the notes with the feed sliding underneath it, and on iOS it sat in the strip
-              behind the status bar where the page shows through.
-            */}
-            {dayIndex === 0 && showDailyBrief && !isYesterdayBrief ? null : <div className="pb-3">
-              <div className="flex items-center gap-3 sm:gap-3.5">
-                <span
-                  title={fullDateLabel(day.publishedAt, language)}
-                  className="shrink-0 visitor-sans text-[10px] font-medium leading-none uppercase tracking-[.2em] text-accent sm:text-[11px]"
-                >
-                  {dateLabel(day.publishedAt, language)}
-                </span>
-                <span className="h-px min-w-6 flex-1 bg-line-strong" aria-hidden="true" />
-              </div>
-            </div>}
+          {/*
+            One list, two shapes.
 
-
-            <div className={`${dayIndex === 0 && showDailyBrief ? "" : "mt-5"} flex flex-col gap-7 sm:gap-9`}>
-              {day.items.map(({ post, position }) => {
-                const publishedAt = post.published_at ?? post.created_at;
-                return (
-                  <Fragment key={post.id}>
-                    <div id={noteAnchorId(post.id)} className="visitor-note-anchor group/note relative">
-                      <time
-                        dateTime={publishedAt}
-                        title={fullDateLabel(publishedAt, language)}
-                        className="mb-2.5 inline-flex items-center visitor-sans text-[11px] font-medium leading-none tabular-nums text-accent sm:mb-3 sm:text-[12px]"
-                      >
-                        {timeLabel(publishedAt, language)}
-                        {position === 0 ? <span className="ml-2 size-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" /> : null}
-                      </time>
-                      <NoteCard post={post} language={language} priority={position === 0} />
-                    </div>
-                    {adSlots.has(position) && <AdCard ad={adSlots.get(position)!} />}
-                  </Fragment>
+            On the phone it is a single column; from 1280px the same list becomes two columns of
+            equal cards — no wide opener, no rhythm to keep, so a day boundary can fall anywhere.
+            Ads take a cell like any note. Every card carries its own date and time.
+          */}
+          <div className="flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
+            {(() => {
+              return postDays.flatMap((day) => day.items.flatMap(({ post, position }) => {
+                const nodes = [];
+                nodes.push(
+                  <div key={post.id} id={noteAnchorId(post.id)} className="visitor-note-anchor group/note relative xl:flex xl:flex-col">
+                    <NoteCard post={post} language={language} priority={position === 0} latest={position === 0} layout="grid" />
+                  </div>,
                 );
-              })}
-            </div>
-          </section>
-          ))}
+                if (adSlots.has(position)) {
+                  nodes.push(<AdCard key={`ad-${position}`} ad={adSlots.get(position)!} />);
+                }
+                return nodes;
+              }));
+            })()}
+          </div>
           </>
         ) : (
           <div className="visitor-panel visitor-muted rounded-[14px] border border-dashed border-line-strong/80 px-6 py-16 text-center">

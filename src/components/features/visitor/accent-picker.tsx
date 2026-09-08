@@ -24,6 +24,13 @@ function choose(value: AccentPreference) {
   window.dispatchEvent(new Event(accentChangedEvent));
 }
 
+/** Used by the settings sheet's reset: drop the stored accent so it follows the theme again. */
+export function resetAccent() {
+  document.documentElement.setAttribute(accentAttribute, "auto");
+  try { localStorage.removeItem(accentStorageKey); } catch { /* Storage may be unavailable. */ }
+  window.dispatchEvent(new Event(accentChangedEvent));
+}
+
 export function AccentPicker({ language }: { language: VisitorLanguage }) {
   const selected = useSyncExternalStore(subscribe, snapshot, () => "red");
   return (

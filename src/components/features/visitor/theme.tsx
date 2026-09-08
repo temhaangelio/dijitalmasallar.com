@@ -99,6 +99,11 @@ function setPreference(preference: ThemePreference) {
   listeners.forEach((listener) => listener());
 }
 
+/** Used by the settings sheet's reset: back to following the operating system. */
+export function resetTheme() {
+  setPreference("system");
+}
+
 const options: { value: ThemePreference; label: { tr: string; en: string } }[] = [
   { value: "light", label: { tr: "Açık", en: "Light" } },
   { value: "dark", label: { tr: "Koyu", en: "Dark" } },

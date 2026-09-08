@@ -37,6 +37,12 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
   images: {
+    // Next 16 refuses a local `src` with a query string unless it is listed. Plain local paths stay
+    // allowed by the first entry; the second is the install banner's cache-busted app icon.
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/icon-192.png", search: "?v=6" },
+    ],
     remotePatterns: imageHost
       ? [{ protocol: "https", hostname: imageHost, pathname: storagePath }]
       : [{ protocol: "https", hostname: "**.supabase.co", pathname: storagePath }],

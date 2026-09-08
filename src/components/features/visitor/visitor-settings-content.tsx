@@ -1,10 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AccentPicker } from "@/components/features/visitor/accent-picker";
+import { AccentPicker, resetAccent } from "@/components/features/visitor/accent-picker";
+import { FontPicker, resetReading, TextSizePicker } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
 import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
-import { ThemePicker } from "@/components/features/visitor/theme";
+import { resetTheme, ThemePicker } from "@/components/features/visitor/theme";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 
 export default function VisitorSettingsContent({ language, pushPublicKey, onClose }: {
@@ -25,6 +26,14 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
             <ThemePicker language={language} />
           </div>
           <div className="space-y-2">
+            <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Reading font" : "Yazı tipi"}</h3>
+            <FontPicker language={language} />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Text size" : "Yazı boyutu"}</h3>
+            <TextSizePicker language={language} />
+          </div>
+          <div className="space-y-2">
             <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Accent color" : "Vurgu rengi"}</h3>
             <AccentPicker language={language} />
           </div>
@@ -35,6 +44,14 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
                 <PushToggle language={language} publicKey={pushPublicKey} />
               </div>
             ) : null}
+            <button
+              type="button"
+              onClick={() => { resetTheme(); resetReading(); resetAccent(); }}
+              className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg text-left text-[13px] text-muted transition-colors hover:text-ink"
+            >
+              {isEnglish ? "Reset appearance" : "Görünümü sıfırla"}
+              <span className="visitor-sans text-[11px] text-faint">{isEnglish ? "Defaults" : "Varsayılan"}</span>
+            </button>
             <details className="group/install">
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-lg text-[13px] text-muted transition-colors hover:text-ink [&::-webkit-details-marker]:hidden">
                 {isEnglish ? "Add to home screen" : "Ana ekrana ekle"}

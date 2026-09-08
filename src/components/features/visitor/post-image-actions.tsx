@@ -109,7 +109,7 @@ export function PostImageActions({
   return (
     <div className={`${placementClass} z-20 flex items-center overflow-hidden rounded-full`}>
       <button type="button" onClick={sharePost} aria-label={shareLabel} title={shareLabel} className={`${buttonClass} rounded-full`}>
-        <Share2 className="size-[17px]" strokeWidth={1.8} aria-hidden="true" />
+        <Share2 className="size-[21px]" strokeWidth={1.7} aria-hidden="true" />
       </button>
       {placement === "overlay" ? <span className="h-5 w-px bg-line-strong/80" aria-hidden="true" /> : null}
       <button
@@ -120,7 +120,7 @@ export function PostImageActions({
         aria-pressed={favorite}
         className={`${buttonClass} rounded-full ${favorite ? "bg-surface-2 text-accent" : ""}`}
       >
-        <Bookmark className={`size-[17px] ${favorite ? "fill-current" : ""}`} strokeWidth={1.8} aria-hidden="true" />
+        <Bookmark className={`size-[21px] ${favorite ? "fill-current" : ""}`} strokeWidth={1.7} aria-hidden="true" />
       </button>
     </div>
   );

@@ -208,7 +208,7 @@ function usePushSubscription(language: VisitorLanguage, publicKey: string) {
  * The bell in the nav: one tap to start getting notes, one to stop. It keeps its place next to search
  * while the browser state is being resolved, and explains states that require action elsewhere.
  */
-export function PushNavButton({ language, publicKey }: { language: VisitorLanguage; publicKey: string }) {
+export function PushNavButton({ language, publicKey, showLabel = false }: { language: VisitorLanguage; publicKey: string; /** The wide-screen rail names its controls; the phone header shows the glyph alone. */ showLabel?: boolean }) {
   const { state, pending, turnOn, turnOff } = usePushSubscription(language, publicKey);
   const isEnglish = language === "en";
   const configured = Boolean(publicKey);
@@ -259,6 +259,7 @@ export function PushNavButton({ language, publicKey }: { language: VisitorLangua
       className="visitor-top-control disabled:cursor-not-allowed disabled:opacity-55"
     >
       {configured && (pending || state === "loading") ? <LoaderCircle size={18} strokeWidth={1.8} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : on ? <BellRing size={18} strokeWidth={1.8} aria-hidden="true" /> : state === "blocked" ? <BellOff size={18} strokeWidth={1.8} aria-hidden="true" /> : <Bell size={18} strokeWidth={1.8} aria-hidden="true" />}
+      {showLabel ? <span className="visitor-tool-label visitor-sans">{isEnglish ? "Notifications" : "Bildirimler"}</span> : null}
     </button>
   );
 }

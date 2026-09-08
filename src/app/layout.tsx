@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
+import { Atkinson_Hyperlegible, IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { AccentScript } from "@/components/features/visitor/accent-script";
 import { AppToaster } from "@/components/ui/toast";
 import { InstallScript } from "@/components/features/visitor/push";
 import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytics";
 import { ThemeScript } from "@/components/features/visitor/theme";
+import { FontScript } from "@/components/features/visitor/font";
 import { siteUrl } from "@/lib/seo";
 
 /*
@@ -21,6 +22,9 @@ import { siteUrl } from "@/lib/seo";
 const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap" });
 const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-plex-mono", display: "swap" });
 const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap" });
+/* The default reading face, so it is preloaded like the rest. Source Serif stays loaded for the
+   readers who switch to it in Settings. */
+const hyperlegible = Atkinson_Hyperlegible({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-hyperlegible", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -68,8 +72,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The dark tokens themselves only apply inside `.visitor-page`.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /><AccentScript /><InstallScript /></head>
-      <body className={`${plexSans.variable} ${plexMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <head><ThemeScript /><FontScript /><AccentScript /><InstallScript /></head>
+      <body className={`${plexSans.variable} ${plexMono.variable} ${sourceSerif.variable} ${hyperlegible.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );
 }

@@ -42,7 +42,6 @@ export async function VisitorShell({
   showHeader = true,
   compact = false,
   reading = false,
-  brief,
 }: {
   language: VisitorLanguage;
   siteName: string;
@@ -51,8 +50,6 @@ export async function VisitorShell({
   /** Drops the tagline. A story page has its own subject; the site's pitch is not it. */
   compact?: boolean;
   reading?: boolean;
-  /** The feed's daily brief, so the margin navigation can reach it from anywhere on the page. */
-  brief?: { label: string; count: number };
 }) {
   const settings = await getSiteSettings();
   const description = language === "en" ? settings.descriptionEn : settings.description;
@@ -68,7 +65,7 @@ export async function VisitorShell({
   // empty key the toggle can register the worker but never subscribe.
   const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
   return (
-    <div lang={language} className="visitor-page relative flex min-h-screen flex-col items-center overflow-x-clip bg-canvas px-4 pb-10 text-ink sm:px-8">
+    <div lang={language} className={`visitor-page relative flex min-h-screen flex-col items-center overflow-x-clip bg-canvas px-4 pb-10 text-ink sm:px-8${showHeader && !reading ? " visitor-page-split" : ""}`}>
       {themePreference === "dark" || themePreference === "light"
         ? <meta name="theme-color" content={themePreference === "dark" ? darkThemeColor : lightThemeColor} />
         : <>
@@ -84,7 +81,7 @@ export async function VisitorShell({
         header carries two alignments at once this way, and the site states its identity twice — as
         a glyph in the corner and as a logotype in the middle.
       */}
-      <nav className="visitor-nav relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
+      <nav className="visitor-nav visitor-masthead relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
         {!reading && <div className="visitor-header-signals" aria-hidden="true">
           {headerSignals.map((signal, index) => <span key={index} className="visitor-header-signal" style={{
             left: `${signal.left}%`, top: `${signal.top}%`, fontSize: `${signal.size}px`,
@@ -118,16 +115,18 @@ export async function VisitorShell({
         </Link>}
 
         {compact || reading ? null : (
-          <p className="visitor-copy visitor-serif mt-4 max-w-[42ch] text-[16px] font-normal leading-[1.6] text-ink-2 [text-wrap:balance] sm:mt-5 sm:text-[19px]"><span className="visitor-slogan-highlight">{description}</span></p>
+          <p className="visitor-copy visitor-serif mt-4 max-w-[42ch] text-[16px] font-normal leading-[1.6] text-ink-2 [text-wrap:balance] sm:mt-5 sm:text-[19px]">{description}</p>
         )}
 
         {reading ? null : <VisitorHeaderNav language={language} />}
       </nav>
-      {/* Wide screens only, and only once the masthead above has scrolled out of the window. */}
-      {reading ? null : <VisitorSideNav language={language} siteName={siteName} showPush={settings.modulePush} pushPublicKey={publicKey} brief={brief} />}
+      {/* Wide screens only: from 1280px the centred masthead is hidden and this column replaces it. */}
+      {reading ? null : <VisitorSideNav language={language} siteName={siteName} description={description} showPush={settings.modulePush} pushPublicKey={publicKey} />}
       </> : null}
-      {children}
-      <VisitorFooter siteName={siteName} language={language} />
+      <div className="visitor-content flex w-full flex-col items-center">
+        {children}
+        <VisitorFooter siteName={siteName} language={language} />
+      </div>
       <ServiceWorkerRegistrar language={language} publicKey={publicKey} />
       <InstallBanner language={language} />
     </div>
