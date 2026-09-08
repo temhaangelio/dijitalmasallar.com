@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { Bookmark, Info, Newspaper } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/ui/brand-mark";
@@ -10,6 +11,9 @@ import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
 const sideNavPaths = new Set(["/", "/about", "/favoriler"]);
+
+/** One glyph per row, from the same set as the controls at the foot of the rail. */
+const sideNavIcons = { "/": Newspaper, "/about": Info, "/favoriler": Bookmark } as const;
 
 /** The masthead's binary signals, re-placed for a tall column. Fixed positions: no hydration drift. */
 const sideSignals = [
@@ -68,11 +72,12 @@ export function VisitorSideNav({
         <BrandMark className="visitor-logo-mark visitor-side-brand-mark block" />
         <span className="visitor-side-brand-name">{siteName}</span>
       </Link>
-      {description ? <p className="visitor-side-tagline visitor-copy visitor-serif">{description}</p> : null}
+      {description ? <p className="visitor-side-tagline visitor-copy visitor-sans">{description}</p> : null}
 
       <nav aria-label={language === "en" ? "Main navigation" : "Ana navigasyon"} className="visitor-side-links">
         {visitorNavItems.filter((item) => sideNavPaths.has(item.href)).map((item) => {
           const current = pathname === item.href;
+          const Icon = sideNavIcons[item.href as keyof typeof sideNavIcons];
           return (
             <Link
               key={item.href}
@@ -80,6 +85,7 @@ export function VisitorSideNav({
               aria-current={current ? "page" : undefined}
               className="visitor-nav-link visitor-side-link visitor-sans"
             >
+              <Icon className="visitor-side-link-icon" size={22} strokeWidth={1.7} aria-hidden="true" />
               {item[language]}
             </Link>
           );

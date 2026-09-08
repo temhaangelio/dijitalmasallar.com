@@ -130,7 +130,7 @@ export function NoteCard({ post, language, highlight, priority = false, latest =
         </Link>
         {cover}
         {rest.length > 0 ? (
-          <div className={`visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] leading-[1.65] text-ink sm:text-[20px] sm:leading-[1.6]${grid ? " xl:mt-3 xl:line-clamp-6" : ""}${featured ? " xl:col-start-1" : ""}`}>
+          <div className={`visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] leading-[1.65] text-ink sm:text-[20px] sm:leading-[1.6]${grid ? " xl:mt-3" : ""}${featured ? " xl:col-start-1" : ""}`}>
             {rest}
           </div>
         ) : null}

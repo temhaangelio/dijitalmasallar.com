@@ -77,7 +77,7 @@ function AdCard({ ad }: { ad: Advertisement }) {
           <h2 className="visitor-note-body visitor-copy visitor-serif block text-[18px] font-normal leading-[1.65] text-ink transition-colors [text-wrap:pretty] group-hover:text-accent sm:text-[20px] sm:leading-[1.6]">{ad.title}</h2>
 
           {ad.description ? (
-            <p className="visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty] sm:text-[20px] sm:leading-[1.6] xl:mt-3 xl:line-clamp-6">{ad.description}</p>
+            <p className="visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty] sm:text-[20px] sm:leading-[1.6] xl:mt-3">{ad.description}</p>
           ) : null}
 
           <div className="mt-5 flex min-w-0 items-center justify-between gap-3 pt-2 visitor-sans text-[12px] font-normal leading-[1.6] xl:mt-auto xl:pt-1">

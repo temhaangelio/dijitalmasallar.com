@@ -377,24 +377,32 @@ html[data-visitor-text="large"] { --visitor-text-scale: 1.12; }
   .visitor-page .visitor-note-body { font-size: calc(20px * var(--visitor-text-scale)); }
 }
 
+/* The chosen reading family, named once so anything that should follow the reader's choice — the
+   text itself, the rail's navigation — can take it from here. */
+/* Declared on the page rather than on `:root`: next/font puts `--font-*` on <body>, so a family
+   built from them at the root would reference undefined properties and compute to nothing. */
+.visitor-page { --visitor-reading-family: var(--font-hyperlegible), var(--font-plex-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+html[data-visitor-font="serif"] .visitor-page { --visitor-reading-family: var(--font-source-serif), Georgia, "Apple Color Emoji", "Segoe UI Emoji", serif; }
+html[data-visitor-font="sans"] .visitor-page { --visitor-reading-family: var(--font-plex-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+
 /* The reading face. Atkinson Hyperlegible is the default — it was drawn to keep confusable
    letterforms apart, so it is the safest face to hand a reader who has expressed no preference —
    and Settings → Yazı tipi swaps it for the serif or for the interface sans. Only the text face
    changes: the wordmark stays mono and the interface stays Plex Sans. */
 .visitor-page .visitor-serif {
   /* The text faces carry no emoji, and an emoji in a note would otherwise land as tofu. */
-  font-family: var(--font-hyperlegible), var(--font-plex-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-family: var(--visitor-reading-family);
   letter-spacing: -.005em;
 }
 
 html[data-visitor-font="serif"] .visitor-page .visitor-serif {
-  font-family: var(--font-source-serif), Georgia, "Apple Color Emoji", "Segoe UI Emoji", serif;
+  font-family: var(--visitor-reading-family);
   font-optical-sizing: auto;
   letter-spacing: normal;
 }
 
 html[data-visitor-font="sans"] .visitor-page .visitor-serif {
-  font-family: var(--font-plex-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-family: var(--visitor-reading-family);
 }
 .visitor-page .visitor-markdown > div {
   font-size: calc(18px * var(--visitor-text-scale));
@@ -1005,10 +1013,14 @@ html[data-visitor-theme="dark"] .visitor-article-intro > div > :first-child::fir
 }
 
 /* The tagline with its highlighter stroke, exactly as the phone shows it, left-aligned. */
+/* Set in the interface sans, like the navigation under it: the rail speaks in one voice and stays
+   put when the reader changes the reading face. */
 .visitor-side-tagline {
   margin-top: 18px;
-  font-size: 22px;
+  font-size: 20px;
+  font-weight: 500;
   line-height: 1.45;
+  letter-spacing: -.01em;
   color: var(--color-ink-2);
   text-wrap: pretty;
 }
@@ -1026,20 +1038,28 @@ html[data-visitor-theme="dark"] .visitor-article-intro > div > :first-child::fir
    hairline from the left under the pointer — the masthead's underline, given the full row. */
 .visitor-side-link {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   width: 100%;
-  padding-top: 14px;
-  padding-bottom: 14px;
+  min-height: 46px;
+  padding-block: 8px;
   border-bottom: 1px solid var(--color-line);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--color-muted);
+  /* The same type as the two controls at the foot: one size, one weight, plain case. */
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.005em;
+  color: var(--color-ink-2);
   transition: color 160ms ease;
 }
 .visitor-side-link::before { inset: auto 0 -1px; }
+
+/* The glyph is a shade quieter than the label at rest and follows it into the accent on hover. */
+.visitor-side-link-icon { flex: none; width: 22px; height: 22px; color: var(--color-faint); transition: color 160ms ease; }
+.visitor-side-link:hover .visitor-side-link-icon,
+.visitor-side-link:focus-visible .visitor-side-link-icon,
+.visitor-side-link[aria-current="page"] .visitor-side-link-icon { color: currentColor; }
 .visitor-side-link:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 4px; border-radius: 2px; }
 
 .visitor-side-link:hover,
@@ -1069,11 +1089,14 @@ html[data-visitor-theme="dark"] .visitor-article-intro > div > :first-child::fir
   min-height: 46px;
   padding: 8px 0;
   border-radius: 0;
+  border-bottom: 1px solid var(--color-line);
   color: var(--color-muted);
   transition: color 160ms ease;
 }
 
 .visitor-side-tools .visitor-top-control::before { display: none; }
+/* The last row closes the rail; a rule under it would draw a line against the bottom edge. */
+.visitor-side-tools .visitor-top-control:last-child { border-bottom: 0; }
 
 /* Lucide sizes its glyph inline; the rail wants a larger one than the phone header's 18px. */
 .visitor-side-tools .visitor-top-control > svg { width: 22px; height: 22px; }
