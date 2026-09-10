@@ -82,18 +82,21 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
    */
   if (!hydrated || (!visible.length && loaded?.key !== key)) {
     return (
-      <div className="flex flex-col gap-7 sm:gap-9" role="status" aria-label={isEnglish ? "Loading favorites" : "Favoriler yükleniyor"}>
+      <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5" role="status" aria-label={isEnglish ? "Loading favorites" : "Favoriler yükleniyor"}>
         {/* Shaped like the notes it stands in for — text, then a cover — so the page does not
             jump when the answer arrives. */}
         {[0, 1].map((index) => (
-          <div key={index} className="visitor-card">
-            <div className="flex flex-col gap-3 px-4 py-4 sm:px-6 sm:py-5">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-[92%]" />
-              <Skeleton className="h-4 w-[64%]" />
-              <Skeleton className="mt-3 aspect-video w-full rounded-[10px]" />
-              <Skeleton className="mt-1 h-8 w-24 self-end" />
+          <div key={index} className="visitor-card visitor-note-card visitor-note-card-grid flex flex-col">
+            <div className="visitor-note-content flex-1 px-5 py-5 sm:px-6 sm:py-6 xl:px-5 xl:py-5">
+              <div className="visitor-note-time justify-between"><Skeleton className="h-3 w-24" /><Skeleton className="h-3 w-8" /></div>
+              <div className="visitor-note-initial">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="mt-3 h-4 w-[92%]" />
+                <Skeleton className="mt-3 h-4 w-[64%]" />
+              </div>
+              <Skeleton className="visitor-note-cover mt-3 aspect-video w-full rounded-[10px]" />
             </div>
+            <div className="visitor-note-footer"><Skeleton className="h-3 w-20" /><Skeleton className="h-11 w-24 rounded-full" /></div>
           </div>
         ))}
       </div>
@@ -126,8 +129,8 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
 
   return (
     <>
-      <div className="flex flex-col gap-7 sm:gap-9">
-        {visible.map((post) => <NoteCard key={post.id} post={post} language={language} />)}
+      <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
+        {visible.map((post) => <NoteCard key={post.id} post={post} language={language} layout="grid" />)}
       </div>
       {/* Worth saying once, at the end rather than over the list: this is not an account, and
           clearing the browser clears it. */}

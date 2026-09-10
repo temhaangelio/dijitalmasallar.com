@@ -70,7 +70,7 @@ export function DashboardLoading() {
     <PageHeaderSkeleton actionWidth="w-32" />
     <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-5">{[0, 1, 2].map(index => <div key={index} className="card"><Skeleton className="h-3 w-14" /><Skeleton className="mt-3 h-8 w-16" /></div>)}</div>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(300px,1fr)]">
-      <div className="card"><Skeleton className="mb-6 h-7 w-32" />{[0, 1, 2, 3].map(index => <div key={index} className="space-y-3 py-4"><Skeleton className="h-3 w-28" /><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-3/4" /></div>)}</div>
+      <div className="card"><Skeleton className="mb-6 h-7 w-32" />{[0, 1, 2].map(index => <div key={index} className="space-y-3 py-4"><Skeleton className="h-3 w-28" /><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-3/4" /></div>)}</div>
       <div className="space-y-6"><div className="card"><Skeleton className="h-7 w-32" /><Skeleton className="mt-5 h-48 w-full rounded-xl" /></div><div className="card"><Skeleton className="h-7 w-36" /><Skeleton className="mt-4 h-5 w-full" /></div></div>
     </div>
   </div></ShellSkeleton>;
@@ -235,21 +235,35 @@ export function EditorLoading({ active, asideFields }: { active: string; asideFi
  * carry no text: a fallback cannot know the language of the page it is covering.
  */
 
-/** A feed note: its timestamp and copy sit directly on the page over a plain source label. */
+/**
+ * A feed note as the card now draws it: the dateline, opening paragraph, cover, remaining lines,
+ * and the source row at the foot. On a phone the cards stack; from 1280px they sit two to a row in
+ * the same grid the feed uses, so the fallback and the page share one geometry.
+ */
 export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; withCount?: boolean }) {
   return (
     <>
       {withCount ? <Skeleton className="mb-4 ml-1 h-3 w-32" /> : null}
-      <div className="flex flex-col gap-7 sm:gap-9">
+      <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
         {Array.from({ length: count }, (_, index) => (
-          <div key={index}>
-            <Skeleton className="mb-2.5 h-3 w-12" />
-            <div className="rounded-[14px] border border-line/70 bg-surface-2/35 px-5 py-4 shadow-[0_1px_2px_rgba(0,0,0,.018)] sm:px-6 sm:py-5">
-              <Skeleton className="h-6 w-full" />
-              <Skeleton className="mt-2 h-6 w-11/12" />
-              <Skeleton className="mt-2 h-6 w-2/3" />
-              <Skeleton className="mt-5 aspect-video w-full rounded-[10px]" />
-              <Skeleton className="ml-auto mt-3 h-11 w-24 rounded-full" />
+          <div key={index} className="visitor-card visitor-note-card visitor-note-card-grid flex flex-col">
+            <div className="visitor-note-content flex-1 px-5 py-5 sm:px-6 sm:py-6 xl:px-5 xl:py-5">
+              <div className="visitor-note-time justify-between"><Skeleton className="h-3 w-28" /><Skeleton className="h-3 w-9" /></div>
+              <div className="visitor-note-initial">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="mt-2.5 h-5 w-11/12" />
+                <Skeleton className="mt-2.5 h-5 w-2/3" />
+              </div>
+              <Skeleton className="visitor-note-cover mt-5 aspect-video w-full rounded-[10px]" />
+              <div className="visitor-note-body mt-6">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="mt-2.5 h-5 w-10/12" />
+                <Skeleton className={`mt-2.5 h-5 ${index % 2 ? "w-1/2" : "w-3/4"}`} />
+              </div>
+            </div>
+            <div className="visitor-note-footer">
+              <Skeleton className="h-3 w-24" />
+              <div className="visitor-card-actions flex gap-1 rounded-full"><Skeleton className="size-11 rounded-full" /><Skeleton className="size-11 rounded-full" /></div>
             </div>
           </div>
         ))}
@@ -263,13 +277,9 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
 export function VisitorFeedLoading() {
   return (
     <VisitorShellSkeleton label="Akış yükleniyor">
-      <div className="mt-6 w-full max-w-[640px] sm:mt-9">
-        <div className="mb-7 flex h-[92px] items-center justify-between rounded-[16px] bg-surface-2/65 px-5 sm:mb-9">
-          <div><Skeleton className="h-3 w-28" /><Skeleton className="mt-2 h-5 w-32" /></div>
-          <Skeleton className="h-11 w-20 rounded-full" />
-        </div>
-        <VisitorNoteCardsSkeleton count={3} />
-      </div>
+      <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
+        <VisitorNoteCardsSkeleton count={8} />
+      </main>
     </VisitorShellSkeleton>
   );
 }
@@ -294,13 +304,19 @@ export function VisitorArticleLoading() {
 
 export function VisitorAboutLoading() {
   return (
-    <VisitorShellSkeleton label="Hakkında yükleniyor" compact>
-      <main className="mt-6 w-full max-w-[640px] sm:mt-9">
-        <div className="mb-6"><Skeleton className="h-9 w-32" /><Skeleton className="mt-2 h-6 w-64 max-w-full" /></div>
-        <div className="visitor-card px-5 py-6 sm:p-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-[176px_minmax(0,1fr)] md:items-center md:gap-7"><div className="min-w-0 space-y-3 md:col-start-2 md:row-start-1"><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-4/5" /><Skeleton className="h-6 w-3/4" /></div><Skeleton className="size-36 justify-self-center sm:size-40 md:col-start-1 md:row-start-1 md:size-44" /></div>
-          <div className="mt-5 space-y-3">{["w-full", "w-11/12", "w-full", "w-4/5"].map((width, index) => <Skeleton key={index} className={`h-6 ${width}`} />)}</div>
-          <div className="mt-6 border-t border-line pt-5"><Skeleton className="h-3 w-48" /><Skeleton className="mt-4 h-5 w-48" /><div className="mt-4 flex gap-1">{[0,1,2,3].map(i => <Skeleton key={i} className="size-11 rounded-full" />)}</div></div>
+    <VisitorShellSkeleton label="Hakkında yükleniyor">
+      <main className="visitor-wide-page mt-6 w-full max-w-[640px] sm:mt-9">
+        <div className="mb-6"><Skeleton className="h-9 w-32" /></div>
+        <div className="visitor-card visitor-about-card">
+          <div className="visitor-about-profile">
+            <Skeleton className="visitor-about-portrait" />
+            <div className="w-full min-w-0 space-y-3 xl:flex xl:flex-col xl:items-center"><Skeleton className="h-7 w-40 max-w-full" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-4/5" /><Skeleton className="h-5 w-3/5" /></div>
+          </div>
+          <div className="visitor-about-sections">
+            <div className="space-y-3"><Skeleton className="h-6 w-40" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-11/12" /><Skeleton className="h-5 w-3/5" /><div className="visitor-about-actions"><Skeleton className="h-11 w-28 rounded-xl" /><Skeleton className="h-11 w-28 rounded-xl" /></div></div>
+            <div className="visitor-about-app space-y-3"><Skeleton className="h-6 w-48 max-w-full" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-4/5" /><Skeleton className="h-4 w-11/12" /></div>
+          </div>
+          <div className="visitor-about-contact"><div><Skeleton className="h-4 w-48 max-w-full" /><Skeleton className="mt-3 h-5 w-48 max-w-full" /></div><div className="flex gap-1">{[0,1,2,3].map(i => <Skeleton key={i} className="size-11 rounded-full" />)}</div></div>
         </div>
       </main>
     </VisitorShellSkeleton>
@@ -309,8 +325,8 @@ export function VisitorAboutLoading() {
 
 export function VisitorFavoritesLoading() {
   return (
-    <VisitorShellSkeleton label="Favoriler yükleniyor" compact>
-      <main className="mt-6 w-full max-w-[640px] sm:mt-9">
+    <VisitorShellSkeleton label="Favoriler yükleniyor">
+      <main className="visitor-wide-page visitor-viewable-feed mt-6 w-full max-w-[640px] sm:mt-9">
         <div className="mb-6"><Skeleton className="h-9 w-32" /><Skeleton className="mt-2 h-6 w-80 max-w-full" /></div>
         <VisitorNoteCardsSkeleton count={2} />
       </main>

@@ -6,8 +6,8 @@ import { parsePostContent } from "@/lib/post-content";
 import { isUuid } from "@/lib/utils";
 import type { Post } from "@/types/database";
 
-type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; source_url: string | null; cover_path: string | null; featured: boolean; created_at: string; author_id: string | null };
-const postColumns = "id,content_tr,content_en,legacy_english_id,source_url,cover_path,featured,created_at,author_id";
+type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; source_url: string | null; cover_path: string | null; created_at: string; author_id: string | null };
+const postColumns = "id,content_tr,content_en,legacy_english_id,source_url,cover_path,created_at,author_id";
 export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc";
 export type PostPublicationFilter = "all" | "published" | "scheduled";
 
@@ -25,7 +25,6 @@ function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
     status: scheduled ? "scheduled" : "published",
     cover_path: row.cover_path,
     source_url: row.source_url,
-    featured: row.featured,
     published_at: scheduled ? null : row.created_at,
     scheduled_at: scheduled ? row.created_at : null,
     reads: 0,
@@ -273,7 +272,7 @@ export async function getDashboardPostStats(): Promise<DashboardPostStats> {
       access.admin.from("posts").select("id", { count: "exact", head: true }).gte("created_at", isoAtIstanbulMidnight(weekStartDay)).lte("created_at", nowIso),
       access.admin.from("posts").select("created_at", { count: "exact" }).gte("created_at", monthStart).lte("created_at", nowIso),
       access.admin.from("posts").select(postColumns, { count: "exact" }).gt("created_at", nowIso).order("created_at").limit(3),
-      access.admin.from("posts").select(postColumns).lte("created_at", nowIso).order("created_at", { ascending: false }).limit(4),
+      access.admin.from("posts").select(postColumns).lte("created_at", nowIso).order("created_at", { ascending: false }).limit(3),
     ]);
     if (totalResult.error || weekResult.error || monthResult.error || scheduledResult.error || recentResult.error) return empty;
     const monthDates = monthResult.data ?? [];

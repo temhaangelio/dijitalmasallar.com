@@ -1,6 +1,9 @@
+import { getFeedPagination } from "@/lib/feed-pagination";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
+import { FeedRefresh } from "@/components/features/visitor/feed-refresh";
+import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
@@ -42,19 +45,10 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
-/**
- * On wide screens the ad is one cell of the grid and is built like the note beside it: the same
- * label row over the card, the same 16:9 picture, the same type sizes, the same footer at the
- * foot — so a row of two never has one card taller than the other.
- */
-/**
- * An ad takes exactly the shape of a note: the same card, the same cover, the same measure of type,
- * so a row of two never has one cell larger than the other. Only the label and the closing line —
- * the sponsor's call to action in place of a source — say which is which.
- */
+/** Ads span all desktop columns; mobile keeps the reading-card layout. */
 function AdCard({ ad }: { ad: Advertisement }) {
   return (
-    <div className="xl:flex xl:flex-col">
+    <div className="visitor-ad-slot xl:col-span-full">
       <a
         href={ad.target_url}
         target="_blank"
@@ -62,19 +56,19 @@ function AdCard({ ad }: { ad: Advertisement }) {
         aria-label={`${ad.label}: ${ad.title}`}
         className="visitor-card group block transition-colors hover:border-line-strong xl:flex xl:flex-1 xl:flex-col"
       >
-        <div className="min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6 xl:flex xl:flex-col xl:px-5 xl:pt-5">
+        <div className={`visitor-ad-content min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6${ad.image_url ? " visitor-ad-with-image" : ""}`}>
+          <span className="visitor-note-time visitor-sans">{ad.label}</span>
+
+          <h2 className="visitor-ad-title visitor-copy visitor-serif block text-ink transition-colors [text-wrap:pretty] group-hover:text-accent">{ad.title}</h2>
+
           {ad.image_url ? (
-            <div className="relative mb-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
+            <div className="visitor-ad-image relative mt-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
               {isOptimizableImage(ad.image_url)
-                ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 680px) calc(100vw - 72px), (min-width: 1280px) 430px, 590px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
+                ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 680px) calc(100vw - 72px), (min-width: 1280px) 340px, 590px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
                 // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
                 : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
             </div>
           ) : null}
-
-          <span className="visitor-note-time visitor-sans">{ad.label}</span>
-
-          <h2 className="visitor-note-body visitor-copy visitor-serif block text-[18px] font-normal leading-[1.65] text-ink transition-colors [text-wrap:pretty] group-hover:text-accent sm:text-[20px] sm:leading-[1.6]">{ad.title}</h2>
 
           {ad.description ? (
             <p className="visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty] sm:text-[20px] sm:leading-[1.6] xl:mt-3">{ad.description}</p>
@@ -132,17 +126,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const settings = await getSiteSettings();
   const params = await searchParams;
   const language = resolveVisitorLanguage(params.lang);
-  const requestedLimit = Number.parseInt(params.limit ?? "", 10);
-  const visiblePostCount = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, settings.postsPerPage), 500) : settings.postsPerPage;
+  const pagination = getFeedPagination(settings.postsPerPage, params.limit);
+  const visiblePostCount = pagination.visibleCount;
   if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
   // One extra row is enough to decide whether the automatic "more notes" control is needed.
-  const fetchCount = Math.min(visiblePostCount + 1, 500);
+  const fetchCount = pagination.fetchCount;
   const [postData, ads] = await Promise.all([
     getPosts(1, fetchCount, language),
     settings.moduleAds ? getActiveAds(language) : Promise.resolve([]),
   ]);
   const publishedPosts = postData.filter((post) => post.status === "published");
-  const hasMorePosts = publishedPosts.length > visiblePostCount;
+  const hasMorePosts = pagination.canLoadMore && publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
   const postDays = groupPostsByDay(posts);
   const adSlots = createAdSlots(posts.length, ads);
@@ -195,18 +189,21 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
-      <main className="visitor-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
+      <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
+        <div className="visitor-feed-tools">
+          <FeedViewPicker language={language} />
+          <FeedRefresh language={language} />
+        </div>
         <div>
         {posts.length ? (
           <>
           {/*
             One list, two shapes.
 
-            On the phone it is a single column; from 1280px the same list becomes two columns of
-            equal cards — no wide opener, no rhythm to keep, so a day boundary can fall anywhere.
-            Ads take a cell like any note. Every card carries its own date and time.
+            On phones it is a single column; desktop readers can choose cards or horizontal rows.
+            Both layouts share the same content, chronological order and full-width ad slots.
           */}
-          <div className="flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
+          <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
             {(() => {
               return postDays.flatMap((day) => day.items.flatMap(({ post, position }) => {
                 const nodes = [];
@@ -232,7 +229,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
 
         {hasMorePosts && (() => {
-          const nextHref = languageHref("/", language, { limit: Math.min(visiblePostCount + settings.postsPerPage, 500) });
+          const nextHref = languageHref("/", language, { limit: pagination.nextCount });
           const label = language === "en" ? "Loading more notes" : "Yeni notlar yükleniyor";
           return (
             <>

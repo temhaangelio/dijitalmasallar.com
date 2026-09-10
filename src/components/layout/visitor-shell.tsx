@@ -4,30 +4,17 @@ import type { ReactNode } from "react";
 import { LanguageLink } from "@/components/features/visitor/language-link";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { PullToRefresh } from "@/components/features/visitor/pull-to-refresh";
+import { VisitorHeaderBackdrop } from "@/components/features/visitor/visitor-header-backdrop";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
-import { VisitorSideNav } from "@/components/features/visitor/side-nav";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 import { darkThemeColor, lightThemeColor, themeCookie } from "@/lib/visitor-theme";
 import { isPushConfigured, pushPublicKey } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
 
-// Fixed positions avoid hydration changes; CSS handles the entire animation.
-const headerSignals = [
-  { value: "0", left: 5, top: 31, size: 32 },
-  { value: "1", left: 16, top: 66, size: 40 },
-  { value: "1", left: 25, top: 14, size: 26 },
-  { value: "0", left: 9, top: 76, size: 24 },
-  { value: "0", left: 83, top: 23, size: 38 },
-  { value: "1", left: 91, top: 58, size: 30 },
-  { value: "0", left: 75, top: 80, size: 28 },
-  { value: "1", left: 91, top: 79, size: 24 },
-];
-
-
 /**
- * The public pages share one frame: canvas background, 720px column, brand nav and footer.
+ * Public pages share a responsive masthead, reading surface and footer.
  * `lang` is set here rather than in the root layout because the root layout is shared with the
  * always-Turkish admin panel, and the visitor language is decided per request.
  *
@@ -66,7 +53,7 @@ export async function VisitorShell({
   // empty key the toggle can register the worker but never subscribe.
   const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
   return (
-    <div lang={language} className={`visitor-page relative flex min-h-screen flex-col items-center overflow-x-clip bg-canvas px-4 pb-10 text-ink sm:px-8${showHeader && !reading ? " visitor-page-split" : ""}`}>
+    <div lang={language} className="visitor-page relative flex min-h-screen flex-col items-center overflow-x-clip bg-canvas px-4 pb-10 text-ink sm:px-8">
       {themePreference === "dark" || themePreference === "light"
         ? <meta name="theme-color" content={themePreference === "dark" ? darkThemeColor : lightThemeColor} />
         : <>
@@ -82,21 +69,15 @@ export async function VisitorShell({
         header carries two alignments at once this way, and the site states its identity twice — as
         a glyph in the corner and as a logotype in the middle.
       */}
-      <nav className="visitor-nav visitor-masthead relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
-        {!reading && <div className="visitor-header-signals" aria-hidden="true">
-          {headerSignals.map((signal, index) => <span key={index} className="visitor-header-signal" style={{
-            left: `${signal.left}%`, top: `${signal.top}%`, fontSize: `${signal.size}px`,
-            animationDelay: `${-index * 1.8}s`, animationDuration: `${12 + index % 3 * 2}s`,
-          }}><span>{signal.value}</span></span>)}
-
-        </div>}
+      <header data-reading={reading || undefined} className="visitor-nav visitor-masthead relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
+        {!reading && <VisitorHeaderBackdrop />}
         <div className="flex w-full shrink-0 items-center justify-between gap-2">
           <Link
             href={languageHref("/", language)}
             aria-label={language === "en" ? `${siteName} home` : `${siteName} ana sayfa`}
             className="flex min-h-11 min-w-0 items-center gap-3 transition-opacity hover:opacity-75"
           >
-            <BrandMark className="visitor-logo-mark block shrink-0 !size-9 !rounded-[12px] sm:!size-10 sm:!rounded-[13px]" />
+            <BrandMark className="visitor-logo-mark block shrink-0 !size-9 !rounded-[12px] sm:!size-10 sm:!rounded-[13px] xl:!size-[52px] xl:!rounded-[16px]" />
             {reading ? <span className="min-w-0 font-mono text-[13px] font-bold leading-snug text-left sm:text-[18px]">{siteName}</span> : null}
           </Link>
           <div className="flex shrink-0 items-center gap-2">
@@ -111,18 +92,18 @@ export async function VisitorShell({
           href={languageHref("/", language)}
           className="visitor-wordmark mt-6 max-w-full font-mono font-bold text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7"
         >
-          {/* Fluid sizing and wrapping keep the complete name visible on narrow screens. */}
-          {siteName}
+          {siteName === "Dijital Masallar" ? <>
+            <span className="sr-only">{siteName}</span>
+            <span className="visitor-wordmark-art" aria-hidden="true" />
+          </> : siteName}
         </Link>}
 
         {compact || reading ? null : (
-          <p className="visitor-copy visitor-serif mt-4 max-w-[42ch] text-[16px] font-normal leading-[1.6] text-ink-2 [text-wrap:balance] sm:mt-5 sm:text-[19px]">{description}</p>
+          <p className="visitor-tagline visitor-sans">{description}</p>
         )}
 
         {reading ? null : <VisitorHeaderNav language={language} />}
-      </nav>
-      {/* Wide screens only: from 1280px the centred masthead is hidden and this column replaces it. */}
-      {reading ? null : <VisitorSideNav language={language} siteName={siteName} description={description} showPush={settings.modulePush} pushPublicKey={publicKey} />}
+      </header>
       </> : null}
       <div className="visitor-content flex w-full flex-col items-center">
         {children}

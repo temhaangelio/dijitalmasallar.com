@@ -12,7 +12,6 @@ export const postSchema = z.object({
   tr: turkishPostSchema,
   en: englishPostSchema,
   sourceUrl: z.string().trim().max(2048, "Kaynak bağlantısı çok uzun.").url("Geçerli bir kaynak bağlantısı girin.").refine(value => /^https?:\/\//i.test(value), "Kaynak bağlantısı http veya https ile başlamalı."),
-  featured: z.boolean(),
   status: z.enum(["scheduled", "published"]),
   scheduledAt: z.string().optional(),
   publishedAt: z.string().optional(),

@@ -483,7 +483,7 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
     >
       <div className="visitor-panel mx-auto flex w-full max-w-[560px] max-h-[75dvh] overflow-y-auto items-start gap-4 rounded-[24px] border border-line-strong bg-surface p-4 shadow-modal">
         {/* The mark is black on black in the dark theme, so it carries a hairline of its own. */}
-        <Image src="/icon-192.png?v=6" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px] border border-line-strong" />
+        <Image src="/icon-192.png?v=7" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px] border border-line-strong" />
         <div className="min-w-0 flex-1">
           <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold tracking-[-.02em]">
             {isEnglish ? "Add dijitalmasallar.com to your home screen" : "dijitalmasallar.com'u ana ekranınıza ekleyin"}

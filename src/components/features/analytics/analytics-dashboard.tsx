@@ -80,20 +80,20 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
       <div className="flex max-w-full gap-1.5 overflow-x-auto rounded-full bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{ranges.map((item) => <Link key={item.days} href={item.href} aria-current={item.days === range ? "page" : undefined} className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "whitespace-nowrap !px-3", item.days === range && "bg-surface text-ink shadow-sm")}>{item.label}</Link>)}</div>
     </div>
 
-    <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
+    <div className="grid auto-rows-fr grid-cols-2 gap-5 xl:grid-cols-4">
       {metrics.map(({ label, value, note, icon: Icon }) => <Card key={label} className="flex min-h-[140px] flex-col justify-between !p-4 sm:!p-5">
         <div className="flex items-center justify-between gap-3"><strong className="text-[12px] font-medium text-muted">{label}</strong><span className="hidden text-muted sm:block"><Icon className="size-4" aria-hidden="true" /></span></div>
         <div className="mt-5"><span className="block text-[30px] font-medium leading-none tracking-[-.04em] sm:text-[36px]">{value}</span><small className="mt-2 block text-[11px] leading-5 text-muted">{note}</small></div>
       </Card>)}
     </div>
 
-    <div className="grid gap-5 xl:grid-cols-12 xl:items-start">
-      <Card className="xl:col-span-8">
-        <div className="flex items-center justify-between gap-4"><h2 className="section-title">{range === 365 ? "Aylık görüntüleme" : range === 1 ? "Saatlik görüntüleme" : "Günlük görüntüleme"}</h2><span className="text-[12px] font-medium text-muted">{periodLabel}</span></div>
+    <div className="grid items-stretch gap-5 xl:grid-cols-2">
+      <Card className="min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-4"><h2 className="section-title">{range === 365 ? "Aylık görüntüleme" : range === 1 ? "Saatlik görüntüleme" : "Günlük görüntüleme"}</h2><span className="text-[12px] font-medium text-muted">{periodLabel}</span></div>
         <div className="mt-8 flex h-[240px] gap-3">
           <div className="flex w-10 shrink-0 flex-col justify-between pb-7 text-right text-xs font-medium tabular-nums text-muted">{yTicks.map((tick) => <span key={tick}>{number.format(tick)}</span>)}</div>
           <div className="min-w-0 flex-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="relative flex h-full items-end gap-1.5 pb-7" style={{ minWidth: "100%" }}>
+            <div className="relative flex h-full items-end gap-1.5 pb-7" style={{ minWidth: `${Math.max(420, chartRows.length * 22)}px` }}>
               <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 grid h-[calc(100%-28px)] grid-rows-4"><span className="border-t border-line" /><span className="border-t border-line" /><span className="border-t border-line" /><span className="border-y border-line" /></div>
               {chartRows.map((day, index) => {
                 const height = day.pageviews === 0 ? 0 : Math.max((day.pageviews / yMax) * 100, 4);
@@ -108,7 +108,7 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
         </div>
       </Card>
 
-      <Card className="xl:col-span-4">
+      <Card className="min-w-0">
         <h2 className="section-title">Trafik kaynakları</h2>
         <p className="mt-2 text-xs leading-5 text-muted">Bir okur birden fazla kaynaktan gelebilir; oranların toplamı %100’ü aşabilir.</p>
         <div className="mt-4 space-y-2">{analytics.sources.slice(0, 3).map((source) => <div key={source.label}><div className="mb-1 flex justify-between gap-3 text-sm font-semibold"><span className="truncate">{source.label}</span><span>%{Math.round(source.percentage)}</span></div><div className="h-1.5 rounded-full bg-line"><div className="h-full rounded-full bg-ink" style={{ width: `${Math.min(100, Math.max(source.percentage, 1))}%` }} /></div></div>)}</div>
@@ -116,14 +116,14 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
         {analytics.sources.length > 3 ? <button type="button" onClick={() => setOpenList("sources")} className="mt-3 inline-flex min-h-11 items-center text-[13px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-accent hover:text-accent">Tümünü göster</button> : null}
       </Card>
 
-      <Card className="xl:col-span-8">
-        <div className="flex items-center justify-between gap-4"><h2 className="section-title">En çok ziyaret edilenler</h2><span className="text-[12px] font-medium text-muted">{periodLabel}</span></div>
+      <Card className="min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-4"><h2 className="section-title">En çok ziyaret edilenler</h2><span className="text-[12px] font-medium text-muted">{periodLabel}</span></div>
         <div className="mt-3 divide-y divide-line">{analytics.topPages.slice(0, 3).map((page, index) => <Link key={page.path} href={pageHref(page.path)} target="_blank" rel="noopener noreferrer" className="grid grid-cols-[32px_minmax(0,1fr)_72px] gap-2 min-h-11 items-center rounded-lg py-3 text-[13px] transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:grid-cols-[36px_minmax(0,1fr)_80px_90px] sm:gap-3"><span className="font-semibold text-muted">{String(index + 1).padStart(2, "0")}</span><strong className="truncate underline decoration-line-strong underline-offset-4">{pageLabel(page.path)}</strong><span className="hidden text-right text-muted sm:block">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)}</span></Link>)}</div>
         {!analytics.topPages.length ? <p className="mt-4 text-sm text-muted">Bu dönem için sayfa verisi yok.</p> : null}
         {analytics.topPages.length > 3 ? <button type="button" onClick={() => setOpenList("pages")} className="mt-3 inline-flex min-h-11 items-center text-[13px] font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-accent hover:text-accent">Tümünü göster</button> : null}
       </Card>
 
-      <Card className="xl:col-span-4">
+      <Card className="min-w-0">
         <h2 className="section-title">Okur dağılımı</h2>
         <div className="mt-4 space-y-2">{analytics.countries.slice(0, 3).map((country) => <div key={country.code} className="flex items-center justify-between"><span className="font-semibold">{country.label}</span><span className="text-muted">%{Math.round(country.percentage)}</span></div>)}</div>
         {!analytics.countries.length ? <p className="mt-4 text-sm text-muted">Bu dönem için ülke verisi yok.</p> : null}
@@ -142,7 +142,7 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
         <div className="mt-5 max-h-[60dvh] overflow-y-auto pr-2">
           {openList === "sources" && <div className="space-y-4">{analytics.sources.map((source) => <div key={source.label}><div className="mb-2 flex justify-between gap-3 text-sm font-semibold"><span className="truncate">{source.label}</span><span>{number.format(source.visitors)} okur · %{Math.round(source.percentage)}</span></div><div className="h-2 rounded-full bg-line"><div className="h-full rounded-full bg-ink" style={{ width: `${Math.min(100, Math.max(source.percentage, 1))}%` }} /></div></div>)}</div>}
           {openList === "pages" && <div className="divide-y divide-line">{analytics.topPages.map((page, index) => <Link key={page.path} href={pageHref(page.path)} target="_blank" rel="noopener noreferrer" className="grid min-h-11 grid-cols-[24px_minmax(0,1fr)] gap-x-3 gap-y-1 rounded-lg py-3 text-sm sm:grid-cols-[28px_minmax(0,1fr)_80px_110px] transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"><span className="font-semibold text-muted">{String(index + 1).padStart(2, "0")}</span><strong className="truncate underline decoration-line-strong underline-offset-4">{pageLabel(page.path)}</strong><span className="text-right text-muted">{number.format(page.visitors)} okur</span><span className="text-right font-semibold">{number.format(page.pageviews)} görüntüleme</span></Link>)}</div>}
-          {openList === "countries" && <div className="divide-y divide-line">{analytics.countries.map((country) => <div key={country.code} className="flex items-center justify-between gap-4 py-3"><span className="font-semibold">{country.label}</span><span className="text-muted">{number.format(country.visitors)} okur · %{Math.round(country.percentage)}</span></div>)}</div>}
+          {openList === "countries" && <div className="divide-y divide-line">{analytics.countries.map((country) => <div key={country.code} className="flex flex-wrap items-center justify-between gap-4 py-3"><span className="font-semibold">{country.label}</span><span className="text-muted">{number.format(country.visitors)} okur · %{Math.round(country.percentage)}</span></div>)}</div>}
         </div>
       </AnalyticsDialog>
     )}

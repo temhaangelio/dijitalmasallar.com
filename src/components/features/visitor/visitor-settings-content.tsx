@@ -1,5 +1,7 @@
 "use client";
 
+import { useId, useState } from "react";
+import { ChevronDown, RotateCcw, Smartphone } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { AccentPicker, resetAccent } from "@/components/features/visitor/accent-picker";
 import { FontPicker, resetReading, TextSizePicker } from "@/components/features/visitor/font";
@@ -15,52 +17,58 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
 }) {
   const pathname = usePathname();
   const isEnglish = language === "en";
+  const [moreOpen, setMoreOpen] = useState(false);
+  const panelId = useId();
   return (
-        <section className="visitor-settings space-y-5 text-left" aria-label={isEnglish ? "Settings" : "Ayarlar"}>
-          <div className="space-y-2">
-            <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Language" : "Dil"}</h3>
-            <LanguagePicker language={language} path={pathname} onNavigate={onClose} />
+    <section className="visitor-settings visitor-sans text-left" aria-label={isEnglish ? "Settings" : "Ayarlar"}>
+      <div className="visitor-settings-section">
+        <div className="visitor-settings-row">
+          <h3 className="visitor-settings-label">{isEnglish ? "Theme" : "Tema"}</h3>
+          <ThemePicker language={language} />
+        </div>
+        <div className="visitor-settings-row">
+          <h3 className="visitor-settings-label">{isEnglish ? "Font" : "Yazı tipi"}</h3>
+          <FontPicker language={language} />
+        </div>
+        <div className="visitor-settings-row">
+          <h3 className="visitor-settings-label">{isEnglish ? "Size" : "Boyut"}</h3>
+          <TextSizePicker language={language} />
+        </div>
+        <div className="visitor-settings-row visitor-settings-colors">
+          <h3 className="visitor-settings-label">{isEnglish ? "Color" : "Renk"}</h3>
+          <AccentPicker language={language} />
+        </div>
+      </div>
+      <div className="visitor-settings-footer">
+        <button type="button" aria-expanded={moreOpen} aria-controls={panelId} onClick={() => setMoreOpen(value => !value)} className="visitor-settings-more">
+          {isEnglish ? "More settings" : "Diğer ayarlar"}
+          <ChevronDown size={16} aria-hidden="true" />
+        </button>
+        <button type="button" onClick={() => { resetTheme(); resetReading(); resetAccent(); }} className="visitor-settings-action visitor-settings-reset" aria-label={isEnglish ? "Reset appearance" : "Görünümü sıfırla"} title={isEnglish ? "Reset appearance" : "Görünümü sıfırla"}>
+          <RotateCcw size={16} className="shrink-0" aria-hidden="true" />
+          {isEnglish ? "Reset" : "Sıfırla"}
+        </button>
+      </div>
+      <div id={panelId} hidden={!moreOpen} className="visitor-settings-extra">
+        <div className="visitor-settings-row">
+          <h3 className="visitor-settings-label">{isEnglish ? "Language" : "Dil"}</h3>
+          <LanguagePicker language={language} path={pathname} onNavigate={onClose} />
+        </div>
+        {pushPublicKey ? (
+          <div className="visitor-settings-row">
+            <h3 className="visitor-settings-label">{isEnglish ? "Notifications" : "Bildirimler"}</h3>
+            <PushToggle language={language} publicKey={pushPublicKey} />
           </div>
-          <div className="space-y-2">
-            <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Appearance" : "Görünüm"}</h3>
-            <ThemePicker language={language} />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Reading font" : "Yazı tipi"}</h3>
-            <FontPicker language={language} />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Text size" : "Yazı boyutu"}</h3>
-            <TextSizePicker language={language} />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Accent color" : "Vurgu rengi"}</h3>
-            <AccentPicker language={language} />
-          </div>
-          <div className="space-y-4 border-t border-line pt-4">
-            {pushPublicKey ? (
-              <div className="space-y-2">
-                <h3 className="text-[13px] font-medium text-ink-2">{isEnglish ? "Notifications" : "Bildirimler"}</h3>
-                <PushToggle language={language} publicKey={pushPublicKey} />
-              </div>
-            ) : null}
-            <button
-              type="button"
-              onClick={() => { resetTheme(); resetReading(); resetAccent(); }}
-              className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg text-left text-[13px] text-muted transition-colors hover:text-ink"
-            >
-              {isEnglish ? "Reset appearance" : "Görünümü sıfırla"}
-              <span className="visitor-sans text-[11px] text-faint">{isEnglish ? "Defaults" : "Varsayılan"}</span>
-            </button>
-            <details className="group/install">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-lg text-[13px] text-muted transition-colors hover:text-ink [&::-webkit-details-marker]:hidden">
-                {isEnglish ? "Add to home screen" : "Ana ekrana ekle"}
-                <span className="text-lg leading-none group-open/install:hidden" aria-hidden="true">+</span>
-                <span className="hidden text-lg leading-none group-open/install:inline" aria-hidden="true">−</span>
-              </summary>
-              <div className="pb-1 pt-1"><InstallPrompt language={language} /></div>
-            </details>
-          </div>
-        </section>
+        ) : null}
+        <details className="group/install visitor-settings-install">
+          <summary className="visitor-settings-action cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <Smartphone size={18} className="shrink-0" aria-hidden="true" />
+            <span>{isEnglish ? "Add to home screen" : "Ana ekrana ekle"}</span>
+            <ChevronDown size={18} className="ml-auto shrink-0 transition-transform group-open/install:rotate-180" aria-hidden="true" />
+          </summary>
+          <div className="visitor-settings-install-help"><InstallPrompt language={language} /></div>
+        </details>
+      </div>
+    </section>
   );
 }

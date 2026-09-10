@@ -72,7 +72,7 @@ export function ConfirmDialog({
             <X size={18} />
           </button>
         </div>
-        <h2 id={titleId} className="mt-5 font-[family-name:var(--font-source-serif)] text-[26px] font-medium leading-tight tracking-[-.04em]">{title}</h2>
+        <h2 id={titleId} className="mt-5 font-[family-name:var(--font-visitor-sans)] text-[26px] font-medium leading-tight tracking-[-.04em]">{title}</h2>
         <p id={descriptionId} className="mt-2 text-[15px] font-medium leading-relaxed text-muted">{description}</p>
         {(error || failure) && <p role="alert" className="mt-4 rounded-field bg-danger-surface p-3 text-sm font-medium text-danger">{error || failure}</p>}
         <div className="mt-7 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

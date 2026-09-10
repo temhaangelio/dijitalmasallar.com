@@ -124,7 +124,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
                   {/* A source is worth naming; the absence of one is not worth a line of its own. */}
                   {post.source_url && <><span aria-hidden="true">·</span><span className="min-w-0 truncate">{sourceLabel(null, post.source_url, "")}</span></>}
                 </div>
-                <h2 className="line-clamp-2 font-[family-name:var(--font-source-serif)] text-[17px] font-medium leading-snug text-ink sm:text-[18px]">{post.title || post.excerpt || "Başlıksız not"}</h2>
+                <h2 className="line-clamp-2 font-[family-name:var(--font-visitor-sans)] text-[17px] font-medium leading-snug text-ink sm:text-[18px]">{post.title || post.excerpt || "Başlıksız not"}</h2>
               </div>
             </Link>
             <button type="button" disabled={isSearching} onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} className={`${styles.rowAction} grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-danger-surface hover:text-danger disabled:opacity-40`}><Trash2 className="size-4" strokeWidth={1.6} aria-hidden="true" /></button>

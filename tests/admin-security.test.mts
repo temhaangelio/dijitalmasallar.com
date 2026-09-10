@@ -33,7 +33,7 @@ test('image uploads inspect bytes, reject spoofed types and ignore unsafe filena
   await assert.rejects(() => inspectRasterUpload(new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'big.png', { type: 'image/png' })));
 });
 test('post validation rejects executable sources and unbounded content', () => {
-  const valid = { tr: { body: 'Türkçe içerik. '.repeat(8) }, en: { body: 'English content. '.repeat(8) }, sourceUrl: 'https://example.com/story', featured: false, status: 'published' };
+  const valid = { tr: { body: 'Türkçe içerik. '.repeat(8) }, en: { body: 'English content. '.repeat(8) }, sourceUrl: 'https://example.com/story', status: 'published' };
   assert.equal(postSchema.safeParse(valid).success, true);
   for (const sourceUrl of ['javascript:alert(1)', 'data:text/html,test', 'ftp://example.com/file']) assert.equal(postSchema.safeParse({ ...valid, sourceUrl }).success, false);
   assert.equal(postSchema.safeParse({ ...valid, tr: { body: 'x'.repeat(30_001) } }).success, false);

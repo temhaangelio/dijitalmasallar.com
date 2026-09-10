@@ -7,18 +7,17 @@ import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
 const headerPaths = new Set(["/", "/about", "/favoriler"]);
 
-/** The 1b editorial header navigation; compact settings remain in the icon menu. */
+/** A single, shared navigation group below the wordmark and tagline. */
 export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {
   const pathname = usePathname();
 
   return (
-    <nav className="visitor-header-links mt-6 flex w-full items-center justify-center gap-6 sm:mt-7 sm:gap-8" aria-label={language === "en" ? "Main navigation" : "Ana navigasyon"}>
+    <nav className="visitor-header-links" aria-label={language === "en" ? "Main navigation" : "Ana navigasyon"}>
+      <div className="visitor-nav-track">
       {visitorNavItems.filter((item) => headerPaths.has(item.href)).map((item) => {
         const current = pathname === item.href;
         const href = languageHref(item.href, language);
-        const className = `visitor-tap visitor-nav-link pb-1.5 visitor-sans text-[11px] font-semibold leading-none uppercase tracking-[.12em] sm:tracking-[.16em] transition-colors sm:text-[13px] ${
-          current ? "text-accent" : "text-muted hover:text-accent"
-        }`;
+        const className = "visitor-header-link visitor-sans";
         return (
           <Link
             key={item.href}
@@ -30,6 +29,7 @@ export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {
           </Link>
         );
       })}
+      </div>
     </nav>
   );
 }

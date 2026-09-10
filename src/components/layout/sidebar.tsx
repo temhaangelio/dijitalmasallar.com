@@ -18,12 +18,12 @@ import { SidebarToggle } from "./sidebar-toggle";
 export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: AdminModules }) {
   return <aside className="sidebar">
     <Link href="/dashboard" aria-label={siteName} className="flex items-center gap-3">
-      <BrandMark className="shrink-0" /><strong className="admin-brand sidebar-expanded-only block truncate text-[14px]">{siteName}</strong>
+      <BrandMark className="shrink-0" /><span className="sidebar-expanded-only min-w-0"><strong className="admin-brand block truncate text-[14px]">{siteName}</strong><span className="mt-1 block text-[11px] text-muted">Yönetim paneli</span></span>
     </Link>
     <nav aria-label="Yönetim menüsü" className="flex flex-col gap-1">
       {adminNavItems.filter(({ module }) => !module || modules[module]).map(({ label, href, icon: Icon }) => {
         const selected = active === href;
-        return <Link key={href} href={href} aria-label={label} aria-current={selected ? "page" : undefined} title={label} className={`sidebar-item relative text-[15px] transition-colors ${selected ? "bg-surface-3 font-semibold text-ink" : "font-medium text-ink-2 hover:bg-surface-2 hover:text-ink"}`}>
+        return <Link key={href} href={href} aria-label={label} aria-current={selected ? "page" : undefined} title={label} className={`sidebar-item relative text-[15px] transition-colors ${selected ? "font-semibold text-accent" : "font-medium text-ink-2 hover:bg-surface-2 hover:text-ink"}`}>
           <Icon size={18} strokeWidth={1.6} className="shrink-0" aria-hidden="true" /><span className="sidebar-expanded-only truncate">{label}</span>
         </Link>;
       })}

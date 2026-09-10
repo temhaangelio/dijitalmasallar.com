@@ -8,8 +8,9 @@ import { cn } from "@/lib/utils";
 /** Everything that can hold focus inside the panel, in document order. */
 const focusableSelector = 'summary, a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])';
 
-export function VisitorBottomSheet({ open, title, titleClassName, closeLabel, onOpenChange, children }: { open: boolean; title: string; titleClassName?: string; closeLabel: string; onOpenChange: (open: boolean) => void; children: ReactNode }) {
+export function VisitorBottomSheet({ open, title, description, titleClassName, panelClassName, closeLabel, onOpenChange, children }: { open: boolean; title: string; description?: string; titleClassName?: string; panelClassName?: string; closeLabel: string; onOpenChange: (open: boolean) => void; children: ReactNode }) {
   const titleId = useId();
+  const descriptionId = useId();
   const panel = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
 
@@ -76,17 +77,20 @@ export function VisitorBottomSheet({ open, title, titleClassName, closeLabel, on
 
   return createPortal(
     <div className="visitor-sheet-backdrop fixed inset-0 z-[200] flex items-end justify-center bg-black/25 px-0 backdrop-blur-[2px] sm:items-center sm:px-6" role="presentation" onMouseDown={() => onOpenChange(false)}>
-      <section ref={panel} className="visitor-sheet-panel w-full max-w-[480px] max-h-[calc(100dvh-1rem)] flex flex-col overflow-hidden rounded-t-[24px] border border-line-strong bg-surface text-ink shadow-modal sm:rounded-[24px]" role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={panel} className={cn("visitor-sheet-panel w-full max-w-[480px] max-h-[calc(100dvh-1rem)] flex flex-col overflow-hidden rounded-t-[24px] border border-line-strong bg-surface text-ink shadow-modal sm:rounded-[24px]", panelClassName)} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} onMouseDown={(event) => event.stopPropagation()}>
         <div className="flex justify-center pb-1 pt-3 sm:hidden" aria-hidden="true"><span className="h-[3px] w-9 rounded-full bg-line-strong" /></div>
-        <header className="flex items-center justify-between gap-4 px-5 pb-4 pt-3 sm:px-7 sm:pb-5 sm:pt-6">
+        <header className="visitor-sheet-header flex shrink-0 items-center justify-between gap-4 px-5 pb-4 pt-3 sm:px-7 sm:pb-5 sm:pt-6">
           {/* The heading takes focus rather than the close button: opening a sheet should announce
               what it is, not offer the way out first. */}
+          <div className="min-w-0">
           <h2 ref={heading} id={titleId} tabIndex={-1} className={cn("focus:outline-none", titleClassName ?? "visitor-heading text-[24px] font-semibold leading-[1.15] tracking-[-.035em]")}>{title}</h2>
-          <button type="button" onClick={() => onOpenChange(false)} aria-label={closeLabel} className="grid size-11 shrink-0 place-items-center rounded-full bg-surface-2 text-muted transition-colors hover:border-ink hover:bg-surface-2">
+          {description ? <p id={descriptionId} className="visitor-sheet-description">{description}</p> : null}
+          </div>
+          <button type="button" onClick={() => onOpenChange(false)} aria-label={closeLabel} className="visitor-sheet-close grid size-11 shrink-0 place-items-center rounded-full bg-surface-2 text-muted transition-colors hover:border-ink hover:bg-surface-2">
             <X size={16} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </header>
-        <div className="min-h-0 overflow-y-auto overscroll-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-7 sm:pb-7">
+        <div className="visitor-sheet-body min-h-0 overflow-y-auto overscroll-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-7 sm:pb-7">
           {children}
         </div>
       </section>

@@ -82,8 +82,7 @@
     margin: 0;
     background: var(--background);
     color: var(--foreground);
-    /* The public site's family; the admin panel sets its own on `.admin-page` below. Anything that
-       renders outside the page root on a public page — a toast — inherits this and matches. */
+    /* Shared with the admin panel so controls and notifications speak the same visual language. */
     font-family: var(--font-visitor-sans), Arial, sans-serif;
     letter-spacing: -0.011em;
     -webkit-font-smoothing: antialiased;
@@ -114,7 +113,7 @@
   .admin-page {
     background: var(--color-canvas);
     color: var(--color-ink);
-    font-family: var(--font-plex-sans), Arial, sans-serif;
+    font-family: var(--font-visitor-sans), Arial, sans-serif;
     letter-spacing: 0;
   }
   .admin-page .card {
@@ -213,10 +212,10 @@ html:has(.admin-page) {
   .admin-page .main { width: 100%; padding: 36px clamp(20px, 3vw, 48px) 64px; }
   .admin-page .sidebar { position: sticky; top: 0; height: 100dvh; overflow-y: auto; padding: 28px 18px; gap: 36px; background: var(--color-canvas); }
   .admin-page .card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 18px; box-shadow: 0 1px 2px rgb(0 0 0 / .02); }
-  .admin-brand { font-family: var(--font-plex-mono), monospace; letter-spacing: -.025em; }
+  .admin-brand { font-family: var(--font-visitor-mono), monospace; letter-spacing: -.025em; }
   .admin-page .page-header { margin-bottom: 28px; padding: 0; gap: 16px; }
-  .admin-page .page-title { font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(28px, 3vw, 36px); font-weight: 500; letter-spacing: -.035em; line-height: 1.2; }
-  .admin-page .section-title { font-family: var(--font-source-serif), Georgia, serif; font-size: 23px; font-weight: 500; line-height: 1.3; letter-spacing: -.025em; }
+  .admin-page .page-title { font-family: var(--font-visitor-sans), Arial, sans-serif; font-size: clamp(28px, 3vw, 36px); font-weight: 500; letter-spacing: -.035em; line-height: 1.2; }
+  .admin-page .section-title { font-family: var(--font-visitor-sans), Arial, sans-serif; font-size: 23px; font-weight: 500; line-height: 1.3; letter-spacing: -.025em; }
   .admin-page .page-note { max-width: 65ch; font-size: 14px; font-weight: 400; line-height: 1.6; }
   .admin-skip-link { position: fixed; left: 16px; top: -80px; z-index: 150; padding: 12px 20px; border-radius: 12px; color: white; background: #191919; }
   .admin-skip-link:focus { top: 12px; }
@@ -654,17 +653,122 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
   .page-loading-visitor:not(.page-loading-embedded), .page-loading-admin:not(.page-loading-embedded) { background: var(--color-canvas); }
 }
 
-/* Preferences share generous targets without changing the admin controls. */
-.visitor-settings [role="group"],
-.visitor-settings [role="radiogroup"] { width: 100%; }
-.visitor-settings [data-active] { min-height: 44px; min-width: 0; padding-inline: 8px; flex: 1; justify-content: center; font-size: 12px; }
-.visitor-settings .visitor-muted { display: block; max-width: none; text-align: left; font-size: 12px; line-height: 1.6; }
+/* Compact preferences: one aligned list, with secondary options revealed on demand. */
+.visitor-settings-sheet {
+  max-width: 420px;
+  border-color: var(--color-line);
+  font-family: var(--font-visitor-sans), Arial, sans-serif;
+}
+.visitor-settings-sheet .visitor-sheet-header {
+  padding: 16px 20px 8px;
+}
+.visitor-sheet-description { margin-top: 6px; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-muted); }
+.visitor-settings-sheet .visitor-sheet-close {
+  border-radius: 12px;
+  background: transparent;
+}
+.visitor-settings-sheet .visitor-sheet-close:hover { color: var(--color-ink); background: var(--color-surface-2); }
+.visitor-settings-sheet .visitor-sheet-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.visitor-settings-sheet .visitor-sheet-close svg { width: 18px; height: 18px; }
+.visitor-settings-sheet .visitor-sheet-body { padding: 0 20px max(20px, env(safe-area-inset-bottom)); }
+.visitor-settings-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding-block: 6px;
+}
+.visitor-settings-label { margin: 0; font-size: 14px; font-weight: 500; line-height: 1.5; letter-spacing: -.01em; color: var(--color-ink-2); }
+.visitor-settings [role="group"], .visitor-settings [role="radiogroup"] { width: 100%; }
+.visitor-settings-row > :is([role="group"], [role="radiogroup"]) {
+  min-width: 0;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--color-line) 60%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--color-ink) 3%, transparent);
+}
+.visitor-settings [data-active] {
+  min-height: 44px;
+  min-width: 0;
+  padding-inline: 8px;
+  flex: 1;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-muted);
+}
+.visitor-settings [role="group"] > span[aria-hidden="true"],
+.visitor-settings [role="radiogroup"] > span[aria-hidden="true"] {
+  border: 1px solid color-mix(in srgb, var(--color-line) 70%, transparent);
+  top: 3px;
+  bottom: 3px;
+  border-radius: 9px;
+  background: var(--color-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / .04);
+}
+.visitor-settings [data-active="true"] { color: var(--color-accent); }
+.visitor-settings [data-active]:hover { color: var(--color-ink); }
+.visitor-settings-font-sample { font-family: var(--font-visitor-sans), Arial, sans-serif; font-size: 20px; font-weight: 500; }
+.visitor-settings-font-sample[data-font="serif"] { font-family: var(--font-source-serif), Georgia, serif; }
+.visitor-settings-size-sample { font-size: 18px; font-weight: 500; }
+.visitor-settings-size-sample[data-size="small"] { font-size: 14px; }
+.visitor-settings-size-sample[data-size="large"] { font-size: 23px; }
+.visitor-settings-colors > .visitor-accent-picker { border: 0; padding: 0; background: transparent; }
+.visitor-accent-picker { display: grid; grid-template-columns: repeat(4, minmax(44px, 1fr)); gap: 4px; }
+.visitor-accent-option {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  transition: background-color .18s ease, border-color .18s ease;
+}
+.visitor-accent-option:hover { background: var(--color-surface-2); }
+.visitor-accent-option[aria-checked="true"] > span { outline: 1px solid var(--color-line-strong); outline-offset: 3px; }
+.visitor-accent-option:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.visitor-settings-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--color-line); }
+.visitor-settings-more { display: flex; align-items: center; gap: 8px; min-height: 44px; padding-right: 8px; border-radius: 9px; font-size: 14px; font-weight: 500; color: var(--color-muted); cursor: pointer; }
+.visitor-settings-more:hover { color: var(--color-ink); }
+.visitor-settings-more:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.visitor-settings-more > svg { transition: transform .18s ease; }
+.visitor-settings-more[aria-expanded="true"] > svg { transform: rotate(180deg); }
+.visitor-settings-extra { padding-top: 10px; }
+.visitor-settings-install { margin-top: 12px; }
+.visitor-settings-action {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-ink) 2%, transparent);
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+.visitor-settings-action:hover { background: var(--color-surface-2); border-color: var(--color-accent); }
+.visitor-settings-action:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.visitor-settings-reset { width: auto; flex-shrink: 0; }
+.visitor-settings-install-help { padding: 16px 2px 2px; }
+.visitor-settings .visitor-muted { display: block; max-width: none; text-align: left; font-size: 13px; line-height: 1.6; }
+@media (max-width: 359px) {
+  .visitor-settings-row { grid-template-columns: 68px minmax(0, 1fr); gap: 12px; }
+  .visitor-settings [data-active] { padding-inline: 5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visitor-settings :is(.visitor-settings-more > svg, .visitor-accent-option, .visitor-settings-action) { transition: none; }
+}
 
 /* A single accent identifies interactive and selected visitor states. */
 .visitor-page :focus-visible { outline-color: var(--color-accent); }
-.visitor-settings [role="group"] > span[aria-hidden="true"],
-.visitor-settings [role="radiogroup"] > span[aria-hidden="true"] { background: var(--visitor-accent-fill, var(--color-accent)); }
-.visitor-settings [data-active="true"] { color: var(--visitor-accent-contrast); }
 .visitor-page button[aria-pressed="true"]:not(.visitor-top-control) {
   color: var(--color-accent);
   background: color-mix(in srgb, var(--color-accent) 10%, var(--color-canvas));
@@ -679,58 +783,100 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
 .visitor-page .visitor-sans,
 .visitor-page code { font-family: var(--font-visitor-sans), Arial, sans-serif; }
 
-/* Sparse binary signals frame the text; no timers, canvas, or moving layout. */
-.visitor-header-signals {
+/* One quiet surface connects the identity, tagline and navigation. */
+.visitor-masthead:not([data-reading]) { isolation: isolate; padding-bottom: 24px; }
+.visitor-masthead:not([data-reading])::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  top: 0;
+  bottom: -18px;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0, color-mix(in srgb, var(--color-accent) 6%, transparent), transparent 74%);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+.visitor-masthead:not([data-reading])::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-line-strong) 65%, transparent) 28%, color-mix(in srgb, var(--color-line-strong) 65%, transparent) 72%, transparent);
+}
+.visitor-tagline {
+  margin: 10px 0 0;
+  max-width: min(100%, 440px);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: -.02em;
+  color: var(--color-ink-2);
+  text-wrap: balance;
+}
+@media (min-width: 640px) {
+  .visitor-tagline { margin-top: 12px; font-size: 17px; }
+  .visitor-masthead:not([data-reading]) { padding-bottom: 28px; }
+}
+.visitor-header-backdrop {
   position: absolute;
   z-index: -1;
-  inset: 0 auto 0 50%;
-  width: min(100vw, 1100px);
+  top: 0;
+  bottom: -18px;
+  left: 50%;
+  width: 100vw;
   transform: translateX(-50%);
   overflow: hidden;
   pointer-events: none;
   user-select: none;
   color: var(--color-ink);
-  mask-image: linear-gradient(to right, #000 0%, #000 18%, transparent 34%, transparent 66%, #000 82%, #000 100%);
+  mask-image: linear-gradient(to bottom, #000 5%, #000 72%, transparent 100%);
 }
-.visitor-header-signal {
+.visitor-binary-glow {
   position: absolute;
-  display: block;
-  font-family: var(--font-visitor-mono), monospace;
-  font-weight: 500;
-  line-height: 1;
-  opacity: 0;
-  animation: visitor-header-signal-reveal 14s ease-in-out infinite;
+  inset: -15% -5%;
+  background:
+    radial-gradient(ellipse at 18% 40%, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent 45%),
+    radial-gradient(ellipse at 85% 65%, color-mix(in srgb, var(--color-accent) 4%, transparent), transparent 45%);
+  animation: visitor-binary-breathe 26s ease-in-out -8s infinite alternate;
 }
-@keyframes visitor-header-signal-reveal {
-  0%, 12%, 88%, 100% { opacity: 0; transform: translateY(4px); }
-  36%, 56% { opacity: var(--signal-opacity, .18); transform: translateY(0); }
-  76% { opacity: 0; transform: translateY(-4px); }
+.visitor-binary-field {
+  position: absolute;
+  inset: 0;
+  mask-image: radial-gradient(ellipse 28% 38% at 50% 49%, rgb(0 0 0 / .06) 20%, rgb(0 0 0 / .4) 75%, #000 125%);
+}
+.visitor-binary-particle {
+  position: absolute;
+  width: calc(var(--binary-size) * .75);
+  height: var(--binary-size);
+  color: color-mix(in srgb, var(--color-ink) 74%, var(--color-accent));
+  opacity: var(--binary-opacity);
+  animation: visitor-binary-drift var(--binary-duration) ease-in-out var(--binary-delay) infinite;
+}
+.visitor-binary-particle > svg { display: block; width: 100%; height: 100%; }
+.visitor-binary-particle:nth-child(5n + 2) { filter: blur(.45px); color: var(--color-accent); }
+@keyframes visitor-binary-breathe {
+  from { opacity: .45; transform: translate3d(-2%, 0, 0); }
+  to { opacity: .85; transform: translate3d(2%, -3%, 0); }
+}
+@keyframes visitor-binary-drift {
+  0% { opacity: 0; transform: translate3d(0, 14px, 0); }
+  25%, 65% { opacity: var(--binary-opacity); }
+  100% { opacity: 0; transform: translate3d(var(--binary-drift), -14px, 0); }
 }
 @media (max-width: 639px) {
-  .visitor-header-signals {
-    mask-image: linear-gradient(to right, #000, transparent 23%, transparent 77%, #000);
-  }
-  .visitor-header-signal:nth-child(3n) { display: none; }
+  .visitor-binary-field { mask-image: radial-gradient(ellipse 39% 35% at 50% 47%, rgb(0 0 0 / .05) 30%, rgb(0 0 0 / .35) 90%, #000 145%); }
+  .visitor-binary-particle { width: calc(var(--binary-size) * .6); height: calc(var(--binary-size) * .8); }
+  .visitor-binary-particle:nth-child(3n) { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .visitor-header-signal { animation: none; opacity: .08; }
+  .visitor-binary-glow, .visitor-binary-particle { animation: none; }
+  .visitor-binary-glow { opacity: .5; }
+  .visitor-binary-particle { opacity: calc(var(--binary-opacity) * .6); }
 }
-
-/* The same signals drift behind the wide-screen rail, a shade fainter than the masthead's and
-   masked away from the edges so they never crowd the hairline. */
-.visitor-side-signals {
-  position: absolute;
-  inset: 0 16px 0 24px;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  user-select: none;
-  color: var(--color-ink);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 44%, transparent 84%);
-}
-.visitor-side-signals .visitor-header-signal { --signal-opacity: .1; }
-.visitor-side-nav > *:not(.visitor-side-signals) { position: relative; z-index: 1; }
-
+@media (forced-colors: active) { .visitor-header-backdrop { display: none; } }
 
 /* Independent binary cells animate only in the visitor logo. */
 .brand-bit-alternate { opacity: 0; }
@@ -778,17 +924,64 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
 .visitor-wordmark {
   font-size: clamp(22px, 5.8vw, 34px);
   line-height: 1.3;
-  letter-spacing: -.01em;
+  letter-spacing: -.1em;
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
-.visitor-header-links {
-  position: relative;
-  padding-block: 8px 16px;
-  border-bottom: 1px solid var(--color-line);
+/* Outlined custom lettering stays crisp and follows the active theme's ink color. */
+.visitor-wordmark-art,
+.visitor-wordmark-placeholder {
+  display: block;
+  width: clamp(260px, 60vw, 360px);
+  max-width: 100%;
+  aspect-ratio: 585 / 87;
 }
-.visitor-header-links .visitor-nav-link { padding-bottom: 0; }
-.visitor-header-links .visitor-nav-link::before { bottom: -17px; height: 2px; }
+.visitor-wordmark-art {
+  background: currentColor;
+  mask: url("/dijital-masallar-wordmark.svg") center / contain no-repeat;
+}
+@media (forced-colors: active) {
+  .visitor-wordmark-art { forced-color-adjust: none; background: LinkText; }
+}
+.visitor-header-links { display: flex; justify-content: center; width: 100%; margin-top: 36px; }
+.visitor-nav-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--color-line) 75%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--color-ink) 3%, transparent);
+}
+.visitor-header-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+  line-height: 1.2;
+  color: var(--color-muted);
+  transition: color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+.visitor-header-link:hover { color: var(--color-ink); background: color-mix(in srgb, var(--color-surface) 55%, transparent); }
+.visitor-header-link[aria-current="page"] {
+  color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / .06), 0 0 0 1px color-mix(in srgb, var(--color-line) 70%, transparent);
+}
+.visitor-header-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+@media (min-width: 640px) {
+  .visitor-header-links { margin-top: 40px; }
+  .visitor-header-link { padding-inline: 24px; font-size: 16px; }
+}
+@media (max-width: 359px) { .visitor-header-link { padding-inline: 14px; } }
+@media (prefers-reduced-motion: reduce) { .visitor-header-link { transition: none; } }
 .visitor-page .visitor-brief-trigger { background: color-mix(in srgb, var(--color-surface-2) 48%, var(--color-canvas)); }
 @media (prefers-reduced-motion: reduce) {
   .visitor-nav-link::before { transition: none; }
@@ -829,22 +1022,89 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
   .rss-fit { display: flex; min-height: 0; flex: 1; flex-direction: column; }
 }
 
-/* The dateline now lives inside the card, above the note's first line: quiet by default, with the
-   time picked out in ink and a single accent dot marking the newest note in the feed. */
-.visitor-note-time {
+/* Feed controls share the existing gap between the masthead and the first notes. */
+.visitor-feed-tools {
+  position: absolute;
+  z-index: 2;
+  top: -46px;
+  right: 0;
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin-bottom: 14px;
-  /* The card's other piece of metadata is the source link at its foot; the dateline takes exactly
-     that type, so the two read as one voice. */
+  gap: 6px;
+}
+.visitor-feed-view-picker {
+  display: none;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+.visitor-feed-view-picker:hover { color: var(--color-ink); background: color-mix(in srgb, var(--color-ink) 5%, transparent); }
+.visitor-feed-view-picker:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+@media (min-width: 1280px) {
+  .visitor-feed-tools { top: -48px; }
+  .visitor-feed-view-picker { display: grid; }
+}
+.visitor-feed-refresh {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+@media (hover: hover) {
+  .visitor-feed-refresh:hover { color: var(--color-ink); background: color-mix(in srgb, var(--color-ink) 5%, transparent); }
+}
+.visitor-feed-refresh:active { background: color-mix(in srgb, var(--color-ink) 8%, transparent); }
+.visitor-feed-refresh:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.visitor-feed-refresh:is([aria-busy="true"], [data-done]) { color: var(--color-accent); }
+.visitor-feed-refresh:disabled { cursor: wait; }
+@media (prefers-reduced-motion: reduce) { .visitor-feed-refresh, .visitor-feed-view-picker { transition: none; } }
+
+/* An inset dateline and a quiet footer frame the reading area. */
+.visitor-note-card { --note-inset: 20px; }
+/* A barely tinted wash marks only the newest note and preserves each theme's card surface. */
+.visitor-note-card[data-latest] {
+  --latest-note-wash: color-mix(in srgb, var(--color-accent) 3%, transparent);
+  background-image: linear-gradient(var(--latest-note-wash), var(--latest-note-wash));
+}
+.visitor-note-time,
+.visitor-note-footer {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.6;
+  letter-spacing: normal;
+}
+.visitor-note-time {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-line) 45%, transparent);
   color: var(--color-muted);
 }
-
-.visitor-note-time-dot { color: var(--color-line-strong); }
+.visitor-note-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 6px var(--note-inset);
+  border-top: 1px solid color-mix(in srgb, var(--color-line) 80%, transparent);
+  background: color-mix(in srgb, var(--color-ink) 2%, transparent);
+}
+@media (min-width: 640px) { .visitor-note-card { --note-inset: 24px; } }
+@media (min-width: 1280px) { .visitor-note-card-grid { --note-inset: 20px; } }
 
 .visitor-note-time-new {
   width: 5px;
@@ -929,98 +1189,6 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
  */
 .visitor-side-nav { display: none; }
 
-@media (min-width: 1280px) {
-  /*
-   * The split. The centred masthead goes, and the page becomes two columns: the navigation on the
-   * left, sticky, and the content on the right at up to 960px — wide enough for the feed to lay a
-   * day out as a spread. The columns are centred together, so the pair sits in the middle of a
-   * large window instead of hugging its left edge.
-   */
-  .visitor-page-split .visitor-masthead { display: none; }
-
-  .visitor-page-split {
-    display: grid;
-    grid-template-columns: 328px minmax(0, 960px);
-    justify-content: center;
-    align-items: start;
-    column-gap: 64px;
-    padding-top: 44px;
-  }
-
-  /* The column is a rail, not a card: fixed to the window's left edge and running its full height,
-     square at every corner, with a single hairline dividing it from the feed. */
-  .visitor-page-split .visitor-side-nav {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 20;
-    width: 328px;
-    display: flex;
-    flex-direction: column;
-    /* No padding on the rail itself: its children carry their own side margins, so a child that
-       wants the full bleed (a rule, a future banner) can have it. */
-    padding: 0;
-    border-width: 0 1px 0 0;
-    border-radius: 0;
-    /* The feed scrolls under a fixed rail, so its surface has to be opaque in both themes — the
-       card's night-time wash would let headlines show through. */
-    background: var(--color-surface);
-    /* A breath of shadow to the right, so the rail sits a hair above the feed instead of being cut
-       out of it. Wide and shallow: the hairline still does the actual dividing. */
-    box-shadow: 6px 0 24px -12px rgb(0 0 0 / .10);
-    overflow: hidden auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-line-strong) transparent;
-  }
-
-  html[data-visitor-theme="dark"] .visitor-page .visitor-page-split .visitor-side-nav {
-    background: var(--color-surface-2);
-    box-shadow: 6px 0 24px -12px rgb(0 0 0 / .5);
-  }
-
-  /* The column runs the window's full height: the navigation floats in the middle of what is left
-     between the brand and the foot, and the two controls stay at the foot. */
-  .visitor-page-split .visitor-side-brand,
-  .visitor-page-split .visitor-side-tagline { margin-inline: 40px; }
-  /* The brand still starts level with the feed's first line: the page's 44px plus its 24px of air. */
-  .visitor-page-split .visitor-side-brand { margin-top: 68px; }
-  /* The rules run edge to edge — the navigation's hairlines and the foot's divider touch both
-     sides of the rail — while their text keeps the same 40px inset as everything above. */
-  .visitor-page-split .visitor-side-links { margin-block: auto; margin-inline: 40px; }
-  .visitor-page-split .visitor-side-link { padding-inline: 0; }
-  /* The foot takes the faintest wash — a few per cent of ink over the rail's surface — so the two
-     controls read as their own band without a second border. It runs to the rail's bottom edge. */
-  .visitor-page-split .visitor-side-tools {
-    padding: 24px 40px 32px;
-    background: color-mix(in srgb, var(--color-ink) 3.5%, transparent);
-  }
-
-  .visitor-page-split .visitor-content {
-    grid-column: 2;
-    grid-row: 1;
-    min-width: 0;
-    align-items: flex-start;
-  }
-
-  /* A little air above the feed's first date. The rail's own top padding matches it below, so the
-     brand and that first line stay level. */
-  .visitor-page-split .visitor-content > main { margin-top: 24px; }
-
-  /*
-   * The two subject pages — Hakkında, Favoriler — on a wide screen. The measure opens a little
-   * (720px reads better beside a 328px rail than the phone's 640), the second brand mark goes since
-   * the rail already shows one, and the page's title starts level with that mark. The footer takes
-   * the same measure, so the page has one edge on the right instead of two.
-   */
-  .visitor-page-split .visitor-content > main:not(.visitor-feed) { max-width: 720px; }
-  .visitor-page-split .visitor-content-page { padding-top: 0; }
-  .visitor-page-split .visitor-content-home { display: none; }
-  .visitor-page-split .visitor-content-header { margin-top: 0; }
-  .visitor-page-split .visitor-footer { max-width: 720px; justify-content: flex-start; }
-  .visitor-page-split .visitor-feed { max-width: none; }
-}
 
 .visitor-side-brand {
   display: flex;
@@ -1165,4 +1333,188 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Admin shares the public site's quiet surfaces, editorial headings and accent. */
+@layer components {
+  .admin-page { --focus-ring: var(--color-accent); }
+  .admin-page .sidebar { background: var(--color-surface); gap: 40px; }
+  .admin-page .sidebar-item { min-height: 48px; height: auto; padding-block: 10px; }
+  .admin-page .sidebar-item[aria-current="page"] {
+    color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 7%, var(--color-surface));
+    box-shadow: inset 3px 0 var(--color-accent);
+  }
+  .admin-page .page-header { padding-bottom: 24px; border-bottom: 1px solid var(--color-line); }
+  .admin-page-actions { min-width: 0; }
+  .admin-page .main { max-width: 1600px; margin-inline: auto; }
+  .admin-mobile-tabs { display: none; }
+  .admin-save-bar { position: fixed; inset: auto 0 0; z-index: 30; display: flex; align-items: center; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--color-line); background: var(--color-canvas); padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
+  @media (min-width: 1280px) {
+    .admin-save-bar { position: static; border: 0; padding: 0; background: transparent; }
+  }
+  .admin-editor-dialog .admin-save-bar { position: static; padding: 0; border: 0; background: transparent; backdrop-filter: none; flex-wrap: wrap; }
+  .admin-editor-dialog .admin-post-form { padding-bottom: 0; }
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .admin-save-bar { left: 248px; }
+    html[data-admin-sidebar="collapsed"] .admin-save-bar { left: 84px; }
+  }
+  @media (max-width: 1023px) {
+    .admin-page .mobile-bar { height: auto; min-height: 72px; padding-top: max(12px, env(safe-area-inset-top)); gap: 12px; }
+    .admin-mobile-tabs { display: flex; gap: 20px; overflow-x: auto; padding-inline: 20px; border-bottom: 1px solid var(--color-line); background: var(--color-surface); scrollbar-width: thin; }
+    .admin-mobile-tabs a { display: flex; flex: none; align-items: center; gap: 7px; min-height: 48px; border-bottom: 2px solid transparent; color: var(--color-muted); font-size: 13px; font-weight: 500; }
+    .admin-mobile-tabs a[aria-current="page"] { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+    .admin-mobile-tabs a:focus-visible { outline-offset: -3px; }
+    .admin-page :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea, [contenteditable="true"]) { font-size: 16px !important; }
+    .admin-page .page-header { flex-wrap: wrap; align-items: flex-start; }
+    .admin-page .main { padding-bottom: max(48px, env(safe-area-inset-bottom)); }
+  }
+  @media (max-width: 639px) {
+    .admin-page .page-header { gap: 16px; padding-bottom: 20px; }
+    .admin-page-actions { width: 100%; }
+    .admin-page-actions > :is(a, button) { flex: 1; }
+    .admin-page .card { border-radius: 16px; }
+    .admin-save-bar { gap: 8px; padding-inline: 12px; }
+    .admin-save-bar > button { min-width: 0; flex: 1; padding-inline: 12px; }
+    .admin-save-bar > a { padding-inline: 12px; }
+  }
+}
+
+/* Deliberately outside layers: this shared admin type scale supersedes older,
+   compact utility sizes without changing the public site's typography. */
+.admin-page { font-size: 17px; line-height: 1.6; }
+.admin-page :is(.text-xs, .text-\[10px\], .text-\[11px\], .text-\[12px\]) {
+  font-size: 14px; line-height: 1.5;
+}
+.admin-page :is(.text-sm, .text-\[13px\], .text-\[14px\], .text-\[15px\]) {
+  font-size: 16px; line-height: 1.5;
+}
+.admin-page .text-base { font-size: 17px; line-height: 1.6; }
+.admin-page :is(.text-\[17px\], .text-\[18px\]) { font-size: 21px; line-height: 1.4; }
+.admin-page .text-faint { color: var(--color-muted); }
+.admin-page .page-title { font-size: clamp(34px, 3vw, 42px); line-height: 1.2; }
+.admin-page .section-title { font-size: clamp(25px, 2vw, 29px); line-height: 1.3; }
+.admin-page .page-note { font-size: 16px; line-height: 1.6; }
+.admin-page .admin-brand { font-size: 14px; }
+.admin-page .admin-mobile-tabs a { font-size: 16px; min-height: 52px; }
+.admin-page .sidebar-item { min-height: 52px; }
+.admin-page :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 16px; }
+.admin-page .admin-overview-grid > .card { min-height: 240px; }
+.admin-page .admin-save-bar { flex-wrap: wrap; }
+@media (min-width: 640px) {
+  .admin-page .card { padding: 28px; }
+}
+@media (max-width: 639px) {
+  .admin-page .admin-save-bar > a { flex: 0 0 auto; }
+  .admin-page .admin-save-bar > button { flex: 1 1 180px; }
+}
+
+/* Match the visitor reading surface, including pasted inline code in the editor. */
+.admin-page :is(code, pre) { font-family: var(--font-visitor-sans), Arial, sans-serif; }
+
+/* A compact author profile balances the reading options on the about page. */
+.visitor-about-card { --about-inset: 20px; }
+.visitor-about-profile { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 20px; padding: 24px var(--about-inset); border-bottom: 1px solid var(--color-line); }
+.visitor-about-portrait { width: 112px; aspect-ratio: 1; }
+.visitor-about-author { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.25; letter-spacing: -.025em; }
+.visitor-about-author a { display: inline-flex; align-items: center; gap: 6px; transition: color 160ms ease; }
+.visitor-about-author a:hover { color: var(--color-accent); }
+.visitor-about-author svg { flex-shrink: 0; color: var(--color-muted); }
+.visitor-about-copy { font-size: calc(17px * var(--visitor-text-scale, 1)); line-height: 1.65; color: var(--color-ink-2); }
+.visitor-about-sections { padding: 24px var(--about-inset); }
+.visitor-about-section-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; line-height: 1.4; color: var(--color-ink); }
+.visitor-about-section-title svg { flex-shrink: 0; color: var(--color-muted); }
+.visitor-about-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.visitor-about-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--color-line); border-radius: 12px; font-size: 14px; font-weight: 500; color: var(--color-ink); background: color-mix(in srgb, var(--color-ink) 2%, transparent); transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease; }
+.visitor-about-action:hover { color: var(--color-accent); border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 4%, transparent); }
+.visitor-about-action:focus-visible, .visitor-about-author a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.visitor-about-app { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-line); }
+.visitor-about-hint { margin-top: 12px; font-size: 13px; line-height: 1.7; color: var(--color-muted); text-wrap: pretty; }
+.visitor-about-contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 16px var(--about-inset); border-top: 1px solid var(--color-line); background: color-mix(in srgb, var(--color-ink) 1.5%, transparent); }
+.visitor-about-contact > div { min-width: 0; max-width: 100%; }
+@media (max-width: 359px) {
+  .visitor-about-profile { grid-template-columns: 88px minmax(0, 1fr); gap: 16px; }
+  .visitor-about-portrait { width: 88px; }
+}
+@media (min-width: 640px) {
+  .visitor-about-card { --about-inset: 28px; }
+  .visitor-about-profile { grid-template-columns: 144px minmax(0, 1fr); gap: 28px; padding-block: 28px; }
+  .visitor-about-portrait { width: 144px; }
+  .visitor-about-author { font-size: 28px; }
+  .visitor-about-copy { font-size: calc(18px * var(--visitor-text-scale, 1)); }
+}
+@media (min-width: 1280px) {
+  .visitor-about-card { --about-inset: 32px; display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+  .visitor-about-profile { grid-template-columns: minmax(0, 1fr); align-content: center; justify-items: center; gap: 16px; border-bottom: 0; border-right: 1px solid var(--color-line); text-align: center; }
+  .visitor-about-portrait { width: 176px; }
+  .visitor-about-profile > div:last-child { max-width: 28ch; }
+  .visitor-about-sections { padding-block: 32px; }
+  .visitor-about-contact { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { .visitor-about-action, .visitor-about-author a { transition: none; } }
+
+/* The mobile masthead stays centred above a wider desktop news grid.
+   Real cards and loading placeholders share these dimensions. */
+@media (min-width: 1280px) {
+  .visitor-page :is(.visitor-feed, .visitor-wide-page),
+  .visitor-page:has(.visitor-feed, .visitor-wide-page) .visitor-masthead { max-width: min(1080px, calc(100% - 64px)); }
+  .visitor-page .visitor-feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .visitor-page .visitor-feed-grid :is(.visitor-note-initial, .visitor-note-body) {
+    font-size: calc(18px * var(--visitor-text-scale));
+  }
+
+  /* A saved desktop preference reshapes the same notes; mobile and article pages stay independent. */
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-feed-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-card-grid { --note-inset: 24px; position: relative; border-radius: 14px; box-shadow: none; }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-card-grid:has(.visitor-note-cover) {
+    --note-cover-width: 300px;
+    min-height: 240px;
+    padding-left: var(--note-cover-width);
+  }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-content {
+    padding: 20px var(--note-inset);
+  }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-time { margin-bottom: 12px; }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-body { margin-top: 12px; }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-cover {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--note-cover-width);
+    height: 100%;
+    margin: 0;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-footer { padding-block: 2px; }
+}
+
+@media (min-width: 1280px) {
+  .visitor-ad-slot .visitor-ad-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    padding: 28px 32px;
+  }
+  .visitor-ad-slot .visitor-ad-with-image {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+    column-gap: 40px;
+  }
+  .visitor-ad-content > :not(.visitor-ad-image) { grid-column: 1; }
+  .visitor-ad-content > .visitor-ad-image {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: center;
+    margin-top: 0;
+  }
+  .visitor-ad-content > .visitor-ad-title { font-size: calc(28px * var(--visitor-text-scale, 1)); }
+  .visitor-ad-content > p { margin-top: 12px; }
+  .visitor-ad-content > div:last-child { margin-top: 16px; }
+}
+
+.visitor-ad-title { font-size: calc(22px * var(--visitor-text-scale, 1)); font-weight: 700; line-height: 1.35; }
+
+@media (min-width: 1280px) {
+  .visitor-masthead .visitor-top-control { width: 60px; height: 60px; }
+  .visitor-masthead .visitor-top-control::before { border-radius: 16px; }
+  .visitor-masthead .visitor-top-control > svg { width: 24px; height: 24px; }
 }

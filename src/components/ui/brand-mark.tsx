@@ -1,6 +1,7 @@
 // Outlined glyphs keep the browser logo and installed app icons identical on every platform.
-const zero = "M9 0C2.5 0 0 4 0 12S2.5 24 9 24s9-4 9-12S15.5 0 9 0ZM9 4c3.4 0 4.5 2.5 4.5 8S12.4 20 9 20s-4.5-2.5-4.5-8S5.6 4 9 4ZM7.5 10h3v4h-3Z";
-const one = "M2 5 8 0h5v20h5v4H1v-4h7V5L4 8Z";
+// Geometric bowls and plain stems match the custom wordmark's lettering.
+const zero = "M9 0C3.2 0 0 4.5 0 12s3.2 12 9 12 9-4.5 9-12S14.8 0 9 0ZM9 4.5c3.1 0 4.5 2.5 4.5 7.5s-1.4 7.5-4.5 7.5S4.5 17 4.5 12 5.9 4.5 9 4.5Z";
+const one = "M3 5.5 9.5 0H14V24H9.5V5.8L5.4 9Z";
 
 export function BrandMark({ className = "" }: { className?: string }) {
   return (
@@ -21,5 +22,14 @@ export function BrandMark({ className = "" }: { className?: string }) {
         </g>
       </svg>
     </span>
+  );
+}
+
+/** Reuse the logo's outlined digits in decorative header animations. */
+export function BrandDigit({ value, className }: { value: string; className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 18 24" fill="currentColor" fillRule="evenodd" aria-hidden="true" focusable="false">
+      <path d={value === "0" ? zero : one} />
+    </svg>
   );
 }

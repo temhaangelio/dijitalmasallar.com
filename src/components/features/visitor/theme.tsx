@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { Segmented } from "@/components/ui/segmented";
 import { segmentClassName } from "@/components/ui/segmented-style";
 import { cn } from "@/lib/utils";
@@ -126,6 +127,7 @@ export function ThemePicker({ language }: { language: "tr" | "en" }) {
     <Segmented className="w-full sm:w-fit" role="radiogroup" label={language === "en" ? "Theme" : "Tema"}>
       {options.map((option) => {
         const selected = preference === option.value;
+        const Icon = option.value === "light" ? Sun : option.value === "dark" ? Moon : Monitor;
         return (
           <button
             key={option.value}
@@ -138,7 +140,7 @@ export function ThemePicker({ language }: { language: "tr" | "en" }) {
             onClick={() => setPreference(option.value)}
             className={cn(segmentClassName(selected), "flex-1 justify-center px-3.5 sm:flex-none")}
           >
-            {option.label[language]}
+            <Icon size={19} strokeWidth={1.7} aria-hidden="true" />
           </button>
         );
       })}

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
+import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { AccentScript } from "@/components/features/visitor/accent-script";
 import { AppToaster } from "@/components/ui/toast";
@@ -7,29 +7,15 @@ import { InstallScript } from "@/components/features/visitor/push";
 import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytics";
 import { ThemeScript } from "@/components/features/visitor/theme";
 import { FontScript } from "@/components/features/visitor/font";
+import { FeedViewScript } from "@/components/features/visitor/feed-view-picker";
 import { siteUrl } from "@/lib/seo";
 
-/*
- * Three families, down from five.
- *
- * Geist was the `body` default, but both shells override it — the visitor pages and the admin panel
- * are Plex Sans — so it was downloaded on every page to set the type in a toast. Montserrat was
- * loaded at weight 800 for two glyphs: the 0 and the 1 inside the brand mark, which are Plex Mono
- * now, the typeface the logotype is already set in.
- *
- * `latin-ext` carries ğ, ş, İ, Ğ, Ş so Turkish never falls back to a second typeface.
- */
-/*
- * The public site is set in one family: Atkinson Hyperlegible Next for everything that is read
- * and touched, and its mono cut for the wordmark and the brand's digits. Plex remains for the admin
- * panel alone and is not preloaded, so a reader never downloads it; Source Serif stays as the
- * optional reading face a reader can choose in Settings.
- */
+/* Shared typography: Atkinson for visitor and admin interfaces, its mono cut for
+ * the wordmark. Source Serif remains an optional visitor reading preference.
+ * latin-ext includes Turkish characters. */
 const visitorSans = Atkinson_Hyperlegible_Next({ subsets: ["latin", "latin-ext"], variable: "--font-visitor-sans", display: "swap" });
 const visitorMono = Atkinson_Hyperlegible_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-visitor-mono", display: "swap" });
 const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap", preload: false });
-const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap", preload: false });
-const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-plex-mono", display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -77,8 +63,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The dark tokens themselves only apply inside `.visitor-page`.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /><FontScript /><AccentScript /><InstallScript /></head>
-      <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable} ${plexSans.variable} ${plexMono.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <head><ThemeScript /><FontScript /><AccentScript /><FeedViewScript /><InstallScript /></head>
+      <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
     </html>
   );
 }

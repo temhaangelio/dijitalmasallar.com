@@ -11,7 +11,6 @@ function basePost(overrides: Record<string, unknown> = {}) {
     tr: { body: "x".repeat(60) },
     en: { body: "y".repeat(60) },
     sourceUrl: "https://example.com/haber",
-    featured: false,
     status: "published",
     ...overrides,
   };
@@ -20,6 +19,12 @@ function basePost(overrides: Record<string, unknown> = {}) {
 describe("post validation", () => {
   test("accepts a complete published post", () => {
     assert.equal(postSchema.safeParse(basePost()).success, true);
+  });
+
+  test("ignores the removed featured field from older clients", () => {
+    const result = postSchema.safeParse(basePost({ featured: true }));
+    assert.equal(result.success, true);
+    if (result.success) assert.equal("featured" in result.data, false);
   });
 
   test("rejects a non-URL source", () => {

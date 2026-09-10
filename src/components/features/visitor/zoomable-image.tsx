@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { LoaderCircle, X, ZoomIn } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 
 export function ZoomableImage({ src, alt, language, className, children }: {
@@ -10,9 +10,8 @@ export function ZoomableImage({ src, alt, language, className, children }: {
 }) {
   const [open, setOpen] = useState(false);
   return <>
-    <button type="button" className={`${className} group/image cursor-zoom-in focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`} aria-label={language === "en" ? "Enlarge image" : "Görseli büyüt"} aria-haspopup="dialog" onClick={() => setOpen(true)}>
+    <button type="button" className={`${className} cursor-zoom-in focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`} aria-label={language === "en" ? "Enlarge image" : "Görseli büyüt"} aria-haspopup="dialog" onClick={() => setOpen(true)}>
       {children}
-      <span aria-hidden="true" className="absolute bottom-3 right-3 grid size-8 place-items-center rounded-full bg-black/50 text-white opacity-80 transition-opacity group-hover/image:opacity-100"><ZoomIn size={16} /></span>
     </button>
     {open && createPortal(<ImagePreview src={src} alt={alt} language={language} onClose={() => setOpen(false)} />, document.body)}
   </>;

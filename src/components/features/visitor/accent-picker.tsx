@@ -34,7 +34,7 @@ export function resetAccent() {
 export function AccentPicker({ language }: { language: VisitorLanguage }) {
   const selected = useSyncExternalStore(subscribe, snapshot, () => "red");
   return (
-    <div role="radiogroup" aria-label={language === "en" ? "Accent color" : "Vurgu rengi"} className="grid grid-cols-4 gap-0">
+    <div role="radiogroup" aria-label={language === "en" ? "Accent color" : "Vurgu rengi"} className="visitor-accent-picker">
       {accentOptions.map((option, index) => (
         <button key={option.id} type="button" role="radio" aria-checked={selected === option.id} aria-label={option[language]} title={option[language]} tabIndex={selected === option.id ? 0 : -1}
           onClick={() => choose(option.id)}
@@ -46,7 +46,7 @@ export function AccentPicker({ language }: { language: VisitorLanguage }) {
             choose(accentOptions[next]!.id);
             (event.currentTarget.parentElement?.children[next] as HTMLElement | undefined)?.focus();
           }}
-          className="grid size-11 shrink-0 place-items-center rounded-full border border-transparent transition-colors hover:bg-surface-2 aria-checked:border-line-strong focus-visible:outline-2 focus-visible:outline-offset-2">
+          className="visitor-accent-option">
           <span className="grid size-7 place-items-center rounded-full text-white" style={{ backgroundColor: option.light }}>
             {selected === option.id ? <Check className="size-4" strokeWidth={2} aria-hidden="true" /> : null}
           </span>

@@ -46,7 +46,7 @@ export function AppDialog({
             <X size={18} />
           </button>
         </div>
-        {!hideIdentity ? <h2 id={titleId} className="mt-5 font-[family-name:var(--font-source-serif)] text-[26px] font-medium leading-tight tracking-[-.04em]">{title}</h2> : null}
+        {!hideIdentity ? <h2 id={titleId} className="mt-5 font-[family-name:var(--font-visitor-sans)] text-[26px] font-medium leading-tight tracking-[-.04em]">{title}</h2> : null}
         {children}
       </div>
     </div>,

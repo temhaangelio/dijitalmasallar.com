@@ -76,7 +76,7 @@ export function FontPicker({ language }: { language: "tr" | "en" }) {
             onClick={() => setPreference(option.value)}
             className={cn(segmentClassName(selected), "min-w-0 flex-1 justify-center truncate px-3.5 sm:flex-none")}
           >
-            {option.label[language]}
+            <span className="visitor-settings-font-sample" data-font={option.value} aria-hidden="true">Aa</span>
           </button>
         );
       })}
@@ -122,7 +122,7 @@ export function TextSizePicker({ language }: { language: "tr" | "en" }) {
             onClick={() => setSize(option.value)}
             className={cn(segmentClassName(selected), "min-w-0 flex-1 justify-center truncate px-3.5 sm:flex-none")}
           >
-            {option.label[language]}
+            <span className="visitor-settings-size-sample" data-size={option.value} aria-hidden="true">A</span>
           </button>
         );
       })}

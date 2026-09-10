@@ -75,7 +75,7 @@ export function AdsList({ ads }: { ads: Advertisement[] }) {
                 </span>
                 <Switch checked={ad.active} disabled={pending} onCheckedChange={(checked) => runAction(() => toggleAdAction(ad.id, checked))} label={`${ad.title} reklamını yayınla`} />
               </div>
-              <h2 className="font-[family-name:var(--font-source-serif)] text-[23px] font-medium leading-[1.3] tracking-[-.02em] text-ink">{ad.title}</h2>
+              <h2 className="font-[family-name:var(--font-visitor-sans)] text-[23px] font-medium leading-[1.3] tracking-[-.02em] text-ink">{ad.title}</h2>
               <p className="mt-3 text-[14px] leading-6 text-muted">{ad.description}</p>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-muted">
                 <span className="rounded-md bg-surface-2 px-2 py-1">{ad.language === "tr" ? "Türkçe" : "English"}</span>

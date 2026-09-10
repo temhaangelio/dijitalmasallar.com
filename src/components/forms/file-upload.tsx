@@ -1,9 +1,11 @@
 "use client";
 
 import { ImagePlus, Scissors, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AppDialog } from "@/components/ui/app-dialog";
 import { Button } from "@/components/ui/button";
+import { ImageCropper } from "@/components/forms/image-cropper";
+import { cropBounds, initialCrop, type CropTransform } from "@/lib/image-crop";
 
 const accepted = ["image/jpeg", "image/png", "image/webp"];
 const maxOriginalBytes = 5 * 1024 * 1024;
@@ -16,7 +18,7 @@ function canvasBlob(canvas: HTMLCanvasElement, quality: number) {
   return new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Görsel dönüştürülemedi.")), "image/webp", quality));
 }
 
-async function cropForUpload(file: File, zoom: number, positionX: number, positionY: number) {
+async function cropForUpload(file: File, crop: CropTransform) {
   const bitmap = await createImageBitmap(file);
   const canvas = document.createElement("canvas");
   canvas.width = outputWidth;
@@ -27,16 +29,11 @@ async function cropForUpload(file: File, zoom: number, positionX: number, positi
     throw new Error("Görsel işlenemedi.");
   }
 
-  const coverScale = Math.max(outputWidth / bitmap.width, outputHeight / bitmap.height);
-  const scale = coverScale * zoom;
-  const renderedWidth = bitmap.width * scale;
-  const renderedHeight = bitmap.height * scale;
-  const offsetX = (renderedWidth - outputWidth) * (positionX / 100);
-  const offsetY = (renderedHeight - outputHeight) * (positionY / 100);
+  const bounds = cropBounds({ width: outputWidth, height: outputHeight, imageWidth: bitmap.width, imageHeight: bitmap.height }, crop);
 
   context.fillStyle = "#ffffff";
   context.fillRect(0, 0, outputWidth, outputHeight);
-  context.drawImage(bitmap, -offsetX, -offsetY, renderedWidth, renderedHeight);
+  context.drawImage(bitmap, bounds.left, bounds.top, bounds.width, bounds.height);
   bitmap.close();
 
   let smallest: Blob | null = null;
@@ -53,16 +50,17 @@ async function cropForUpload(file: File, zoom: number, positionX: number, positi
 
 type CropSource = { file: File; url: string };
 
-export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChange: (file: File | null) => void; label?: string }) {
+export function FileUpload({ onChange, label = "Kapak görseli seç", preview }: { onChange: (file: File | null) => void; label?: string; preview?: ReactNode }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
   const [name, setName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [originalFile, setOriginalFile] = useState<File | null>(null);
   const [cropSource, setCropSource] = useState<CropSource | null>(null);
-  const [zoom, setZoom] = useState(1);
-  const [positionX, setPositionX] = useState(50);
-  const [positionY, setPositionY] = useState(50);
+  const [crop, setCrop] = useState(initialCrop);
+  const [appliedCrop, setAppliedCrop] = useState(initialCrop);
 
   useEffect(() => {
     const url = cropSource?.url;
@@ -70,11 +68,7 @@ export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChan
   }, [cropSource?.url]);
 
   function openCrop(file: File, reset = false) {
-    if (reset) {
-      setZoom(1);
-      setPositionX(50);
-      setPositionY(50);
-    }
+    setCrop(reset ? initialCrop : appliedCrop);
     setCropSource({ file, url: URL.createObjectURL(file) });
   }
 
@@ -83,7 +77,6 @@ export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChan
     if (!accepted.includes(file.type)) { setError("Yalnızca JPG, PNG veya WebP yükleyin."); return; }
     if (file.size > maxOriginalBytes) { setError("Görsel 5 MB’dan küçük olmalı."); return; }
     setError(null);
-    setOriginalFile(file);
     openCrop(file, true);
   }
 
@@ -92,7 +85,10 @@ export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChan
     setError(null);
     setProcessing(true);
     try {
-      const optimized = await cropForUpload(cropSource.file, zoom, positionX, positionY);
+      const optimized = await cropForUpload(cropSource.file, crop);
+      setOriginalFile(cropSource.file);
+      setAppliedCrop(crop);
+      setPreviewUrl(URL.createObjectURL(optimized));
       setName(`${optimized.name} · ${Math.ceil(optimized.size / 1024)} KB`);
       onChange(optimized);
       setCropSource(null);
@@ -111,8 +107,10 @@ export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChan
 
   function clear() {
     setName(null);
+    setPreviewUrl(null);
     setError(null);
     setOriginalFile(null);
+    setAppliedCrop(initialCrop);
     setCropSource(null);
     if (inputRef.current) inputRef.current.value = "";
     onChange(null);
@@ -120,47 +118,35 @@ export function FileUpload({ onChange, label = "Kapak görseli seç" }: { onChan
 
   return (
     <div>
-      <input ref={inputRef} type="file" accept={accepted.join(",")} className="sr-only" onChange={(event) => select(event.target.files?.[0])} />
-      <button type="button" disabled={processing} onClick={() => inputRef.current?.click()} className="flex min-h-28 w-full items-center justify-center gap-3 rounded-field border border-dashed border-line-strong bg-surface-2 px-4 text-sm font-semibold hover:border-ink disabled:opacity-60">
-        {!name ? <ImagePlus size={20} aria-hidden="true" /> : null}
-        {processing ? "Görsel hazırlanıyor…" : name ?? label}
-      </button>
+      <input ref={inputRef} type="file" accept={accepted.join(",")} className="hidden" aria-label={label} onChange={(event) => { select(event.target.files?.[0]); event.target.value = ""; }} />
+      {previewUrl || preview ? (
+        <button type="button" disabled={processing} onClick={() => inputRef.current?.click()} aria-label="Kapak görselini değiştir" title="Görseli değiştirmek için tıklayın" className="group relative block aspect-video w-full overflow-hidden rounded-field bg-surface-3 disabled:opacity-60">
+          {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- local object URL for the selected cover
+            <img src={previewUrl} alt="Seçilen kapak görseli" className="absolute inset-0 size-full object-cover" />
+          ) : preview}
+          <span className="absolute bottom-3 right-3 grid size-9 place-items-center rounded-full bg-ink/75 text-white transition-colors group-hover:bg-ink" aria-hidden="true"><ImagePlus size={18} /></span>
+        </button>
+      ) : (
+        <button type="button" disabled={processing} onClick={() => inputRef.current?.click()} className="flex min-h-28 w-full items-center justify-center gap-3 rounded-field border border-dashed border-line-strong bg-surface-2 px-4 text-sm font-semibold hover:border-ink disabled:opacity-60">
+          <ImagePlus size={20} aria-hidden="true" />
+          {processing ? "Görsel hazırlanıyor…" : label}
+        </button>
+      )}
       {name ? (
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
           {originalFile ? <button type="button" className="flex items-center gap-1 text-xs font-semibold text-muted hover:text-ink" onClick={() => openCrop(originalFile)}><Scissors size={13} aria-hidden="true" /> Kırpmayı düzenle</button> : null}
           <button type="button" className="flex items-center gap-1 text-xs text-muted hover:text-ink" onClick={clear}><X size={13} aria-hidden="true" /> Seçimi kaldır</button>
         </div>
       ) : null}
-      {error && <p role="alert" className="mt-2 text-[13px] text-danger">{error}</p>}
+      {error && !cropSource && <p role="alert" className="mt-2 text-[13px] text-danger">{error}</p>}
 
       {cropSource ? (
-        <AppDialog title="Kapak görselini kırp" onClose={closeCrop} busy={processing} hideIdentity panelClassName="!max-w-[720px] !bg-canvas">
+        <AppDialog title="Kapak görselini kırp" onClose={closeCrop} busy={processing} hideIdentity panelClassName="!max-w-[720px] !bg-canvas !p-4 sm:!p-7">
           <div className="mt-2">
-            <div className="relative aspect-video overflow-hidden rounded-field bg-ink">
-              {/* eslint-disable-next-line @next/next/no-img-element -- local object URL used only inside the crop preview */}
-              <img
-                src={cropSource.url}
-                alt="Kırpma önizlemesi"
-                className="absolute inset-0 size-full object-cover"
-                style={{ objectPosition: `${positionX}% ${positionY}%`, transform: `scale(${zoom})`, transformOrigin: `${positionX}% ${positionY}%` }}
-              />
-              <div className="pointer-events-none absolute inset-0 border border-white/30" aria-hidden="true" />
-            </div>
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-3">
-              <label className="text-[13px] font-semibold text-ink">
-                Yakınlaştır
-                <input className="mt-2 block w-full accent-ink" type="range" min="1" max="3" step="0.05" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} />
-              </label>
-              <label className="text-[13px] font-semibold text-ink">
-                Yatay konum
-                <input className="mt-2 block w-full accent-ink" type="range" min="0" max="100" value={positionX} onChange={(event) => setPositionX(Number(event.target.value))} />
-              </label>
-              <label className="text-[13px] font-semibold text-ink">
-                Dikey konum
-                <input className="mt-2 block w-full accent-ink" type="range" min="0" max="100" value={positionY} onChange={(event) => setPositionY(Number(event.target.value))} />
-              </label>
-            </div>
+            <h2 className="mb-4 text-xl font-semibold text-ink">Kadrajı ayarla</h2>
+            <ImageCropper key={cropSource.url} src={cropSource.url} value={crop} onChange={setCrop} disabled={processing} />
+            {error ? <p role="alert" className="mt-3 text-sm text-danger">{error}</p> : null}
 
             <div className="mt-6 flex justify-end gap-2">
               <Button type="button" variant="secondary" disabled={processing} onClick={closeCrop}>Vazgeç</Button>

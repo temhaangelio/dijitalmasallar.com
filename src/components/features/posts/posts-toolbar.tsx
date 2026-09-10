@@ -7,8 +7,8 @@ import type { PostSort } from "@/services/posts";
 
 export const sortLabels: Record<PostSort, string> = { newest: "En yeni", oldest: "En eski", "title-asc": "Başlık A–Z", "title-desc": "Başlık Z–A" };
 
-const segment = "flex min-h-9 items-center rounded-full px-3.5 text-[13px] font-semibold transition-colors disabled:cursor-wait";
-const menuTrigger = "flex min-h-9 w-auto items-center gap-2 rounded-full border border-line px-3.5 text-[13px] font-semibold text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink";
+const segment = "flex min-h-11 items-center rounded-full px-3.5 text-[13px] font-semibold transition-colors disabled:cursor-wait";
+const menuTrigger = "flex min-h-11 w-auto items-center gap-2 rounded-full border border-line px-3.5 text-[13px] font-semibold text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink";
 
 export function PostsToolbar({
   query,
@@ -39,10 +39,10 @@ export function PostsToolbar({
           onChange={(event) => onQueryChange(event.target.value)}
           aria-label="Tüm yazılarda ara"
           placeholder="Tüm yazılarda ara"
-          className={query ? "px-11" : "pl-11"}
+          className={query ? "pl-11 pr-14" : "pl-11"}
         />
         {query ? (
-          <button type="button" onClick={() => onQueryChange("")} aria-label="Aramayı temizle" className="absolute right-1.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-muted transition-colors hover:bg-surface-3 hover:text-ink">
+          <button type="button" onClick={() => onQueryChange("")} aria-label="Aramayı temizle" className="absolute right-1.5 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full text-muted transition-colors hover:bg-surface-3 hover:text-ink">
             <X size={16} aria-hidden="true" />
           </button>
         ) : null}

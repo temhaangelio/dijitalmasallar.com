@@ -99,7 +99,6 @@ export async function createPostAction(input: unknown, image: File | null = null
     content_en: parsed.data.en.body,
     source_url: parsed.data.sourceUrl,
     cover_path: coverUrl,
-    featured: parsed.data.featured,
     author_id: access.user.id,
     created_at: createdAt,
   }).select("id").single();
@@ -139,7 +138,6 @@ export async function updatePostAction(id: string, input: unknown, image: File |
     content_en: parsed.data.en.body,
     source_url: parsed.data.sourceUrl,
     cover_path: cover.url ?? discoveredCoverUrl ?? (removeCover ? null : current.cover_path),
-    featured: parsed.data.featured,
     created_at: createdAt,
   }).eq("id", current.id);
   if (error) {

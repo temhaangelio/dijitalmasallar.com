@@ -107,7 +107,7 @@ export function PostImageActions({
     : "relative shrink-0 gap-1";
 
   return (
-    <div className={`${placementClass} z-20 flex items-center overflow-hidden rounded-full`}>
+    <div className={`visitor-card-actions ${placementClass} z-20 flex items-center overflow-hidden rounded-full`}>
       <button type="button" onClick={sharePost} aria-label={shareLabel} title={shareLabel} className={`${buttonClass} rounded-full`}>
         <Share2 className="size-[21px]" strokeWidth={1.7} aria-hidden="true" />
       </button>
