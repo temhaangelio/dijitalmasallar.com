@@ -473,10 +473,12 @@ html[data-visitor-text="large"] { --visitor-text-scale: 1.12; }
 .visitor-page { --visitor-reading-family: var(--font-visitor-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
 html[data-visitor-font="serif"] .visitor-page { --visitor-reading-family: var(--font-source-serif), Georgia, "Apple Color Emoji", "Segoe UI Emoji", serif; }
 
-/* The reading face. Atkinson Hyperlegible is the default — it was drawn to keep confusable
-   letterforms apart, so it is the safest face to hand a reader who has expressed no preference —
-   and Settings → Yazı tipi swaps it for the serif or for the interface sans. Only the text face
-   changes: the wordmark stays mono and the interface stays Plex Sans. */
+/* The reading face, and the news text is all it touches.
+   Atkinson Hyperlegible is the default — it was drawn to keep confusable letterforms apart, so it
+   is the safest face to hand a reader who has expressed no preference — and Settings → Yazı tipi
+   swaps it for the serif. `visitor-serif` marks the note bodies and the article itself; page
+   titles, the about copy and the sponsor slots stay in the interface sans, so changing the reading
+   face changes what you read and nothing else. The wordmark stays mono. */
 .visitor-page .visitor-serif {
   /* The text faces carry no emoji, and an emoji in a note would otherwise land as tofu. */
   font-family: var(--visitor-reading-family);
@@ -490,6 +492,10 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
 }
 
 
+/* Every size in the article is a multiple of the reader's choice, headings included. Three of
+   them used to be literals — the opening paragraph at every width, the body and its headings from
+   640px up — so on anything wider than a phone the Küçük/Normal/Büyük setting did nothing to the
+   page it exists for, and at Büyük the body would have set larger than the h2 above it. */
 .visitor-page .visitor-markdown > div {
   font-size: calc(18px * var(--visitor-text-scale));
   font-weight: 400;
@@ -498,13 +504,13 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
 }
 .visitor-page .visitor-markdown h1 {
   padding-top: 0;
-  font-size: 22px;
+  font-size: calc(22px * var(--visitor-text-scale, 1));
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1.4;
 }
 .visitor-page .visitor-markdown h2 {
-  font-size: 20px;
+  font-size: calc(20px * var(--visitor-text-scale, 1));
   font-weight: 500;
   letter-spacing: 0;
   line-height: 1.4;
@@ -514,9 +520,9 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
 .visitor-page .visitor-markdown a:hover { text-decoration-color: currentcolor; }
 
 @media (min-width: 640px) {
-  .visitor-page .visitor-markdown > div { font-size: 21px; line-height: 1.58; }
-  .visitor-page .visitor-markdown h1 { font-size: 28px; line-height: 1.35; }
-  .visitor-page .visitor-markdown h2 { font-size: 23px; line-height: 1.4; }
+  .visitor-page .visitor-markdown > div { font-size: calc(21px * var(--visitor-text-scale, 1)); line-height: 1.58; }
+  .visitor-page .visitor-markdown h1 { font-size: calc(28px * var(--visitor-text-scale, 1)); line-height: 1.35; }
+  .visitor-page .visitor-markdown h2 { font-size: calc(23px * var(--visitor-text-scale, 1)); line-height: 1.4; }
 }
 
 /*
@@ -862,9 +868,9 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
   background: color-mix(in srgb, var(--color-accent) 10%, var(--color-canvas));
 }
 
-.visitor-page .visitor-article-intro > div { font-size: 20px; line-height: 1.55; }
+.visitor-page .visitor-article-intro > div { font-size: calc(20px * var(--visitor-text-scale, 1)); line-height: 1.55; }
 @media (min-width: 640px) {
-  .visitor-page .visitor-article-intro > div { font-size: 23px; }
+  .visitor-page .visitor-article-intro > div { font-size: calc(23px * var(--visitor-text-scale, 1)); }
 }
 
 /* Visitor typography: brand in Mono, reading in Serif, controls and metadata in Sans. */
@@ -1135,6 +1141,8 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
   transition: transform .26s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
 }
 .visitor-float-nav[data-shown] { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+/* Both live on the bottom edge; when the install invitation is up, the capsule stands on it. */
+.visitor-page:has(.install-banner) .visitor-float-nav { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 78px); }
 .visitor-float-track {
   display: inline-flex;
   align-items: center;
@@ -1167,7 +1175,6 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background:
   transition: color .18s ease, background-color .18s ease;
 }
 .visitor-float-top:hover { color: var(--color-ink); }
-.visitor-float-rule { width: 1px; height: 22px; margin-inline: 4px; background: color-mix(in srgb, var(--color-line-strong) 70%, transparent); }
 .visitor-float-link {
   display: flex;
   align-items: center;
@@ -1384,6 +1391,12 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background:
 .visitor-about-portrait { width: 112px; aspect-ratio: 1; }
 .visitor-about-author { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.25; letter-spacing: -.025em; }
 .visitor-about-role { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--color-muted); }
+/* The daily videos, named right under the role they belong to rather than lost among the icons. */
+.visitor-about-role-link { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-top: 2px; font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--color-ink-2); transition: color 160ms ease; }
+.visitor-about-role-link > svg { flex: none; color: var(--color-muted); transition: color 160ms ease; }
+.visitor-about-role-link > span { text-decoration: underline; text-decoration-color: var(--color-line-strong); text-underline-offset: 4px; }
+.visitor-about-role-link:hover, .visitor-about-role-link:hover > svg { color: var(--color-accent); }
+.visitor-about-role-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 6px; }
 .visitor-about-website { grid-column: 1 / -1; display: inline-flex; align-items: center; justify-self: start; gap: 6px; min-height: 44px; max-width: 100%; font-size: 14px; line-height: 1.5; color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-line-strong); text-underline-offset: 4px; transition: color 160ms ease; }
 .visitor-about-website > span { min-width: 0; overflow-wrap: anywhere; }
 .visitor-about-website > svg { flex-shrink: 0; color: var(--color-muted); }

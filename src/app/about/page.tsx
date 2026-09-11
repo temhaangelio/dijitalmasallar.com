@@ -6,6 +6,17 @@ import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
+/** Lucide carries no brand marks, so Instagram's is drawn here and shared by the two places that use it. */
+function InstagramGlyph({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
   const language = resolveVisitorLanguage((await searchParams).lang);
   const settings = await getSiteSettings();
@@ -30,7 +41,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
     <VisitorShell language={language} siteName={settings.siteName}>
       <main className="visitor-wide-page mt-6 w-full max-w-[640px] sm:mt-9">
         <header className="mb-6">
-          <h1 className="visitor-serif text-[28px] leading-tight text-ink sm:text-[32px]">{isEnglish ? "About" : "Hakkında"}</h1>
+          <h1 className="visitor-sans text-[28px] leading-tight text-ink sm:text-[32px]">{isEnglish ? "About" : "Hakkında"}</h1>
         </header>
         <div className="visitor-card visitor-about-card">
           <section className="visitor-about-profile" aria-labelledby="about-author">
@@ -52,6 +63,16 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
               <p className="visitor-about-role visitor-sans">
                 {isEnglish ? "Founder and editor of Dijital Masallar." : "Dijital Masallar’ın kurucusu ve editörü."}
               </p>
+              <a
+                href="https://www.instagram.com/temhaangelio"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="visitor-about-role-link visitor-sans"
+              >
+                <InstagramGlyph size={15} />
+                <span>{isEnglish ? "Daily videos on Instagram" : "Günlük videolar Instagram’da"}</span>
+                <ArrowUpRight size={13} strokeWidth={1.7} aria-hidden="true" />
+              </a>
             </div>
             <a href="https://www.temhaangelio.com/" target="_blank" rel="noopener noreferrer" className="visitor-about-website visitor-sans">
               <span>https://www.temhaangelio.com/</span>
@@ -61,13 +82,13 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
           <div className="visitor-about-sections">
             <section aria-labelledby="about-what">
               <h2 id="about-what" className="visitor-about-section-title visitor-sans"><Sparkles size={18} strokeWidth={1.6} aria-hidden="true" />{isEnglish ? "How it works" : "Nasıl çalışır?"}</h2>
-              <p className="visitor-about-copy visitor-copy visitor-serif mt-2">{isEnglish
+              <p className="visitor-about-copy visitor-copy visitor-sans mt-2">{isEnglish
                 ? "AI follows the technology, artificial intelligence, science and digital culture agenda using official sources only, summarises it and turns it into short news notes. No clickbait: a plain design, easy reading and few ads let you catch up on the day quickly."
                 : "Teknoloji, yapay zekâ, bilim ve dijital kültür gündemini yapay zekâ yalnızca resmî kaynaklardan buluyor, özetliyor ve kısa haber notlarına dönüştürüyor. Clickbait yok; sade tasarım, kolay okuma ve az reklamla gündemi hızlıca takip edebilirsiniz."}</p>
             </section>
             <section className="visitor-about-app" aria-labelledby="about-reading">
               <h2 id="about-reading" className="visitor-about-section-title visitor-sans"><BookOpenCheck size={18} strokeWidth={1.6} aria-hidden="true" />{isEnglish ? "Follow, read later" : "Takip et, sonra oku"}</h2>
-              <p className="visitor-about-copy visitor-copy visitor-serif mt-2">{isEnglish
+              <p className="visitor-about-copy visitor-copy visitor-sans mt-2">{isEnglish
                 ? "Follow the feed via RSS and save notes to read later. Your favorites stay in this browser."
                 : "Akışı RSS ile takip et, dönmek istediğin notları favorilerine kaydet. Favorilerin bu tarayıcıda saklanır."}</p>
               <div className="visitor-about-actions visitor-sans">
@@ -77,7 +98,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             </section>
             <section className="visitor-about-app" aria-labelledby="about-app">
               <h2 id="about-app" className="visitor-about-section-title visitor-sans"><Smartphone size={18} strokeWidth={1.6} aria-hidden="true" />{isEnglish ? "One tap away" : "Bir dokunuş uzağında"}</h2>
-              <p className="visitor-about-copy visitor-copy visitor-serif mt-2">{isEnglish
+              <p className="visitor-about-copy visitor-copy visitor-sans mt-2">{isEnglish
                 ? "Dijital Masallar is a PWA (Progressive Web App): a website that installs like an app. Add it to your home screen and it opens full-screen with its own icon, loads fast and can send notifications. No app store download needed."
                 : "Dijital Masallar bir PWA (Progressive Web App), yani uygulama gibi yüklenebilen bir web sitesi. Ana ekranına eklediğinde kendi simgesiyle tam ekran açılır, hızlı yüklenir ve bildirim gönderebilir. Mağazadan indirmen gerekmez."}</p>
               <p className="visitor-about-hint visitor-sans">{isEnglish
@@ -102,11 +123,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
                 title="Instagram · @temhaangelio"
                 className="grid size-11 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               >
-                <svg className="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-                </svg>
+                <InstagramGlyph />
                 <span className="sr-only">Instagram</span>
               </a>
               <a

@@ -57,7 +57,6 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
           <ArrowUp size={16} strokeWidth={2} aria-hidden="true" />
           <span>{isEnglish ? "Top" : "Başa dön"}</span>
         </button>
-        <span className="visitor-float-rule" aria-hidden="true" />
         {visitorNavItems.filter((item) => item.href !== "/").map((item) => (
           <Link key={item.href} href={languageHref(item.href, language)} tabIndex={shown ? undefined : -1} className="visitor-float-link">
             {item[language]}

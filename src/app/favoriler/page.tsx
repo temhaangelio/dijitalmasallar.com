@@ -27,7 +27,7 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
       <main className="visitor-wide-page visitor-viewable-feed mt-6 w-full max-w-[640px] sm:mt-9">
         <header className="mb-6">
           <div className="flex items-center justify-between gap-4">
-            <h1 className="visitor-serif text-[28px] leading-tight text-ink sm:text-[32px]">{language === "en" ? "Favorites" : "Favoriler"}</h1>
+            <h1 className="visitor-sans text-[28px] leading-tight text-ink sm:text-[32px]">{language === "en" ? "Favorites" : "Favoriler"}</h1>
             <FeedViewPicker language={language} />
           </div>
           <p className="mt-2 text-sm leading-6 text-muted">{language === "en" ? "Notes you want to return to. Saved in this browser." : "Dönüp okumak istediğin notlar. Bu tarayıcıda saklanır."}</p>

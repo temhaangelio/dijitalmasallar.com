@@ -329,7 +329,6 @@ declare global {
 }
 
 const installReadyEvent = "diji-install-ready";
-const dismissKey = "diji-news-install-dismissed";
 
 /**
  * `beforeinstallprompt` fires once, and it can fire before React has hydrated — a listener added by
@@ -441,31 +440,32 @@ export function InstallPrompt({ language }: { language: VisitorLanguage }) {
   return <InstallSteps language={language} platform={platform} />;
 }
 
-/** Dismissal is remembered for good: a reader who said no once should not be asked on every visit. */
-function installDismissed() {
-  try { return localStorage.getItem(dismissKey) === "1"; } catch { return false; }
-}
-
-function rememberInstallDismissal() {
-  try { localStorage.setItem(dismissKey, "1"); } catch { /* Storage may be unavailable. */ }
-}
+/*
+ * Closing the invitation settles it for this page load, not for good.
+ *
+ * It used to be written to `localStorage`, so one dismissal silenced it forever — and a reader who
+ * closed it in passing never saw it again. The flag lives in the module instead: it survives the
+ * client-side navigations of a single visit, so the banner does not reappear as you move between
+ * the feed and a note, and it is gone on the next load, which is where the offer starts over.
+ * Anyone who actually installs is excluded by `status === "installed"`, not by this.
+ */
+let bannerClosedThisLoad = false;
 
 /**
- * The invitation to install, offered once, low on the first pages a reader opens.
+ * The invitation to install, offered low on the page to everyone who has not installed yet.
  *
- * It waits a few seconds so it never competes with the first paint, it is only shown where it can
- * actually be accepted — a browser that handed over a prompt, or iOS Safari with its share sheet —
- * and closing it settles the question for good.
+ * It waits a few seconds so it never competes with the first paint, and it is only shown where it
+ * can actually be accepted — a browser that handed over a prompt, or iOS Safari with its share
+ * sheet.
  */
 export function InstallBanner({ language }: { language: VisitorLanguage }) {
   const status = useSyncExternalStore(subscribeToInstall, installSnapshot, serverInstallSnapshot);
   const [visible, setVisible] = useState(false);
-  const [closed, setClosed] = useState(false);
+  const [closed, setClosed] = useState(bannerClosedThisLoad);
   const isEnglish = language === "en";
   const iosShareSheet = status === "none" && isIos();
 
   useEffect(() => {
-    if (installDismissed()) return;
     const timer = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(timer);
   }, []);
@@ -473,46 +473,65 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
   if (!visible || closed || status === "installed" || status === "unknown") return null;
   if (status !== "ready" && !iosShareSheet) return null;
 
-  const close = () => { setClosed(true); rememberInstallDismissal(); };
+  const close = () => { setClosed(true); bannerClosedThisLoad = true; };
+
+  /*
+   * One row: the mark, two short lines, the action. The invitation is an aside to whatever the
+   * reader came for, so it takes the height of a single control rather than a quarter of the
+   * screen. On iOS, where there is no prompt to hand over, the row opens the steps beneath it.
+   */
+  const title = isEnglish ? "Add to home screen" : "Ana ekrana ekle";
+  // The iOS row gives its width to the "how" button, so it takes the shorter of the two notes.
+  const note = status === "ready"
+    ? (isEnglish ? "Opens like an app, from its own icon." : "Kendi simgesinden, uygulama gibi açılır.")
+    : (isEnglish ? "Opens like an app." : "Uygulama gibi açılır.");
 
   return (
     <aside
-      className="install-banner fixed inset-x-0 bottom-0 z-[150] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+      className="install-banner fixed inset-x-0 bottom-0 z-[150] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       aria-label={isEnglish ? "Install dijitalmasallar.com" : "dijitalmasallar.com'u yükle"}
     >
-      <div className="visitor-panel relative mx-auto w-full max-w-[520px] max-h-[78dvh] overflow-y-auto rounded-[22px] border border-line-strong bg-surface p-3.5 shadow-modal sm:p-4">
-        <button
-          type="button"
-          onClick={close}
-          aria-label={isEnglish ? "Dismiss" : "Kapat"}
-          className="absolute right-2.5 top-2.5 grid size-11 place-items-center rounded-xl text-faint transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)]"
-        >
-          <X size={19} strokeWidth={1.7} aria-hidden="true" />
-        </button>
-        <div className="flex items-center gap-3 pr-12">
-          <BrandMark className="!size-12 !rounded-[15px] shrink-0" />
-          <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold leading-snug tracking-[-.025em] [text-wrap:balance]">
-            {isEnglish ? "Add dijitalmasallar.com to your home screen" : "dijitalmasallar.com'u ana ekranınıza ekleyin"}
-          </strong>
-        </div>
-        {status === "ready" ? <div className="mt-3 grid gap-3 border-t border-line pt-3 sm:grid-cols-[1fr_auto] sm:items-center">
-          <p className="visitor-muted text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">{isEnglish ? "Install it once, then open it from its own icon." : "Bir kez yükleyin, ardından kendi simgesinden açın."}</p>
-          <button
-            type="button"
-            onClick={() => { rememberInstallDismissal(); void runInstall(); }}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-5 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
-          >
-            <Download size={17} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}
+      <div className="visitor-install-card relative mx-auto w-full max-w-[440px] max-h-[78dvh] overflow-y-auto rounded-[18px] border border-line-strong bg-surface p-2.5 shadow-modal">
+        {status === "ready" ? (
+          <div className="flex items-center gap-3">
+            <BrandMark className="!size-10 !rounded-[12px] shrink-0" />
+            <div className="min-w-0 flex-1">
+              <strong className="block truncate text-[14px] font-semibold leading-tight tracking-[-.02em] text-ink">{title}</strong>
+              <p className="mt-0.5 truncate text-[12px] leading-5 text-muted">{note}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setClosed(true); bannerClosedThisLoad = true; void runInstall(); }}
+              className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-ink px-4 text-[13px] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
+            >
+              <Download size={15} strokeWidth={2} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}
+            </button>
+            <button type="button" onClick={close} aria-label={isEnglish ? "Dismiss" : "Kapat"} className="grid size-9 shrink-0 place-items-center rounded-full text-faint transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)]">
+              <X size={17} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          </div>
+        ) : (
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center gap-3 pr-9 [&::-webkit-details-marker]:hidden">
+              <BrandMark className="!size-10 !rounded-[12px] shrink-0" />
+              <span className="min-w-0 flex-1">
+                <strong className="block truncate text-[14px] font-semibold leading-tight tracking-[-.02em] text-ink">{title}</strong>
+                <span className="mt-0.5 block truncate text-[12px] leading-5 text-muted">{note}</span>
+              </span>
+              <span className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3.5 text-[13px] font-semibold text-ink">
+                <Share size={15} strokeWidth={1.8} aria-hidden="true" />
+                {isEnglish ? "How" : "Nasıl?"}
+                <ChevronDown size={14} className="text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+              </span>
+            </summary>
+            <div className="mt-2.5 rounded-[12px] bg-surface-2 p-3"><InstallSteps language={language} platform="ios" /></div>
+          </details>
+        )}
+        {status !== "ready" ? (
+          <button type="button" onClick={close} aria-label={isEnglish ? "Dismiss" : "Kapat"} className="absolute right-1.5 top-1.5 grid size-9 place-items-center rounded-full text-faint transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)]">
+            <X size={17} strokeWidth={1.8} aria-hidden="true" />
           </button>
-        </div> : <details className="group mt-3 border-t border-line pt-3">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-line bg-surface-2 px-3 text-[13px] font-semibold text-ink transition-colors hover:border-line-strong hover:bg-surface-3 [&::-webkit-details-marker]:hidden">
-            <Share size={17} strokeWidth={1.7} className="shrink-0 text-accent" aria-hidden="true" />
-            <span className="min-w-0 flex-1">{isEnglish ? "How to add it" : "Nasıl eklenir?"}</span>
-            <span className="shrink-0 text-[11px] font-medium text-muted">iPhone / iPad</span>
-            <ChevronDown size={16} className="shrink-0 text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
-          </summary>
-          <div className="mt-3 rounded-xl bg-surface-2 p-3.5"><InstallSteps language={language} platform="ios" /></div>
-        </details>}
+        ) : null}
       </div>
     </aside>
   );

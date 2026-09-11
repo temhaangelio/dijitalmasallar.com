@@ -63,7 +63,7 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
     <div className="visitor-card grid min-h-64 place-items-center px-6 py-10 text-center sm:py-12">
       <div>
         <span className="mx-auto grid size-12 place-items-center rounded-full bg-surface-2 text-muted"><Bookmark className="size-5" aria-hidden="true" /></span>
-        <h2 className="visitor-heading visitor-serif mt-4 text-[length:var(--vt-h3)] font-normal leading-[1.3] tracking-normal text-ink">{isEnglish ? "No favorites yet" : "Okumalık notların burada"}</h2>
+        <h2 className="visitor-heading visitor-sans mt-4 text-[length:var(--vt-h3)] font-normal leading-[1.3] tracking-normal text-ink">{isEnglish ? "No favorites yet" : "Okumalık notların burada"}</h2>
         <p className="visitor-copy mx-auto mt-2 max-w-[38ch] text-[length:var(--vt-small)] font-normal leading-6 text-muted">{isEnglish ? "Save a note from the bookmark button on its card and it will appear here." : "Akışta ilgini çeken bir notu yer imi düğmesiyle kaydet. Sonra buradan devam et."}</p>
         <Link href={languageHref("/", language)} className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-5 text-sm font-medium text-ink-contrast transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink">
           {isEnglish ? "Browse posts" : "Akışı keşfet"}

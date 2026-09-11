@@ -61,7 +61,7 @@ function AdCard({ ad }: { ad: Advertisement }) {
         <div className={`visitor-ad-content min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6${ad.image_url ? " visitor-ad-with-image" : ""}`}>
           <span className="visitor-note-time visitor-sans">{ad.label}</span>
 
-          <h2 className="visitor-ad-title visitor-copy visitor-serif block text-ink transition-colors [text-wrap:pretty] group-hover:text-accent">{ad.title}</h2>
+          <h2 className="visitor-ad-title visitor-copy visitor-sans block text-ink transition-colors [text-wrap:pretty] group-hover:text-accent">{ad.title}</h2>
 
           {ad.image_url ? (
             <div className="visitor-ad-image relative mt-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
@@ -73,7 +73,7 @@ function AdCard({ ad }: { ad: Advertisement }) {
           ) : null}
 
           {ad.description ? (
-            <p className="visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty] sm:text-[20px] sm:leading-[1.6] xl:mt-3">{ad.description}</p>
+            <p className="visitor-note-body visitor-copy visitor-sans mt-5 whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty] sm:text-[20px] sm:leading-[1.6] xl:mt-3">{ad.description}</p>
           ) : null}
 
           <div className="mt-5 flex min-w-0 items-center justify-between gap-3 pt-2 visitor-sans text-[12px] font-normal leading-[1.6] xl:mt-auto xl:pt-1">
