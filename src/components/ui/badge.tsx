@@ -6,7 +6,7 @@ const badgeVariants = cva("inline-flex h-7 items-center rounded-full px-3 text-[
   variants: {
     variant: {
       neutral: "bg-surface-3 text-ink-2",
-      solid: "bg-ink text-white",
+      solid: "bg-ink text-ink-contrast",
       outline: "border border-line-strong bg-surface text-ink",
       danger: "bg-danger-surface text-danger",
       success: "bg-success-surface text-success",

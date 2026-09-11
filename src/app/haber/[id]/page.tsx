@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { BackToFeedLink } from "@/components/features/visitor/back-to-feed-link";
 import { PostImageActions } from "@/components/features/visitor/post-image-actions";
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorShell } from "@/components/layout/visitor-shell";
@@ -126,12 +127,14 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
 
       <main className="w-full max-w-[640px] pt-4 sm:pt-6">
         <article className="visitor-card visitor-article">
+          {/* The first paragraph is the headline as the reader sees it; assistive tech and search get it as the page's one heading. */}
+          <h1 className="sr-only">{headline}</h1>
           <div className="px-4 py-5 sm:px-6 sm:py-6">
         <header className="visitor-sans mb-5 flex items-center justify-between gap-3 border-b border-line pb-4 sm:mb-6">
-          <Link href={languageHref("/", language)} className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md pr-2 text-[13px] font-medium text-muted transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent">
+          <BackToFeedLink href={languageHref("/", language)} className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md pr-2 text-[13px] font-medium text-muted transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent">
             <ArrowLeft className="size-4" strokeWidth={1.5} aria-hidden="true" />
             <span>{language === "en" ? "Back to feed" : "Akışa dön"}</span>
-          </Link>
+          </BackToFeedLink>
           <time dateTime={publishedAt} className="flex min-w-0 flex-col items-end text-right text-[11px] leading-5 tabular-nums text-muted sm:flex-row sm:items-center sm:gap-2 sm:text-xs">
             <span>{fullDateLabel(publishedAt, language)}</span>
             <span className="hidden sm:inline" aria-hidden="true">·</span>

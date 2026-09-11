@@ -1,58 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, LogOut, Menu, X } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { ExternalLink, LogOut, Monitor, Moon, MoreHorizontal, Sun } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
+import { setThemePreference, useThemePreference } from "@/components/features/visitor/theme";
+import { ActionMenu } from "@/components/ui/action-menu";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { BrandWordmark } from "@/components/ui/brand-wordmark";
 import { adminNavItems, type AdminModules } from "./admin-nav-items";
 
-export function MobileNavigation({ active, siteName, modules }: { active: string; siteName: string; modules: AdminModules }) {
-  const titleId = useId();
-  const navRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    navRef.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  }, [active]);
-  const [open, setOpen] = useState(false);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (!open || !dialog.current) return;
-    const panel = dialog.current;
-    const opener = trigger.current;
-    const previousOverflow = document.body.style.overflow;
-    panel.showModal();
-    document.body.style.overflow = "hidden";
-    const desktop = window.matchMedia("(min-width: 1024px)");
-    const closeOnDesktop = () => { if (desktop.matches) setOpen(false); };
-    desktop.addEventListener("change", closeOnDesktop);
-    return () => {
-      desktop.removeEventListener("change", closeOnDesktop);
-      panel.close();
-      document.body.style.overflow = previousOverflow;
-      opener?.focus();
-    };
-  }, [open]);
-  return <>
-    <div className="mobile-bar">
-      <Link href="/dashboard" className="flex min-w-0 items-center gap-3"><BrandMark className="!size-9" /><span className="min-w-0">{siteName === "Dijital Masallar" ? <BrandWordmark className="w-[145px] max-w-full" /> : <strong className="admin-brand block truncate text-sm">{siteName}</strong>}</span></Link>
-      <button ref={trigger} type="button" aria-label="Menüyü aç" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)} className="grid size-11 shrink-0 place-items-center rounded-xl bg-surface-3"><Menu size={19} strokeWidth={1.6} /></button>
+/**
+ * Phone chrome, in two parts.
+ *
+ * The bar on top is deliberately thin: the mark as a way home, and one menu for the actions that
+ * are needed once a session — the public site, the appearance, signing out. The sections
+ * themselves are not here; they sit in `AdminTabBar` at the bottom of the screen, under the thumb,
+ * where a scrolling strip of links under the title used to ask for a reach across the whole phone.
+ */
+export function MobileNavigation({ siteName }: { siteName: string }) {
+  const preference = useThemePreference();
+  const themes = [
+    { value: "light" as const, label: "Açık görünüm", icon: <Sun size={16} aria-hidden="true" /> },
+    { value: "dark" as const, label: "Koyu görünüm", icon: <Moon size={16} aria-hidden="true" /> },
+    { value: "system" as const, label: "Sistemi izle", icon: <Monitor size={16} aria-hidden="true" /> },
+  ];
+  return (
+    <div className="mobile-bar admin-chrome">
+      <Link href="/dashboard" aria-label={`${siteName} · Genel bakış`} className="flex min-w-0 items-center gap-3">
+        <BrandMark className="!size-9 !rounded-[12px]" />
+        <span className="min-w-0">{siteName === "Dijital Masallar" ? <BrandWordmark className="w-[132px] max-w-full" /> : <strong className="admin-brand block truncate text-sm">{siteName}</strong>}</span>
+      </Link>
+      <ActionMenu
+        label="Hesap ve görünüm"
+        trigger={<MoreHorizontal size={20} strokeWidth={1.8} aria-hidden="true" />}
+        triggerClassName="admin-icon-control !size-11 !rounded-[14px]"
+        items={[
+          { label: "Siteye git", href: "/", external: true, icon: <ExternalLink size={16} aria-hidden="true" /> },
+          ...themes.map((theme, index) => ({ label: theme.label, checked: preference === theme.value, separated: index === 0, onSelect: () => setThemePreference(theme.value) })),
+          { label: "Çıkış yap", separated: true, icon: <LogOut size={16} aria-hidden="true" />, onSelect: () => { void logoutAction(); } },
+        ]}
+      />
     </div>
-    <nav ref={navRef} aria-label="Bölümlere hızlı erişim" className="admin-mobile-tabs">
-      {adminNavItems.filter(({ module }) => !module || modules[module]).map(({ label, href, icon: Icon }) => <Link key={href} href={href} aria-current={active === href ? "page" : undefined}><Icon size={16} aria-hidden="true" /><span>{label}</span></Link>)}
+  );
+}
+
+/** The bottom tab bar. Static links, so it renders on the server and stands in the skeleton too. */
+export function AdminTabBar({ active, modules }: { active: string; modules?: AdminModules }) {
+  return (
+    <nav aria-label="Bölümler" className="admin-tabbar admin-chrome">
+      {adminNavItems.filter(({ module }) => !module || !modules || modules[module]).map(({ label, href, icon: Icon }) => (
+        <Link key={href} href={href} aria-current={active === href ? "page" : undefined}>
+          <span><Icon size={20} strokeWidth={active === href ? 2 : 1.7} aria-hidden="true" /></span>
+          <span>{label}</span>
+        </Link>
+      ))}
     </nav>
-    <dialog aria-labelledby={titleId} ref={dialog} onCancel={() => setOpen(false)} onClick={event => { if (event.target === event.currentTarget) setOpen(false); }} className="fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_32px)] max-w-sm overflow-y-auto rounded-[18px] border border-line bg-surface p-0 text-ink backdrop:bg-black/25">
-      <div className="p-5">
-        <div className="mb-5 flex items-center justify-between"><h2 id={titleId} className="font-[family-name:var(--font-visitor-sans)] text-2xl">Yönetim menüsü</h2><button type="button" aria-label="Menüyü kapat" onClick={() => setOpen(false)} className="grid size-11 place-items-center rounded-full hover:bg-surface-2"><X size={19} /></button></div>
-        <nav aria-label="Mobil yönetim menüsü" className="space-y-1">
-          {adminNavItems.filter(({ module }) => !module || modules[module]).map(({ label, href, icon: Icon }) => <Link key={href} href={href} onClick={() => setOpen(false)} aria-current={active === href ? "page" : undefined} className={`flex min-h-12 items-center gap-3 rounded-xl px-4 text-sm ${active === href ? "bg-surface-3 font-semibold" : "text-ink-2 hover:bg-surface-2"}`}><Icon size={18} strokeWidth={1.6} />{label}</Link>)}
-        </nav>
-        <div className="mt-5 space-y-1 border-t border-line pt-4">
-          <Link href="/" target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-3 rounded-xl px-4 text-sm text-muted"><ExternalLink size={17} />Siteye git</Link>
-          <form action={logoutAction}><button type="submit" className="flex min-h-11 w-full items-center gap-3 rounded-xl px-4 text-left text-sm text-muted hover:bg-surface-2"><LogOut size={17} />Çıkış yap</button></form>
-        </div>
-      </div>
-    </dialog>
-  </>;
+  );
 }

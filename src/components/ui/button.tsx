@@ -7,14 +7,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-ink text-white hover:bg-neutral-800 active:bg-neutral-700",
+        primary: "bg-ink text-ink-contrast hover:bg-ink/90 active:bg-ink/80",
         secondary: "bg-surface-2 text-ink hover:bg-line active:bg-line-strong",
         ghost: "bg-transparent text-ink-2 hover:bg-surface hover:text-ink active:bg-surface-2",
-        outline: "border border-line-strong bg-surface text-ink hover:bg-surface-2 active:bg-line",
+        outline: "border border-line bg-surface text-ink hover:border-line-strong hover:bg-surface-2 active:bg-line",
         /** Low-emphasis destructive action, e.g. a sign-out button inside a card. */
         destructive: "bg-danger-surface text-danger hover:bg-danger-surface-2 active:bg-danger-surface-2",
         /** High-emphasis destructive action: the confirm button of a delete dialog. */
-        danger: "bg-danger text-white hover:bg-danger-strong active:bg-danger-strong",
+        danger: "bg-danger text-ink-contrast hover:bg-danger-strong active:bg-danger-strong",
       },
       size: { sm: "min-h-11 px-4 text-[13px]", md: "min-h-11 px-5 text-sm", lg: "min-h-12 px-6 text-sm" },
     },

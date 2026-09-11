@@ -65,7 +65,7 @@ export function DashboardOverview({ stats, today, viewsSlot }: { stats: Dashboar
                   key={index}
                   title={`${index + 1} ${monthName}${published.has(index + 1) ? " · Yayın var" : ""}`}
                   aria-current={index + 1 === day ? "date" : undefined}
-                  className={`mx-auto grid size-8 sm:size-10 place-items-center rounded-full text-[11px] tabular-nums ${published.has(index + 1) ? "bg-ink font-medium text-white" : "text-muted"} ${index + 1 === day ? "ring-1 ring-line-strong ring-offset-2 ring-offset-surface" : ""}`}
+                  className={`mx-auto grid size-8 sm:size-10 place-items-center rounded-full text-[11px] tabular-nums ${published.has(index + 1) ? "bg-ink font-medium text-ink-contrast" : "text-muted"} ${index + 1 === day ? "ring-1 ring-line-strong ring-offset-2 ring-offset-surface" : ""}`}
                 >
                   {index + 1}
                 </span>

@@ -6,7 +6,6 @@ import { Activity, Eye, Gauge, Users } from "lucide-react";
 import { ErrorState } from "@/components/feedback/states";
 import { AppDialog as AnalyticsDialog } from "@/components/ui/app-dialog";
 import { Card } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import { analyticsChangeLabel as changeLabel, analyticsChartRows } from "@/lib/analytics-display";
 import { cn } from "@/lib/utils";
 import type { AnalyticsData, AnalyticsRange } from "@/services/analytics";
@@ -77,7 +76,7 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
         <p className="text-sm font-medium text-ink">{periodLabel}</p>
         <p className="mt-1 text-[13px] font-medium text-muted">Vercel Analytics · {refreshed} · 5 dk önbellek</p>
       </div>
-      <div className="flex max-w-full gap-1.5 overflow-x-auto rounded-full bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{ranges.map((item) => <Link key={item.days} href={item.href} aria-current={item.days === range ? "page" : undefined} className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "whitespace-nowrap !px-3", item.days === range && "bg-surface text-ink shadow-sm")}>{item.label}</Link>)}</div>
+      <div role="group" aria-label="Zaman aralığı" className="flex max-w-full gap-1 overflow-x-auto rounded-full bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{ranges.map((item) => <Link key={item.days} href={item.href} aria-current={item.days === range ? "page" : undefined} className={cn("inline-flex min-h-10 flex-none items-center rounded-full px-3.5 text-[13px] font-semibold whitespace-nowrap transition-[color,background-color,box-shadow]", item.days === range ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink")}>{item.label}</Link>)}</div>
     </div>
 
     <div className="grid auto-rows-fr grid-cols-2 gap-5 xl:grid-cols-4">
@@ -90,17 +89,23 @@ export function AnalyticsDashboard({ analytics, range, missingEnv = [] }: { anal
     <div className="grid items-stretch gap-5 xl:grid-cols-2">
       <Card className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-4"><h2 className="section-title">{range === 365 ? "Aylık görüntüleme" : range === 1 ? "Saatlik görüntüleme" : "Günlük görüntüleme"}</h2><span className="text-[12px] font-medium text-muted">{periodLabel}</span></div>
-        <div className="mt-8 flex h-[240px] gap-3">
+        <div className="mt-8 flex h-[240px] gap-2">
           <div className="flex w-10 shrink-0 flex-col justify-between pb-7 text-right text-xs font-medium tabular-nums text-muted">{yTicks.map((tick) => <span key={tick}>{number.format(tick)}</span>)}</div>
           <div className="min-w-0 flex-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="relative flex h-full items-end gap-1.5 pb-7" style={{ minWidth: `${Math.max(420, chartRows.length * 22)}px` }}>
+            <div className="relative flex h-full items-end gap-1.5 px-3 pb-7" style={{ minWidth: `${Math.max(420, chartRows.length * 22)}px` }}>
               <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 grid h-[calc(100%-28px)] grid-rows-4"><span className="border-t border-line" /><span className="border-t border-line" /><span className="border-t border-line" /><span className="border-y border-line" /></div>
+              {/* The number lives in the tooltip and the accessible name; painted on every bar the
+                  labels collided the moment two neighbours were both tall. Only the peak keeps its
+                  figure in view — and whichever bar is under the pointer or the keyboard. */}
               {chartRows.map((day, index) => {
                 const height = day.pageviews === 0 ? 0 : Math.max((day.pageviews / yMax) * 100, 4);
-                const showLabel = range === 7 || index % (range === 365 ? 2 : range === 1 ? 4 : 6) === 0 || index === chartRows.length - 1;
-                return <div key={day.date} tabIndex={0} role="img" aria-label={`${dayLabel(day.date, range)}: ${number.format(day.pageviews)} görüntüleme`} className="group relative z-[1] flex h-full min-w-0 flex-1 items-end" title={`${dayLabel(day.date, range)}: ${number.format(day.pageviews)} görüntüleme`}>
-                  <span className="relative w-full rounded-t bg-ink/75 transition-opacity group-hover:opacity-70 group-focus-visible:opacity-70" style={{ height: `${height}%` }}><span className={cn("absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] font-bold tabular-nums text-ink", (!showLabel || day.pageviews === 0) && "sr-only")}>{number.format(day.pageviews)}</span></span>
-                  <span className={cn("absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-muted", !showLabel && "sr-only")}>{dayLabel(day.date, range)}</span>
+                const peak = day.pageviews === maxViews && chartRows.findIndex((row) => row.pageviews === maxViews) === index;
+                const showDate = range === 7 || index % (range === 365 ? 2 : range === 1 ? 4 : 6) === 0 || index === chartRows.length - 1;
+                return <div key={day.date} tabIndex={0} role="img" aria-label={`${dayLabel(day.date, range)}: ${number.format(day.pageviews)} görüntüleme`} className="group relative z-[1] flex h-full min-w-0 flex-1 items-end rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink" title={`${dayLabel(day.date, range)}: ${number.format(day.pageviews)} görüntüleme`}>
+                  <span className={cn("relative w-full rounded-t transition-colors", peak ? "bg-ink" : "bg-ink/60 group-hover:bg-ink group-focus-visible:bg-ink")} style={{ height: `${height}%` }}>
+                    <span className={cn("absolute -top-6 left-1/2 z-[2] -translate-x-1/2 whitespace-nowrap rounded-md bg-surface px-1 text-[11px] font-bold tabular-nums text-ink", peak ? "" : "sr-only group-hover:not-sr-only group-focus-visible:not-sr-only group-hover:absolute group-focus-visible:absolute")}>{number.format(day.pageviews)}</span>
+                  </span>
+                  <span className={cn("absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium text-muted", !showDate && "sr-only")}>{dayLabel(day.date, range)}</span>
                 </div>;
               })}
             </div>

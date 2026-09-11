@@ -6,6 +6,11 @@ import { X } from "lucide-react";
 import { useModalFocus } from "@/components/hooks/use-modal-focus";
 import { BrandMark } from "@/components/ui/brand-mark";
 
+/**
+ * On a phone the dialog is a sheet: it rises from the bottom edge, where the thumb is, and takes
+ * the full width — the same way the public site opens its daily brief. From `sm` it is the
+ * centred panel a desktop expects.
+ */
 export function AppDialog({
   title,
   onClose,
@@ -29,7 +34,7 @@ export function AppDialog({
   useModalFocus({ open: true, busy, panelRef, initialFocusRef, onClose });
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-ink/35 px-4 py-8 backdrop-blur-[2px]" onMouseDown={() => !busy && onClose()}>
+    <div className="visitor-sheet-backdrop fixed inset-0 z-[100] flex items-end justify-center bg-black/40 backdrop-blur-[2px] sm:items-center sm:px-4 sm:py-8" onMouseDown={() => !busy && onClose()}>
       <div
         ref={panelRef}
         tabIndex={-1}
@@ -37,7 +42,7 @@ export function AppDialog({
         aria-modal="true"
         aria-label={hideIdentity ? title : undefined}
         aria-labelledby={hideIdentity ? undefined : titleId}
-        className={`w-full max-w-[520px] max-h-[calc(100dvh-32px)] overflow-y-auto rounded-[18px] border border-line bg-surface p-6 shadow-pop sm:p-7 ${panelClassName}`}
+        className={`visitor-sheet-panel w-full max-w-[520px] max-h-[92dvh] overflow-y-auto rounded-t-[22px] border border-line bg-surface p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-pop sm:max-h-[calc(100dvh-32px)] sm:rounded-[18px] sm:p-7 ${panelClassName}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className={`flex items-start gap-5 ${hideIdentity ? "justify-end" : "justify-between"}`}>

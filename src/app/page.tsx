@@ -3,7 +3,9 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
 import { FeedRefresh } from "@/components/features/visitor/feed-refresh";
+import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memory";
 import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
+import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
@@ -198,7 +200,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         {posts.length ? (
           <>
           {/*
-            One list, two shapes.
+            One list, two shapes. The first two notes load their covers eagerly: on wide screens they
+            share the first row, and the second one was turning up as the LCP.
 
             On phones it is a single column; desktop readers can choose cards or horizontal rows.
             Both layouts share the same content, chronological order and full-width ad slots.
@@ -209,7 +212,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 const nodes = [];
                 nodes.push(
                   <div key={post.id} id={noteAnchorId(post.id)} className="visitor-note-anchor group/note relative xl:flex xl:flex-col">
-                    <NoteCard post={post} language={language} priority={position === 0} latest={position === 0} layout="grid" />
+                    <NoteCard post={post} language={language} priority={position < 2} latest={position === 0} layout="grid" />
                   </div>,
                 );
                 if (adSlots.has(position)) {
@@ -246,6 +249,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           );
         })()}
       </main>
+      <VisitorFloatingNav language={language} />
+      <FeedScrollMemory />
     </VisitorShell>
   );
 }

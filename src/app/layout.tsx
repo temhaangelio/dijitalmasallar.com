@@ -60,7 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `ThemeScript` sits in <head> so it runs before the first paint and is part of the initial HTML
   // rather than a React-rendered <script>, which React never executes on the client. It stamps
   // `data-visitor-theme` on <html>, an attribute the server render cannot contain — hence
-  // `suppressHydrationWarning`. The dark tokens themselves only apply inside `.visitor-page`.
+  // `suppressHydrationWarning`. The visitor pages and the admin panel both key their dark tokens off it.
   return (
     <html lang="tr" suppressHydrationWarning>
       <head><ThemeScript /><FontScript /><AccentScript /><FeedViewScript /><InstallScript /></head>

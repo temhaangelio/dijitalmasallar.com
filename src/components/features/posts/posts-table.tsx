@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronRight, ImageIcon, LoaderCircle, Plus, Trash2 } from "lucide-react";
 import { deletePostAction, loadMorePostsAction } from "@/app/(dashboard)/yazilar/actions";
 import { EmptyState } from "@/components/feedback/states";
-import { PostsStatusTabs, type PostStatusFilter } from "./posts-status-tabs";
+import type { PostStatusFilter } from "./posts-status-tabs";
 import { PostsToolbar } from "./posts-toolbar";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -102,18 +102,27 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
   const progress = resultTotal > 0 ? Math.min(100, (posts.length / resultTotal) * 100) : 100;
   return <>
     <section className="card overflow-hidden !p-0" aria-label="Haber yönetimi">
-      <div className="space-y-4 border-b border-line bg-surface px-4 py-4 sm:px-5 sm:py-5">
-        <div className="flex items-center justify-between gap-4">
-          <PostsStatusTabs active={status} total={overallTotal} scheduledTotal={scheduledCount} onChange={value => { if (value !== status) { beginChange(); setStatus(value); } }} />
-          <p className="hidden shrink-0 text-sm font-medium text-muted sm:block" aria-live="polite">{resultTotal.toLocaleString("tr-TR")} sonuç</p>
-        </div>
-        <PostsToolbar query={query} onQueryChange={value => { if (value !== query) { beginChange(); setQuery(value); } }} language={currentLanguage} onLanguageChange={changeLanguage} pendingLanguage={null} sort={sort} onSortChange={changeSort} />
+      <div className="border-b border-line bg-surface px-4 py-3 sm:px-5 sm:py-4">
+        <PostsToolbar
+          query={query}
+          onQueryChange={value => { if (value !== query) { beginChange(); setQuery(value); } }}
+          language={currentLanguage}
+          onLanguageChange={changeLanguage}
+          pendingLanguage={null}
+          sort={sort}
+          onSortChange={changeSort}
+          status={status}
+          onStatusChange={value => { if (value !== status) { beginChange(); setStatus(value); } }}
+          total={overallTotal}
+          scheduledTotal={scheduledCount}
+          resultTotal={resultTotal}
+        />
       </div>
       <div aria-busy={isSearching} className="relative">
         {isSearching && <p role="status" className="flex min-h-12 items-center gap-2 border-b border-line bg-surface-2 px-4 text-sm font-medium text-muted sm:px-5"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Liste güncelleniyor…</p>}
         {posts.length ? <ul aria-label="Yazılar" className={`${isSearching ? "pointer-events-none opacity-50" : ""}`}>
-          {posts.map(post => <li key={post.id} className={`${styles.row} group flex min-h-[104px] items-center gap-2 border-b border-line px-3 py-3 transition-colors last:border-b-0 hover:bg-surface-2/60 sm:gap-3 sm:px-5 sm:py-4`}>
-            <Link href={`/yazilar/${post.id}/duzenle`} prefetch={false} aria-label={`${post.title || "Başlıksız not"} yazısını düzenle`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 sm:gap-4">
+          {posts.map(post => <li key={post.id} className={`${styles.row} group flex min-h-[92px] items-center gap-1 border-b border-line px-2 py-3 transition-colors last:border-b-0 hover:bg-surface-2/60 sm:min-h-[104px] sm:gap-3 sm:px-5 sm:py-4`}>
+            <Link href={`/yazilar/${post.id}/duzenle`} prefetch={false} aria-label={`${post.title || "Başlıksız not"} yazısını düzenle`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 sm:gap-4">
               <div className="relative grid aspect-[4/3] w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-surface-3 text-faint sm:w-28">
                 {post.cover_path ? isOptimizableImage(post.cover_path)
                   ? <Image src={post.cover_path} alt="" fill sizes="(max-width: 639px) 80px, 112px" className="object-cover transition-transform duration-200 group-hover:scale-[1.025] motion-reduce:transition-none" />
@@ -140,7 +149,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
         </ul> : !isSearching && <EmptyState title={filtered ? "Eşleşen yazı bulunamadı" : "Henüz yazı yok"} description={filtered ? "Arama veya filtreyi değiştirip tekrar deneyin." : "İlk yazınızı ekleyin; burada listelenecek."} />}
         <div className="flex flex-col items-center gap-3 border-t border-line bg-surface-2/40 px-4 py-5 sm:px-5">
           <div className="flex w-full max-w-sm items-center gap-3">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-3" aria-hidden="true"><div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress}%` }} /></div>
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-3" aria-hidden="true"><div className="h-full rounded-full bg-ink/70 transition-[width]" style={{ width: `${progress}%` }} /></div>
             <p className="shrink-0 text-xs font-medium tabular-nums text-muted" aria-live="polite">{posts.length.toLocaleString("tr-TR")} / {resultTotal.toLocaleString("tr-TR")}</p>
           </div>
           {hasMore && <Button type="button" variant="outline" onClick={loadMore} disabled={isLoadingMore || isSearching}>{isLoadingMore ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Plus className="size-4" aria-hidden="true" />}{isLoadingMore ? "Yükleniyor…" : "Daha fazla yazı"}</Button>}

@@ -1,8 +1,7 @@
 import { LogOut } from "lucide-react";
 import { adminNavItems } from "./admin-nav-items";
+import { AdminTabBar } from "./mobile-navigation";
 import { Skeleton } from "@/components/feedback/states";
-
-
 
 /**
  * `AppShell` is rendered by each page rather than by the dashboard layout, so `loading.tsx` replaces
@@ -25,13 +24,13 @@ export function ShellSkeleton({ active, children }: { active: string; children: 
         </div>
         <nav className="flex flex-col gap-1">
           {adminNavItems.map(({ label, href, icon: Icon }) => (
-            <div key={href} className={`sidebar-item text-[15px] ${active === href ? "bg-surface-3 font-semibold text-ink" : "font-medium text-ink-2"}`}>
+            <div key={href} className={`sidebar-item text-[15px] ${active === href ? "bg-surface-2 font-semibold text-ink" : "font-medium text-ink-2"}`}>
               <Icon size={18} className="shrink-0" />
               <span className="sidebar-expanded-only">{label}</span>
             </div>
           ))}
         </nav>
-        <div className="mt-auto border-t border-line/70 pt-4">
+        <div className="mt-auto border-t border-line pt-4">
           <div className="sidebar-item text-[15px] font-medium text-muted">
             <LogOut size={18} className="shrink-0" />
             <span className="sidebar-expanded-only">Çıkış yap</span>
@@ -39,11 +38,12 @@ export function ShellSkeleton({ active, children }: { active: string; children: 
         </div>
       </aside>
       <div className="min-w-0 flex-1">
-        <div className="mobile-bar">
-          <span className="flex items-center gap-3"><Skeleton className="size-10 shrink-0 rounded-[13px]" /><Skeleton className="h-4 w-24" /></span>
-          <span className="grid size-11 place-items-center rounded-full bg-surface" aria-hidden="true" />
+        <div className="mobile-bar admin-chrome" aria-hidden="true">
+          <span className="flex items-center gap-3"><Skeleton className="size-9 shrink-0 rounded-[12px]" /><Skeleton className="h-4 w-24" /></span>
+          <span className="admin-icon-control" />
         </div>
         <main className="main">{children}</main>
+        <AdminTabBar active={active} />
       </div>
     </div>
   );

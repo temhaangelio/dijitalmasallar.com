@@ -10,10 +10,14 @@ export type ActionMenuItem = {
   label: string;
   icon?: ReactNode;
   href?: string;
+  /** Opens `href` in a new tab — for the public site, which should not replace the panel. */
+  external?: boolean;
   onSelect?: () => void;
   destructive?: boolean;
   checked?: boolean;
   keepOpen?: boolean;
+  /** Draws a hairline above this item, grouping it apart from the ones before. */
+  separated?: boolean;
 };
 
 export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassName, disabled = false, placement = "anchor" }: { label?: string; items: ActionMenuItem[]; trigger?: ReactNode; triggerClassName?: string; disabled?: boolean; placement?: "anchor" | "center" }) {
@@ -25,7 +29,7 @@ export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassN
   function toggle() {
     if (!open && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setPosition({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+      setPosition({ top: rect.bottom + 6, right: Math.max(8, window.innerWidth - rect.right) });
     }
     setOpen((value) => !value);
   }
@@ -53,30 +57,33 @@ export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassN
     };
   }, [open]);
 
-  const itemClass = (destructive?: boolean) => cn(
-    "flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors",
-    destructive ? "text-danger hover:bg-danger-surface" : "text-ink-2 hover:bg-surface-2",
+  const itemClass = (item: ActionMenuItem) => cn(
+    "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors",
+    item.destructive ? "text-danger hover:bg-danger-surface" : "text-ink-2 hover:bg-surface-2 hover:text-ink",
+    item.separated && "mt-1.5 border-t border-line pt-1.5 rounded-t-none",
   );
 
   return (
     <>
-      <button ref={triggerRef} type="button" disabled={disabled} aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={toggle} className={cn("grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-white hover:text-ink", triggerClassName)}>
+      <button ref={triggerRef} type="button" disabled={disabled} aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={toggle} className={cn("grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink", triggerClassName)}>
         {trigger ?? <MoreHorizontal size={18} />}
       </button>
       {open && createPortal(
         <>
-        {placement === "center" ? <div className="fixed inset-0 z-[99] bg-ink/10 backdrop-blur-[1px]" aria-hidden="true" /> : null}
+        {placement === "center" ? <div className="fixed inset-0 z-[99] bg-black/20 backdrop-blur-[1px]" aria-hidden="true" /> : null}
         <div
           ref={menuRef}
           role="menu"
           aria-label={label}
           style={placement === "center" ? { left: "50%", top: "50%", transform: "translate(-50%, -50%)" } : position}
-          className={cn("fixed z-[100] min-w-[170px] rounded-field border border-line bg-white p-1.5 shadow-pop", placement === "center" && "w-[min(90vw,320px)] p-3")}
+          className={cn("fixed z-[100] min-w-[190px] max-w-[calc(100vw-16px)] rounded-field border border-line bg-surface p-1.5 shadow-pop", placement === "center" && "w-[min(90vw,320px)] p-3")}
         >
           {items.map((item) => item.href ? (
-            <Link key={item.label} href={item.href} role="menuitem" onClick={() => setOpen(false)} className={itemClass(item.destructive)}>{item.icon}{item.label}</Link>
+            item.external
+              ? <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" role="menuitem" onClick={() => setOpen(false)} className={itemClass(item)}>{item.icon}{item.label}</a>
+              : <Link key={item.label} href={item.href} role="menuitem" onClick={() => setOpen(false)} className={itemClass(item)}>{item.icon}{item.label}</Link>
           ) : (
-            <button key={item.label} type="button" role={item.checked === undefined ? "menuitem" : "menuitemcheckbox"} aria-checked={item.checked} onClick={() => { if (!item.keepOpen) setOpen(false); item.onSelect?.(); }} className={itemClass(item.destructive)}>
+            <button key={item.label} type="button" role={item.checked === undefined ? "menuitem" : "menuitemcheckbox"} aria-checked={item.checked} onClick={() => { if (!item.keepOpen) setOpen(false); item.onSelect?.(); }} className={itemClass(item)}>
               {item.checked === undefined ? item.icon : <span className="grid size-4 place-items-center">{item.checked ? <Check size={14} strokeWidth={2.5} /> : null}</span>}{item.label}
             </button>
           ))}

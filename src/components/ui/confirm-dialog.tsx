@@ -55,7 +55,7 @@ export function ConfirmDialog({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-ink/35 px-4 py-8 backdrop-blur-[2px]" onMouseDown={() => !pending && closeDialog()}>
+    <div className="visitor-sheet-backdrop fixed inset-0 z-[100] flex items-end justify-center bg-black/40 backdrop-blur-[2px] sm:items-center sm:px-4 sm:py-8" onMouseDown={() => !pending && closeDialog()}>
       <div
         ref={panelRef}
         tabIndex={-1}
@@ -63,7 +63,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="w-full max-w-[440px] max-h-[calc(100dvh-32px)] overflow-y-auto rounded-[18px] border border-line bg-surface p-6 shadow-pop sm:p-7"
+        className="visitor-sheet-panel w-full max-w-[440px] max-h-[92dvh] overflow-y-auto rounded-t-[22px] border border-line bg-surface p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-pop sm:max-h-[calc(100dvh-32px)] sm:rounded-[18px] sm:p-7"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-5">
@@ -75,7 +75,7 @@ export function ConfirmDialog({
         <h2 id={titleId} className="mt-5 font-[family-name:var(--font-visitor-sans)] text-[26px] font-medium leading-tight tracking-[-.04em]">{title}</h2>
         <p id={descriptionId} className="mt-2 text-[15px] font-medium leading-relaxed text-muted">{description}</p>
         {(error || failure) && <p role="alert" className="mt-4 rounded-field bg-danger-surface p-3 text-sm font-medium text-danger">{error || failure}</p>}
-        <div className="mt-7 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <div className="mt-7 grid grid-cols-2 gap-2 sm:flex sm:justify-end">
           <Button ref={cancelRef} type="button" variant="secondary" disabled={pending} onClick={closeDialog}>{cancelLabel}</Button>
           <Button type="button" disabled={pending} onClick={confirm} variant={variant === "destructive" ? "danger" : "primary"}>{pending ? "İşleniyor…" : confirmLabel}</Button>
         </div>

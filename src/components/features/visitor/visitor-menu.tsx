@@ -17,7 +17,7 @@ const VisitorSettingsContent = dynamic(() => import("./visitor-settings-content"
 });
 
 /** A focused preferences sheet; page navigation stays in the editorial header. */
-export function VisitorMenu({ language, pushPublicKey, showLabel = false }: { language: VisitorLanguage; pushPublicKey: string; /** The wide-screen rail names its controls; the phone header shows the glyph alone. */ showLabel?: boolean }) {
+export function VisitorMenu({ language, pushPublicKey }: { language: VisitorLanguage; pushPublicKey: string }) {
   const [open, setOpen] = useState(false);
   const isEnglish = language === "en";
 
@@ -25,7 +25,6 @@ export function VisitorMenu({ language, pushPublicKey, showLabel = false }: { la
     <>
       <button type="button" onClick={() => setOpen(true)} aria-label={isEnglish ? "Open settings" : "Ayarları aç"} aria-expanded={open} aria-haspopup="dialog" title={isEnglish ? "Settings" : "Ayarlar"} className="visitor-top-control">
         <SlidersHorizontal size={18} strokeWidth={1.8} aria-hidden="true" />
-        {showLabel ? <span className="visitor-tool-label visitor-sans">{isEnglish ? "Settings" : "Ayarlar"}</span> : null}
       </button>
 
       <VisitorBottomSheet open={open} onOpenChange={setOpen} title={isEnglish ? "Settings" : "Ayarlar"} panelClassName="visitor-settings-sheet max-h-[85dvh]" titleClassName="visitor-sans text-[22px] font-bold leading-tight tracking-[-.03em]" closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>

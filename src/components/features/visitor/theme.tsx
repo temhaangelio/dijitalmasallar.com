@@ -20,8 +20,8 @@ export type { ThemePreference };
 
 /**
  * Runs before the first paint, inline in the document, so the page never flashes light before the
- * stored preference is read. Only rendered by the visitor shell — the admin panel has no dark
- * variant yet, and leaving the attribute unset there keeps it on the light tokens.
+ * stored preference is read. It runs on every page: the admin panel keys its own dark palette off
+ * the same attribute, so one preference carries the whole product.
  *
  * It also re-writes the cookie from `localStorage`, which is what carries a preference set before
  * the cookie existed — or one a browser dropped — back to the server for the next request.
@@ -103,6 +103,15 @@ function setPreference(preference: ThemePreference) {
 /** Used by the settings sheet's reset: back to following the operating system. */
 export function resetTheme() {
   setPreference("system");
+}
+
+/** The stored preference, for controls outside the picker — the admin menu offers the same three. */
+export function useThemePreference() {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
+export function setThemePreference(preference: ThemePreference) {
+  setPreference(preference);
 }
 
 const options: { value: ThemePreference; label: { tr: string; en: string } }[] = [

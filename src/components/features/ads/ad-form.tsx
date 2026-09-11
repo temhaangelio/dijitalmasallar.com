@@ -83,7 +83,7 @@ export function AdForm({ ad }: { ad?: Advertisement }) {
             <button type="button" onClick={() => setRemoveImage(true)} className="w-full px-4 py-3 text-left text-sm font-semibold text-danger hover:bg-danger-surface">Mevcut görseli kaldır</button>
           </div> : null}
           <FileUpload onChange={(file) => { setImage(file); if (file) setRemoveImage(false); }} label={ad?.image_url && !removeImage ? "Reklam görselini değiştir" : "Reklam görseli seç"} />
-          {removeImage && !image ? <button type="button" onClick={() => setRemoveImage(false)} className="mt-2 text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
+          {removeImage && !image ? <button type="button" onClick={() => setRemoveImage(false)} className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
         </FormField>
 
         <div className="flex items-center justify-between gap-4 rounded-field bg-surface-2 p-4">
@@ -95,7 +95,7 @@ export function AdForm({ ad }: { ad?: Advertisement }) {
         </div>
       </fieldset>
 
-      <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      <div className="admin-save-bar admin-chrome mt-5">
         <Link href="/reklamlar" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link>
         <Button type="submit" disabled={pending}>{pending ? <LoaderCircle size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Save size={16} aria-hidden="true" />}{pending ? (ad ? "Güncelleniyor…" : "Kaydediliyor…") : (ad ? "Değişiklikleri kaydet" : "Reklamı ekle")}</Button>
       </div>

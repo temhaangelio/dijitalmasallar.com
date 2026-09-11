@@ -116,16 +116,6 @@
     font-family: var(--font-visitor-sans), Arial, sans-serif;
     letter-spacing: 0;
   }
-  .admin-page .card {
-    border: 1px solid color-mix(in srgb, var(--color-line) 70%, transparent);
-    background: color-mix(in srgb, var(--color-surface-2) 35%, var(--color-surface));
-    box-shadow: 0 1px 2px rgb(21 21 15 / 0.018);
-  }
-  .admin-page .sidebar {
-    border-right: 1px solid color-mix(in srgb, var(--color-line) 75%, transparent);
-    background: color-mix(in srgb, var(--color-surface-2) 28%, var(--color-canvas));
-  }
-  .sidebar { position: relative; width: 248px; flex: 0 0 248px; padding: 32px 20px 28px 28px; display: flex; flex-direction: column; gap: 28px; }
   .brand-mark {
     display: inline-block;
     position: relative;
@@ -138,7 +128,8 @@
     background: var(--color-ink);
   }
   .brand-mark > svg { display: block; width: 100%; height: 100%; }
-  .brand-bit { fill: #fff; }
+  .brand-bit { fill: var(--color-ink-contrast); }
+  .sidebar { position: relative; width: 248px; flex: 0 0 248px; padding: 32px 20px 28px 28px; display: flex; flex-direction: column; gap: 28px; }
   .main { min-width: 0; flex: 1; padding: 32px 40px 40px 32px; }
 
   /*
@@ -164,70 +155,165 @@
   .card { min-width: 0; max-width: 100%; background: var(--color-surface); border-radius: var(--radius-card); padding: 26px 24px; }
   .section-title { font-size: 26px; font-weight: 700; letter-spacing: -.04em; }
   .mobile-bar { display: none; }
+  .admin-tabbar { display: none; }
 
   @media (max-width: 1023px) {
     .sidebar { display: none; }
-    .mobile-bar { display: flex; position: sticky; top: 0; z-index: 30; height: 68px; padding: 12px 20px; align-items: center; justify-content: space-between; background: color-mix(in srgb, var(--color-canvas) 92%, transparent); backdrop-filter: blur(16px); }
+    .mobile-bar { display: flex; }
     .main { padding: 20px; }
-    .page-header { align-items: flex-start; }
-  }
-
-  @media (max-width: 639px) {
-    .main { padding: 14px; }
-    .page-header { flex-direction: column; padding: 4px 2px 20px; }
-    .page-title { font-size: 30px; }
-    .card { border-radius: var(--radius-panel); padding: 22px 18px; }
   }
 }
 
+/*
+ * Admin palette.
+ *
+ * The panel borrows the public site's greys and, like the site, is monochrome: the accent is the
+ * ink itself. The dark set below mirrors the visitor dark theme so the same device preference —
+ * `data-visitor-theme`, stamped by `ThemeScript` on every page — carries the panel at night too.
+ * Only the semantic colours (danger, success, warning) keep a hue; they mark actions, not decoration.
+ */
 html:has(.admin-page) {
   --background: #fafafa;
   --foreground: #191919;
   --color-canvas: #fafafa;
   --color-surface: #ffffff;
   --color-surface-2: #f4f4f4;
-  --color-surface-3: #eeeeee;
+  --color-surface-3: #ececec;
   --color-ink: #191919;
   --color-ink-2: #484848;
   --color-muted: #666666;
   --color-faint: #808080;
-  --color-line: #e9e9e9;
-  --color-line-strong: #d5d5d5;
+  --color-line: #e7e7e7;
+  --color-line-strong: #d3d3d3;
   --color-highlight: #ededed;
+  --color-accent: #191919;
+  --color-ink-contrast: #ffffff;
   --radius-card: 18px;
   --radius-panel: 18px;
   --radius-field: 12px;
   --radius-chip: 12px;
+  color-scheme: light;
 }
 
+html[data-visitor-theme="dark"]:has(.admin-page) {
+  --background: #0f0f0f;
+  --foreground: #dcdcdc;
+  --color-canvas: #0f0f0f;
+  --color-surface: #191919;
+  --color-surface-2: #212121;
+  --color-surface-3: #292929;
+  --color-ink: #dcdcdc;
+  --color-ink-2: #c4c4c4;
+  --color-muted: #9a9a9a;
+  --color-faint: #757575;
+  --color-line: #2a2a2a;
+  --color-line-strong: #3a3a3a;
+  --color-highlight: #3a3a3a;
+  --color-accent: #dcdcdc;
+  --color-ink-contrast: #0f0f0f;
+  --color-on-dark: #5f5f5f;
+  --color-danger: #f0928a;
+  --color-danger-strong: #f6aaa3;
+  --color-danger-surface: #2b1a18;
+  --color-danger-surface-2: #3a2320;
+  --color-success: #8fd3a8;
+  --color-success-surface: #17261c;
+  --color-warning: #f0c27f;
+  --color-warning-surface: #2b2214;
+  color-scheme: dark;
+}
+
+/* Admin shares the public site's quiet surfaces, editorial headings and hairline rules. */
 @layer components {
-  /*
-   * The panel fills the window.
-   *
-   * It used to stop at 1280px and centre itself, which on a wide screen left a band of empty canvas
-   * down both sides while the tables inside were still cropping their columns. Reading measure is
-   * held where it actually matters — the note bodies and the RSS preview cap their own width — so
-   * the shell has no reason to hold the rest back.
-   */
-  .admin-page .main { width: 100%; padding: 36px clamp(20px, 3vw, 48px) 64px; }
-  .admin-page .sidebar { position: sticky; top: 0; height: 100dvh; overflow-y: auto; padding: 28px 18px; gap: 36px; background: var(--color-canvas); }
+  .admin-page { --focus-ring: var(--color-ink); --admin-topbar: 60px; --admin-tabbar: 62px; }
+  .admin-page .main { width: 100%; max-width: 1600px; margin-inline: auto; padding: 36px clamp(20px, 3vw, 48px) 64px; }
+  .admin-page .sidebar { position: sticky; top: 0; height: 100dvh; overflow-y: auto; padding: 28px 18px; gap: 36px; background: var(--color-surface); border-right: 1px solid var(--color-line); }
+  .admin-page .sidebar-item { min-height: 48px; height: auto; padding-block: 10px; }
+  /* Selected is a light pill with a hairline — the visitor nav's idiom — never a filled block. */
+  .admin-page .sidebar-item[aria-current="page"] {
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 6%, var(--color-surface));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-line) 85%, transparent);
+  }
   .admin-page .card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 18px; box-shadow: 0 1px 2px rgb(0 0 0 / .02); }
+  html[data-visitor-theme="dark"] .admin-page .card { box-shadow: none; }
   .admin-brand { font-family: var(--font-visitor-mono), monospace; letter-spacing: -.025em; }
-  .admin-page .page-header { margin-bottom: 28px; padding: 0; gap: 16px; }
-  .admin-page .page-title { font-family: var(--font-visitor-sans), Arial, sans-serif; font-size: clamp(28px, 3vw, 36px); font-weight: 500; letter-spacing: -.035em; line-height: 1.2; }
+  .admin-page .page-header { margin-bottom: 28px; padding: 0 0 24px; gap: 16px; border-bottom: 1px solid var(--color-line); }
+  .admin-page .page-title { font-family: var(--font-visitor-sans), Arial, sans-serif; font-size: clamp(28px, 3vw, 36px); font-weight: 500; letter-spacing: -.035em; line-height: 1.2; text-wrap: balance; }
   .admin-page .section-title { font-family: var(--font-visitor-sans), Arial, sans-serif; font-size: 23px; font-weight: 500; line-height: 1.3; letter-spacing: -.025em; }
-  .admin-page .page-note { max-width: 65ch; font-size: 14px; font-weight: 400; line-height: 1.6; }
-  .admin-skip-link { position: fixed; left: 16px; top: -80px; z-index: 150; padding: 12px 20px; border-radius: 12px; color: white; background: #191919; }
+  .admin-page .page-note { max-width: 65ch; font-size: 14px; font-weight: 400; line-height: 1.6; text-wrap: pretty; }
+  .admin-page-actions { min-width: 0; flex: 0 0 auto; }
+  .admin-skip-link { position: fixed; left: 16px; top: -80px; z-index: 150; padding: 12px 20px; border-radius: 12px; color: var(--color-ink-contrast); background: var(--color-ink); }
   .admin-skip-link:focus { top: 12px; }
-  .admin-page .mobile-bar { border-bottom: 1px solid var(--color-line); background: var(--color-canvas); backdrop-filter: none; }
+
+  /* The visitor masthead's utility control: 44px, soft radius, hairline, a whisper of ink. */
+  .admin-icon-control {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border: 1px solid color-mix(in srgb, var(--color-line) 80%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--color-ink) 4%, var(--color-canvas));
+    color: var(--color-ink-2);
+    transition: background-color .18s ease, color .18s ease;
+  }
+  .admin-icon-control:hover { color: var(--color-ink); background: color-mix(in srgb, var(--color-ink) 8%, var(--color-canvas)); }
+
+  /* A blurred chrome surface, shared by the sticky top bar, the tab bar and the fixed save bar. */
+  .admin-chrome {
+    background: color-mix(in srgb, var(--color-canvas) 88%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+  }
+
+  .admin-save-bar { position: fixed; inset: auto 0 0; z-index: 30; display: flex; align-items: center; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--color-line); padding: 10px 16px max(10px, env(safe-area-inset-bottom)); }
+  @media (min-width: 1280px) {
+    .admin-save-bar { position: static; border: 0; padding: 0; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  }
+  .admin-editor-dialog .admin-save-bar { position: static; padding: 0; border: 0; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; flex-wrap: wrap; }
+  .admin-editor-dialog .admin-post-form { padding-bottom: 0; }
+  /* Inside the editor dialog there is no top bar for the sticky toolbar to clear. */
+  .admin-editor-dialog { --admin-topbar: 0px; }
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .admin-save-bar { left: 248px; }
+    html[data-admin-sidebar="collapsed"] .admin-save-bar { left: 84px; }
+  }
+
+  /*
+   * Phone chrome.
+   *
+   * A slim sticky bar on top carries the mark and a menu of the rare actions; the sections live
+   * in a tab bar at the bottom, where a thumb already is. An editor is a focused task, so on the
+   * pages that carry a save bar the tab bar steps aside and the save bar takes its place.
+   */
   @media (max-width: 1023px) {
-    .admin-page .main { padding: 24px 20px 48px; }
+    .admin-page .mobile-bar { position: sticky; top: 0; z-index: 30; align-items: center; justify-content: space-between; gap: 12px; min-height: var(--admin-topbar); padding: max(8px, env(safe-area-inset-top)) 16px 8px; border-bottom: 1px solid var(--color-line); }
+    .admin-page .main { padding: 20px 16px calc(var(--admin-tabbar) + env(safe-area-inset-bottom) + 28px); }
+    .admin-page:has(.admin-save-bar) .main { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+    .admin-page:has(.admin-save-bar) .admin-tabbar { display: none; }
+    .admin-tabbar { position: fixed; inset: auto 0 0; z-index: 30; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; padding: 6px 8px max(6px, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-line); }
+    .admin-tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 50px; border-radius: 14px; color: var(--color-muted); font-size: 11px; font-weight: 600; letter-spacing: -.01em; line-height: 1.2; transition: color .15s ease; }
+    .admin-tabbar a > span:first-child { display: grid; place-items: center; width: 46px; height: 28px; border-radius: 10px; transition: background-color .15s ease, box-shadow .15s ease; }
+    .admin-tabbar a > span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-tabbar a[aria-current="page"] { color: var(--color-ink); }
+    .admin-tabbar a[aria-current="page"] > span:first-child { background: color-mix(in srgb, var(--color-ink) 8%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-line) 90%, transparent); }
+    .admin-tabbar a:focus-visible { outline-offset: -3px; }
+    .admin-page :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea, [contenteditable="true"]) { font-size: 16px !important; }
+    .admin-page .page-header { flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 20px; padding-bottom: 16px; gap: 12px 16px; }
   }
   @media (max-width: 639px) {
-    .admin-page .main { padding: 24px 16px 40px; }
-    .admin-page .page-header { flex-direction: row; align-items: center; margin-bottom: 24px; }
-    .admin-page .page-header > div:last-child a { padding-inline: 14px; }
-    .admin-page .card { padding: 20px 16px; }
+    .admin-page .main { padding-inline: 14px; }
+    .admin-page .card { padding: 18px 16px; border-radius: 16px; }
+    .admin-page .page-title { font-size: 27px; }
+    .admin-page-actions > :is(a, button) { padding-inline: 16px; }
+    .admin-save-bar { gap: 8px; padding-inline: 12px; }
+    .admin-save-bar > button { min-width: 0; flex: 1 1 180px; padding-inline: 12px; }
+    .admin-save-bar > a { flex: 0 0 auto; padding-inline: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .admin-icon-control, .admin-tabbar a, .admin-tabbar a > span:first-child { transition: none; }
   }
 }
 
@@ -994,7 +1080,6 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
 }
 @media (max-width: 359px) { .visitor-header-link { padding-inline: 14px; } }
 @media (prefers-reduced-motion: reduce) { .visitor-header-link { transition: none; } }
-.visitor-page .visitor-brief-trigger { background: color-mix(in srgb, var(--color-surface-2) 48%, var(--color-canvas)); }
 @media (prefers-reduced-motion: reduce) {
   .visitor-nav-link::before { transition: none; }
 }
@@ -1033,6 +1118,76 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
   .shell:has(.rss-fit) .main { display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; }
   .rss-fit { display: flex; min-height: 0; flex: 1; flex-direction: column; }
 }
+
+/*
+ * The capsule at the foot of a scrolled feed: the way back up, then the other two pages. It rises
+ * on an upward scroll once the masthead is out of view and sinks again at the top, so it never
+ * doubles the header. Sheets and dialogs sit above it (z 200), toasts alongside it.
+ */
+.visitor-float-nav {
+  position: fixed;
+  z-index: 120;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translate(-50%, 18px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .26s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
+}
+.visitor-float-nav[data-shown] { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+.visitor-float-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--color-line-strong) 75%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-canvas) 84%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  box-shadow: 0 10px 30px rgb(0 0 0 / .12), 0 1px 2px rgb(0 0 0 / .05);
+}
+html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background: color-mix(in srgb, var(--color-surface-2) 84%, transparent); box-shadow: 0 12px 36px rgb(0 0 0 / .5); }
+/* The way up leads: the one filled pill, in the accent, like the header's selected link. */
+.visitor-float-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--color-accent);
+  background: var(--visitor-selection-surface, var(--color-surface));
+  box-shadow: 0 1px 3px rgb(0 0 0 / .06), 0 0 0 1px var(--visitor-selection-border, color-mix(in srgb, var(--color-line) 70%, transparent));
+  transition: color .18s ease, background-color .18s ease;
+}
+.visitor-float-top:hover { color: var(--color-ink); }
+.visitor-float-rule { width: 1px; height: 22px; margin-inline: 4px; background: color-mix(in srgb, var(--color-line-strong) 70%, transparent); }
+.visitor-float-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--color-muted);
+  transition: color .18s ease, background-color .18s ease;
+}
+.visitor-float-link:hover { color: var(--color-ink); background: color-mix(in srgb, var(--color-surface) 55%, transparent); }
+.visitor-float-link:focus-visible, .visitor-float-top:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+@media (min-width: 640px) { .visitor-float-link { padding-inline: 18px; font-size: 15px; } .visitor-float-top { font-size: 15px; padding-inline: 18px 14px; } }
+@media (max-width: 359px) { .visitor-float-link { padding-inline: 10px; font-size: 13px; } .visitor-float-top { padding-inline: 12px 10px; font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .visitor-float-nav, .visitor-float-link, .visitor-float-top { transition: none; } }
 
 /* Feed controls share the existing gap between the masthead and the first notes. */
 .visitor-feed-tools {
@@ -1191,207 +1346,6 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
 /* Landing on a note from a link should not tuck it under the top of the window. */
 .visitor-note-anchor { scroll-margin-top: 96px; }
 
-/*
- * The left margin's navigation, mirroring the day index on the right.
- *
- * Fixed and measured from the centre with `left: 50%` — which resolves against the viewport proper,
- * unlike `100vw`, so a machine that gives its scrollbar width does not push the block off its
- * gutter. The steps are the mirror of the rail's: half the column (320) plus a 40px gutter plus the
- * block's own width.
- */
-.visitor-side-nav { display: none; }
-
-
-.visitor-side-brand {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  transition: opacity 140ms ease;
-}
-
-.visitor-side-brand:hover { opacity: .75; }
-
-.visitor-page .visitor-side-brand-mark {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-}
-
-/* The card has its own edge now; the mark inside needs no second one. */
-.visitor-page .visitor-side-nav .visitor-logo-mark { box-shadow: none; }
-
-/* The wordmark as the masthead sets it: the same mono, the same weight, a size the column can hold. */
-.visitor-side-brand-name {
-  display: block;
-  min-width: 0;
-  max-width: 100%;
-  font-family: var(--font-visitor-mono), ui-monospace, monospace;
-  /* The mono cut runs wide; a size down and tighter tracking keep the name inside the rail's margin. */
-  font-size: 19px;
-  font-weight: 650;
-  line-height: 1.2;
-  letter-spacing: -.035em;
-  white-space: nowrap;
-  color: var(--color-ink);
-}
-
-/* The tagline with its highlighter stroke, exactly as the phone shows it, left-aligned. */
-/* Set in the interface sans, like the navigation under it: the rail speaks in one voice and stays
-   put when the reader changes the reading face. */
-.visitor-side-tagline {
-  margin-top: 18px;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.45;
-  letter-spacing: -.01em;
-  color: var(--color-ink-2);
-  text-wrap: pretty;
-}
-
-/* The header's capitals, stacked. `visitor-nav-link` gives them the same accent underline. */
-.visitor-side-links {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0;
-  margin-top: 56px;
-}
-
-/* Each row sits on its own hairline, the width of the rail. The accent line grows over that
-   hairline from the left under the pointer — the masthead's underline, given the full row. */
-.visitor-side-link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  min-height: 46px;
-  padding-block: 8px;
-  border-bottom: 1px solid var(--color-line);
-  /* The same type as the two controls at the foot: one size, one weight, plain case. */
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -.005em;
-  color: var(--color-ink-2);
-  transition: color 160ms ease;
-}
-.visitor-side-link::before { inset: auto 0 -1px; }
-
-/* The glyph is a shade quieter than the label at rest and follows it into the accent on hover. */
-.visitor-side-link-icon { flex: none; width: 22px; height: 22px; color: var(--color-faint); transition: color 160ms ease; }
-.visitor-side-link:hover .visitor-side-link-icon,
-.visitor-side-link:focus-visible .visitor-side-link-icon,
-.visitor-side-link[aria-current="page"] .visitor-side-link-icon { color: currentColor; }
-.visitor-side-link:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 4px; border-radius: 2px; }
-
-.visitor-side-link:hover,
-.visitor-side-link:focus-visible,
-.visitor-side-link[aria-current="page"] { color: var(--color-accent); }
-
-/* The foot of the rail: the two controls named, stacked, and cut off from the navigation above by
-   the column's only rule. The glyph keeps its 18px size; the chip behind it goes, since a row with
-   a name needs no button shape to be read as one. */
-.visitor-side-tools {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 2px;
-  margin-top: auto;
-  padding-top: 20px;
-  border-top: 1px solid var(--color-line);
-}
-
-.visitor-side-tools .visitor-top-control {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  height: auto;
-  min-height: 46px;
-  padding: 8px 0;
-  border-radius: 0;
-  border-bottom: 1px solid var(--color-line);
-  color: var(--color-muted);
-  transition: color 160ms ease;
-}
-
-.visitor-side-tools .visitor-top-control::before { display: none; }
-/* The last row closes the rail; a rule under it would draw a line against the bottom edge. */
-.visitor-side-tools .visitor-top-control:last-child { border-bottom: 0; }
-
-/* Lucide sizes its glyph inline; the rail wants a larger one than the phone header's 18px. */
-.visitor-side-tools .visitor-top-control > svg { width: 22px; height: 22px; }
-.visitor-side-tools .visitor-top-control:hover,
-.visitor-side-tools .visitor-top-control:focus-visible { color: var(--color-accent); }
-.visitor-side-tools .visitor-top-control:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 4px; border-radius: 6px; }
-.visitor-side-tools .visitor-top-control > svg { color: var(--color-faint); transition: color 160ms ease; }
-.visitor-side-tools .visitor-top-control:hover > svg,
-.visitor-side-tools .visitor-top-control:focus-visible > svg { color: inherit; }
-.visitor-side-tools .visitor-top-control:hover .visitor-tool-label,
-.visitor-side-tools .visitor-top-control:focus-visible .visitor-tool-label { color: inherit; }
-
-.visitor-tool-label {
-  min-width: 0;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-ink-2);
-  line-height: 1.2;
-  letter-spacing: -.005em;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Admin shares the public site's quiet surfaces, editorial headings and accent. */
-@layer components {
-  .admin-page { --focus-ring: var(--color-accent); }
-  .admin-page .sidebar { background: var(--color-surface); gap: 40px; }
-  .admin-page .sidebar-item { min-height: 48px; height: auto; padding-block: 10px; }
-  .admin-page .sidebar-item[aria-current="page"] {
-    color: var(--color-accent);
-    background: color-mix(in srgb, var(--color-accent) 7%, var(--color-surface));
-    box-shadow: inset 3px 0 var(--color-accent);
-  }
-  .admin-page .page-header { padding-bottom: 24px; border-bottom: 1px solid var(--color-line); }
-  .admin-page-actions { min-width: 0; }
-  .admin-page .main { max-width: 1600px; margin-inline: auto; }
-  .admin-mobile-tabs { display: none; }
-  .admin-save-bar { position: fixed; inset: auto 0 0; z-index: 30; display: flex; align-items: center; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--color-line); background: var(--color-canvas); padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
-  @media (min-width: 1280px) {
-    .admin-save-bar { position: static; border: 0; padding: 0; background: transparent; }
-  }
-  .admin-editor-dialog .admin-save-bar { position: static; padding: 0; border: 0; background: transparent; backdrop-filter: none; flex-wrap: wrap; }
-  .admin-editor-dialog .admin-post-form { padding-bottom: 0; }
-  @media (min-width: 1024px) and (max-width: 1279px) {
-    .admin-save-bar { left: 248px; }
-    html[data-admin-sidebar="collapsed"] .admin-save-bar { left: 84px; }
-  }
-  @media (max-width: 1023px) {
-    .admin-page .mobile-bar { height: auto; min-height: 72px; padding-top: max(12px, env(safe-area-inset-top)); gap: 12px; }
-    .admin-mobile-tabs { display: flex; gap: 20px; overflow-x: auto; padding-inline: 20px; border-bottom: 1px solid var(--color-line); background: var(--color-surface); scrollbar-width: thin; }
-    .admin-mobile-tabs a { display: flex; flex: none; align-items: center; gap: 7px; min-height: 48px; border-bottom: 2px solid transparent; color: var(--color-muted); font-size: 13px; font-weight: 500; }
-    .admin-mobile-tabs a[aria-current="page"] { color: var(--color-accent); border-bottom-color: var(--color-accent); }
-    .admin-mobile-tabs a:focus-visible { outline-offset: -3px; }
-    .admin-page :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea, [contenteditable="true"]) { font-size: 16px !important; }
-    .admin-page .page-header { flex-wrap: wrap; align-items: flex-start; }
-    .admin-page .main { padding-bottom: max(48px, env(safe-area-inset-bottom)); }
-  }
-  @media (max-width: 639px) {
-    .admin-page .page-header { gap: 16px; padding-bottom: 20px; }
-    .admin-page-actions { width: 100%; }
-    .admin-page-actions > :is(a, button) { flex: 1; }
-    .admin-page .card { border-radius: 16px; }
-    .admin-save-bar { gap: 8px; padding-inline: 12px; }
-    .admin-save-bar > button { min-width: 0; flex: 1; padding-inline: 12px; }
-    .admin-save-bar > a { padding-inline: 12px; }
-  }
-}
-
 /* Deliberately outside layers: this shared admin type scale supersedes older,
    compact utility sizes without changing the public site's typography. */
 .admin-page { font-size: 17px; line-height: 1.6; }
@@ -1408,7 +1362,6 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
 .admin-page .section-title { font-size: clamp(25px, 2vw, 29px); line-height: 1.3; }
 .admin-page .page-note { font-size: 16px; line-height: 1.6; }
 .admin-page .admin-brand { font-size: 14px; }
-.admin-page .admin-mobile-tabs a { font-size: 16px; min-height: 52px; }
 .admin-page .sidebar-item { min-height: 52px; }
 .admin-page :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 16px; }
 .admin-page .admin-overview-grid > .card { min-height: 240px; }
@@ -1417,9 +1370,10 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
   .admin-page .card { padding: 28px; }
 }
 @media (max-width: 639px) {
-  .admin-page .admin-save-bar > a { flex: 0 0 auto; }
-  .admin-page .admin-save-bar > button { flex: 1 1 180px; }
+  .admin-page .page-title { font-size: 28px; }
 }
+/* Selection follows the theme, as it does on the public pages. */
+.admin-page ::selection { background: var(--color-highlight); color: var(--color-ink); }
 
 /* Match the visitor reading surface, including pasted inline code in the editor. */
 .admin-page :is(code, pre) { font-family: var(--font-visitor-sans), Arial, sans-serif; }
@@ -1429,6 +1383,7 @@ html[data-visitor-theme="dark"] .visitor-slogan-highlight {
 .visitor-about-profile { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 12px 20px; padding: 24px var(--about-inset); border-bottom: 1px solid var(--color-line); }
 .visitor-about-portrait { width: 112px; aspect-ratio: 1; }
 .visitor-about-author { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.25; letter-spacing: -.025em; }
+.visitor-about-role { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--color-muted); }
 .visitor-about-website { grid-column: 1 / -1; display: inline-flex; align-items: center; justify-self: start; gap: 6px; min-height: 44px; max-width: 100%; font-size: 14px; line-height: 1.5; color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-line-strong); text-underline-offset: 4px; transition: color 160ms ease; }
 .visitor-about-website > span { min-width: 0; overflow-wrap: anywhere; }
 .visitor-about-website > svg { flex-shrink: 0; color: var(--color-muted); }

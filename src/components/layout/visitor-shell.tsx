@@ -89,7 +89,7 @@ export async function VisitorShell({
 
         <Link
           href={languageHref("/", language)}
-          className="visitor-wordmark mt-6 max-w-full font-mono font-bold text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7"
+          className="visitor-wordmark mt-6 max-w-full py-1 font-mono font-bold text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7"
         >
           {siteName === "Dijital Masallar" ? <>
             <span className="sr-only">{siteName}</span>
@@ -119,6 +119,8 @@ function VisitorFooter({ siteName, language }: { siteName: string; language: Vis
   return (
     <footer className="visitor-footer mt-14 flex w-full max-w-[640px] flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-line px-1 pt-6">
       <p className="visitor-muted visitor-sans text-[11px] font-normal text-muted">© {new Date().getFullYear()} {siteName}</p>
+      <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
+      <a href={languageHref("/feed.xml", language)} className="visitor-tap visitor-sans text-[11px] font-normal text-muted transition-colors hover:text-accent">RSS</a>
       <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
       <LanguageLink language={language} />
 

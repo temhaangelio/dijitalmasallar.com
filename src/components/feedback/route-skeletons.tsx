@@ -83,18 +83,15 @@ export function PostsPageLoading() {
     <ShellSkeleton active="/yazilar">
       <div className="mx-auto w-full max-w-[1600px]" role="status" aria-label="Yazılar yükleniyor">
         <PageHeaderSkeleton actionWidth="w-36" />
-        <div className="mb-5 flex gap-2">{[0, 1, 2].map(index => <Skeleton key={index} className="h-11 w-24 rounded-full" />)}</div>
-        <div className="card xl:p-5">
-          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <Skeleton className="h-12 w-full max-w-md rounded-field" />
-            <div className="flex flex-wrap gap-2">
-              <Skeleton className="h-10 w-44 rounded-full" />
-              <Skeleton className="h-10 w-28 rounded-full" />
-              <Skeleton className="h-10 w-36 rounded-full" />
-            </div>
+        <div className="card !p-0">
+          <div className="flex flex-col gap-3 border-b border-line px-4 py-3 sm:px-5 sm:py-4 lg:flex-row lg:items-center">
+            <div className="flex gap-2 lg:order-1"><Skeleton className="h-10 w-64 rounded-full" /><Skeleton className="h-10 w-36 rounded-full" /></div>
+            <div className="flex gap-2 lg:order-2 lg:flex-1"><Skeleton className="h-11 flex-1 rounded-full" /><Skeleton className="size-11 shrink-0 rounded-full" /></div>
           </div>
+          <div className="px-4 sm:px-5">
           <TableRowsSkeleton rows={3} withBody />
-          <div className="mt-5 flex justify-center border-t border-line pt-5"><Skeleton className="h-4 w-40" /></div>
+          </div>
+          <div className="flex justify-center border-t border-line py-5"><Skeleton className="h-4 w-40" /></div>
         </div>
       </div>
     </ShellSkeleton>
@@ -377,7 +374,7 @@ export function VisitorContentLoading({ label, lines = 5, rows = 0 }: { label: s
 export function AuthPageLoading() {
   return (
     <main className="grid min-h-screen place-items-center px-4 py-10" role="status" aria-label="Sayfa yükleniyor">
-      <section className="w-full max-w-[460px] rounded-card bg-white p-7 shadow-sm sm:p-10">
+      <section className="w-full max-w-[460px] rounded-card border border-line bg-surface p-6 sm:p-9">
         <div className="mb-10 flex items-center gap-3"><Skeleton className="size-8 rounded-[11px]" /><Skeleton className="h-5 w-24" /></div>
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="mb-8 mt-3 h-4 w-full" />

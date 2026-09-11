@@ -22,7 +22,7 @@ export function Switch({
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
-        "flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors",
+        "flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors focus-visible:outline-offset-2",
         "disabled:cursor-not-allowed disabled:opacity-50",
         checked ? "justify-end bg-ink" : "justify-start bg-line-strong",
       )}

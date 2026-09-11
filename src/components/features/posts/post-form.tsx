@@ -85,9 +85,9 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           <div>
             <h2 className="section-title">İçerik</h2>
           </div>
-          <div role="group" aria-label="İçerik dili" className="grid grid-cols-2 gap-1.5 rounded-field bg-surface-3 p-1.5 sm:w-64">
+          <div role="group" aria-label="İçerik dili" className="grid grid-cols-2 gap-1 rounded-full bg-surface-2 p-1 sm:w-64">
               {(["tr", "en"] as const).map((language) => (
-                <button key={language} type="button" aria-pressed={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`min-h-11 rounded-xl text-sm font-semibold transition ${activeLanguage === language ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-white hover:text-ink"}`}>
+                <button key={language} type="button" aria-pressed={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`min-h-10 rounded-full text-sm font-semibold transition-[color,background-color,box-shadow] ${activeLanguage === language ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>
                   {language === "tr" ? "Türkçe" : "English"}
                 </button>
               ))}
@@ -112,7 +112,7 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
       </div>
 
       <div className="space-y-5">
-        <div className="admin-save-bar">
+        <div className="admin-save-bar admin-chrome">
           <Link href="/yazilar" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link>
           <Button disabled={pending} className="min-w-40">
             <Save className="size-4" aria-hidden="true" />
@@ -130,17 +130,17 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
                 // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
                 : <img src={sharedPost.cover_path} alt="Mevcut kapak görseli" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />) : undefined}
             />
-            {sharedPost?.cover_path && !removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(true)} className="mt-2 min-h-11 text-sm font-semibold text-danger hover:underline">Mevcut görseli kaldır</button> : null}
-            {removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(false)} className="mt-2 text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
+            {sharedPost?.cover_path && !removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(true)} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-danger hover:underline">Mevcut görseli kaldır</button> : null}
+            {removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(false)} className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
           </div>
           <fieldset>
             <legend className="mb-2 text-sm font-semibold text-ink">Yayın zamanı</legend>
             <div className="grid grid-cols-2 gap-2">
-              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "published" ? "border-ink bg-ink text-white" : "border-line bg-surface-2 text-muted hover:border-line-strong hover:text-ink"}`}>
+              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex min-h-12 cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "published" ? "border-ink bg-surface text-ink" : "border-line bg-surface-2 text-muted hover:border-line-strong hover:text-ink"}`}>
                 <input type="radio" value="published" className="sr-only" {...register("status")} />
                 <Check className="size-4" aria-hidden="true" /> Şimdi
               </label>
-              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "scheduled" ? "border-ink bg-ink text-white" : "border-line bg-surface-2 text-muted hover:border-line-strong hover:text-ink"}`}>
+              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex min-h-12 cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "scheduled" ? "border-ink bg-surface text-ink" : "border-line bg-surface-2 text-muted hover:border-line-strong hover:text-ink"}`}>
                 <input type="radio" value="scheduled" className="sr-only" {...register("status")} />
                 <Clock3 className="size-4" aria-hidden="true" /> Planla
               </label>

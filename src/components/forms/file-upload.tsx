@@ -140,7 +140,7 @@ export function FileUpload({ onChange, label = "Kapak görseli seç", preview }:
             // eslint-disable-next-line @next/next/no-img-element -- local object URL for the selected cover
             <img src={previewUrl} alt="Seçilen kapak görseli" className="absolute inset-0 size-full object-cover" />
           ) : preview}
-          <span className="absolute bottom-3 right-3 grid size-9 place-items-center rounded-full bg-ink/75 text-white transition-colors group-hover:bg-ink" aria-hidden="true"><ImagePlus size={18} /></span>
+          <span className="absolute bottom-3 right-3 grid size-9 place-items-center rounded-full bg-ink/75 text-ink-contrast transition-colors group-hover:bg-ink" aria-hidden="true"><ImagePlus size={18} /></span>
         </button>
       ) : (
         <button type="button" disabled={processing} onClick={() => inputRef.current?.click()} className="flex min-h-28 w-full items-center justify-center gap-3 rounded-field border border-dashed border-line-strong bg-surface-2 px-4 text-sm font-semibold hover:border-ink disabled:opacity-60">
@@ -150,8 +150,8 @@ export function FileUpload({ onChange, label = "Kapak görseli seç", preview }:
       )}
       {name ? (
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-          {originalFile ? <button type="button" className="flex items-center gap-1 text-xs font-semibold text-muted hover:text-ink" onClick={() => openCrop(originalFile)}><Scissors size={13} aria-hidden="true" /> Kırpmayı düzenle</button> : null}
-          <button type="button" className="flex items-center gap-1 text-xs text-muted hover:text-ink" onClick={clear}><X size={13} aria-hidden="true" /> Seçimi kaldır</button>
+          {originalFile ? <button type="button" className="flex min-h-11 items-center gap-1 text-xs font-semibold text-muted hover:text-ink" onClick={() => openCrop(originalFile)}><Scissors size={13} aria-hidden="true" /> Kırpmayı düzenle</button> : null}
+          <button type="button" className="flex min-h-11 items-center gap-1 text-xs text-muted hover:text-ink" onClick={clear}><X size={13} aria-hidden="true" /> Seçimi kaldır</button>
         </div>
       ) : null}
       {error && !cropSource && <p role="alert" className="mt-2 text-[13px] text-danger">{error}</p>}

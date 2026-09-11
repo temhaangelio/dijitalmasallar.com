@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Bookmark, Heart, Mail, Rss, Smartphone } from "lucide-react";
+import { ArrowUpRight, Bookmark, BookOpenCheck, Heart, Mail, Rss, Smartphone, Sparkles } from "lucide-react";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
@@ -49,10 +49,8 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
               <h2 id="about-author" className="visitor-about-author visitor-sans">
                 Temha Angelio
               </h2>
-              <p className="visitor-about-copy visitor-copy visitor-serif mt-2">
-                {isEnglish
-                  ? "The author of this independent microblog, published in Turkish and English."
-                  : "Türkçe ve İngilizce yayımlanan bu bağımsız mikroblogun yazarı."}
+              <p className="visitor-about-role visitor-sans">
+                {isEnglish ? "Founder and editor of Dijital Masallar." : "Dijital Masallar’ın kurucusu ve editörü."}
               </p>
             </div>
             <a href="https://www.temhaangelio.com/" target="_blank" rel="noopener noreferrer" className="visitor-about-website visitor-sans">
@@ -61,8 +59,14 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             </a>
           </section>
           <div className="visitor-about-sections">
-            <section aria-labelledby="about-reading">
-              <h2 id="about-reading" className="visitor-about-section-title visitor-sans">{isEnglish ? "Follow and save" : "Takip et, sonra oku"}</h2>
+            <section aria-labelledby="about-what">
+              <h2 id="about-what" className="visitor-about-section-title visitor-sans"><Sparkles size={18} strokeWidth={1.6} aria-hidden="true" />{isEnglish ? "How it works" : "Nasıl çalışır?"}</h2>
+              <p className="visitor-about-copy visitor-copy visitor-serif mt-2">{isEnglish
+                ? "AI follows the technology, artificial intelligence, science and digital culture agenda using official sources only, summarises it and turns it into short news notes. No clickbait: a plain design, easy reading and few ads let you catch up on the day quickly."
+                : "Teknoloji, yapay zekâ, bilim ve dijital kültür gündemini yapay zekâ yalnızca resmî kaynaklardan buluyor, özetliyor ve kısa haber notlarına dönüştürüyor. Clickbait yok; sade tasarım, kolay okuma ve az reklamla gündemi hızlıca takip edebilirsiniz."}</p>
+            </section>
+            <section className="visitor-about-app" aria-labelledby="about-reading">
+              <h2 id="about-reading" className="visitor-about-section-title visitor-sans"><BookOpenCheck size={18} strokeWidth={1.6} aria-hidden="true" />{isEnglish ? "Follow, read later" : "Takip et, sonra oku"}</h2>
               <p className="visitor-about-copy visitor-copy visitor-serif mt-2">{isEnglish
                 ? "Follow the feed via RSS and save notes to read later. Your favorites stay in this browser."
                 : "Akışı RSS ile takip et, dönmek istediğin notları favorilerine kaydet. Favorilerin bu tarayıcıda saklanır."}</p>
@@ -74,8 +78,8 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             <section className="visitor-about-app" aria-labelledby="about-app">
               <h2 id="about-app" className="visitor-about-section-title visitor-sans"><Smartphone size={18} strokeWidth={1.6} aria-hidden="true" />{isEnglish ? "One tap away" : "Bir dokunuş uzağında"}</h2>
               <p className="visitor-about-copy visitor-copy visitor-serif mt-2">{isEnglish
-                ? "Add Dijital Masallar to your home screen and open it like an app. No app store download needed."
-                : "Dijital Masallar’ı ana ekranına ekleyip uygulama gibi açabilirsin. Mağazadan indirmen gerekmez."}</p>
+                ? "Dijital Masallar is a PWA (Progressive Web App): a website that installs like an app. Add it to your home screen and it opens full-screen with its own icon, loads fast and can send notifications. No app store download needed."
+                : "Dijital Masallar bir PWA (Progressive Web App), yani uygulama gibi yüklenebilen bir web sitesi. Ana ekranına eklediğinde kendi simgesiyle tam ekran açılır, hızlı yüklenir ve bildirim gönderebilir. Mağazadan indirmen gerekmez."}</p>
               <p className="visitor-about-hint visitor-sans">{isEnglish
                 ? "Settings → More settings → Add to home screen"
                 : "Ayarlar → Diğer ayarlar → Ana ekrana ekle"}</p>
