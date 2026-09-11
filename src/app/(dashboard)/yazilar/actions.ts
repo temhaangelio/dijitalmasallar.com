@@ -44,7 +44,12 @@ async function uploadCover(access: NonNullable<Awaited<ReturnType<typeof getAuth
           .resize({ width: maxCoverWidth, height: maxCoverHeight, fit: "inside", withoutEnlargement: true })
           .webp({ quality: coverQuality, effort: 4 })
           .toBuffer();
-  } catch {
+  } catch (error) {
+    console.error("[posts] Cover image processing failed", {
+      type: image.type,
+      size: image.size,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return { url: null, path: null, error: "Görsel işlenemedi. Başka bir JPG, PNG veya WebP deneyin." };
   }
   const path = `${access.user.id}/${randomUUID()}.webp`;

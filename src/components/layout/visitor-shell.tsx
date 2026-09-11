@@ -78,7 +78,6 @@ export async function VisitorShell({
             className="flex min-h-11 min-w-0 items-center gap-3 transition-opacity hover:opacity-75"
           >
             <BrandMark className="visitor-logo-mark block shrink-0 !size-9 !rounded-[12px] sm:!size-10 sm:!rounded-[13px] xl:!size-[52px] xl:!rounded-[16px]" />
-            {reading ? <span className="min-w-0 font-mono text-[13px] font-bold leading-snug text-left sm:text-[18px]">{siteName}</span> : null}
           </Link>
           <div className="flex shrink-0 items-center gap-2">
             {/* Keep the bell visible when the module is enabled, even if a deployment is missing its
@@ -88,7 +87,7 @@ export async function VisitorShell({
           </div>
         </div>
 
-        {reading ? null : <Link
+        <Link
           href={languageHref("/", language)}
           className="visitor-wordmark mt-6 max-w-full font-mono font-bold text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7"
         >
@@ -96,7 +95,7 @@ export async function VisitorShell({
             <span className="sr-only">{siteName}</span>
             <span className="visitor-wordmark-art" aria-hidden="true" />
           </> : siteName}
-        </Link>}
+        </Link>
 
         {compact || reading ? null : (
           <p className="visitor-tagline visitor-sans">{description}</p>

@@ -36,7 +36,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
           <section className="visitor-about-profile" aria-labelledby="about-author">
             <div className="visitor-about-portrait">
               <Image
-                src="/about-illustration.png"
+                src="/about-illustration-logo.png"
                 alt={isEnglish ? "An illustrated presenter with a microphone and laptop" : "Mikrofon ve dizüstü bilgisayarla bir sunucu illüstrasyonu"}
                 width={1254}
                 height={1254}
@@ -47,9 +47,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             </div>
             <div className="min-w-0">
               <h2 id="about-author" className="visitor-about-author visitor-sans">
-                <a href="https://www.temhaangelio.com/" target="_blank" rel="noopener noreferrer">
-                  Temha Angelio <ArrowUpRight size={18} strokeWidth={1.6} aria-hidden="true" />
-                </a>
+                Temha Angelio
               </h2>
               <p className="visitor-about-copy visitor-copy visitor-serif mt-2">
                 {isEnglish
@@ -57,6 +55,10 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
                   : "Türkçe ve İngilizce yayımlanan bu bağımsız mikroblogun yazarı."}
               </p>
             </div>
+            <a href="https://www.temhaangelio.com/" target="_blank" rel="noopener noreferrer" className="visitor-about-website visitor-sans">
+              <span>https://www.temhaangelio.com/</span>
+              <ArrowUpRight size={16} strokeWidth={1.6} aria-hidden="true" />
+            </a>
           </section>
           <div className="visitor-about-sections">
             <section aria-labelledby="about-reading">

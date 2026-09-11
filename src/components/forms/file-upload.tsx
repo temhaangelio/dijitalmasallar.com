@@ -14,8 +14,8 @@ const outputWidth = 1200;
 const outputHeight = 675;
 const outputQualities = [0.88, 0.84, 0.8, 0.76, 0.72, 0.68];
 
-function canvasBlob(canvas: HTMLCanvasElement, quality: number) {
-  return new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Görsel dönüştürülemedi.")), "image/webp", quality));
+function canvasBlob(canvas: HTMLCanvasElement, type: "image/webp" | "image/jpeg", quality: number) {
+  return new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Görsel dönüştürülemedi.")), type, quality));
 }
 
 async function cropForUpload(file: File, crop: CropTransform) {
@@ -38,14 +38,29 @@ async function cropForUpload(file: File, crop: CropTransform) {
 
   let smallest: Blob | null = null;
   for (const quality of outputQualities) {
-    const blob = await canvasBlob(canvas, quality);
+    const blob = await canvasBlob(canvas, "image/webp", quality);
+    // Safari versions without canvas WebP encoding silently return PNG. Sending those bytes with
+    // a WebP MIME type makes the server's signature validation reject an otherwise valid image.
+    if (blob.type !== "image/webp") {
+      smallest = null;
+      break;
+    }
     if (!smallest || blob.size < smallest.size) smallest = blob;
     if (blob.size <= targetBytes) break;
+  }
+  if (!smallest) {
+    for (const quality of outputQualities) {
+      const blob = await canvasBlob(canvas, "image/jpeg", quality);
+      if (blob.type !== "image/jpeg") continue;
+      if (!smallest || blob.size < smallest.size) smallest = blob;
+      if (blob.size <= targetBytes) break;
+    }
   }
   if (!smallest || smallest.size > targetBytes) throw new Error("Görsel yeterince küçültülemedi. Daha sade bir görsel deneyin.");
 
   const baseName = file.name.replace(/\.[^.]+$/, "") || "kapak";
-  return new File([smallest], `${baseName}.webp`, { type: "image/webp", lastModified: Date.now() });
+  const extension = smallest.type === "image/webp" ? "webp" : "jpg";
+  return new File([smallest], `${baseName}.${extension}`, { type: smallest.type, lastModified: Date.now() });
 }
 
 type CropSource = { file: File; url: string };

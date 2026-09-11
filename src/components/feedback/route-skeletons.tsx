@@ -244,7 +244,7 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
   return (
     <>
       {withCount ? <Skeleton className="mb-4 ml-1 h-3 w-32" /> : null}
-      <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
+      <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6">
         {Array.from({ length: count }, (_, index) => (
           <div key={index} className="visitor-card visitor-note-card visitor-note-card-grid flex flex-col">
             <div className="visitor-note-content flex-1 px-5 py-5 sm:px-6 sm:py-6 xl:px-5 xl:py-5">
@@ -311,6 +311,7 @@ export function VisitorAboutLoading() {
           <div className="visitor-about-profile">
             <Skeleton className="visitor-about-portrait" />
             <div className="w-full min-w-0 space-y-3 xl:flex xl:flex-col xl:items-center"><Skeleton className="h-7 w-40 max-w-full" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-4/5" /><Skeleton className="h-5 w-3/5" /></div>
+            <div className="visitor-about-website"><Skeleton className="h-4 w-56 max-w-full" /></div>
           </div>
           <div className="visitor-about-sections">
             <div className="space-y-3"><Skeleton className="h-6 w-40" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-11/12" /><Skeleton className="h-5 w-3/5" /><div className="visitor-about-actions"><Skeleton className="h-11 w-28 rounded-xl" /><Skeleton className="h-11 w-28 rounded-xl" /></div></div>

@@ -82,7 +82,7 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
    */
   if (!hydrated || (!visible.length && loaded?.key !== key)) {
     return (
-      <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5" role="status" aria-label={isEnglish ? "Loading favorites" : "Favoriler yükleniyor"}>
+      <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6" role="status" aria-label={isEnglish ? "Loading favorites" : "Favoriler yükleniyor"}>
         {/* Shaped like the notes it stands in for — text, then a cover — so the page does not
             jump when the answer arrives. */}
         {[0, 1].map((index) => (
@@ -129,7 +129,7 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
 
   return (
     <>
-      <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
+      <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6">
         {visible.map((post) => <NoteCard key={post.id} post={post} language={language} layout="grid" />)}
       </div>
       {/* Worth saying once, at the end rather than over the list: this is not an account, and

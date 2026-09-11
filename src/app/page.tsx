@@ -203,7 +203,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             On phones it is a single column; desktop readers can choose cards or horizontal rows.
             Both layouts share the same content, chronological order and full-width ad slots.
           */}
-          <div className="visitor-feed-grid flex flex-col gap-7 sm:gap-9 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-5">
+          <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6">
             {(() => {
               return postDays.flatMap((day) => day.items.flatMap(({ post, position }) => {
                 const nodes = [];
