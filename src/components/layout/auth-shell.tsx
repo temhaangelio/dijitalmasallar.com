@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/ui/brand-mark";
+import { BrandWordmark } from "@/components/ui/brand-wordmark";
 
 export function AuthShell({ title, children, footer }: { title: string; note: string; children: React.ReactNode; footer?: React.ReactNode }) {
   return (
@@ -8,7 +9,7 @@ export function AuthShell({ title, children, footer }: { title: string; note: st
         <h1 className="sr-only">{title}</h1>
         <Link href="/" className="mb-9 inline-flex items-center gap-3 rounded-full pr-3 text-ink transition-opacity hover:opacity-70">
           <BrandMark />
-          <strong className="admin-brand text-[14px] font-semibold">dijitalmasallar.com</strong>
+          <BrandWordmark className="w-[172px]" />
         </Link>
         {children}
         {footer ? <div className="mt-7 border-t border-line pt-6 text-center text-sm text-ink-2">{footer}</div> : null}

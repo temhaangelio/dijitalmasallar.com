@@ -7,8 +7,8 @@ import type { PostSort } from "@/services/posts";
 
 export const sortLabels: Record<PostSort, string> = { newest: "En yeni", oldest: "En eski", "title-asc": "Başlık A–Z", "title-desc": "Başlık Z–A" };
 
-const segment = "flex min-h-11 items-center rounded-full px-3.5 text-[13px] font-semibold transition-colors disabled:cursor-wait";
-const menuTrigger = "flex min-h-11 w-auto items-center gap-2 rounded-full border border-line px-3.5 text-[13px] font-semibold text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink";
+const segment = "flex min-h-11 items-center rounded-lg px-3.5 text-[13px] font-semibold transition-colors disabled:cursor-wait";
+const menuTrigger = "flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3.5 text-[13px] font-semibold text-ink-2 transition-colors hover:border-line-strong hover:bg-surface-2 hover:text-ink sm:flex-none";
 
 export function PostsToolbar({
   query,
@@ -28,8 +28,8 @@ export function PostsToolbar({
   onSortChange: (value: PostSort) => void;
 }) {
   return (
-    <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <div className="relative w-full max-w-md flex-1">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="relative w-full flex-1 lg:max-w-xl">
         <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
         <Input
           type="text"
@@ -47,8 +47,8 @@ export function PostsToolbar({
           </button>
         ) : null}
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-full bg-surface-2 p-1" role="group" aria-label="Yazı dili">
+      <div className="flex w-full items-center gap-2 lg:w-auto">
+        <div className="flex shrink-0 rounded-xl bg-surface-2 p-1" role="group" aria-label="Yazı dili">
           {(["tr", "en"] as const).map((value) => (
             <button
               key={value}

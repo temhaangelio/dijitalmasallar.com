@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ImageIcon, LoaderCircle, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, ImageIcon, LoaderCircle, Plus, Trash2 } from "lucide-react";
 import { deletePostAction, loadMorePostsAction } from "@/app/(dashboard)/yazilar/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { PostsStatusTabs, type PostStatusFilter } from "./posts-status-tabs";
@@ -99,44 +99,55 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
 
   const hasMore = posts.length < resultTotal;
   const filtered = query.trim() || status !== "all";
+  const progress = resultTotal > 0 ? Math.min(100, (posts.length / resultTotal) * 100) : 100;
   return <>
-    <PostsStatusTabs active={status} total={overallTotal} scheduledTotal={scheduledCount} onChange={value => { if (value !== status) { beginChange(); setStatus(value); } }} />
-    <div className="card">
-      <PostsToolbar query={query} onQueryChange={value => { if (value !== query) { beginChange(); setQuery(value); } }} language={currentLanguage} onLanguageChange={changeLanguage} pendingLanguage={null} sort={sort} onSortChange={changeSort} />
-      <div aria-busy={isSearching}>
-        {isSearching && <p role="status" className="mb-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Yazılar güncelleniyor…</p>}
-        {posts.length ? <ul aria-label="Yazılar" className={`divide-y divide-line ${isSearching ? "opacity-50" : ""}`}>
-          {posts.map(post => <li key={post.id} className={`${styles.row} group flex items-start gap-2 py-3.5 first:pt-1 last:pb-1 sm:gap-4`}>
-            <Link href={`/yazilar/${post.id}/duzenle`} prefetch={false} className="flex min-w-0 flex-1 items-start gap-3 rounded-lg sm:gap-4">
-              <div className="relative grid aspect-[4/3] w-14 shrink-0 place-items-center overflow-hidden rounded-lg bg-surface-3 text-faint sm:w-20">
+    <section className="card overflow-hidden !p-0" aria-label="Haber yönetimi">
+      <div className="space-y-4 border-b border-line bg-surface px-4 py-4 sm:px-5 sm:py-5">
+        <div className="flex items-center justify-between gap-4">
+          <PostsStatusTabs active={status} total={overallTotal} scheduledTotal={scheduledCount} onChange={value => { if (value !== status) { beginChange(); setStatus(value); } }} />
+          <p className="hidden shrink-0 text-sm font-medium text-muted sm:block" aria-live="polite">{resultTotal.toLocaleString("tr-TR")} sonuç</p>
+        </div>
+        <PostsToolbar query={query} onQueryChange={value => { if (value !== query) { beginChange(); setQuery(value); } }} language={currentLanguage} onLanguageChange={changeLanguage} pendingLanguage={null} sort={sort} onSortChange={changeSort} />
+      </div>
+      <div aria-busy={isSearching} className="relative">
+        {isSearching && <p role="status" className="flex min-h-12 items-center gap-2 border-b border-line bg-surface-2 px-4 text-sm font-medium text-muted sm:px-5"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Liste güncelleniyor…</p>}
+        {posts.length ? <ul aria-label="Yazılar" className={`${isSearching ? "pointer-events-none opacity-50" : ""}`}>
+          {posts.map(post => <li key={post.id} className={`${styles.row} group flex min-h-[104px] items-center gap-2 border-b border-line px-3 py-3 transition-colors last:border-b-0 hover:bg-surface-2/60 sm:gap-3 sm:px-5 sm:py-4`}>
+            <Link href={`/yazilar/${post.id}/duzenle`} prefetch={false} aria-label={`${post.title || "Başlıksız not"} yazısını düzenle`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 sm:gap-4">
+              <div className="relative grid aspect-[4/3] w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-surface-3 text-faint sm:w-28">
                 {post.cover_path ? isOptimizableImage(post.cover_path)
-                  ? <Image src={post.cover_path} alt="" fill sizes="(max-width: 639px) 56px, 80px" className="object-cover" />
+                  ? <Image src={post.cover_path} alt="" fill sizes="(max-width: 639px) 80px, 112px" className="object-cover transition-transform duration-200 group-hover:scale-[1.025] motion-reduce:transition-none" />
                   // eslint-disable-next-line @next/next/no-img-element -- external official source image
                   : <img src={post.cover_path} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
                   : <ImageIcon className="size-4" aria-hidden="true" />}
               </div>
               <div className="min-w-0 flex-1 xl:max-w-[95ch]">
-                <div className="mb-1 flex flex-wrap items-center gap-x-2 text-[11px] leading-5 text-muted">
+                <div className="mb-1.5 flex min-w-0 items-center gap-2 text-[11px] leading-5 text-muted">
                   <time dateTime={post.created_at} className="tabular-nums">{dateFormatter.format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}</time>
                   {/* Published is what almost every row is; saying so on all of them said nothing.
                       Only the exception — a post still waiting for its date — gets a label. */}
-                  {post.status === "scheduled" && <span className="rounded-full bg-warning-surface px-2 text-warning">Planlı</span>}
+                  {post.status === "scheduled" && <span className="rounded-md bg-warning-surface px-2 py-0.5 font-semibold text-warning">Planlı</span>}
                   {/* A source is worth naming; the absence of one is not worth a line of its own. */}
                   {post.source_url && <><span aria-hidden="true">·</span><span className="min-w-0 truncate">{sourceLabel(null, post.source_url, "")}</span></>}
                 </div>
-                <h2 className="line-clamp-2 font-[family-name:var(--font-visitor-sans)] text-[17px] font-medium leading-snug text-ink sm:text-[18px]">{post.title || post.excerpt || "Başlıksız not"}</h2>
+                <h2 className="line-clamp-2 font-[family-name:var(--font-visitor-sans)] text-[17px] font-semibold leading-snug tracking-[-0.015em] text-ink sm:text-[18px]">{post.title || post.excerpt || "Başlıksız not"}</h2>
+                {post.excerpt && post.excerpt !== post.title ? <p className="mt-1 hidden line-clamp-1 text-sm text-muted md:block">{post.excerpt}</p> : null}
               </div>
+              <ChevronRight className="hidden size-5 shrink-0 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-ink sm:block" strokeWidth={1.7} aria-hidden="true" />
             </Link>
-            <button type="button" disabled={isSearching} onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} className={`${styles.rowAction} grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-danger-surface hover:text-danger disabled:opacity-40`}><Trash2 className="size-4" strokeWidth={1.6} aria-hidden="true" /></button>
+            <button type="button" disabled={isSearching} onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} title="Yazıyı sil" className={`${styles.rowAction} grid size-11 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-danger-surface hover:text-danger focus-visible:bg-danger-surface focus-visible:text-danger disabled:opacity-40`}><Trash2 className="size-[18px]" strokeWidth={1.7} aria-hidden="true" /></button>
           </li>)}
         </ul> : !isSearching && <EmptyState title={filtered ? "Eşleşen yazı bulunamadı" : "Henüz yazı yok"} description={filtered ? "Arama veya filtreyi değiştirip tekrar deneyin." : "İlk yazınızı ekleyin; burada listelenecek."} />}
-        <div className="mt-5 flex flex-col items-center gap-3 border-t border-line pt-5">
-          <p className="text-xs text-muted" aria-live="polite">{posts.length.toLocaleString("tr-TR")} / {resultTotal.toLocaleString("tr-TR")} yazı</p>
+        <div className="flex flex-col items-center gap-3 border-t border-line bg-surface-2/40 px-4 py-5 sm:px-5">
+          <div className="flex w-full max-w-sm items-center gap-3">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-3" aria-hidden="true"><div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress}%` }} /></div>
+            <p className="shrink-0 text-xs font-medium tabular-nums text-muted" aria-live="polite">{posts.length.toLocaleString("tr-TR")} / {resultTotal.toLocaleString("tr-TR")}</p>
+          </div>
           {hasMore && <Button type="button" variant="outline" onClick={loadMore} disabled={isLoadingMore || isSearching}>{isLoadingMore ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Plus className="size-4" aria-hidden="true" />}{isLoadingMore ? "Yükleniyor…" : "Daha fazla yazı"}</Button>}
           {loadError && <div role="alert" className="text-center"><p className="text-sm text-danger">{loadError}</p><Button type="button" variant="ghost" onClick={reload} disabled={isSearching}>Tekrar dene</Button></div>}
         </div>
       </div>
-    </div>
+    </section>
     <ConfirmDialog open={Boolean(postToDelete)} title="Yazı silinsin mi?" description={postToDelete ? `“${postToDelete.title || "Bu yazı"}” ve kapak görseli kalıcı olarak silinecek.` : "Bu işlem geri alınamaz."} confirmLabel="Yazıyı sil" variant="destructive" onOpenChange={open => !open && setPostToDelete(null)} onConfirm={removeSelectedPost} />
   </>;
 }

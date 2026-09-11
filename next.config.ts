@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 /**
  * Cover and ad images live in public Supabase Storage buckets. The exact host is derived from the
@@ -36,6 +37,9 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.61"],
   devIndicators: false,
   poweredByHeader: false,
+  // The repository lives one level below another lockfile. Pinning the root keeps Turbopack from
+  // treating that unrelated parent directory as part of this application.
+  turbopack: { root: path.resolve(__dirname) },
   images: {
     // Next 16 refuses a local `src` with a query string unless it is listed. Plain local paths stay
     // allowed by the first entry; the second is the install banner's cache-busted app icon.

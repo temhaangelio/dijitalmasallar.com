@@ -5,6 +5,7 @@ import { ExternalLink, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { logoutAction } from "@/app/(auth)/actions";
 import { BrandMark } from "@/components/ui/brand-mark";
+import { BrandWordmark } from "@/components/ui/brand-wordmark";
 import { adminNavItems, type AdminModules } from "./admin-nav-items";
 
 export function MobileNavigation({ active, siteName, modules }: { active: string; siteName: string; modules: AdminModules }) {
@@ -35,7 +36,7 @@ export function MobileNavigation({ active, siteName, modules }: { active: string
   }, [open]);
   return <>
     <div className="mobile-bar">
-      <Link href="/dashboard" className="flex min-w-0 items-center gap-3"><BrandMark className="!size-9" /><span className="min-w-0"><strong className="admin-brand block truncate text-sm">{siteName}</strong><span className="mt-0.5 block text-[11px] text-muted">Yönetim paneli</span></span></Link>
+      <Link href="/dashboard" className="flex min-w-0 items-center gap-3"><BrandMark className="!size-9" /><span className="min-w-0">{siteName === "Dijital Masallar" ? <BrandWordmark className="w-[145px] max-w-full" /> : <strong className="admin-brand block truncate text-sm">{siteName}</strong>}</span></Link>
       <button ref={trigger} type="button" aria-label="Menüyü aç" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)} className="grid size-11 shrink-0 place-items-center rounded-xl bg-surface-3"><Menu size={19} strokeWidth={1.6} /></button>
     </div>
     <nav ref={navRef} aria-label="Bölümlere hızlı erişim" className="admin-mobile-tabs">

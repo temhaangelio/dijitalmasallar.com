@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { Bell, BellOff, BellRing, Check, Compass, Download, Globe, LoaderCircle, MoreVertical, Share, SquarePlus, X } from "lucide-react";
+import { Bell, BellOff, BellRing, Check, ChevronDown, Compass, Download, Globe, LoaderCircle, MoreVertical, Share, SquarePlus, X } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { subscribeToPushAction, unsubscribeFromPushAction } from "@/app/actions/push";
 import { showToast } from "@/components/ui/toast";
 import { Segmented } from "@/components/ui/segmented";
 import { segmentClassName } from "@/components/ui/segmented-style";
+import { BrandMark } from "@/components/ui/brand-mark";
 import { cn } from "@/lib/utils";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 
@@ -481,36 +481,39 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
       className="install-banner fixed inset-x-0 bottom-0 z-[150] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
       aria-label={isEnglish ? "Install dijitalmasallar.com" : "dijitalmasallar.com'u yükle"}
     >
-      <div className="visitor-panel mx-auto flex w-full max-w-[560px] max-h-[75dvh] overflow-y-auto items-start gap-4 rounded-[24px] border border-line-strong bg-surface p-4 shadow-modal">
-        {/* The mark is black on black in the dark theme, so it carries a hairline of its own. */}
-        <Image src="/icon-192.png?v=7" alt="" width={44} height={44} className="size-11 shrink-0 rounded-[14px] border border-line-strong" />
-        <div className="min-w-0 flex-1">
-          <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold tracking-[-.02em]">
-            {isEnglish ? "Add dijitalmasallar.com to your home screen" : "dijitalmasallar.com'u ana ekranınıza ekleyin"}
-          </strong>
-          <div className="visitor-muted mt-1 text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">
-            {status === "ready"
-              ? (isEnglish ? "Tap Install, then confirm in the browser’s window." : "Yükle’ye dokunun, açılan tarayıcı penceresinde onaylayın.")
-              : <details className="mt-2"><summary className="min-h-11 cursor-pointer py-3 text-[13px] font-medium text-ink">{isEnglish ? "How to add it · iPhone / iPad" : "Nasıl eklenir? · iPhone / iPad"}</summary><InstallSteps language={language} platform="ios" /></details>}
-          </div>
-        </div>
-        {status === "ready" ? (
-          <button
-            type="button"
-            onClick={() => { rememberInstallDismissal(); void runInstall(); }}
-            className="min-h-11 shrink-0 rounded-full bg-ink px-4 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
-          >
-            {isEnglish ? "Install" : "Yükle"}
-          </button>
-        ) : null}
+      <div className="visitor-panel relative mx-auto w-full max-w-[520px] max-h-[78dvh] overflow-y-auto rounded-[22px] border border-line-strong bg-surface p-3.5 shadow-modal sm:p-4">
         <button
           type="button"
           onClick={close}
           aria-label={isEnglish ? "Dismiss" : "Kapat"}
-          className="grid size-11 shrink-0 place-items-center rounded-full text-faint transition-colors hover:bg-surface-2 hover:text-ink"
+          className="absolute right-2.5 top-2.5 grid size-11 place-items-center rounded-xl text-faint transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)]"
         >
-          <X size={17} aria-hidden="true" />
+          <X size={19} strokeWidth={1.7} aria-hidden="true" />
         </button>
+        <div className="flex items-center gap-3 pr-12">
+          <BrandMark className="!size-12 !rounded-[15px] shrink-0" />
+          <strong className="visitor-heading block text-[length:var(--vt-small)] font-semibold leading-snug tracking-[-.025em] [text-wrap:balance]">
+            {isEnglish ? "Add dijitalmasallar.com to your home screen" : "dijitalmasallar.com'u ana ekranınıza ekleyin"}
+          </strong>
+        </div>
+        {status === "ready" ? <div className="mt-3 grid gap-3 border-t border-line pt-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          <p className="visitor-muted text-[length:var(--vt-ui)] leading-5 text-muted [text-wrap:pretty]">{isEnglish ? "Install it once, then open it from its own icon." : "Bir kez yükleyin, ardından kendi simgesinden açın."}</p>
+          <button
+            type="button"
+            onClick={() => { rememberInstallDismissal(); void runInstall(); }}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-5 text-[length:var(--vt-ui)] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
+          >
+            <Download size={17} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}
+          </button>
+        </div> : <details className="group mt-3 border-t border-line pt-3">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-line bg-surface-2 px-3 text-[13px] font-semibold text-ink transition-colors hover:border-line-strong hover:bg-surface-3 [&::-webkit-details-marker]:hidden">
+            <Share size={17} strokeWidth={1.7} className="shrink-0 text-accent" aria-hidden="true" />
+            <span className="min-w-0 flex-1">{isEnglish ? "How to add it" : "Nasıl eklenir?"}</span>
+            <span className="shrink-0 text-[11px] font-medium text-muted">iPhone / iPad</span>
+            <ChevronDown size={16} className="shrink-0 text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+          </summary>
+          <div className="mt-3 rounded-xl bg-surface-2 p-3.5"><InstallSteps language={language} platform="ios" /></div>
+        </details>}
       </div>
     </aside>
   );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ExternalLink, LogOut } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
 import { BrandMark } from "@/components/ui/brand-mark";
+import { BrandWordmark } from "@/components/ui/brand-wordmark";
 import { adminNavItems, type AdminModules } from "./admin-nav-items";
 import { SidebarToggle } from "./sidebar-toggle";
 
@@ -18,7 +19,7 @@ import { SidebarToggle } from "./sidebar-toggle";
 export function Sidebar({ active, siteName, modules }: { active: string; siteName: string; modules: AdminModules }) {
   return <aside className="sidebar">
     <Link href="/dashboard" aria-label={siteName} className="flex items-center gap-3">
-      <BrandMark className="shrink-0" /><span className="sidebar-expanded-only min-w-0"><strong className="admin-brand block truncate text-[14px]">{siteName}</strong><span className="mt-1 block text-[11px] text-muted">Yönetim paneli</span></span>
+      <BrandMark className="shrink-0" /><span className="sidebar-expanded-only min-w-0">{siteName === "Dijital Masallar" ? <BrandWordmark className="w-[150px] max-w-full" /> : <strong className="admin-brand block truncate text-[14px]">{siteName}</strong>}</span>
     </Link>
     <nav aria-label="Yönetim menüsü" className="flex flex-col gap-1">
       {adminNavItems.filter(({ module }) => !module || modules[module]).map(({ label, href, icon: Icon }) => {

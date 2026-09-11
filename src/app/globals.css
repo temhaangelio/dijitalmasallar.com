@@ -942,6 +942,13 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
   background: currentColor;
   mask: url("/dijital-masallar-wordmark.svg") center / contain no-repeat;
 }
+.brand-wordmark {
+  display: block;
+  aspect-ratio: 585 / 87;
+  color: var(--color-ink);
+  background: currentColor;
+  mask: url("/dijital-masallar-wordmark.svg") center / contain no-repeat;
+}
 @media (max-width: 639px) {
   .visitor-wordmark-art, .visitor-wordmark-placeholder { width: clamp(210px, 50vw, 300px); }
 }
