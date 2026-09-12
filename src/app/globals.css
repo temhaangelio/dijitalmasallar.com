@@ -1360,7 +1360,9 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
  * deck. A card being read has to grow down the page instead, so it leaves the stack and sits in the
  * flow — the cards behind it keep the resting height and stay exactly where they were.
  */
-.visitor-deck[data-open] .visitor-deck-stage { touch-action: auto; }
+/* An open card is still a card in a deck: the finger keeps the horizontal axis so it can be turned
+   without closing first, and the browser keeps the vertical one so the text scrolls. That is what
+   `pan-y` says, open or shut, so the stage does not change its mind here. */
 /* The opened card joins the flow and gives the stage its height; the pile behind keeps its own. */
 .visitor-deck[data-open] .visitor-deck-card[data-front] { position: relative; height: auto; min-height: var(--deck-height); transform: none; }
 .visitor-deck[data-open] .visitor-deck-title { display: block; overflow: visible; }

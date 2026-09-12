@@ -46,7 +46,7 @@ const depth = 2;
  *
  * The arrow at the foot of the front card opens the note where it stands, so a reader can finish it
  * without leaving the feed. The pile behind stays exactly where it was — only the front card grows
- * down the page — and it stops being draggable while open; turning the deck closes it again.
+ * down the page — and an open card can still be flicked on to the next one, which closes it.
  *
  * Only the front card is reachable by keyboard or screen reader — the ones behind are decoration
  * until they come forward. There are no dots under the pile: the peeking edges already say there
@@ -74,8 +74,8 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
   }
 
   function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    // An opened card is a block of text to read and scroll, not a card to flick.
-    if (open) return;
+    // An open card turns like any other: a reader who has finished the note should be able to flick
+    // on without first closing it. Only the axis test below separates that from scrolling the text.
     if (event.pointerType === "mouse" && event.button !== 0) return;
     start.current = { x: event.clientX, y: event.clientY };
     moved.current = false;
@@ -141,11 +141,15 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
                  * a card is open — the pile stays where it is and only the front card grows, which
                  * is why the front one drops its transform instead of them dropping out.
                  */
-                ...(open && front ? {} : {
-                  transform: `translate3d(calc(${offset * 13}px + ${front ? drag : 0}px), 0, 0) scaleY(${1 - offset * 0.045})`,
-                  opacity: front && drag ? Math.max(0.5, 1 - Math.abs(drag) / 320) : 1,
-                  transition: drag ? "none" : undefined,
-                }),
+                ...(open && front
+                  // Open, the front card sits in the flow and takes its height from the text. It
+                  // still follows the finger — a transform does not disturb either.
+                  ? { transform: drag ? `translate3d(${drag}px, 0, 0)` : undefined, transition: drag ? "none" : undefined }
+                  : {
+                    transform: `translate3d(calc(${offset * 13}px + ${front ? drag : 0}px), 0, 0) scaleY(${1 - offset * 0.045})`,
+                    opacity: front && drag ? Math.max(0.5, 1 - Math.abs(drag) / 320) : 1,
+                    transition: drag ? "none" : undefined,
+                  }),
               }}
             >
               <div className="visitor-deck-cover">
@@ -202,11 +206,15 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
               data-front={front ? "" : undefined}
               style={{
                 zIndex: 0,
-                ...(open && front ? {} : {
-                  transform: `translate3d(calc(${offset * 13}px + ${front ? drag : 0}px), 0, 0) scaleY(${1 - offset * 0.045})`,
-                  opacity: front && drag ? Math.max(0.5, 1 - Math.abs(drag) / 320) : 1,
-                  transition: drag ? "none" : undefined,
-                }),
+                ...(open && front
+                  // Open, the front card sits in the flow and takes its height from the text. It
+                  // still follows the finger — a transform does not disturb either.
+                  ? { transform: drag ? `translate3d(${drag}px, 0, 0)` : undefined, transition: drag ? "none" : undefined }
+                  : {
+                    transform: `translate3d(calc(${offset * 13}px + ${front ? drag : 0}px), 0, 0) scaleY(${1 - offset * 0.045})`,
+                    opacity: front && drag ? Math.max(0.5, 1 - Math.abs(drag) / 320) : 1,
+                    transition: drag ? "none" : undefined,
+                  }),
               }}
             >
               <span className="visitor-deck-end-mark" aria-hidden="true"><ArrowDown size={22} strokeWidth={2} /></span>
