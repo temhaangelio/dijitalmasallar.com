@@ -1232,17 +1232,20 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background:
  * The stage has a fixed height because the cards are positioned on top of each other and have
  * nothing to give it otherwise; the title clamps to three lines so every card fills the same box.
  */
-.visitor-deck { margin-bottom: 26px; }
+/* The height of a card at rest. The pile keeps it while an opened card grows past it. */
+.visitor-deck { --deck-height: clamp(390px, 104vw, 470px); margin-bottom: 26px; }
 .visitor-deck-stage {
   position: relative;
-  height: clamp(390px, 104vw, 470px);
+  min-height: var(--deck-height);
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
 }
 .visitor-deck-card {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  height: var(--deck-height);
   display: flex;
   flex-direction: column;
   width: calc(100% - 26px);
@@ -1283,6 +1286,28 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 }
 /* The whole card opens the note; the buttons over the picture keep their own taps. */
 .visitor-deck-title::before { content: ""; position: absolute; inset: 0; }
+/* The card that closes the pile: no note, just where to go next. */
+.visitor-deck-end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: column;
+  padding: 24px;
+  text-align: center;
+}
+.visitor-deck-end-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-ink) 6%, transparent);
+  color: var(--color-ink-2);
+}
+.visitor-deck-end-title { margin: 6px 0 0; font-size: 16px; font-weight: 700; line-height: 1.3; letter-spacing: -.015em; color: var(--color-ink); }
+.visitor-deck-end-note { margin: 0; max-width: 24ch; font-size: 13px; line-height: 1.6; color: var(--color-muted); text-wrap: pretty; }
+
 .visitor-deck-footer {
   display: flex;
   align-items: center;
@@ -1331,12 +1356,13 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 /*
  * An opened card leaves the pile.
  *
- * The stage holds its cards on top of one another at a fixed height, which is what makes the deck
- * a deck; a card being read has to grow down the page instead, so while one is open the stage gives
- * up both and the card sits in the flow like any other note.
+ * The stage holds its cards on top of one another at one height, which is what makes the deck a
+ * deck. A card being read has to grow down the page instead, so it leaves the stack and sits in the
+ * flow — the cards behind it keep the resting height and stay exactly where they were.
  */
-.visitor-deck[data-open] .visitor-deck-stage { height: auto; touch-action: auto; }
-.visitor-deck[data-open] .visitor-deck-card { position: relative; width: 100%; transform: none; }
+.visitor-deck[data-open] .visitor-deck-stage { touch-action: auto; }
+/* The opened card joins the flow and gives the stage its height; the pile behind keeps its own. */
+.visitor-deck[data-open] .visitor-deck-card[data-front] { position: relative; height: auto; min-height: var(--deck-height); transform: none; }
 .visitor-deck[data-open] .visitor-deck-title { display: block; overflow: visible; }
 /* From here the feed itself shows this much at a glance, so the deck would only repeat it. */
 @media (min-width: 1024px) { .visitor-deck { display: none; } }
@@ -1654,6 +1680,74 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 }
 @media (prefers-reduced-motion: reduce) {
   .visitor-newsletter-submit, .visitor-newsletter-input, .visitor-newsletter-sheet-done { transition: none; }
+}
+
+/*
+ * The same offer, dropped into the feed between the notes.
+ *
+ * One row: mark, two lines, a way in. It is deliberately shorter than a note card — a suggestion
+ * that takes up as much room as the thing being read stops being a suggestion — and it borrows the
+ * ad slot's full-column placement so the rhythm of the feed is unchanged.
+ */
+.visitor-newsletter-promo {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  transition: border-color 160ms ease;
+}
+.visitor-newsletter-promo:hover { border-color: var(--color-line-strong); }
+.visitor-newsletter-promo:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.visitor-newsletter-promo-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  color: var(--color-accent);
+}
+.visitor-newsletter-promo-body { display: block; min-width: 0; }
+.visitor-newsletter-promo-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.visitor-newsletter-promo-title {
+  display: block;
+  margin-top: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -.01em;
+  color: var(--color-ink);
+  text-wrap: pretty;
+}
+.visitor-newsletter-promo-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-ink-2);
+  transition: color 160ms ease;
+}
+.visitor-newsletter-promo-cta > svg { flex: none; transition: transform 200ms cubic-bezier(.2,.8,.2,1); }
+.visitor-newsletter-promo:hover .visitor-newsletter-promo-cta { color: var(--color-accent); }
+.visitor-newsletter-promo:hover .visitor-newsletter-promo-cta > svg { transform: translateX(3px); }
+@media (min-width: 640px) {
+  .visitor-newsletter-promo { gap: 16px; padding: 20px 24px; }
+  .visitor-newsletter-promo-title { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visitor-newsletter-promo, .visitor-newsletter-promo-cta, .visitor-newsletter-promo-cta > svg { transition: none; }
 }
 
 /* A compact author profile balances the reading options on the about page. */

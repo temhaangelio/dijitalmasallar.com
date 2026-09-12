@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { ChevronDown } from "lucide-react";
+import { ArrowDown, ChevronDown } from "lucide-react";
 import { PostImageActions } from "@/components/features/visitor/post-image-actions";
 import { isOptimizableImage } from "@/lib/images";
 import { postPlainText, splitAfterFirstParagraph } from "@/lib/post-content";
@@ -45,8 +45,8 @@ const depth = 2;
  * finger and letting go past a threshold turns it; anything short of that springs back.
  *
  * The arrow at the foot of the front card opens the note where it stands, so a reader can finish it
- * without leaving the feed. An opened card drops the pile behind it, stops being draggable and
- * grows down the page; turning the deck closes it again.
+ * without leaving the feed. The pile behind stays exactly where it was — only the front card grows
+ * down the page — and it stops being draggable while open; turning the deck closes it again.
  *
  * Only the front card is reachable by keyboard or screen reader — the ones behind are decoration
  * until they come forward. There are no dots under the pile: the peeking edges already say there
@@ -64,6 +64,8 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
 
   if (posts.length < 2) return null;
   const isEnglish = language === "en";
+  /* One slot past the notes: the closing card, which is a place in the deck like any other. */
+  const last = posts.length;
 
   /** Turning the deck closes whatever was open: the card that was expanded is no longer in front. */
   function goTo(next: number) {
@@ -87,14 +89,14 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
     if (!moved.current && Math.abs(dy) > Math.abs(dx)) { start.current = null; return; }
     if (Math.abs(dx) > 8) moved.current = true;
     // The deck does not bend past its ends; it only gives a little.
-    const atEnd = (dx < 0 && index === posts.length - 1) || (dx > 0 && index === 0);
+    const atEnd = (dx < 0 && index === last) || (dx > 0 && index === 0);
     setDrag(atEnd ? dx / 4 : dx);
   }
 
   function onPointerUp() {
     if (!start.current) { setDrag(0); return; }
     start.current = null;
-    if (drag <= -threshold && index < posts.length - 1) goTo(index + 1);
+    if (drag <= -threshold && index < last) goTo(index + 1);
     else if (drag >= threshold && index > 0) goTo(index - 1);
     setDrag(0);
   }
@@ -105,9 +107,9 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
         className="visitor-deck-stage"
         tabIndex={0}
         role="group"
-        aria-label={`${index + 1} / ${posts.length}${isEnglish ? " — use the arrow keys" : " — ok tuşlarıyla gezinin"}`}
+        aria-label={`${Math.min(index + 1, posts.length)} / ${posts.length}${isEnglish ? " — use the arrow keys" : " — ok tuşlarıyla gezinin"}`}
         onKeyDown={(event) => {
-          if (event.key === "ArrowRight" && index < posts.length - 1) { event.preventDefault(); goTo(index + 1); }
+          if (event.key === "ArrowRight" && index < last) { event.preventDefault(); goTo(index + 1); }
           if (event.key === "ArrowLeft" && index > 0) { event.preventDefault(); goTo(index - 1); }
         }}
         onPointerDown={onPointerDown}
@@ -120,8 +122,6 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
         {posts.map((post, position) => {
           const offset = position - index;
           if (offset < 0 || offset > depth) return null;
-          // An opened card stands alone: a pile behind a block of text is just clutter.
-          if (open && offset > 0) return null;
           const front = offset === 0;
           const publishedAt = post.published_at ?? post.created_at;
           const postHref = languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en");
@@ -131,17 +131,20 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
               key={post.id}
               className="visitor-deck-card visitor-card"
               aria-hidden={front ? undefined : true}
+              data-front={front ? "" : undefined}
               style={{
                 zIndex: posts.length - offset,
-                ...(open ? {} : {
                 /*
                  * The cards behind are pushed right and squashed vertically, never scaled
                  * horizontally: scaling from the left pulls their right edge back under the front
-                 * card, and then the pile has no visible edges at all.
+                 * card, and then the pile has no visible edges at all. They keep these values while
+                 * a card is open — the pile stays where it is and only the front card grows, which
+                 * is why the front one drops its transform instead of them dropping out.
                  */
-                transform: `translate3d(calc(${offset * 13}px + ${front ? drag : 0}px), 0, 0) scaleY(${1 - offset * 0.045})`,
-                opacity: front && drag ? Math.max(0.5, 1 - Math.abs(drag) / 320) : 1,
-                transition: drag ? "none" : undefined,
+                ...(open && front ? {} : {
+                  transform: `translate3d(calc(${offset * 13}px + ${front ? drag : 0}px), 0, 0) scaleY(${1 - offset * 0.045})`,
+                  opacity: front && drag ? Math.max(0.5, 1 - Math.abs(drag) / 320) : 1,
+                  transition: drag ? "none" : undefined,
                 }),
               }}
             >
@@ -187,8 +190,32 @@ export function FeedHighlights({ posts, language }: { posts: Post[]; language: V
             </article>
           );
         })}
-      </div>
 
+        {(() => {
+          const offset = last - index;
+          if (offset < 0 || offset > depth) return null;
+          const front = offset === 0;
+          return (
+            <article
+              className="visitor-deck-card visitor-deck-end visitor-card"
+              aria-hidden={front ? undefined : true}
+              data-front={front ? "" : undefined}
+              style={{
+                zIndex: 0,
+                ...(open && front ? {} : {
+                  transform: `translate3d(calc(${offset * 13}px + ${front ? drag : 0}px), 0, 0) scaleY(${1 - offset * 0.045})`,
+                  opacity: front && drag ? Math.max(0.5, 1 - Math.abs(drag) / 320) : 1,
+                  transition: drag ? "none" : undefined,
+                }),
+              }}
+            >
+              <span className="visitor-deck-end-mark" aria-hidden="true"><ArrowDown size={22} strokeWidth={2} /></span>
+              <p className="visitor-deck-end-title visitor-sans">{isEnglish ? "That is the latest" : "Son notlar bu kadar"}</p>
+              <p className="visitor-deck-end-note visitor-sans">{isEnglish ? "Carry on reading below." : "Okumaya aşağıdan devam edebilirsiniz."}</p>
+            </article>
+          );
+        })()}
+      </div>
     </section>
   );
 }

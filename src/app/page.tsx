@@ -8,6 +8,7 @@ import { FeedHighlights } from "@/components/features/visitor/feed-highlights";
 import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memory";
 import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
 import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
+import { NewsletterPromo } from "@/components/features/visitor/newsletter-promo";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
@@ -106,6 +107,23 @@ function createAdSlots(postCount: number, ads: Advertisement[]) {
   return slots;
 }
 
+/*
+ * The newsletter suggestion turns up far less often than an ad, and never in the same gap as one.
+ *
+ * Ads sit at every sixth note, which is every position ≡ 5 (mod 6). A suggestion starting at 13 and
+ * repeating every 18 lands on 13, 31, 49 — all ≡ 1 (mod 6) — so the two never stack. The first one
+ * is past the phone's deck as well, so it reads as something met while scrolling rather than as a
+ * banner across the top of the feed.
+ */
+const newsletterInterval = 18;
+const newsletterFirst = 13;
+
+function createNewsletterSlots(postCount: number) {
+  const slots = new Set<number>();
+  for (let position = newsletterFirst; position < postCount; position += newsletterInterval) slots.add(position);
+  return slots;
+}
+
 /**
  * The feed is read a day at a time, so it is rendered a day at a time: each day is its own section
  * with its own heading.
@@ -149,6 +167,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const posts = publishedPosts.slice(0, visiblePostCount);
   const postDays = groupPostsByDay(posts);
   const adSlots = createAdSlots(posts.length, ads);
+  const newsletterSlots = createNewsletterSlots(posts.length);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
   const structuredData = {
@@ -235,6 +254,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 );
                 if (adSlots.has(position)) {
                   nodes.push(<AdCard key={`ad-${position}`} ad={adSlots.get(position)!} />);
+                }
+                if (newsletterSlots.has(position)) {
+                  nodes.push(<NewsletterPromo key={`newsletter-${position}`} language={language} />);
                 }
                 return nodes;
               }));

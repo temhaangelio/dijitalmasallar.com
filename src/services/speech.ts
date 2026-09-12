@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 import { isLocalToolAvailable } from "@/lib/local-tools";
 import { speechDatabase } from "@/lib/speech/local-db";
+import { pronounceTurkish } from "@/lib/speech/pronounce";
 
 const run = promisify(execFile);
 
@@ -152,7 +153,9 @@ const speakerBrief = [
   "Kurallar:",
   "- Madde işareti, numara, başlık ve emoji kullanma.",
   "- Kısa bir selamlama ile başla, kısa bir kapanışla bitir. Metin dinlenecek, izlenmeyecek; 'dinleyiciler' de.",
-  "- Kısaltmaları okunduğu gibi yaz, sayıları yazıyla ver.",
+  "- Cümleleri kısa tut; bir cümlede tek bir bilgi olsun. Uzun cümleyi ikiye böl.",
+  "- Marka ve ürün adlarını İngilizce yazılışıyla bırak, okunuşunu yazmaya çalışma.",
+  "- Sayıları yazıyla ver.",
   "- Bağlantı, adres ve etiket yazma.",
   "- Haberleri verilen sırayla anlat, yeni bilgi uydurma.",
   "- Sadece okunacak metni döndür; açıklama, başlık veya tırnak ekleme.",
@@ -220,11 +223,17 @@ export async function speak(day: string, script: string): Promise<SpeechResult> 
   try {
     // The script goes through a file rather than an argument: a minute of speech is well past the
     // comfortable length for a command line, and a file needs no quoting at all.
-    await writeFile(textPath, script, "utf8");
+    // The voice reads Turkish letter-to-sound rules, so the foreign names go in as pronunciations.
+    // Only this copy is converted; the script kept in the database stays the text a person reads.
+    await writeFile(textPath, pronounceTurkish(script), "utf8");
     if (engine === "piper") {
-      // A little more silence between sentences than the default: news read back to back runs
-      // together otherwise.
-      await run(bin, ["-m", model, "-f", rawPath, "-i", textPath, "--sentence-silence", "0.35"]);
+      /*
+       * Two tuning values, both about a news read rather than a demo sentence: a little more
+       * silence between sentences, because items read back to back run together otherwise, and a
+       * slightly longer phoneme length, which is this voice's difference between hurried and
+       * measured.
+       */
+      await run(bin, ["-m", model, "-f", rawPath, "-i", textPath, "--sentence-silence", "0.4", "--length-scale", "1.06"]);
     } else {
       await run("say", ["-v", sayVoice(), "-o", rawPath, "-f", textPath]);
     }
