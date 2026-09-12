@@ -10,6 +10,9 @@ supabase/.temp/
 # Local RSS reader database (node:sqlite), never committed.
 data/
 
+# Recordings made by the day summary's local speech tool: audio files, not source.
+ses-kayitlari/
+
 # Local-only admin tools. These remain available in development but are not shipped to Git/Vercel.
 src/app/(dashboard)/rss/
 src/components/features/rss/

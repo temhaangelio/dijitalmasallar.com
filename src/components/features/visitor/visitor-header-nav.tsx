@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
-const headerPaths = new Set(["/", "/about", "/favoriler"]);
+const headerPaths = new Set(["/", "/ebulten", "/about"]);
 
 /** A single, shared navigation group below the wordmark and tagline. */
 export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {

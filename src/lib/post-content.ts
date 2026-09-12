@@ -107,6 +107,32 @@ export function summaryLine(post: { excerpt: string; body: string }, limit = 150
   return truncate(sentence, limit);
 }
 
+/**
+ * A note's whole text, as plain prose.
+ *
+ * `stripMarkdown` collapses every run of whitespace, which is right for a one-line excerpt and
+ * wrong for a note that is read in full: it would run the paragraphs together into a wall. This
+ * keeps the blank line between paragraphs and flattens only the wrapping inside each one, so the
+ * result can be pasted into an e-mail and still read like the note does on the site.
+ *
+ * Link text survives, its address does not — the day summary adds the source separately, and a
+ * bare URL in the middle of a sentence is not something anyone wants to read past.
+ */
+export function postPlainText(body: string) {
+  return body
+    .replace(/\r\n?/g, "\n")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^\s*#{1,6}\s+/gm, "")
+    .replace(/^\s*>\s?/gm, "")
+    .replace(/[*_`~=]/g, "")
+    .split(/\n{2,}/)
+    .map((block) => block.split("\n").map((line) => line.trim()).filter(Boolean).join(" "))
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
+}
+
 /** Keep leading headings with the first paragraph when placing a cover between text blocks. */
 export function splitAfterFirstParagraph(value: string): { first: string; rest: string } {
   const normalized = value.replace(/\r\n?/g, "\n").trim();

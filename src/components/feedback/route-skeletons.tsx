@@ -98,6 +98,55 @@ export function PostsPageLoading() {
   );
 }
 
+/* ------------------------------------------------------------ /gunun-ozeti */
+
+export function DailySummaryPageLoading() {
+  return (
+    <ShellSkeleton active="/gunun-ozeti">
+      <div role="status" aria-label="Günler yükleniyor">
+        <PageHeaderSkeleton actionWidth="w-44" />
+        <div className="card !p-0">
+          {[0, 1, 2, 3, 4, 5].map((index) => (
+            <div key={index} className="flex min-h-16 items-center justify-between gap-4 border-b border-line px-4 py-3 last:border-b-0 sm:px-5">
+              <div className="min-w-0 flex-1"><Skeleton className="h-4 w-40" /><Skeleton className="mt-2 h-3 w-56 max-w-full" /></div>
+              <Skeleton className="size-5 shrink-0 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </ShellSkeleton>
+  );
+}
+
+/* ------------------------------------------------------------------ /bulten */
+
+export function NewsletterPageLoading() {
+  return (
+    <ShellSkeleton active="/bulten">
+      <div role="status" aria-label="Aboneler yükleniyor">
+        <PageHeaderSkeleton />
+        <div className="card mb-5 !p-0"><div className="grid grid-cols-3 divide-x divide-line">{[0, 1, 2].map((index) => (
+          <div key={index} className="px-4 py-4 sm:px-5"><Skeleton className="h-3 w-14" /><Skeleton className="mt-3 h-7 w-12" /></div>
+        ))}</div></div>
+        <div className="card !p-0">
+          <div className="flex flex-col gap-3 border-b border-line px-4 py-3 sm:px-5 sm:py-4 lg:flex-row lg:items-center">
+            <Skeleton className="h-10 w-60 rounded-full" />
+            <div className="flex gap-2 lg:flex-1"><Skeleton className="h-11 flex-1 rounded-full" /><Skeleton className="h-11 w-28 shrink-0 rounded-full" /></div>
+          </div>
+          <div className="px-4 sm:px-5">
+            {[0, 1, 2, 3].map((index) => (
+              <div key={index} className="flex min-h-16 items-center justify-between gap-4 border-b border-line py-4 last:border-b-0">
+                <div className="min-w-0 flex-1"><Skeleton className="h-4 w-56 max-w-full" /><Skeleton className="mt-2 h-3 w-40" /></div>
+                <Skeleton className="size-11 shrink-0 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </ShellSkeleton>
+  );
+}
+
 /* ---------------------------------------------------------------- /istatistik */
 
 export function AnalyticsPageLoading() {
@@ -364,6 +413,28 @@ export function VisitorContentLoading({ label, lines = 5, rows = 0 }: { label: s
           </div>
         </div>
       </div>
+    </VisitorShellSkeleton>
+  );
+}
+
+/* ----------------------------------------------------------------- /ebulten */
+
+export function NewsletterSignupLoading() {
+  return (
+    <VisitorShellSkeleton label="E-bülten yükleniyor">
+      <main className="visitor-wide-page mt-6 w-full max-w-[640px] sm:mt-9">
+        <Skeleton className="mb-6 h-8 w-40" />
+        <div className="visitor-card">
+          <div className="p-5 sm:p-7">
+            <Skeleton className="size-11 rounded-[14px]" />
+            <Skeleton className="mt-4 h-4 w-full" />
+            <Skeleton className="mt-2 h-4 w-3/4" />
+            <Skeleton className="mt-6 h-3 w-28" />
+            <div className="mt-2 flex flex-wrap gap-2"><Skeleton className="h-12 flex-1 rounded-[12px]" /><Skeleton className="h-12 w-32 rounded-[12px]" /></div>
+            <Skeleton className="mt-5 h-3 w-full" />
+          </div>
+        </div>
+      </main>
     </VisitorShellSkeleton>
   );
 }

@@ -3,12 +3,15 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
 import { FeedRefresh } from "@/components/features/visitor/feed-refresh";
+import { DailyAudioPlayer } from "@/components/features/visitor/daily-audio-player";
+import { FeedHighlights } from "@/components/features/visitor/feed-highlights";
 import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memory";
 import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
 import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
+import { getLatestDailyAudio } from "@/services/daily-audio";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
@@ -90,6 +93,9 @@ function AdCard({ ad }: { ad: Advertisement }) {
 
 const adInterval = 6;
 
+/** How many of the newest notes the phone shows as a deck — and therefore skips in the list. */
+const deckCount = 10;
+
 /** Places an ad after every sixth note and cycles through the active ads in order. */
 function createAdSlots(postCount: number, ads: Advertisement[]) {
   const slots = new Map<number, Advertisement>();
@@ -128,14 +134,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const settings = await getSiteSettings();
   const params = await searchParams;
   const language = resolveVisitorLanguage(params.lang);
-  const pagination = getFeedPagination(settings.postsPerPage, params.limit);
+  const pagination = getFeedPagination(settings.postsPerPage, params.limit, deckCount);
   const visiblePostCount = pagination.visibleCount;
   if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
   // One extra row is enough to decide whether the automatic "more notes" control is needed.
   const fetchCount = pagination.fetchCount;
-  const [postData, ads] = await Promise.all([
+  const [postData, ads, dailyAudio] = await Promise.all([
     getPosts(1, fetchCount, language),
     settings.moduleAds ? getActiveAds(language) : Promise.resolve([]),
+    getLatestDailyAudio(language),
   ]);
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = pagination.canLoadMore && publishedPosts.length > visiblePostCount;
@@ -196,6 +203,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <FeedViewPicker language={language} />
           <FeedRefresh language={language} />
         </div>
+        {/* A phone-sized way in: the newest notes as cards you swipe, before the feed proper. */}
+        <FeedHighlights posts={posts.slice(0, deckCount)} language={language} />
+
+        {/* The day read aloud, above the notes it summarises. Only when one has been published. */}
+        {dailyAudio ? <DailyAudioPlayer src={dailyAudio.audioUrl} day={dailyAudio.day} durationSeconds={dailyAudio.durationSeconds} language={language} /> : null}
         <div>
         {posts.length ? (
           <>
@@ -211,7 +223,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               return postDays.flatMap((day) => day.items.flatMap(({ post, position }) => {
                 const nodes = [];
                 nodes.push(
-                  <div key={post.id} id={noteAnchorId(post.id)} className="visitor-note-anchor group/note relative xl:flex xl:flex-col">
+                  /*
+                   * A note that is already in the phone's deck is hidden from the list below it,
+                   * and only there: on a wide screen the deck does not exist, so the list has to
+                   * carry everything. Marking the node and letting CSS decide keeps that a single
+                   * render — two lists would mean two trees to keep in step.
+                   */
+                  <div key={post.id} id={noteAnchorId(post.id)} data-in-deck={position < deckCount ? "" : undefined} className="visitor-note-anchor group/note relative xl:flex xl:flex-col">
                     <NoteCard post={post} language={language} priority={position < 2} latest={position === 0} layout="grid" />
                   </div>,
                 );

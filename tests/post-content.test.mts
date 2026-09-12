@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { parseBilingualPostPaste, parsePostContent, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
+import { parseBilingualPostPaste, parsePostContent, postPlainText, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
 
 describe("parseBilingualPostPaste", () => {
   test("splits Turkish, English and a Markdown source link", () => {
@@ -131,5 +131,24 @@ describe("summaryLine", () => {
 
   test("empty content yields an empty line", () => {
     assert.equal(summaryLine({ excerpt: "", body: "" }), "");
+  });
+});
+
+describe("postPlainText", () => {
+  test("keeps the blank line between paragraphs and flattens the wrapping inside one", () => {
+    const body = "# Başlık\n\nBirinci paragraf\nikinci satırı.\n\nİkinci **paragraf**.";
+    assert.equal(postPlainText(body), "Başlık\n\nBirinci paragraf ikinci satırı.\n\nİkinci paragraf.");
+  });
+
+  test("keeps a link's words and drops its address", () => {
+    assert.equal(postPlainText("[Samsung](https://news.samsung.com/x) açıkladı."), "Samsung açıkladı.");
+  });
+
+  test("drops images and quote markers", () => {
+    assert.equal(postPlainText("![kapak](https://x/y.png)\n\n> Alıntı satırı"), "Alıntı satırı");
+  });
+
+  test("an empty body yields an empty string", () => {
+    assert.equal(postPlainText("   \n\n  "), "");
   });
 });

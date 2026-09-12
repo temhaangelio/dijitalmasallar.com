@@ -18,6 +18,7 @@ export function AppDialog({
   initialFocusRef,
   panelClassName = "",
   hideIdentity = false,
+  headline,
   children,
 }: {
   title: string;
@@ -26,6 +27,12 @@ export function AppDialog({
   initialFocusRef?: RefObject<HTMLElement | null>;
   panelClassName?: string;
   hideIdentity?: boolean;
+  /**
+   * A heading that shares the top row with the close button instead of standing under it. For a
+   * dialog whose title is one short line — a date, a name — the two belong on the same line; a
+   * lone close button above a lone heading spends a whole row on nothing.
+   */
+  headline?: ReactNode;
   children: ReactNode;
 }) {
   const titleId = useId();
@@ -40,13 +47,14 @@ export function AppDialog({
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-label={hideIdentity ? title : undefined}
-        aria-labelledby={hideIdentity ? undefined : titleId}
+        aria-label={hideIdentity && !headline ? title : undefined}
+        aria-labelledby={hideIdentity && !headline ? undefined : titleId}
         className={`visitor-sheet-panel w-full max-w-[520px] max-h-[92dvh] overflow-y-auto rounded-t-[22px] border border-line bg-surface p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-pop sm:max-h-[calc(100dvh-32px)] sm:rounded-[18px] sm:p-7 ${panelClassName}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <div className={`flex items-start gap-5 ${hideIdentity ? "justify-end" : "justify-between"}`}>
+        <div className={`flex gap-5 ${hideIdentity && !headline ? "items-start justify-end" : "items-center justify-between"}`}>
           {!hideIdentity ? <BrandMark className="!size-11 shrink-0" /> : null}
+          {hideIdentity && headline ? <h2 id={titleId} className="min-w-0 truncate font-[family-name:var(--font-visitor-sans)] text-[17px] font-semibold leading-tight tracking-[-.02em]">{headline}</h2> : null}
           <button type="button" disabled={busy} aria-label="Pencereyi kapat" onClick={onClose} className="grid size-11 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink disabled:opacity-50">
             <X size={18} />
           </button>

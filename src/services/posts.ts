@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
+import { dateKey } from "@/lib/visitor-date";
 import { isSupabaseConfigured } from "@/lib/env";
 import { demoPosts } from "@/lib/constants/demo-data";
 import { parsePostContent } from "@/lib/post-content";
@@ -63,6 +64,59 @@ export async function getBriefPosts(since: string, until: string, language: "tr"
     if (error) throw error;
     return (data as PostRow[]).map(row => mapPost(row, language));
   } catch { return []; }
+}
+
+/**
+ * Every note belonging to one Istanbul day, newest first.
+ *
+ * The day a note belongs to is its Istanbul day, the same rule the feed's day headings use — a note
+ * published at 00:40 belongs to that day wherever it is read. Istanbul has kept a fixed +03:00 since
+ * 2016, so the day's bounds can be written as literals rather than computed against a DST table.
+ *
+ * This is a panel query: it goes through the authorized admin client, so it returns the day's
+ * scheduled notes too, and the caller decides what to do with them.
+ */
+export async function getPostsForDay(dayKey: string, language: "tr" | "en" = "tr"): Promise<Post[]> {
+  const access = await getAuthorizedAdminClient();
+  if (!access) return [];
+  try {
+    const { data, error } = await access.admin.from("posts").select(postColumns)
+      .gte("created_at", `${dayKey}T00:00:00+03:00`)
+      .lte("created_at", `${dayKey}T23:59:59.999+03:00`)
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    return (data as PostRow[]).map((row) => mapPost(row, language));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * The days that have notes, newest first — the index the panel's day summary lists.
+ *
+ * Only the timestamps are read, never the bodies: a day's text is fetched when that day is opened,
+ * so listing two months of days costs one small query instead of several hundred note bodies.
+ * Grouping happens here rather than in SQL because the day a note belongs to is its Istanbul day,
+ * and that is a formatting question, not a storage one.
+ */
+export async function getPostDays(days = 60): Promise<string[]> {
+  const access = await getAuthorizedAdminClient();
+  if (!access) return [];
+  try {
+    const now = new Date();
+    const since = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await access.admin.from("posts").select("created_at")
+      .gte("created_at", since)
+      .lte("created_at", now.toISOString())
+      .order("created_at", { ascending: false })
+      .limit(3000);
+    if (error) throw error;
+    // The rows arrive newest first, so inserting into a Set keeps the days in that order too.
+    return [...new Set(((data ?? []) as { created_at: string }[]).map((row) => dateKey(row.created_at)))];
+  } catch {
+    return [];
+  }
 }
 
 /** How many notes one favourites request may ask for. Well past any real reading list. */

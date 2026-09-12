@@ -665,13 +665,38 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
   }
   .visitor-top-control:hover:not(:disabled)::before { background: color-mix(in srgb, var(--color-ink) 9%, var(--color-canvas)); }
   .visitor-page .visitor-top-control[aria-expanded="true"],
-  .visitor-page .visitor-top-control[aria-pressed="true"] {
+  .visitor-page .visitor-top-control[aria-pressed="true"],
+  .visitor-page .visitor-top-control[aria-current="page"] {
     background: transparent;
     color: var(--color-accent);
   }
   .visitor-top-control[aria-expanded="true"]::before,
-  .visitor-top-control[aria-pressed="true"]::before {
+  .visitor-top-control[aria-pressed="true"]::before,
+  .visitor-top-control[aria-current="page"]::before {
     background: color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas));
+  }
+  /* The saved count, small enough to read as a mark on the chip rather than a second control. */
+  .visitor-top-badge {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    display: grid;
+    place-items: center;
+    min-width: 17px;
+    height: 17px;
+    padding-inline: 4px;
+    border: 1.5px solid var(--color-canvas);
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--visitor-accent-contrast, var(--color-ink-contrast));
+    font-family: var(--font-visitor-sans), Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 1280px) {
+    .visitor-masthead .visitor-top-badge { top: 4px; right: 4px; }
   }
   .visitor-top-control:focus-visible {
     outline: 2px solid var(--color-accent);
@@ -1196,6 +1221,170 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background:
 @media (max-width: 359px) { .visitor-float-link { padding-inline: 10px; font-size: 13px; } .visitor-float-top { padding-inline: 12px 10px; font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) { .visitor-float-nav, .visitor-float-link, .visitor-float-top { transition: none; } }
 
+/*
+ * The deck of newest notes, above the feed on a phone.
+ *
+ * The cards are stacked in one place rather than laid out in a row: the front one has the screen,
+ * the two behind it are offset a few pixels so the pile is legible as a pile. Dragging is handled
+ * in the component — `touch-action: pan-y` is what lets the page keep vertical scrolling while the
+ * horizontal gesture belongs to the deck.
+ *
+ * The stage has a fixed height because the cards are positioned on top of each other and have
+ * nothing to give it otherwise; the title clamps to three lines so every card fills the same box.
+ */
+.visitor-deck { margin-bottom: 26px; }
+.visitor-deck-stage {
+  position: relative;
+  height: clamp(390px, 104vw, 470px);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.visitor-deck-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 26px);
+  transform-origin: center;
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .28s ease;
+  will-change: transform;
+}
+/*
+ * The deck needs opaque cards.
+ *
+ * At night a note card is a translucent wash over the canvas, which is right for a column of them
+ * and wrong for a pile: the card behind reads straight through the one in front, headline and all.
+ */
+html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
+  background: color-mix(in oklab, var(--color-surface-2) 62%, var(--color-canvas));
+}
+.visitor-deck-cover {
+  position: relative;
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 10;
+  background: var(--color-surface-3);
+}
+.visitor-deck-cover img { pointer-events: none; }
+.visitor-deck-body { display: flex; min-height: 0; flex: 1; flex-direction: column; padding: 14px 16px 16px; }
+.visitor-deck-meta { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 11px; line-height: 1.4; color: var(--color-muted); }
+.visitor-deck-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  margin-top: 8px;
+  font-size: calc(17px * var(--visitor-text-scale, 1));
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -.01em;
+  color: var(--color-ink);
+  text-wrap: pretty;
+}
+/* The whole card opens the note; the buttons over the picture keep their own taps. */
+.visitor-deck-title::before { content: ""; position: absolute; inset: 0; }
+.visitor-deck-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-line);
+}
+.visitor-deck-source {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Above the link that covers the card, or the arrow would open the note instead of the card. */
+.visitor-deck-expand {
+  position: relative;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
+  border-radius: 999px;
+  color: var(--color-ink-2);
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), background-color .18s ease;
+}
+.visitor-deck-expand:hover { background: var(--color-surface-2); }
+.visitor-deck-expand:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.visitor-deck-expand[aria-expanded="true"] { transform: rotate(180deg); }
+/* The note read in place: the same measure and rhythm the feed card uses. */
+.visitor-deck-rest {
+  margin-top: 12px;
+  font-size: calc(16px * var(--visitor-text-scale, 1));
+  line-height: 1.65;
+  color: var(--color-ink-2);
+}
+.visitor-deck-rest > p + p { margin-top: 12px; }
+
+/*
+ * An opened card leaves the pile.
+ *
+ * The stage holds its cards on top of one another at a fixed height, which is what makes the deck
+ * a deck; a card being read has to grow down the page instead, so while one is open the stage gives
+ * up both and the card sits in the flow like any other note.
+ */
+.visitor-deck[data-open] .visitor-deck-stage { height: auto; touch-action: auto; }
+.visitor-deck[data-open] .visitor-deck-card { position: relative; width: 100%; transform: none; }
+.visitor-deck[data-open] .visitor-deck-title { display: block; overflow: visible; }
+/* From here the feed itself shows this much at a glance, so the deck would only repeat it. */
+@media (min-width: 1024px) { .visitor-deck { display: none; } }
+/* The other half of that: while the deck is on screen, the list starts after the notes it holds. */
+@media (max-width: 1023px) {
+  .visitor-feed-grid > [data-in-deck] { display: none; }
+}
+.visitor-deck-stage:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 6px; border-radius: 20px; }
+@media (prefers-reduced-motion: reduce) {
+  .visitor-deck-card, .visitor-deck-expand { transition: none; }
+}
+
+/* The day's recording, at the head of the feed: one row, the height of its own play button. */
+.visitor-daily-audio {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+  padding: 14px 16px;
+}
+.visitor-daily-audio-button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: var(--color-ink-contrast);
+  transition: opacity .18s ease;
+}
+.visitor-daily-audio-button:hover { opacity: .85; }
+.visitor-daily-audio-button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.visitor-daily-audio-body { min-width: 0; flex: 1; }
+.visitor-daily-audio-title { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; letter-spacing: -.015em; color: var(--color-ink); }
+.visitor-daily-audio-date { display: block; margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--color-muted); }
+.visitor-daily-audio-track { display: flex; align-items: center; gap: 10px; flex: 1 1 150px; min-width: 0; }
+.visitor-daily-audio-bar { flex: 1; min-width: 60px; height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--color-ink) 12%, transparent); cursor: pointer; }
+.visitor-daily-audio-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--color-ink); }
+.visitor-daily-audio-time { flex: none; font-size: 12px; color: var(--color-muted); }
+@media (max-width: 519px) {
+  /* The bar drops under the label rather than squeezing both into forty pixels. */
+  .visitor-daily-audio { flex-wrap: wrap; }
+  .visitor-daily-audio-body { flex: 1 1 auto; }
+  .visitor-daily-audio-track { flex: 1 0 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .visitor-daily-audio-button { transition: none; } }
+
 /* Feed controls share the existing gap between the masthead and the first notes. */
 .visitor-feed-tools {
   position: absolute;
@@ -1385,6 +1574,88 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background:
 /* Match the visitor reading surface, including pasted inline code in the editor. */
 .admin-page :is(code, pre) { font-family: var(--font-visitor-sans), Arial, sans-serif; }
 
+/* The e-bulletin page: one card, one field, and what happens to the address underneath it. */
+.visitor-newsletter-card { --nl-inset: 20px; }
+.visitor-newsletter-main { padding: 24px var(--nl-inset); }
+.visitor-newsletter-mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: color-mix(in srgb, var(--color-accent) 9%, transparent); color: var(--color-accent); }
+.visitor-newsletter-lead { margin: 16px 0 0; font-size: 17px; font-weight: 500; line-height: 1.6; letter-spacing: -.01em; color: var(--color-ink); text-wrap: pretty; }
+.visitor-newsletter-label { display: block; margin: 22px 0 8px; font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--color-ink-2); }
+.visitor-newsletter-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.visitor-newsletter-input {
+  flex: 1 1 240px;
+  min-width: 0;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  /* 16px keeps iOS from zooming the page when the field takes focus. */
+  font-size: 16px;
+  line-height: 1.2;
+  transition: border-color .16s ease;
+}
+.visitor-newsletter-input::placeholder { color: var(--color-faint); }
+.visitor-newsletter-input:hover { border-color: var(--color-ink-2); }
+.visitor-newsletter-input:focus-visible { border-color: var(--color-accent); outline: 2px solid var(--color-accent); outline-offset: 1px; }
+.visitor-newsletter-input[aria-invalid="true"] { border-color: var(--color-danger); }
+.visitor-newsletter-input:disabled { opacity: .6; }
+/* The one filled action on the page. */
+.visitor-newsletter-submit {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 12px;
+  background: var(--color-ink);
+  color: var(--color-ink-contrast);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  transition: opacity .18s ease;
+}
+.visitor-newsletter-submit:hover:not(:disabled) { opacity: .85; }
+.visitor-newsletter-submit:disabled { opacity: .6; }
+.visitor-newsletter-submit:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.visitor-newsletter-reply { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; font-size: 14px; line-height: 1.55; color: var(--color-danger); }
+.visitor-newsletter-reply > svg { flex: none; margin-top: 2px; }
+.visitor-newsletter-reply[data-ok="true"] { margin-top: 22px; font-weight: 500; color: var(--color-ink); }
+.visitor-newsletter-terms { margin: 14px 0 0; font-size: 13px; line-height: 1.6; color: var(--color-muted); text-wrap: pretty; }
+@media (min-width: 640px) {
+  .visitor-newsletter-card { --nl-inset: 28px; }
+  .visitor-newsletter-main { padding-block: 28px; }
+  .visitor-newsletter-lead { font-size: 18px; }
+}
+/* The confirmation sheet: the sentence and the one control that closes it. */
+.visitor-newsletter-sheet-copy { margin: 0; font-size: 15px; line-height: 1.6; color: var(--color-ink-2); text-wrap: pretty; }
+.visitor-newsletter-sheet-done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 20px;
+  padding-inline: 24px;
+  border-radius: 12px;
+  background: var(--color-ink);
+  color: var(--color-ink-contrast);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  transition: opacity .18s ease;
+}
+.visitor-newsletter-sheet-done:hover { opacity: .85; }
+.visitor-newsletter-sheet-done:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+@media (min-width: 640px) {
+  .visitor-newsletter-sheet-done { width: auto; min-width: 160px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visitor-newsletter-submit, .visitor-newsletter-input, .visitor-newsletter-sheet-done { transition: none; }
+}
+
 /* A compact author profile balances the reading options on the about page. */
 .visitor-about-card { --about-inset: 20px; }
 .visitor-about-profile { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 12px 20px; padding: 24px var(--about-inset); border-bottom: 1px solid var(--color-line); }
@@ -1496,7 +1767,7 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background:
 .visitor-ad-title { font-size: calc(22px * var(--visitor-text-scale, 1)); font-weight: 700; line-height: 1.35; }
 
 @media (min-width: 1280px) {
-  .visitor-masthead .visitor-top-control { width: 60px; height: 60px; }
-  .visitor-masthead .visitor-top-control::before { border-radius: 16px; }
-  .visitor-masthead .visitor-top-control > svg { width: 24px; height: 24px; }
+  .visitor-masthead .visitor-top-control { width: 50px; height: 50px; }
+  .visitor-masthead .visitor-top-control::before { border-radius: 14px; }
+  .visitor-masthead .visitor-top-control > svg { width: 20px; height: 20px; }
 }

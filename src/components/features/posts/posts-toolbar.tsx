@@ -4,7 +4,8 @@ import { ArrowDownUp, LoaderCircle, Search, X } from "lucide-react";
 import { ActionMenu } from "@/components/ui/action-menu";
 import { Input } from "@/components/ui/input";
 import type { PostSort } from "@/services/posts";
-import { PostsStatusTabs, segmentClass, segmentGroupClass, type PostStatusFilter } from "./posts-status-tabs";
+import { segmentClass, segmentGroupClass } from "@/components/ui/admin-segment";
+import { PostsStatusTabs, type PostStatusFilter } from "./posts-status-tabs";
 
 export const sortLabels: Record<PostSort, string> = { newest: "En yeni", oldest: "En eski", "title-asc": "Başlık A–Z", "title-desc": "Başlık Z–A" };
 

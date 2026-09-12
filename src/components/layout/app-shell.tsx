@@ -4,13 +4,13 @@ import { getSiteSettings } from "@/services/settings";
 import { isLocalToolAvailable } from "@/lib/local-tools";
 import { redirect } from "next/navigation";
 
-type Modules = { posts: boolean; rss: boolean; ads: boolean; analytics: boolean };
+type Modules = { posts: boolean; rss: boolean; ads: boolean; analytics: boolean; newsletter: boolean };
 
 export async function AppShell({ active, children }: { active: string; children: React.ReactNode }) {
   const settings = await getSiteSettings();
   const localToolsAvailable = isLocalToolAvailable();
-  const modules: Modules = { posts: settings.modulePosts, rss: settings.moduleRss && localToolsAvailable, ads: settings.moduleAds, analytics: settings.moduleAnalytics };
-  const routeModules: Record<string, keyof Modules> = { "/yazilar": "posts", "/rss": "rss", "/reklamlar": "ads", "/istatistik": "analytics" };
+  const modules: Modules = { posts: settings.modulePosts, rss: settings.moduleRss && localToolsAvailable, ads: settings.moduleAds, analytics: settings.moduleAnalytics, newsletter: settings.moduleNewsletter };
+  const routeModules: Record<string, keyof Modules> = { "/yazilar": "posts", "/gunun-ozeti": "posts", "/rss": "rss", "/reklamlar": "ads", "/istatistik": "analytics", "/bulten": "newsletter" };
   const activeModule = routeModules[active];
   if (activeModule && !modules[activeModule]) redirect("/dashboard");
   return (

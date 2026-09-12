@@ -18,6 +18,7 @@ export type SiteSettings = {
   moduleAds: boolean;
   moduleAnalytics: boolean;
   modulePush: boolean;
+  moduleNewsletter: boolean;
   updatedAt: string | null;
 };
 
@@ -39,6 +40,7 @@ export const defaultSiteSettings: SiteSettings = {
   moduleAds: true,
   moduleAnalytics: true,
   modulePush: true,
+  moduleNewsletter: true,
   updatedAt: null,
 };
 
