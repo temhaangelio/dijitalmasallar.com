@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ListenModal } from "@/components/features/visitor/listen-modal";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { FavoritesNavButton } from "@/components/features/visitor/favorites-nav-button";
@@ -99,11 +100,13 @@ export async function VisitorShell({
           </> : siteName}
         </Link>
 
-        {compact || reading ? null : (
-          <p className="visitor-tagline visitor-sans">{description}</p>
-        )}
-
-        {reading ? null : <VisitorHeaderNav language={language} />}
+        {reading ? null : <>
+          <div className="visitor-introduction visitor-sans">
+            {compact ? null : <p className="visitor-tagline">{description}</p>}
+            <Link href={languageHref("/about", language)} className="visitor-about-link">{language === "en" ? "About" : "Hakkında"}</Link>
+          </div>
+          <VisitorHeaderNav language={language} />
+        </>}
       </header>
       </> : null}
       <div className="visitor-content flex w-full flex-col items-center">
@@ -113,6 +116,7 @@ export async function VisitorShell({
       <ServiceWorkerRegistrar language={language} publicKey={publicKey} />
       <PullToRefresh language={language} />
       <InstallBanner language={language} />
+      <ListenModal />
     </div>
   );
 }

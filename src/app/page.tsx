@@ -17,7 +17,7 @@ import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
-import { dateKey } from "@/lib/visitor-date";
+import { bulletinDays, dateKey } from "@/lib/visitor-date";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
 
@@ -226,7 +226,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <FeedHighlights posts={posts.slice(0, deckCount)} language={language} />
 
         {/* The day read aloud, above the notes it summarises. Only when one has been published. */}
-        {dailyAudio ? <DailyAudioPlayer src={dailyAudio.audioUrl} day={dailyAudio.day} durationSeconds={dailyAudio.durationSeconds} language={language} /> : null}
+        {dailyAudio ? <DailyAudioPlayer title={dailyAudio.day === bulletinDays().yesterday ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : (language === "en" ? "Today’s briefing" : "Bugünün bülteni")} day={dailyAudio.day} durationSeconds={dailyAudio.durationSeconds} language={language} /> : null}
         <div>
         {posts.length ? (
           <>

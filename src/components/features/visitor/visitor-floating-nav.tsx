@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { ListenLink } from "./listen-modal";
 import { useEffect, useState } from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Headphones, Mail } from "lucide-react";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
@@ -54,14 +55,17 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
     <nav aria-label={isEnglish ? "Quick navigation" : "Hızlı gezinme"} data-shown={shown || undefined} className="visitor-float-nav visitor-sans" aria-hidden={!shown}>
       <div className="visitor-float-track">
         <button type="button" onClick={scrollToTop} tabIndex={shown ? undefined : -1} className="visitor-float-top">
-          <ArrowUp size={16} strokeWidth={2} aria-hidden="true" />
+          <ArrowUp size={15} strokeWidth={2.5} aria-hidden="true" />
           <span>{isEnglish ? "Top" : "Başa dön"}</span>
         </button>
-        {visitorNavItems.filter((item) => item.href !== "/").map((item) => (
-          <Link key={item.href} href={languageHref(item.href, language)} tabIndex={shown ? undefined : -1} className="visitor-float-link">
+        {visitorNavItems.filter((item) => item.href !== "/").map((item) => {
+          const NavLink = item.href === "/dinle" ? ListenLink : Link;
+          const Icon = item.href === "/dinle" ? Headphones : Mail;
+          return <NavLink key={item.href} href={languageHref(item.href, language)} tabIndex={shown ? undefined : -1} className="visitor-float-link">
+            <Icon size={15} strokeWidth={2.5} aria-hidden="true" className="shrink-0" />
             {item[language]}
-          </Link>
-        ))}
+          </NavLink>;
+        })}
       </div>
     </nav>
   );

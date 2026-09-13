@@ -1,4 +1,6 @@
 import "server-only";
+import { bulletinDays } from "@/lib/visitor-date";
+import { randomUUID } from "node:crypto";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -8,7 +10,7 @@ import type { VisitorLanguage } from "@/lib/visitor-language";
 /**
  * The day summary's published recording.
  *
- * The mp3 lives in the same public bucket as the post covers, under its own prefix, and this table
+ * The WAV lives in the dedicated public audio bucket, and this table
  * says which day it belongs to and how long it runs. One row per day and language: publishing a day
  * again replaces both the row and the object, so a day never has two recordings on the site.
  */
@@ -22,7 +24,7 @@ export type DailyAudio = {
   publishedAt: string;
 };
 
-const bucket = "diji-post-media";
+const bucket = "daily-summary-audio";
 const prefix = "gunun-ozeti";
 const columns = "day,language,audio_url,storage_path,duration_seconds,script,published_at";
 
@@ -45,15 +47,17 @@ function missingTable(error: { code?: string } | null) {
   return error?.code === "PGRST205" || error?.code === "42P01";
 }
 
-/** What the feed plays: the newest published day in this language. */
+/** Today’s published bulletin, falling back to yesterday in the same language. */
 export async function getLatestDailyAudio(language: VisitorLanguage): Promise<DailyAudio | null> {
   if (!isSupabaseConfigured()) return null;
   try {
     const supabase = await createClient();
+    const { today, yesterday } = bulletinDays();
     const { data, error } = await supabase
       .from("daily_summary_audio")
       .select(columns)
       .eq("language", language)
+      .in("day", [today, yesterday])
       .order("day", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -84,11 +88,11 @@ export type PublishResult = { success: true; audio: DailyAudio } | { success: fa
 /**
  * Puts one recording on the site.
  *
- * The object name carries the day and the minute it was published, so a replacement never lands on
+ * The object name carries the day and a unique identifier, so a replacement never lands on
  * the path a cached page is still pointing at; the previous object is removed once the new row is
  * written, not before, so a failure half way leaves the old recording playing rather than nothing.
  */
-export async function publishDailyAudio(input: { day: string; language: VisitorLanguage; mp3: Buffer; durationSeconds: number; script: string }): Promise<PublishResult> {
+export async function publishDailyAudio(input: { day: string; language: VisitorLanguage; audio: Buffer; durationSeconds: number; script: string; format?: "wav" | "mp3" }): Promise<PublishResult> {
   if (!isSupabaseConfigured()) return { success: false, message: "Supabase yapılandırılmamış." };
   try {
     const admin = createAdminClient();
@@ -96,10 +100,11 @@ export async function publishDailyAudio(input: { day: string; language: VisitorL
     if (previous.error && missingTable(previous.error)) {
       return { success: false, message: "daily_summary_audio tablosu yok. Veritabanı geçişini uygulayın." };
     }
+    if (previous.error) return { success: false, message: "Mevcut yayın bilgisi alınamadı." };
 
-    const stamp = new Date().toISOString().slice(11, 19).replace(/:/g, "");
-    const storagePath = `${prefix}/${input.language}/${input.day}-${stamp}.mp3`;
-    const upload = await admin.storage.from(bucket).upload(storagePath, input.mp3, { contentType: "audio/mpeg", upsert: false });
+    const format = input.format ?? "wav";
+    const storagePath = `${prefix}/${input.language}/${input.day}-${randomUUID()}.${format}`;
+    const upload = await admin.storage.from(bucket).upload(storagePath, input.audio, { contentType: format === "mp3" ? "audio/mpeg" : "audio/wav", upsert: false });
     if (upload.error) return { success: false, message: "Ses dosyası yüklenemedi." };
 
     const audioUrl = admin.storage.from(bucket).getPublicUrl(storagePath).data.publicUrl;
@@ -140,4 +145,40 @@ export async function unpublishDailyAudio(day: string, language: VisitorLanguage
   } catch {
     return false;
   }
+}
+
+/** Public archive: language scoped, newest first, with one extra row for pagination. */
+export async function getPublishedAudioPage(language: VisitorLanguage, page = 1) {
+  const empty = { items: [] as DailyAudio[], hasMore: false, error: false };
+  if (!isSupabaseConfigured()) return empty;
+  const offset = (Math.max(1, Math.min(99999, Math.floor(page) || 1)) - 1) * 20;
+  try {
+    const client = await createClient();
+    const { data, error } = await client.from("daily_summary_audio").select(columns)
+      .eq("language", language).order("day", { ascending: false }).range(offset, offset + 20);
+    if (error) return { ...empty, error: true };
+    const rows = (data ?? []) as Row[];
+    return { items: rows.slice(0, 20).map(toAudio), hasMore: rows.length > 20, error: false };
+  } catch { return { ...empty, error: true }; }
+}
+
+/** Fetch the full published queue without downloading audio or private draft metadata. */
+export async function getPublishedAudioQueue(language: VisitorLanguage) {
+  const items: { day: string; audioUrl: string; durationSeconds: number }[] = [];
+  if (!isSupabaseConfigured()) return { items, error: false };
+  try {
+    const client = await createClient();
+    let before: string | undefined;
+    for (;;) {
+      let query = client.from("daily_summary_audio").select("day,audio_url,duration_seconds").eq("language", language).order("day", { ascending: false }).limit(200);
+      if (before) query = query.lt("day", before);
+      const { data, error } = await query;
+      if (error) throw error;
+      const rows = data ?? [];
+      items.push(...rows.map(row => ({ day: row.day as string, audioUrl: row.audio_url as string, durationSeconds: row.duration_seconds as number })));
+      if (rows.length < 200) break;
+      before = rows[rows.length - 1].day;
+    }
+    return { items, error: false };
+  } catch { return { items: [], error: true }; }
 }

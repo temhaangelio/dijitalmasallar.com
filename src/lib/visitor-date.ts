@@ -45,3 +45,8 @@ export function relativeDayLabel(value: string, language: VisitorLanguage) {
   if (day === dateKey(new Date(now - 24 * 60 * 60 * 1000).toISOString())) return language === "en" ? "Yesterday" : "Dün";
   return dateLabel(value, language);
 }
+
+/** Calendar days used by the feed's audio fallback, always in Istanbul time. */
+export function bulletinDays(now = new Date()) {
+  return { today: dateKey(now.toISOString()), yesterday: dateKey(new Date(now.getTime() - 86_400_000).toISOString()) };
+}

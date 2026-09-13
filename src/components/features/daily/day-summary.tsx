@@ -3,19 +3,22 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AudioLines, Check, ChevronDown, ChevronRight, Copy, Download, Globe, LoaderCircle, RotateCcw, Trash2, Undo2 } from "lucide-react";
+import { AudioLines, Clock3, ChevronDown, ChevronRight, Copy, Download, Globe, LoaderCircle, RotateCcw, Trash2, Undo2 } from "lucide-react";
 import { createDaySpeechAction, deleteRecordingAction, loadDayPostsAction, publishRecordingAction, unpublishDayAudioAction } from "@/app/(dashboard)/gunun-ozeti/actions";
 import { EmptyState } from "@/components/feedback/states";
 import { AppDialog } from "@/components/ui/app-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/ui/toast";
 import { postPlainText } from "@/lib/post-content";
 import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
 import type { Recording } from "@/services/speech";
+import { languagesNeedingRecording, runBilingualTasks, speechLanguages, type Bilingual, type SpeechLanguage } from "@/lib/speech/bilingual";
+import { estimatedSpeechDuration } from "@/lib/speech/duration";
+import { initialSpeechScript } from "@/lib/speech/script-text";
+import { MAX_SPEECH_CHARS } from "@/lib/speech/options";
 import type { Post } from "@/types/database";
 
-type Loaded = { day: string; posts: Post[]; scheduled: Post[]; recordings: Recording[]; published: boolean };
+type Loaded = { day: string; posts: Post[]; scheduled: Post[]; recordings: Recording[]; published: boolean; message: string };
 
 /** When a take was made, for the line above its player. */
 const takeTime = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
@@ -45,30 +48,31 @@ export function composeSummary(posts: Post[], heading: string) {
  * leave, not somewhere you navigate to — and from a list the next day is one click away instead of
  * two. The list itself carries nothing but the dates; a day's text is fetched when it is opened.
  */
-export function DaySummaryList({ days, language, speech, recorded, published }: { days: string[]; language: "tr" | "en"; speech: boolean; recorded: string[]; published: string[] }) {
+export function DaySummaryList({ days, language, speech, recorded, published, geminiReady }: { days: string[]; language: "tr" | "en"; speech: boolean; recorded: string[]; published: string[]; geminiReady: boolean }) {
   const [openDay, setOpenDay] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState<Record<"tr" | "en", Loaded | null>>({ tr: null, en: null });
+  const [failed, setFailed] = useState({ tr: false, en: false });
 
   /* The request is the effect's only job; the failure flag is cleared where the day is chosen, so
      nothing here writes state before the answer comes back. */
   useEffect(() => {
     if (!openDay) return;
     let ignore = false;
-    loadDayPostsAction(openDay, language)
-      .then((result) => {
+    void Promise.all((["tr", "en"] as const).map(async (value) => {
+      try {
+        const result = await loadDayPostsAction(openDay, value);
         if (ignore) return;
-        if (!result.success) { setFailed(true); return; }
-        setLoaded({ day: openDay, posts: result.posts, scheduled: result.scheduled, recordings: result.recordings, published: result.published });
-      })
-      .catch(() => { if (!ignore) setFailed(true); });
+        if (!result.success) { setFailed(current => ({ ...current, [value]: true })); return; }
+        setLoaded(current => ({ ...current, [value]: { day: openDay, posts: result.posts, scheduled: result.scheduled, recordings: result.recordings, published: result.published, message: result.message } }));
+      } catch { if (!ignore) setFailed(current => ({ ...current, [value]: true })); }
+    }));
     return () => { ignore = true; };
-  }, [openDay, language]);
+  }, [openDay]);
 
   function close() {
     setOpenDay(null);
-    setLoaded(null);
-    setFailed(false);
+    setLoaded({ tr: null, en: null });
+    setFailed({ tr: false, en: false });
   }
 
   if (!days.length) {
@@ -79,7 +83,6 @@ export function DaySummaryList({ days, language, speech, recorded, published }: 
     );
   }
 
-  const ready = loaded && loaded.day === openDay ? loaded : null;
   const dayLabel = (day: string) => fullDateLabel(`${day}T12:00:00+03:00`, language);
   const hasTake = new Set(recorded);
   const isLive = new Set(published);
@@ -92,7 +95,7 @@ export function DaySummaryList({ days, language, speech, recorded, published }: 
             <li key={day}>
               <button
                 type="button"
-                onClick={() => { setFailed(false); setLoaded(null); setOpenDay(day); }}
+                onClick={() => { setFailed({ tr: false, en: false }); setLoaded({ tr: null, en: null }); setOpenDay(day); }}
                 className="flex min-h-14 w-full items-center gap-4 border-b border-line px-4 py-3 text-left text-[15px] font-medium text-ink transition-colors last:border-b-0 hover:bg-surface-2/60 sm:px-5"
               >
                 <span className="min-w-0 flex-1 truncate">{dayLabel(day)}</span>
@@ -112,258 +115,146 @@ export function DaySummaryList({ days, language, speech, recorded, published }: 
       </section>
 
       {openDay ? (
-        <AppDialog title={dayLabel(openDay)} headline={dayLabel(openDay)} onClose={close} hideIdentity panelClassName="!max-w-[860px] !bg-canvas">
-          <DayDialogBody heading={`${dayLabel(openDay)} · Günün özeti`} day={openDay} language={language} loaded={ready} failed={failed} speech={speech} />
+        <AppDialog title={dayLabel(openDay)} headline={dayLabel(openDay)} onClose={close} hideIdentity panelClassName="!max-w-[920px] !bg-surface sm:!p-5">
+          {failed.tr || failed.en ? (
+            <p role="alert" className="mt-4 text-sm text-danger">Günün metinleri yüklenemedi. Pencereyi kapatıp yeniden açın.</p>
+          ) : loaded.tr?.day === openDay && loaded.en?.day === openDay ? (
+            <BilingualDaySpeech key={openDay} day={openDay} loaded={{ tr: loaded.tr, en: loaded.en }} speech={speech} geminiReady={geminiReady} />
+          ) : <p role="status" className="flex min-h-40 items-center justify-center gap-2 text-sm text-muted"><LoaderCircle className="size-4 animate-spin" aria-hidden="true" />Türkçe ve İngilizce metinler yükleniyor…</p>}
         </AppDialog>
       ) : null}
     </>
   );
 }
 
-function DayDialogBody({ heading, day, language, loaded, failed, speech }: { heading: string; day: string; language: "tr" | "en"; loaded: Loaded | null; failed: boolean; speech: boolean }) {
-  const [copied, setCopied] = useState(false);
-  // The text box opens short; reaching for it is what makes it tall.
-  const [expanded, setExpanded] = useState(false);
-  const posts = loaded?.posts ?? [];
+const languageName = (language: SpeechLanguage) => language === "tr" ? "Türkçe" : "İngilizce";
 
-  /*
-   * The text is derived from the notes and the switches, not stored — an edit is the exception, so
-   * only the edit is held. Composing during render rather than in an effect means the box is never
-   * briefly stale, and changing day or language rebuilds it.
-   */
-  const composed = composeSummary(posts, heading);
-  const [draft, setDraft] = useState<string | null>(null);
-  const [composedAtEdit, setComposedAtEdit] = useState(composed);
-  if (composed !== composedAtEdit) {
-    setComposedAtEdit(composed);
-    setDraft(null);
-  }
-  const text = draft ?? composed;
-
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(timer);
-  }, [copied]);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      showToast("Özet panoya kopyalandı.", "success");
-    } catch {
-      showToast("Kopyalanamadı. Metni seçip elle kopyalayabilirsiniz.", "error");
-    }
-  }
-
-  if (failed) {
-    return <p role="alert" className="mt-5 rounded-field bg-danger-surface p-4 text-sm text-danger">Günün notları alınamadı. Pencereyi kapatıp tekrar deneyin.</p>;
-  }
-
-  if (!loaded) {
-    return (
-      <p role="status" className="mt-6 flex min-h-40 items-center justify-center gap-2 text-sm text-muted">
-        <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Notlar yükleniyor…
-      </p>
-    );
-  }
-
-  if (!posts.length && !loaded.scheduled.length) {
-    return <div className="mt-5"><EmptyState title="Bu güne ait yazı yok" description="Seçili günde yayımlanmış bir not bulunmuyor." /></div>;
-  }
-
-  return (
-    <div className="mt-5 space-y-5">
-      {posts.length ? (
-        <>
-          <div>
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <label htmlFor="day-summary-text" className="text-sm font-semibold">Kopyalanacak metin</label>
-              <div className="flex items-center gap-1">
-                <Button type="button" variant="ghost" size="sm" onClick={() => setDraft(null)} title="Notlardan yeniden oluştur">
-                  <RotateCcw className="size-4" aria-hidden="true" />Yeniden oluştur
-                </Button>
-                <Button type="button" size="sm" onClick={() => void copy()}>
-                  {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-                  {copied ? "Kopyalandı" : "Kopyala"}
-                </Button>
-              </div>
-            </div>
-            {/*
-              * The box opens at four lines and grows when it is reached for. A day of notes fills
-              * sixteen lines, and at that height it is the whole dialog — while most visits are
-              * here to press Kopyala and leave. Focus counts as reaching for it, so clicking into
-              * the text to edit expands it without a second step, and it stays open until it is
-              * folded back.
-              */}
-            <div className="relative">
-              <textarea
-                id="day-summary-text"
-                value={text}
-                onChange={(event) => setDraft(event.target.value)}
-                onFocus={() => setExpanded(true)}
-                spellCheck={false}
-                rows={expanded ? 16 : 4}
-                className={`w-full rounded-field border border-line bg-surface p-4 font-[family-name:var(--font-visitor-sans)] text-[15px] leading-7 text-ink transition-colors focus:border-ink focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ink ${expanded ? "resize-y" : "cursor-pointer resize-none"}`}
-              />
-              {!expanded ? (
-                <button
-                  type="button"
-                  onClick={() => setExpanded(true)}
-                  className="absolute inset-x-px bottom-px flex h-14 items-end justify-center rounded-b-field bg-gradient-to-t from-surface via-surface/90 to-transparent pb-2 text-[13px] font-semibold text-ink-2 transition-colors hover:text-ink"
-                >
-                  <span className="flex items-center gap-1.5">Metnin tamamını göster<ChevronDown className="size-4" aria-hidden="true" /></span>
-                </button>
-              ) : null}
-            </div>
-            {expanded ? (
-              <div className="mt-2 flex justify-end">
-                <button type="button" onClick={() => setExpanded(false)} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2 text-[13px] font-semibold text-ink-2 transition-colors hover:text-ink">
-                  Daralt<ChevronDown className="size-4 rotate-180" aria-hidden="true" />
-                </button>
-              </div>
-            ) : null}
-          </div>
-
-          {speech ? <DaySpeech text={text} day={day} language={language} recordings={loaded.recordings} published={loaded.published} /> : null}
-        </>
-      ) : null}
-
-      {loaded.scheduled.length ? (
-        <div className="rounded-field border border-line bg-surface p-4">
-          <strong className="block text-sm">Bu gün planlı</strong>
-          <p className="mt-1 text-[13px] leading-6 text-muted">Henüz yayımlanmadıkları için özete girmediler.</p>
-          <div className="mt-2 divide-y divide-line">
-            {loaded.scheduled.map((post) => (
-              <Link key={post.id} prefetch={false} href={`/yazilar/${post.id}/duzenle`} className="group flex gap-3 py-2.5">
-                <time dateTime={post.created_at} className="w-12 shrink-0 text-[11px] tabular-nums text-muted">{timeLabel(post.created_at, language)}</time>
-                <span className="line-clamp-2 min-w-0 flex-1 text-[14px] leading-snug text-ink group-hover:underline">{post.title || post.excerpt || "Başlıksız not"}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-/**
- * The summary read aloud, on this machine.
- *
- * Two local steps behind one button: the model on Ollama writes the spoken version, the system
- * voice says it. Both take a while — about forty seconds for the writing — so the button reports
- * which step it is on rather than spinning silently. The result arrives as an mp3 in the reply and
- * becomes a blob here, so nothing is written into the project to be cleaned up later.
- */
-function DaySpeech({ text, day, language, recordings, published }: { text: string; day: string; language: "tr" | "en"; recordings: Recording[]; published: boolean }) {
+/** Two editable scripts, one set of controls. Every audio file keeps its own language. */
+function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string; loaded: Bilingual<Loaded>; speech: boolean; geminiReady: boolean }) {
   const router = useRouter();
-  const [rewrite, setRewrite] = useState(true);
-  const [pending, setPending] = useState(false);
+  const sources: Bilingual<string> = {
+    tr: composeSummary(loaded.tr.posts, `${fullDateLabel(`${day}T12:00:00+03:00`, "tr")} · Günün özeti`),
+    en: composeSummary(loaded.en.posts, `${fullDateLabel(`${day}T12:00:00+03:00`, "en")} · Günün özeti`),
+  };
+  const [drafts, setDrafts] = useState<Bilingual<string | null>>({ tr: null, en: null });
+  const scripts: Bilingual<string> = {
+    tr: drafts.tr ?? (loaded.tr.posts.length ? initialSpeechScript(sources.tr, day, "tr") : ""),
+    en: drafts.en ?? (loaded.en.posts.length ? initialSpeechScript(sources.en, day, "en") : ""),
+  };
+  const [working, setWorking] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [takes, setTakes] = useState(recordings);
-  const [live, setLive] = useState(published);
+  const [takes, setTakes] = useState<Bilingual<Recording[]>>({ tr: loaded.tr.recordings, en: loaded.en.recordings });
+  const [live, setLive] = useState({ tr: loaded.tr.published, en: loaded.en.published });
+  const busy = working !== null;
+  const toGenerate = languagesNeedingRecording(takes);
+  const canGenerate = speech && geminiReady && !busy && toGenerate.length > 0 && toGenerate.every(language => !loaded[language].message && scripts[language].trim().length >= 40 && scripts[language].length <= MAX_SPEECH_CHARS);
+  const totalTakes = takes.tr.length + takes.en.length;
 
-  async function run(action: () => Promise<{ success: boolean; message: string; recordings: Recording[] }>) {
-    setPending(true);
+  async function runBoth(label: string, task: (language: SpeechLanguage) => Promise<{ success: boolean; message: string }>, languages: readonly SpeechLanguage[] = speechLanguages) {
+    setWorking(label);
     setError(null);
     try {
-      const reply = await action();
-      if (!reply.success) { setError(reply.message); return; }
-      setTakes(reply.recordings);
-      // The marks in the list behind the dialog are server state; this is what refreshes them.
-      router.refresh();
-    } catch {
-      setError("İşlem tamamlanamadı. Lütfen tekrar deneyin.");
-    } finally {
-      setPending(false);
-    }
+      const results = await runBilingualTasks(languages, async language => {
+        setWorking(`${languageName(language)} · ${label}`);
+        return task(language);
+      });
+      const failures = languages.filter(language => !results[language]?.success).map(language => `${languageName(language)}: ${results[language]?.message}`);
+      if (failures.length) setError(failures.join(" "));
+      else showToast("İşlem tamamlandı.", "success");
+    } finally { setWorking(null); }
   }
 
-  /** Publishing and withdrawing change what the site plays, not the list of takes. */
-  async function changeLive(action: () => Promise<{ success: boolean; message: string; published: boolean }>) {
-    setPending(true);
-    setError(null);
-    try {
-      const reply = await action();
-      if (!reply.success) { setError(reply.message); return; }
-      setLive(reply.published);
-      showToast(reply.message, "success");
-      router.refresh();
-    } catch {
-      setError("İşlem tamamlanamadı. Lütfen tekrar deneyin.");
-    } finally {
-      setPending(false);
-    }
+  async function generateBoth() {
+    if (!canGenerate) return;
+    await runBoth("Ses kaydı oluşturuluyor…", async language => {
+      const result = await createDaySpeechAction(day, scripts[language], language);
+      if (result.success) {
+        setTakes(current => ({ ...current, [language]: result.recordings }));
+        router.refresh();
+      }
+      return result;
+    }, toGenerate);
+  }
+
+  async function publishBoth() {
+    await runBoth("Son kayıt siteye yükleniyor…", async language => {
+      const result = await publishRecordingAction(takes[language][0].id, language);
+      if (result.success) { setLive(current => ({ ...current, [language]: true })); router.refresh(); }
+      return result;
+    });
+  }
+
+  async function withdrawBoth() {
+    await runBoth("Yayından kaldırılıyor…", async language => {
+      const result = await unpublishDayAudioAction(day, language);
+      if (result.success) { setLive(current => ({ ...current, [language]: false })); router.refresh(); }
+      return result;
+    }, speechLanguages.filter(language => live[language]));
+  }
+
+  async function deleteTake(take: Recording) {
+    await runBoth("Yerel kayıt siliniyor…", async language => {
+      const result = await deleteRecordingAction(take.id, day, language);
+      if (result.success) {
+        setTakes(current => ({ ...current, [language]: result.recordings }));
+        router.refresh();
+      }
+      return result;
+    }, [take.language]);
+  }
+
+  async function copyBoth(texts: Bilingual<string>) {
+    try { await navigator.clipboard.writeText(`TÜRKÇE\n${texts.tr}\n\nENGLISH\n${texts.en}`); showToast("İki metin kopyalandı.", "success"); }
+    catch { showToast("Metinler kopyalanamadı.", "error"); }
   }
 
   return (
-    <section className="rounded-field border border-line bg-surface p-4" aria-label="Ses kaydı">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <strong className="block text-sm">Ses kaydı</strong>
-          <small className="mt-0.5 block text-muted">Yerel model metni yazar, yerel ses okur. Kayıtlar bu bilgisayarda saklanır.</small>
-          {live ? <small className="mt-1 inline-flex items-center gap-1.5 rounded-md bg-success-surface px-2 py-0.5 text-[11px] font-semibold text-success">Bu günün kaydı sitede yayında</small> : null}
+    <section className="mt-1" aria-label="Türkçe ve İngilizce ses kayıtları">
+      <div className="mb-2 flex items-center justify-end gap-2">
+        <div className="flex items-center gap-1">
+          <Button type="button" variant="ghost" size="sm" className="w-11 px-0" disabled={busy || (drafts.tr === null && drafts.en === null)} aria-label="İki metni sıfırla" title="İki metni sıfırla" onClick={() => setDrafts({ tr: null, en: null })}><RotateCcw className="size-4" aria-hidden="true" /></Button>
+          <Button type="button" variant="ghost" size="sm" className="w-11 px-0" aria-label="İki metni kopyala" title="İki metni kopyala" onClick={() => void copyBoth(scripts)}><Copy className="size-4" aria-hidden="true" /></Button>
         </div>
-        <Button type="button" onClick={() => void run(() => createDaySpeechAction(day, text, rewrite))} disabled={pending}>
-          {pending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <AudioLines className="size-4" aria-hidden="true" />}
-          {pending ? "Hazırlanıyor…" : takes.length ? "Yeniden oluştur" : "Ses oluştur"}
-        </Button>
       </div>
-
-      <div className="mt-3 flex items-center justify-between gap-4 border-t border-line pt-3">
-        <div className="min-w-0">
-          <strong className="block text-sm">Yerel modelle yeniden yaz</strong>
-          <small className="mt-0.5 block text-muted">Spiker ağzından, selamlama ve kapanışla. Kapalıyken metin olduğu gibi okunur.</small>
-        </div>
-        <Switch checked={rewrite} label="Yerel modelle yeniden yaz" disabled={pending} onCheckedChange={setRewrite} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        {speechLanguages.map(language => (
+          <div key={language} className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface transition-colors focus-within:border-line-strong">
+            <div className="flex items-center justify-between gap-2 border-b border-line bg-surface-2/40 px-3 py-2.5 text-xs">
+              <label htmlFor={`speech-script-${language}`} className="flex items-center gap-2 font-semibold"><span className="rounded-md border border-line bg-surface px-1.5 py-1 text-[10px] uppercase tracking-wide">{language}</span>{languageName(language)}<span className="font-normal text-muted">{loaded[language].posts.length} haber</span></label>
+              <span className={`tabular-nums ${scripts[language].length > MAX_SPEECH_CHARS ? "text-danger" : "text-muted"}`}>{scripts[language].length.toLocaleString("tr-TR")} / 6.000</span>
+            </div>
+            <textarea id={`speech-script-${language}`} lang={language} value={scripts[language]} disabled={busy} maxLength={20_000} rows={7} placeholder={`${languageName(language)} konuşma metni…`}
+              onChange={event => setDrafts(current => ({ ...current, [language]: event.target.value }))}
+              className="block min-h-40 w-full resize-y border-0 bg-transparent px-3 py-3 text-[14px] leading-6 text-ink focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink disabled:opacity-60 sm:min-h-48" />
+            <p className="flex items-center gap-1.5 border-t border-line bg-surface-2/30 px-3 py-2 text-[11px] tabular-nums text-muted" title="Dakikada 145 kelimelik okuma hızı, intro ve geçiş sesleriyle hesaplanır. Gerçek süre değişebilir."><Clock3 className="size-3.5" aria-hidden="true" />Tahmini süre <span className="ml-auto font-medium text-ink">{estimatedSpeechDuration(scripts[language], true)}</span></p>
+            {loaded[language].message ? <p role="alert" className="mt-2 text-xs text-danger">{loaded[language].message}</p> : null}
+          </div>
+        ))}
       </div>
-
-      {pending ? <p role="status" className="mt-3 text-[13px] text-muted">{rewrite ? "Yerel model metni yazıyor; bu adım bir dakikaya kadar sürebilir." : "Ses üretiliyor…"}</p> : null}
-      {error ? <p role="alert" className="mt-3 rounded-field bg-danger-surface p-3 text-sm text-danger">{error}</p> : null}
-
-      {live ? (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-          <p className="text-[13px] text-muted">Akışın başında bu günün kaydı çalıyor.</p>
-          <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => void changeLive(() => unpublishDayAudioAction(day, language))}>
-            <Undo2 className="size-4" aria-hidden="true" />Yayından kaldır
-          </Button>
+      {speech ? <>
+        {!geminiReady ? <p role="status" className="mt-3 text-sm text-danger">Ses üretimini açmak için sunucuda GEMINI_API_KEY tanımlanmalı.</p> : null}
+        <div className="sticky -bottom-5 z-10 -mx-1 mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-line bg-surface/95 px-1 py-3 backdrop-blur-sm sm:-bottom-5">
+          <Button type="button" disabled={!canGenerate} className="min-w-56 shadow-sm max-sm:w-full" onClick={() => void generateBoth()}>{working ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <AudioLines className="size-4" aria-hidden="true" />}{working ? "İşlem sürüyor…" : toGenerate.length === 0 ? "Kayıtlar hazır" : toGenerate.length === 1 ? `${languageName(toGenerate[0])} kaydı oluştur` : "İki dilde kayıt oluştur"}</Button>
         </div>
-      ) : null}
-
-      {takes.length ? (
-        <ul className="mt-4 space-y-4 border-t border-line pt-4">
-          {takes.map((take) => (
-            <li key={take.id}>
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <p className="text-[12px] text-muted">
-                  <time dateTime={take.createdAt} className="tabular-nums">{takeTime.format(new Date(take.createdAt))}</time>
-                  {" · "}{take.engine === "piper" ? "Piper" : "Sistem sesi"}
-                  {" · "}{Math.round(take.bytes / 1024).toLocaleString("tr-TR")} KB
-                </p>
-                <div className="flex items-center gap-1">
-                  <a href={`/gunun-ozeti/ses/${take.id}`} download={`gunun-ozeti-${take.day}.mp3`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                    <Download className="size-4" aria-hidden="true" />İndir
-                  </a>
-                  <Button type="button" size="sm" disabled={pending} title="Bu kaydı sitede yayına al" onClick={() => void changeLive(() => publishRecordingAction(take.id, language))}>
-                    <Globe className="size-4" aria-hidden="true" />Yayınla
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm" disabled={pending} aria-label="Kaydı sil" title="Kaydı sil" onClick={() => void run(() => deleteRecordingAction(take.id, day))}>
-                    <Trash2 className="size-4" aria-hidden="true" />
-                  </Button>
-                </div>
+      </> : null}
+      {working ? <p role="status" className="mt-2 text-xs text-muted">{working}</p> : null}
+      {error ? <p role="alert" className="mt-3 rounded-xl bg-danger-surface p-3 text-sm text-danger">{error}</p> : null}
+      {live.tr || live.en ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-success-surface px-3 py-1"><span className="text-xs text-success">{speechLanguages.filter(language => live[language]).map(languageName).join(" ve ")} yayında</span><Button type="button" variant="ghost" size="sm" className="px-2 text-xs" disabled={busy} onClick={() => void withdrawBoth()}><Undo2 className="size-3.5" aria-hidden="true" />Yayından kaldır</Button></div> : null}
+      {totalTakes ? <div className="mt-4 border-t border-line pt-2">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><h3 className="text-xs font-semibold text-muted">Yerel kayıtlar · {totalTakes}</h3><Button type="button" size="sm" variant="secondary" className="px-3" disabled={busy || !takes.tr.length || !takes.en.length} title="Her dilin en son kaydını siteye yükle" onClick={() => void publishBoth()}><Globe className="size-4" aria-hidden="true" />İki kaydı yayınla</Button></div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {speechLanguages.map(language => <div key={language} className="min-w-0"><h4 className="mb-2 text-xs font-semibold">{languageName(language)}</h4><ul className="space-y-2">{takes[language].map((take, index) => <li key={take.id}>
+            <details className="group/take rounded-xl border border-line" open={index === 0}>
+              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-xs [&::-webkit-details-marker]:hidden"><AudioLines className="size-4 shrink-0 text-muted" aria-hidden="true" /><time dateTime={take.createdAt} className="min-w-0 flex-1 font-medium tabular-nums">{takeTime.format(new Date(take.createdAt))}</time><span className="text-muted">{take.voice || take.engine}</span><ChevronDown className="size-4 text-muted group-open/take:rotate-180" aria-hidden="true" /></summary>
+              <div className="space-y-2 px-3 pb-3"><audio controls preload="none" src={`/gunun-ozeti/ses/${take.id}`} className="h-10 w-full" aria-label={`${languageName(language)} ses kaydı`} />
+                <div className="flex items-center justify-end gap-1"><a href={`/gunun-ozeti/ses/${take.id}?download=1`} download={`gunun-ozeti-${take.day}-${take.language}.${take.format}`} className={buttonVariants({ variant: "ghost", size: "sm", className: "px-3" })}><Download className="size-4" aria-hidden="true" />İndir</a><Button type="button" variant="ghost" size="sm" className="w-11 px-0" disabled={busy} aria-label={`${languageName(language)} kaydı sil`} onClick={() => void deleteTake(take)}><Trash2 className="size-4" aria-hidden="true" /></Button></div>
+                <details><summary className="min-h-11 cursor-pointer text-xs leading-[44px] text-muted">Okunan metin</summary><p className="max-h-48 overflow-y-auto whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm leading-6">{take.script}</p></details>
               </div>
-              <audio controls preload="none" src={`/gunun-ozeti/ses/${take.id}`} className="w-full" aria-label="Günün özeti ses kaydı" />
-              <details className="group mt-2">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-[13px] font-semibold text-ink-2 hover:text-ink [&::-webkit-details-marker]:hidden">
-                  Okunan metin
-                  <ChevronDown className="size-4 transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
-                </summary>
-                <p className="mt-2 whitespace-pre-wrap rounded-field bg-surface-2 p-3 text-[14px] leading-7 text-ink-2">{take.script}</p>
-              </details>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+            </details>
+          </li>)}</ul></div>)}
+        </div>
+      </div> : null}
+      {loaded.tr.scheduled.length || loaded.en.scheduled.length ? <details className="group/scheduled border-t border-line"><summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-[13px] text-muted [&::-webkit-details-marker]:hidden">Planlı notlar<ChevronDown className="size-4 group-open/scheduled:rotate-180" aria-hidden="true" /></summary><p className="text-xs text-muted">Henüz yayımlanmadıkları için özete dahil değiller.</p><div className="grid gap-3 sm:grid-cols-2">{speechLanguages.map(language => <div key={language}><h4 className="py-2 text-xs font-semibold">{languageName(language)}</h4>{loaded[language].scheduled.map(post => <Link key={post.id} prefetch={false} href={`/yazilar/${post.id}/duzenle`} className="flex gap-3 border-t border-line py-2.5 text-xs"><time className="shrink-0 text-muted">{timeLabel(post.created_at, language)}</time><span className="line-clamp-2">{post.title || post.excerpt || "Başlıksız not"}</span></Link>)}</div>)}</div></details> : null}
     </section>
   );
 }

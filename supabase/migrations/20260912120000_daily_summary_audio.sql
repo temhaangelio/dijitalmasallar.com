@@ -1,7 +1,7 @@
 -- The day summary's published audio.
 --
 -- Additive: one table, nothing existing is touched. One row per day and language — the recording
--- itself is an object in the `diji-post-media` bucket, and this row is what says a day has one,
+-- itself is an object in the `daily-summary-audio` bucket, and this row is what says a day has one,
 -- which file it is and how long it runs. Publishing the same day again replaces the row and the
 -- object behind it.
 --
@@ -44,3 +44,8 @@ grant select, insert, update, delete on table public.daily_summary_audio to serv
 -- ---------
 -- drop index if exists public.daily_summary_audio_recent_idx;
 -- drop table if exists public.daily_summary_audio;
+
+-- Only approved publications use cloud storage. Drafts stay on the editor's computer.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('daily-summary-audio', 'daily-summary-audio', true, 50000000, array['audio/wav', 'audio/mpeg'])
+on conflict (id) do nothing;
