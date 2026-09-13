@@ -1717,10 +1717,11 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
  * ad slot's full-column placement so the rhythm of the feed is unchanged.
  */
 .visitor-newsletter-promo {
+  position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
-  padding: 18px 20px;
+  padding: 38px 20px 20px;
   transition: border-color 160ms ease;
 }
 .visitor-newsletter-promo:hover { border-color: var(--color-line-strong); }
@@ -1729,15 +1730,23 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
   display: grid;
   flex: none;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   background: color-mix(in srgb, var(--color-accent) 9%, transparent);
   color: var(--color-accent);
 }
-.visitor-newsletter-promo-body { display: block; min-width: 0; }
+.visitor-newsletter-promo-mark > svg { width: 28px; height: 28px; stroke-width: 1.8; }
+.visitor-newsletter-promo-body { display: block; flex: 1; min-width: 0; }
 .visitor-newsletter-promo-label {
+  position: absolute;
+  top: 14px;
+  right: 20px;
+}
+.visitor-newsletter-promo-label,
+.visitor-ad-content > .visitor-note-time {
   display: block;
+  font-family: var(--font-visitor-sans), Arial, sans-serif;
   font-size: 11px;
   font-weight: 600;
   line-height: 1.4;
@@ -1745,9 +1754,13 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
   text-transform: uppercase;
   color: var(--color-muted);
 }
+.visitor-ad-content > .visitor-note-time {
+  text-align: right;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
 .visitor-newsletter-promo-title {
   display: block;
-  margin-top: 6px;
   font-size: 16px;
   font-weight: 500;
   line-height: 1.5;
@@ -1759,7 +1772,7 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 6px;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.5;
@@ -1770,7 +1783,10 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 .visitor-newsletter-promo:hover .visitor-newsletter-promo-cta { color: var(--color-accent); }
 .visitor-newsletter-promo:hover .visitor-newsletter-promo-cta > svg { transform: translateX(3px); }
 @media (min-width: 640px) {
-  .visitor-newsletter-promo { gap: 16px; padding: 20px 24px; }
+  .visitor-newsletter-promo { gap: 18px; padding: 38px 24px 24px; }
+  .visitor-newsletter-promo-label { right: 24px; }
+  .visitor-newsletter-promo-mark { width: 60px; height: 60px; }
+  .visitor-newsletter-promo-mark > svg { width: 30px; height: 30px; }
   .visitor-newsletter-promo-title { font-size: 17px; }
 }
 @media (prefers-reduced-motion: reduce) {

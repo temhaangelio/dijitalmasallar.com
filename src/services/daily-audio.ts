@@ -1,5 +1,6 @@
 import "server-only";
 import { bulletinDays } from "@/lib/visitor-date";
+import { recordingNewsExcerpt } from "@/lib/speech/news-excerpt";
 import { randomUUID } from "node:crypto";
 
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -164,18 +165,18 @@ export async function getPublishedAudioPage(language: VisitorLanguage, page = 1)
 
 /** Fetch the full published queue without downloading audio or private draft metadata. */
 export async function getPublishedAudioQueue(language: VisitorLanguage) {
-  const items: { day: string; audioUrl: string; durationSeconds: number }[] = [];
+  const items: { day: string; audioUrl: string; durationSeconds: number; excerpt: string }[] = [];
   if (!isSupabaseConfigured()) return { items, error: false };
   try {
     const client = await createClient();
     let before: string | undefined;
     for (;;) {
-      let query = client.from("daily_summary_audio").select("day,audio_url,duration_seconds").eq("language", language).order("day", { ascending: false }).limit(200);
+      let query = client.from("daily_summary_audio").select("day,audio_url,duration_seconds,script").eq("language", language).order("day", { ascending: false }).limit(200);
       if (before) query = query.lt("day", before);
       const { data, error } = await query;
       if (error) throw error;
       const rows = data ?? [];
-      items.push(...rows.map(row => ({ day: row.day as string, audioUrl: row.audio_url as string, durationSeconds: row.duration_seconds as number })));
+      items.push(...rows.map(row => ({ day: row.day as string, audioUrl: row.audio_url as string, durationSeconds: row.duration_seconds as number, excerpt: recordingNewsExcerpt(row.script ?? "", language) })));
       if (rows.length < 200) break;
       before = rows[rows.length - 1].day;
     }

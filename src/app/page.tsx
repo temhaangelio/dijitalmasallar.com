@@ -9,6 +9,7 @@ import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memo
 import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
 import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
 import { NewsletterPromo } from "@/components/features/visitor/newsletter-promo";
+import { ListenPromo } from "@/components/features/visitor/listen-promo";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
@@ -257,6 +258,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 }
                 if (newsletterSlots.has(position)) {
                   nodes.push(<NewsletterPromo key={`newsletter-${position}`} language={language} />);
+                }
+                // Offset from newsletter and ad slots so suggestions never share a gap.
+                if (position >= 7 && (position - 7) % 18 === 0) {
+                  nodes.push(<ListenPromo key={`listen-${position}`} language={language} />);
                 }
                 return nodes;
               }));

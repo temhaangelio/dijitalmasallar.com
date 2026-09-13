@@ -6,7 +6,7 @@ import { fullDateLabel } from "@/lib/visitor-date";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 import { Button } from "@/components/ui/button";
 
-export type PlaylistItem = { day: string; audioUrl: string; durationSeconds: number };
+export type PlaylistItem = { day: string; audioUrl: string; durationSeconds: number; excerpt: string };
 const clock = (seconds: number) => `${Math.floor(Math.max(0, seconds) / 60)}:${String(Math.floor(Math.max(0, seconds) % 60)).padStart(2, "0")}`;
 
 export function AudioPlaylist({ items, language, initialDay, autoPlay = false }: { items: PlaylistItem[]; language: VisitorLanguage; initialDay?: string; autoPlay?: boolean }) {
@@ -101,7 +101,7 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
       </section>
       <section className="listen-queue" aria-label={english ? "Playback queue" : "Dinleme sırası"}>
         <div className="listen-queue-heading"><div><h2 className="flex items-center gap-2 text-sm font-semibold"><ListMusic size={18} />{english ? "All recordings" : "Tüm kayıtlar"}</h2><p className="mt-1 text-xs text-muted">{items.length} {english ? "recordings" : "kayıt"} · {clock(total)}</p></div><Button size="sm" variant="secondary" onClick={() => void play(0, true)}><Play size={14} />{english ? "Play all" : "Tümünü dinle"}</Button></div>
-        <ol className="listen-queue-list">{items.map((item, i) => <li key={item.day}><button className="listen-queue-item" aria-current={i === index ? "true" : undefined} onClick={() => i === index && playing ? pause() : void play(i)}><span className="listen-queue-number">{i === index && playing ? <span className="visitor-audio-wave" aria-hidden="true"><span style={{ height: 16 }} /><span style={{ height: 24 }} /><span style={{ height: 12 }} /></span> : String(i + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1"><span className="block text-sm font-medium">{date(item.day)}</span><span className="mt-1 block text-xs text-muted">{english ? "Technology bulletin" : "Teknoloji bülteni"}</span></span><span className="text-xs tabular-nums text-muted">{clock(item.durationSeconds)}</span>{i === index && playing ? <Pause size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />}</button></li>)}</ol>
+        <ol className="listen-queue-list">{items.map((item, i) => <li key={item.day}><button className="listen-queue-item" aria-current={i === index ? "true" : undefined} onClick={() => i === index && playing ? pause() : void play(i)}><span className="listen-queue-number">{i === index && playing ? <span className="visitor-audio-wave" aria-hidden="true"><span style={{ height: 16 }} /><span style={{ height: 24 }} /><span style={{ height: 12 }} /></span> : String(i + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1"><span className="block text-sm font-medium">{date(item.day)}</span><span className="mt-1 block truncate text-xs text-muted" title={item.excerpt}>{item.excerpt}</span></span><span className="text-xs tabular-nums text-muted">{clock(item.durationSeconds)}</span>{i === index && playing ? <Pause size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />}</button></li>)}</ol>
       </section>
     </div>
   );
