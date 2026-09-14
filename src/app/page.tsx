@@ -7,6 +7,7 @@ import { DailyAudioPlayer } from "@/components/features/visitor/daily-audio-play
 import { FeedHighlights } from "@/components/features/visitor/feed-highlights";
 import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memory";
 import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
+import { FeedSearch } from "@/components/features/visitor/feed-search";
 import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
 import { NewsletterPromo } from "@/components/features/visitor/newsletter-promo";
 import { ListenPromo } from "@/components/features/visitor/listen-promo";
@@ -221,6 +222,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
         <div className="visitor-feed-tools">
           <FeedViewPicker language={language} />
+          <FeedSearch language={language} />
           <FeedRefresh language={language} />
         </div>
         {/* A phone-sized way in: the newest notes as cards you swipe, before the feed proper. */}

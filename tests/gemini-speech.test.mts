@@ -70,7 +70,7 @@ test("quota errors are not retried", async () => {
   await assert.rejects(generateGeminiSpeech("test", "Charon", "tr", "test", async () => {
     calls++;
     return new Response(null, { status: 429 });
-  }), /kotası/);
+  }), /kota/);
   assert.equal(calls, 1);
 });
 

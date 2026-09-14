@@ -1,6 +1,6 @@
 import { speechClosing } from "./script-text.ts";
 import { mixClosingMusic } from "./outro.ts";
-import { fetchSpeech } from "./connection.ts";
+import { fetchSpeechWithRateLimit } from "./rate-limit.ts";
 import type { TransitionSound } from "./transition-samples.ts";
 import { GEMINI_TTS_MODEL, MAX_SPEECH_CHARS, isGeminiVoice, type GeminiVoice } from "./options.ts";
 import { isSpeechFrame, newsTransitionPcm } from "./transition.ts";
@@ -54,7 +54,7 @@ type GeminiReply = {
   candidates?: Array<{ finishReason?: string; content?: { parts?: Array<{ inlineData?: { mimeType?: string; data?: string } }> } }>;
 };
 
-/** Only pre-connection failures are retried; uncertain provider responses are never retried. */
+/** Retry known pre-connection failures or explicit short rate limits, never uncertain responses. */
 export async function generateGeminiSpeech(text: string, voice: GeminiVoice, language: "tr" | "en", apiKey: string, fetcher: typeof fetch = fetch, options: { newsTransitions?: boolean; transitionSound?: TransitionSound; introPcm?: Buffer } = {}) {
   if (!apiKey) throw new Error("Gemini API anahtarı eksik. Sunucuya GEMINI_API_KEY ekleyin.");
   if (!isGeminiVoice(voice)) throw new Error("Geçersiz Gemini sesi.");
@@ -68,7 +68,7 @@ export async function generateGeminiSpeech(text: string, voice: GeminiVoice, lan
   let closingStart = -1;
   try {
     for (const chunk of chunks) {
-      const response = await fetchSpeech(fetcher, `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TTS_MODEL}:generateContent`, {
+      const response = await fetchSpeechWithRateLimit(fetcher, `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TTS_MODEL}:generateContent`, {
         method: "POST", signal: controller.signal,
         headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify({
@@ -82,7 +82,6 @@ export async function generateGeminiSpeech(text: string, voice: GeminiVoice, lan
         }),
       });
       if (!response.ok) {
-        if (response.status === 429) throw new Error("Gemini kotası veya hız sınırı aşıldı. Google hesabınızın kullanımını kontrol edin.");
         if ([401, 403].includes(response.status)) throw new Error("Gemini API anahtarı veya model erişimi geçersiz.");
         throw new Error(`Gemini ses üretimini tamamlayamadı (HTTP ${response.status}).`);
       }
