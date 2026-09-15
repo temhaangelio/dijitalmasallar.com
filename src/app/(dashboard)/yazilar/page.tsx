@@ -4,13 +4,13 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { PostsTable } from "@/components/features/posts/posts-table";
-import { getPostsPage, getScheduledPostCount } from "@/services/posts";
+import { getPostsPage, getScheduledPostCount, getDraftPostCount } from "@/services/posts";
 
 export default async function PostsPage({ searchParams }: { searchParams: Promise<{ dil?: string }> }) {
   const params = await searchParams;
   const language = params.dil === "en" ? "en" : "tr";
   const pageSize = 15;
-  const [result, scheduledTotal] = await Promise.all([getPostsPage(1, pageSize, language), getScheduledPostCount()]);
+  const [result, scheduledTotal, draftTotal] = await Promise.all([getPostsPage(1, pageSize, language), getScheduledPostCount(), getDraftPostCount()]);
 
   return (
     <AppShell active="/yazilar">
@@ -19,11 +19,12 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         actions={<Link href="/yazilar/yeni" className={buttonVariants()}>Yeni yazı <ArrowRight className="size-4" aria-hidden="true" /></Link>}
       />
       <PostsTable
-        key={`${language}:${result.total}:${JSON.stringify(result.posts.map(post => [post.id, post.title, post.cover_path, post.created_at, post.source_url]))}`}
+        key={`${language}:${result.total}:${JSON.stringify(result.posts.map(post => [post.id, post.title, post.cover_path, post.created_at, post.source_url, post.status]))}`}
         initialPosts={result.posts}
         total={result.total}
         language={language}
         scheduledTotal={scheduledTotal}
+        draftTotal={draftTotal}
         pageSize={pageSize}
       />
     </AppShell>

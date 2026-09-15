@@ -29,7 +29,6 @@ export function Sidebar({ active, siteName, modules }: { active: string; siteNam
       })}
     </nav>
     <div className="sidebar-footer mt-auto flex flex-col gap-1 border-t border-line pt-4">
-      <div className="sidebar-expanded-only mb-3 px-1"><ThemePicker language="tr" /></div>
       <Link href="/" target="_blank" rel="noopener noreferrer" aria-label="Siteye git" title="Siteye git" className="sidebar-item w-full text-[15px] font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
         <ExternalLink size={18} strokeWidth={1.6} className="shrink-0" aria-hidden="true" />
         <span className="sidebar-expanded-only truncate">Siteye git</span>
@@ -43,6 +42,7 @@ export function Sidebar({ active, siteName, modules }: { active: string; siteNam
         </form>
         <SidebarToggle />
       </div>
+      <div className="sidebar-expanded-only mt-3 w-full px-1 [&>div]:w-full [&_button]:flex-1"><ThemePicker language="tr" /></div>
     </div>
   </aside>;
 }

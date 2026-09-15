@@ -7,10 +7,10 @@ import { parsePostContent } from "@/lib/post-content";
 import { isUuid } from "@/lib/utils";
 import type { Post } from "@/types/database";
 
-type PostRow = { id: string; content_tr: string; content_en: string; legacy_english_id: string | null; source_url: string | null; cover_path: string | null; created_at: string; author_id: string | null };
-const postColumns = "id,content_tr,content_en,legacy_english_id,source_url,cover_path,created_at,author_id";
+type PostRow = { is_draft: boolean; id: string; content_tr: string; content_en: string; legacy_english_id: string | null; source_url: string | null; cover_path: string | null; created_at: string; author_id: string | null };
+const postColumns = "is_draft,id,content_tr,content_en,legacy_english_id,source_url,cover_path,created_at,author_id";
 export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc";
-export type PostPublicationFilter = "all" | "published" | "scheduled";
+export type PostPublicationFilter = "all" | "published" | "scheduled" | "draft";
 
 function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
   const content = parsePostContent(language === "en" ? row.content_en : row.content_tr);
@@ -23,11 +23,11 @@ function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
     excerpt: content.excerpt,
     body: content.body,
     language,
-    status: scheduled ? "scheduled" : "published",
+    status: row.is_draft ? "draft" : scheduled ? "scheduled" : "published",
     cover_path: row.cover_path,
     source_url: row.source_url,
-    published_at: scheduled ? null : row.created_at,
-    scheduled_at: scheduled ? row.created_at : null,
+    published_at: row.is_draft || scheduled ? null : row.created_at,
+    scheduled_at: !row.is_draft && scheduled ? row.created_at : null,
     reads: 0,
     created_at: row.created_at,
     updated_at: row.created_at,
@@ -43,7 +43,7 @@ export async function getPosts(page = 1, pageSize = 20, language: "tr" | "en" = 
     const { data, error } = await supabase
       .from("posts")
       .select(postColumns)
-      .lte("created_at", new Date().toISOString())
+      .eq("is_draft", false).lte("created_at", new Date().toISOString())
       .order("created_at", { ascending: false })
       .range(from, from + safePageSize - 1);
     if (error) throw error;
@@ -59,7 +59,7 @@ export async function getBriefPosts(since: string, until: string, language: "tr"
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.from("posts").select(postColumns)
-      .gte("created_at", since).lte("created_at", until)
+      .gte("created_at", since).eq("is_draft", false).lte("created_at", until)
       .order("created_at", { ascending: false }).limit(500);
     if (error) throw error;
     return (data as PostRow[]).map(row => mapPost(row, language));
@@ -82,7 +82,7 @@ export async function getPostsForDay(dayKey: string, language: "tr" | "en" = "tr
   try {
     const { data, error } = await access.admin.from("posts").select(postColumns)
       .gte("created_at", `${dayKey}T00:00:00+03:00`)
-      .lte("created_at", `${dayKey}T23:59:59.999+03:00`)
+      .eq("is_draft", false).lte("created_at", `${dayKey}T23:59:59.999+03:00`)
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw error;
@@ -108,7 +108,7 @@ export async function getPostDays(days = 60): Promise<string[]> {
     const since = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
     const { data, error } = await access.admin.from("posts").select("created_at")
       .gte("created_at", since)
-      .lte("created_at", now.toISOString())
+      .eq("is_draft", false).lte("created_at", now.toISOString())
       .order("created_at", { ascending: false })
       .limit(3000);
     if (error) throw error;
@@ -144,7 +144,7 @@ export async function getPostsByIds(ids: string[], language: "tr" | "en" = "tr")
       .select(postColumns)
       .in("id", wanted)
       // A scheduled note is not public yet, and a favourite must not become a way to read one early.
-      .lte("created_at", new Date().toISOString())
+      .eq("is_draft", false).lte("created_at", new Date().toISOString())
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data as PostRow[]).map((row) => mapPost(row, language));
@@ -193,8 +193,9 @@ async function fetchAdminPostRows(page: number, pageSize: number, sort: PostSort
     query = query.or(`content_tr.ilike.${pattern},content_en.ilike.${pattern}`);
   }
   const now = new Date().toISOString();
-  if (status === "published") query = query.lte("created_at", now);
-  else if (status === "scheduled") query = query.gt("created_at", now);
+  if (status === "draft") query = query.eq("is_draft", true);
+  else if (status === "published") query = query.eq("is_draft", false).lte("created_at", now);
+  else if (status === "scheduled") query = query.eq("is_draft", false).gt("created_at", now);
   if (sort === "oldest") query = query.order("created_at", { ascending: true });
   else if (sort === "title-asc") query = query.order(titleColumn[language], { ascending: true });
   else if (sort === "title-desc") query = query.order(titleColumn[language], { ascending: false });
@@ -230,7 +231,7 @@ export async function getScheduledPostCount(): Promise<number> {
   try {
     const access = await getAuthorizedAdminClient();
     if (!access) return 0;
-    const { count, error } = await access.admin.from("posts").select("id", { count: "exact", head: true }).gt("created_at", new Date().toISOString());
+    const { count, error } = await access.admin.from("posts").select("id", { count: "exact", head: true }).eq("is_draft", false).gt("created_at", new Date().toISOString());
     return error ? 0 : count ?? 0;
   } catch {
     return 0;
@@ -263,7 +264,7 @@ export async function getPublishedPostById(id: string, language?: "tr" | "en"): 
       .from("posts")
       .select(postColumns)
       .or(`id.eq.${id},legacy_english_id.eq.${id}`)
-      .lte("created_at", new Date().toISOString())
+      .eq("is_draft", false).lte("created_at", new Date().toISOString())
       .maybeSingle();
     if (error || !data) return null;
     const row = data as PostRow;
@@ -282,7 +283,7 @@ export async function getNextPublishedPost(createdAt: string, language: "tr" | "
       .from("posts")
       .select(postColumns)
       .lt("created_at", createdAt)
-      .lte("created_at", new Date().toISOString())
+      .eq("is_draft", false).lte("created_at", new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -323,10 +324,10 @@ export async function getDashboardPostStats(): Promise<DashboardPostStats> {
 
     const [totalResult, weekResult, monthResult, scheduledResult, recentResult] = await Promise.all([
       access.admin.from("posts").select("id", { count: "exact", head: true }),
-      access.admin.from("posts").select("id", { count: "exact", head: true }).gte("created_at", isoAtIstanbulMidnight(weekStartDay)).lte("created_at", nowIso),
-      access.admin.from("posts").select("created_at", { count: "exact" }).gte("created_at", monthStart).lte("created_at", nowIso),
-      access.admin.from("posts").select(postColumns, { count: "exact" }).gt("created_at", nowIso).order("created_at").limit(3),
-      access.admin.from("posts").select(postColumns).lte("created_at", nowIso).order("created_at", { ascending: false }).limit(3),
+      access.admin.from("posts").select("id", { count: "exact", head: true }).gte("created_at", isoAtIstanbulMidnight(weekStartDay)).eq("is_draft", false).lte("created_at", nowIso),
+      access.admin.from("posts").select("created_at", { count: "exact" }).gte("created_at", monthStart).eq("is_draft", false).lte("created_at", nowIso),
+      access.admin.from("posts").select(postColumns, { count: "exact" }).eq("is_draft", false).gt("created_at", nowIso).order("created_at").limit(3),
+      access.admin.from("posts").select(postColumns).eq("is_draft", false).lte("created_at", nowIso).order("created_at", { ascending: false }).limit(3),
     ]);
     if (totalResult.error || weekResult.error || monthResult.error || scheduledResult.error || recentResult.error) return empty;
     const monthDates = monthResult.data ?? [];
@@ -342,4 +343,11 @@ export async function getDashboardPostStats(): Promise<DashboardPostStats> {
   } catch {
     return empty;
   }
+}
+
+export async function getDraftPostCount(): Promise<number> {
+  const access = await getAuthorizedAdminClient();
+  if (!access) return 0;
+  const { count, error } = await access.admin.from("posts").select("id", { count: "exact", head: true }).eq("is_draft", true);
+  return error ? 0 : count ?? 0;
 }

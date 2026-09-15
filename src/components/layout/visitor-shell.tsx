@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsletterModal } from "@/components/features/visitor/newsletter-modal";
 import { ListenModal } from "@/components/features/visitor/listen-modal";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
@@ -117,6 +118,7 @@ export async function VisitorShell({
       <PullToRefresh language={language} />
       <InstallBanner language={language} />
       <ListenModal />
+      <NewsletterModal />
     </div>
   );
 }

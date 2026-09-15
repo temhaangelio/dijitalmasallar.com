@@ -17,7 +17,7 @@ export default async function DailySummaryPage() {
   ]);
   return (
     <AppShell active="/gunun-ozeti">
-      <PageHeader title="Günün özeti" note="Türkçe ve İngilizce bülteni tek ekranda, ortak ayarlarla hazırlayın." />
+      <PageHeader title="Podcast" />
       <DaySummaryList days={days} language="tr" speech={speech} recorded={[...new Set([...recordedTr, ...recordedEn])]} published={[...new Set([...publishedTr, ...publishedEn])]} geminiReady={isGeminiConfigured()} />
     </AppShell>
   );

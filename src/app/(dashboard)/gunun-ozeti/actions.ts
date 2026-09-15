@@ -55,7 +55,7 @@ export async function publishRecordingAction(id: unknown, language: unknown): Pr
   const result = await publishDailyAudio({ day: take.day, language: take.language, audio: take.audio, durationSeconds: take.durationSeconds, script: take.script, format: take.format });
   if (!result.success) return fail(result.message);
   revalidatePath("/");
-  revalidatePath("/dinle");
+  revalidatePath("/podcast");
   revalidatePath("/gunun-ozeti");
   return { success: true, message: "Kayıt yayımlandı.", published: true };
 }
@@ -66,7 +66,7 @@ export async function unpublishDayAudioAction(day: unknown, language: unknown): 
   if (typeof day !== "string" || !dayPattern.test(day) || (language !== "tr" && language !== "en")) return fail("Geçersiz gün veya dil.");
   if (!(await unpublishDailyAudio(day, language))) return fail("Yayından kaldırılamadı.");
   revalidatePath("/");
-  revalidatePath("/dinle");
+  revalidatePath("/podcast");
   revalidatePath("/gunun-ozeti");
   return { success: true, message: "Yayından kaldırıldı.", published: false };
 }

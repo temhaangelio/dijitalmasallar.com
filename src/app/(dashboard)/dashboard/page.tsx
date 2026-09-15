@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/feedback/states";
 import { getAnalytics } from "@/services/analytics";
 import { getDashboardPostStats } from "@/services/posts";
 import { DashboardOverview } from "@/components/features/dashboard/dashboard-overview";
-import { fullDateLabel } from "@/lib/visitor-date";
 
 const weekdayFormat = new Intl.DateTimeFormat("tr-TR", { weekday: "short", timeZone: "Europe/Istanbul" });
 
@@ -36,7 +35,7 @@ export default async function DashboardPage() {
   const stats = await getDashboardPostStats();
   const today = new Date();
   return <AppShell active="/dashboard">
-    <PageHeader title="Genel bakış" note={fullDateLabel(today.toISOString(), "tr")} actions={<Link href="/yazilar/yeni" className={buttonVariants()}><Plus size={17} />Yeni yazı</Link>} />
+    <PageHeader title="Genel bakış" actions={<Link href="/yazilar/yeni" className={buttonVariants()}><Plus size={17} />Yeni yazı</Link>} />
     <DashboardOverview
       stats={stats}
       today={today}

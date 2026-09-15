@@ -1,20 +1,29 @@
 "use client";
 
-import { segmentClass, segmentGroupClass } from "@/components/ui/admin-segment";
+import { ChevronDown } from "lucide-react";
+import { ActionMenu } from "@/components/ui/action-menu";
 import type { PostStatus } from "@/types/database";
-export type PostStatusFilter = Extract<PostStatus, "published" | "scheduled"> | "all";
+export type PostStatusFilter = Extract<PostStatus, "published" | "scheduled" | "draft"> | "all";
 
-export function PostsStatusTabs({ active, total, scheduledTotal, onChange }: {
-  active: PostStatusFilter; total: number; scheduledTotal: number; onChange: (value: PostStatusFilter) => void;
+export function PostsStatusTabs({ active, total, scheduledTotal, draftTotal, onChange }: {
+  active: PostStatusFilter; total: number; scheduledTotal: number; draftTotal: number; onChange: (value: PostStatusFilter) => void;
 }) {
   const filters = [
     { label: "Tümü", value: "all" as const, count: total },
-    { label: "Yayında", value: "published" as const, count: Math.max(total - scheduledTotal, 0) },
+    { label: "Yayında", value: "published" as const, count: Math.max(total - scheduledTotal - draftTotal, 0) },
+    { label: "Taslaklar", value: "draft" as const, count: draftTotal },
     { label: "Planlı", value: "scheduled" as const, count: scheduledTotal },
   ];
-  return <div role="group" aria-label="Yazı durumu" className={segmentGroupClass}>
-    {filters.map(filter => <button key={filter.value} type="button" aria-pressed={active === filter.value} onClick={() => { if (active !== filter.value) onChange(filter.value); }} className={segmentClass(active === filter.value)}>
-      {filter.label}<span className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums ${active === filter.value ? "bg-surface-3 text-ink-2" : "text-faint"}`}>{filter.count.toLocaleString("tr-TR")}</span>
-    </button>)}
-  </div>;
+  const selected = filters.find((filter) => filter.value === active) ?? filters[0];
+
+  return <ActionMenu
+    label={`Yazı durumu: ${selected.label} (${selected.count.toLocaleString("tr-TR")})`}
+    trigger={<><span>{selected.label} ({selected.count.toLocaleString("tr-TR")})</span><ChevronDown size={16} aria-hidden="true" /></>}
+    triggerClassName="flex h-11 w-auto min-w-[190px] shrink-0 items-center justify-between gap-2 rounded-full border border-line bg-surface px-4 text-[13px] font-semibold whitespace-nowrap tabular-nums text-ink-2 transition-colors hover:border-line-strong hover:bg-surface-2 hover:text-ink"
+    items={filters.map((filter) => ({
+      label: `${filter.label} (${filter.count.toLocaleString("tr-TR")})`,
+      checked: active === filter.value,
+      onSelect: () => { if (active !== filter.value) onChange(filter.value); },
+    }))}
+  />;
 }

@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     // Use a single filter value, never interpolate input into PostgREST's filter grammar.
     const pattern = `%${query.replace(/[\\%_*]/gu, char => `\\${char === "*" ? "%" : char}`)}%`;
     const { data, error } = await client.from("posts").select("id,content_tr,content_en,created_at")
-      .lte("created_at", now).ilike(column, pattern).order("created_at", { ascending: false }).limit(20);
+      .eq("is_draft", false).lte("created_at", now).ilike(column, pattern).order("created_at", { ascending: false }).limit(20);
     if (error) throw error;
     return Response.json({ items: (data ?? []).map(row => {
       const content = parsePostContent(row[column] ?? "");

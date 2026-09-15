@@ -12,7 +12,6 @@ export default async function AdsPage() {
     <AppShell active="/reklamlar">
       <PageHeader
         title="Reklamlar"
-        note={`${ads.length} reklam · ${ads.filter(ad => ad.active).length} yayında`}
         actions={<Link href="/reklamlar/yeni" className={buttonVariants()}><Plus className="size-4" aria-hidden="true" />Yeni reklam</Link>}
       />
       <AdsList ads={ads} />

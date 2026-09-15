@@ -90,13 +90,13 @@ export function DaySummaryList({ days, language, speech, recorded, published, ge
   return (
     <>
       <section className="card overflow-hidden !p-0" aria-label="Günler">
-        <ul>
+        <ul className="divide-y divide-line">
           {days.map((day) => (
             <li key={day}>
               <button
                 type="button"
                 onClick={() => { setFailed({ tr: false, en: false }); setLoaded({ tr: null, en: null }); setOpenDay(day); }}
-                className="flex min-h-14 w-full items-center gap-4 border-b border-line px-4 py-3 text-left text-[15px] font-medium text-ink transition-colors last:border-b-0 hover:bg-surface-2/60 sm:px-5"
+                className="flex min-h-14 w-full items-center gap-4 px-4 py-3 text-left text-[15px] font-medium text-ink transition-colors hover:bg-surface-2/60 sm:px-5"
               >
                 <span className="min-w-0 flex-1 truncate">{dayLabel(day)}</span>
                 {/* One mark, two meanings: a take exists here, or that take is on the site. */}
@@ -204,8 +204,13 @@ function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string;
   }
 
   async function copyBoth(texts: Bilingual<string>) {
-    try { await navigator.clipboard.writeText(`TÜRKÇE\n${texts.tr}\n\nENGLISH\n${texts.en}`); showToast("İki metin kopyalandı.", "success"); }
+    try { await navigator.clipboard.writeText([texts.tr, texts.en].filter(text => text.trim()).join("\n\n")); showToast("İki metin kopyalandı.", "success"); }
     catch { showToast("Metinler kopyalanamadı.", "error"); }
+  }
+
+  async function copyEpisodeText(text: string, label: string) {
+    try { await navigator.clipboard.writeText(text); showToast(`${label} kopyalandı.`, "success"); }
+    catch { showToast("Kopyalanamadı. Metni seçerek kopyalayabilirsiniz.", "error"); }
   }
 
   return (
@@ -222,6 +227,9 @@ function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string;
             <div className="flex items-center justify-between gap-2 border-b border-line bg-surface-2/40 px-3 py-2.5 text-xs">
               <label htmlFor={`speech-script-${language}`} className="flex items-center gap-2 font-semibold"><span className="rounded-md border border-line bg-surface px-1.5 py-1 text-[10px] uppercase tracking-wide">{language}</span>{languageName(language)}<span className="font-normal text-muted">{loaded[language].posts.length} haber</span></label>
               <span className={`tabular-nums ${scripts[language].length > MAX_SPEECH_CHARS ? "text-danger" : "text-muted"}`}>{scripts[language].length.toLocaleString("tr-TR")} / 6.000</span>
+            </div>
+            <div className="border-b border-line px-3 py-2.5">
+                <Button type="button" size="sm" variant="ghost" disabled={!scripts[language].trim()} aria-label={`${languageName(language)} içeriğini kopyala`} onClick={() => void copyEpisodeText(scripts[language], `${languageName(language)} içeriği`)}><Copy size={14} aria-hidden="true" />İçeriği kopyala</Button>
             </div>
             <textarea id={`speech-script-${language}`} lang={language} value={scripts[language]} disabled={busy} maxLength={20_000} rows={7} placeholder={`${languageName(language)} konuşma metni…`}
               onChange={event => setDrafts(current => ({ ...current, [language]: event.target.value }))}

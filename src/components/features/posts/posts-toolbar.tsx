@@ -28,6 +28,7 @@ export function PostsToolbar({
   onStatusChange,
   total,
   scheduledTotal,
+  draftTotal,
   resultTotal,
 }: {
   query: string;
@@ -41,6 +42,7 @@ export function PostsToolbar({
   onStatusChange: (value: PostStatusFilter) => void;
   total: number;
   scheduledTotal: number;
+  draftTotal: number;
   resultTotal: number;
 }) {
   return (
@@ -73,7 +75,7 @@ export function PostsToolbar({
         />
       </div>
       <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:order-1 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
-        <PostsStatusTabs active={status} total={total} scheduledTotal={scheduledTotal} onChange={onStatusChange} />
+        <PostsStatusTabs active={status} total={total} scheduledTotal={scheduledTotal} draftTotal={draftTotal} onChange={onStatusChange} />
         <div className={segmentGroupClass} role="group" aria-label="Yazı dili">
           {(["tr", "en"] as const).map((value) => (
             <button

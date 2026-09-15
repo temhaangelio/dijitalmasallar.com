@@ -6,7 +6,7 @@ export function ListenPromo({ language }: { language: VisitorLanguage }) {
   const english = language === "en";
   return (
     <div className="visitor-ad-slot xl:col-span-full">
-      <ListenLink href={languageHref("/dinle", language)} className="visitor-card visitor-newsletter-promo visitor-sans group">
+      <ListenLink href={languageHref("/podcast", language)} className="visitor-card visitor-newsletter-promo visitor-sans group">
         <span className="visitor-newsletter-promo-mark" aria-hidden="true"><Headphones size={19} strokeWidth={1.7} /></span>
         <span className="visitor-newsletter-promo-body">
           <span className="visitor-newsletter-promo-label">{english ? "Suggested" : "Öneri"}</span>

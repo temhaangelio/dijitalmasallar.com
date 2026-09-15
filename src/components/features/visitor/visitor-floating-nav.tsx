@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ListenLink } from "./listen-modal";
+import { NewsletterLink } from "./newsletter-modal";
 import { useEffect, useState } from "react";
 import { ArrowUp, Headphones, Mail } from "lucide-react";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
@@ -59,8 +60,8 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
           <span>{isEnglish ? "Top" : "Başa dön"}</span>
         </button>
         {visitorNavItems.filter((item) => item.href !== "/").map((item) => {
-          const NavLink = item.href === "/dinle" ? ListenLink : Link;
-          const Icon = item.href === "/dinle" ? Headphones : Mail;
+          const NavLink = item.href === "/podcast" ? ListenLink : item.href === "/ebulten" ? NewsletterLink : Link;
+          const Icon = item.href === "/podcast" ? Headphones : Mail;
           return <NavLink key={item.href} href={languageHref(item.href, language)} tabIndex={shown ? undefined : -1} className="visitor-float-link">
             <Icon size={15} strokeWidth={2.5} aria-hidden="true" className="shrink-0" />
             {item[language]}

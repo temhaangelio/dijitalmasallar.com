@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NewsletterLink } from "./newsletter-modal";
 import { ArrowRight, Mail } from "lucide-react";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
@@ -18,7 +18,7 @@ export function NewsletterPromo({ language }: { language: VisitorLanguage }) {
   const isEnglish = language === "en";
   return (
     <div className="visitor-ad-slot xl:col-span-full">
-      <Link href={languageHref("/ebulten", language)} className="visitor-card visitor-newsletter-promo visitor-sans group">
+      <NewsletterLink href={languageHref("/ebulten", language)} className="visitor-card visitor-newsletter-promo visitor-sans group">
         <span className="visitor-newsletter-promo-mark" aria-hidden="true"><Mail size={19} strokeWidth={1.7} /></span>
         <span className="visitor-newsletter-promo-body">
           <span className="visitor-newsletter-promo-label">{isEnglish ? "Suggested" : "Öneri"}</span>
@@ -30,7 +30,7 @@ export function NewsletterPromo({ language }: { language: VisitorLanguage }) {
             <ArrowRight size={14} strokeWidth={2} aria-hidden="true" />
           </span>
         </span>
-      </Link>
+      </NewsletterLink>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, type ComponentProps } from "react";
 import { Headphones, LoaderCircle } from "lucide-react";
-import { loadListeningQueue } from "@/app/dinle/actions";
+import { loadListeningQueue } from "@/app/podcast/actions";
 import { AudioPlaylist, type PlaylistItem } from "./audio-playlist";
 import { VisitorBottomSheet } from "./visitor-bottom-sheet";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export function ListenModal() {
   }, [selection, attempt]);
   if (!selection) return null;
   const english = selection.language === "en";
-  return <VisitorBottomSheet open title={english ? "Listen" : "Dinle"} closeLabel={english ? "Close player" : "Oynatıcıyı kapat"} onOpenChange={close} panelClassName="listen-modal !max-w-[1000px] visitor-sans" titleClassName="text-xl font-semibold tracking-tight">
+  return <VisitorBottomSheet open title="Podcast" closeLabel={english ? "Close player" : "Oynatıcıyı kapat"} onOpenChange={close} panelClassName="listen-modal !max-w-[1000px] visitor-sans" titleClassName="text-xl font-semibold tracking-tight">
     {!result ? <p role="status" className="flex min-h-48 items-center justify-center gap-2 text-sm text-muted"><LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" />{english ? "Loading recordings…" : "Kayıtlar yükleniyor…"}</p>
       : result.error ? <div className="py-8 text-center"><p role="alert" className="mb-4 text-sm text-danger">{english ? "Recordings could not be loaded." : "Kayıtlar yüklenemedi."}</p><Button variant="secondary" onClick={() => { setResult(null); setAttempt(value => value + 1); }}>{english ? "Try again" : "Yeniden dene"}</Button></div>
         : result.items.length ? <AudioPlaylist key={`${selection.language}-${selection.day ?? ""}`} items={result.items} language={selection.language} initialDay={selection.day} autoPlay={selection.autoPlay} />

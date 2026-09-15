@@ -427,12 +427,15 @@ export function NewsletterSignupLoading() {
         <div className="visitor-card">
           <div className="p-5 sm:p-7">
             <Skeleton className="size-11 rounded-[14px]" />
+            <Skeleton className="mt-6 h-9 w-3/4" />
+            <Skeleton className="mt-2 h-9 w-full" />
             <Skeleton className="mt-4 h-4 w-full" />
             <Skeleton className="mt-2 h-4 w-3/4" />
             <Skeleton className="mt-6 h-3 w-28" />
             <div className="mt-2 flex flex-wrap gap-2"><Skeleton className="h-12 flex-1 rounded-[12px]" /><Skeleton className="h-12 w-32 rounded-[12px]" /></div>
             <Skeleton className="mt-5 h-3 w-full" />
           </div>
+          <div className="border-t border-line p-5 sm:px-7"><Skeleton className="h-4 w-52" /></div>
         </div>
       </main>
     </VisitorShellSkeleton>

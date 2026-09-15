@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Headphones, ListMusic, LoaderCircle, Pause, Play, RotateCcw, RotateCw, SkipBack, SkipForward } from "lucide-react";
+import { ChevronDown, ListMusic, LoaderCircle, Pause, Play, RotateCcw, RotateCw, SkipBack, SkipForward } from "lucide-react";
 import { fullDateLabel } from "@/lib/visitor-date";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 import { Button } from "@/components/ui/button";
+import { ActionMenu } from "@/components/ui/action-menu";
+import { BrandDigit } from "@/components/ui/brand-mark";
 
 export type PlaylistItem = { day: string; audioUrl: string; durationSeconds: number; excerpt: string };
 const clock = (seconds: number) => `${Math.floor(Math.max(0, seconds) / 60)}:${String(Math.floor(Math.max(0, seconds) % 60)).padStart(2, "0")}`;
@@ -71,16 +73,43 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
     <div id="oynatici" className="visitor-card listen-studio scroll-mt-4" data-playing={playing && !waiting || undefined}>
       <section className="listen-console" aria-label={english ? "Audio player" : "Ses oynatıcı"} data-playing={playing && !waiting || undefined}>
         <div className="listen-now">
-          <div className="listen-cover" aria-hidden="true"><Headphones size={38} strokeWidth={1.4} /></div>
-          <div className="listen-current" aria-live="polite">
-            <p className="listen-eyebrow">{english ? "Daily briefing" : "Günün bülteni"}</p>
-            <h2>{date(active.day)}</h2>
-            <p className="listen-position">{index + 1} / {items.length} · {english ? "Newest to oldest" : "En yeniden eskiye"}</p>
+          <div className="listen-cover">
+            <div className="listen-cover-binary" aria-hidden="true">
+              {[
+                { digit: "0", x: 8, y: 23, size: 5, opacity: .12 },
+                { digit: "1", x: 24, y: 18, size: 3, opacity: .08 },
+                { digit: "1", x: 18, y: 34, size: 8, opacity: .09 },
+                { digit: "0", x: 36, y: 27, size: 4, opacity: .13 },
+                { digit: "0", x: 5, y: 43, size: 3, opacity: .07 },
+                { digit: "1", x: 47, y: 13, size: 2.5, opacity: .08 },
+              ].map((bit, i) => <span key={i} style={{
+                left: `${bit.x}%`, top: `${bit.y}%`, width: `${bit.size}%`, opacity: bit.opacity,
+              }}><BrandDigit value={bit.digit} /></span>)}
+            </div>
+            <div className="listen-cover-top"><span>Dijital Masallar</span><span>{english ? "EN" : "TR"} / AUDIO</span></div>
+            <div className="listen-cover-record"><span /></div>
+            <div className="listen-tonearm-base" />
+            <div className="listen-tonearm">
+              <span className="listen-tonearm-weight" />
+              <span className="listen-tonearm-shaft" />
+              <span className="listen-tonearm-cartridge" />
+            </div>
+            <div className="listen-cover-bottom"><strong>{english ? "Daily\nbriefing." : "Günün\nBülteni"}</strong><span>{date(active.day)}</span></div>
+            <div className="listen-speed">
+              <ActionMenu
+                label={`${english ? "Playback speed" : "Oynatma hızı"}: ${speed}×`}
+                trigger={<><span>{speed}×</span><ChevronDown size={10} aria-hidden="true" /></>}
+                triggerClassName="listen-speed-trigger"
+                placement="inline-above"
+                items={[.75, 1, 1.25, 1.5, 2].map(value => ({
+                  label: value === 1 ? "1× · Normal" : `${value}×`,
+                  checked: speed === value,
+                  onSelect: () => { setSpeed(value); if (audioRef.current) audioRef.current.playbackRate = value; },
+                }))}
+              />
+            </div>
           </div>
-        </div>
-        <div className="listen-playback-status">
-          <span>{waiting ? (english ? "Loading…" : "Yükleniyor…") : playing ? (english ? "Now playing" : "Şimdi çalıyor") : (english ? "Ready to listen" : "Dinlemeye hazır")}</span>
-          <div className="visitor-audio-wave" aria-hidden="true">{[12, 22, 30, 18, 25, 34, 20, 28, 16, 24, 30, 18].map((height, i) => <span key={i} style={{ height, animationDelay: `${-i * .13}s`, animationDuration: `${.7 + i % 4 * .17}s` }} />)}</div>
+          <span className="sr-only" aria-live="polite">{date(active.day)}</span>
         </div>
         <div className="visitor-daily-audio-track listen-timeline">
           <span className="visitor-daily-audio-time tabular-nums">{clock(current)}</span>
@@ -94,7 +123,6 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
           <Button variant="ghost" className="listen-skip" aria-label={english ? "Forward 10 seconds" : "10 saniye ileri"} onClick={() => skip(10)}><RotateCw size={24} aria-hidden="true" /><span>10</span></Button>
           <Button variant="ghost" className="w-11 px-0" disabled={index === items.length - 1} aria-label={english ? "Next recording" : "Sonraki kayıt"} onClick={() => void play(index + 1)}><SkipForward size={20} /></Button>
         </div>
-        <label className="listen-speed">{english ? "Speed" : "Hız"}<select value={speed} className="min-h-11 rounded-lg bg-surface px-2 text-ink" onChange={event => { const value = Number(event.target.value); setSpeed(value); if (audioRef.current) audioRef.current.playbackRate = value; }}>{[.75, 1, 1.25, 1.5, 2].map(value => <option key={value} value={value}>{value}×</option>)}</select></label>
         {autoplayBlocked ? <p role="status" className="mt-3 text-center text-xs text-muted">{english ? "Press play to start listening." : "Dinlemeye başlamak için oynat düğmesine dokunun."}</p> : null}
         {error ? <p role="alert" className="mt-3 text-center text-sm text-danger">{english ? "Playback failed. Try again or select the next recording." : "Ses oynatılamadı. Yeniden deneyin veya sonraki kaydı seçin."}</p> : null}
         <audio ref={audioRef} src={items[initialIndex].audioUrl} preload={autoPlay ? "auto" : "none"} onTimeUpdate={event => setCurrent(event.currentTarget.currentTime)} onLoadedMetadata={event => { if (Number.isFinite(event.currentTarget.duration)) setDuration(event.currentTarget.duration); }} onPlay={() => { setPlaying(true); setAutoplayBlocked(false); }} onPlaying={() => setWaiting(false)} onWaiting={() => setWaiting(true)} onPause={() => setPlaying(false)} onError={() => { setError(true); setWaiting(false); setPlaying(false); }} onEnded={() => { setPlaying(false); setWaiting(false); if (index + 1 < items.length) void play(index + 1); else setCurrent(duration); }} />

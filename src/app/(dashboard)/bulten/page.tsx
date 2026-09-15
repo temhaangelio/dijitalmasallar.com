@@ -14,7 +14,6 @@ export default async function NewsletterAdminPage() {
     <AppShell active="/bulten">
       <PageHeader
         title="E-bülten"
-        note="Kayıtlı adresler. Gönderim henüz yok; bu sayfa listeyi tutar ve dışa aktarır."
       />
       <Card className="mb-5 !p-0">
         <div className="grid grid-cols-3 divide-x divide-line">

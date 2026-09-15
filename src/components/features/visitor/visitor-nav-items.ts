@@ -2,6 +2,6 @@
  *  Favorites is not here: it is a control in the masthead, beside the bell. */
 export const visitorNavItems = [
   { href: "/", tr: "Akış", en: "Feed" },
-  { href: "/dinle", tr: "Dinle", en: "Listen" },
+  { href: "/podcast", tr: "Podcast", en: "Podcast" },
   { href: "/ebulten", tr: "E-bülten", en: "Newsletter" },
 ] as const;

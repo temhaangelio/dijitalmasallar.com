@@ -14,7 +14,7 @@ import type { VisitorLanguage } from "@/lib/visitor-language";
  * having happened. A failure is not worth a dialog: it belongs next to the field that caused it,
  * where the address is still on screen to be corrected.
  */
-export function NewsletterForm({ language }: { language: VisitorLanguage }) {
+export function NewsletterForm({ language, inlineConfirmation = false }: { language: VisitorLanguage; inlineConfirmation?: boolean }) {
   const fieldId = useId();
   const messageId = useId();
   const [email, setEmail] = useState("");
@@ -33,7 +33,7 @@ export function NewsletterForm({ language }: { language: VisitorLanguage }) {
         const result = await subscribeToNewsletterAction(email, language);
         if (!result.success) { setError(result.message); return; }
         setConfirmed(result.message);
-        setSheetOpen(true);
+        setSheetOpen(!inlineConfirmation);
         setEmail("");
       } catch {
         setError(isEnglish ? "Sign-up could not be completed. Please try again." : "Kayıt tamamlanamadı. Lütfen tekrar deneyin.");
@@ -44,7 +44,7 @@ export function NewsletterForm({ language }: { language: VisitorLanguage }) {
   return (
     <>
       {confirmed ? (
-        <p className="visitor-newsletter-reply visitor-sans" data-ok="true">
+        <p role="status" className="visitor-newsletter-reply visitor-sans" data-ok="true">
           <MailCheck size={18} strokeWidth={1.7} aria-hidden="true" />
           <span>{confirmed}</span>
         </p>

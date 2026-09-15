@@ -20,7 +20,7 @@ export type ActionMenuItem = {
   separated?: boolean;
 };
 
-export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassName, disabled = false, placement = "anchor" }: { label?: string; items: ActionMenuItem[]; trigger?: ReactNode; triggerClassName?: string; disabled?: boolean; placement?: "anchor" | "center" }) {
+export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassName, disabled = false, placement = "anchor" }: { label?: string; items: ActionMenuItem[]; trigger?: ReactNode; triggerClassName?: string; disabled?: boolean; placement?: "anchor" | "above" | "inline-above" | "center" }) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, right: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -29,7 +29,7 @@ export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassN
   function toggle() {
     if (!open && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setPosition({ top: rect.bottom + 6, right: Math.max(8, window.innerWidth - rect.right) });
+      setPosition({ top: placement === "above" ? rect.top - 6 : rect.bottom + 6, right: Math.max(8, window.innerWidth - rect.right) });
     }
     setOpen((value) => !value);
   }
@@ -41,14 +41,14 @@ export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassN
       if (!menuRef.current?.contains(target) && !triggerRef.current?.contains(target)) setOpen(false);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setOpen(false); triggerRef.current?.focus(); }
+      if (event.key === "Escape") { setOpen(false); triggerRef.current?.focus({ preventScroll: true }); }
     };
     const close = () => setOpen(false);
     document.addEventListener("mousedown", closeOnOutside);
     document.addEventListener("keydown", closeOnEscape);
     window.addEventListener("resize", close);
     window.addEventListener("scroll", close, true);
-    menuRef.current?.querySelector<HTMLElement>("a,button")?.focus();
+    menuRef.current?.querySelector<HTMLElement>("a,button")?.focus({ preventScroll: true });
     return () => {
       document.removeEventListener("mousedown", closeOnOutside);
       document.removeEventListener("keydown", closeOnEscape);
@@ -68,14 +68,14 @@ export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassN
       <button ref={triggerRef} type="button" disabled={disabled} aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={toggle} className={cn("grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink", triggerClassName)}>
         {trigger ?? <MoreHorizontal size={18} />}
       </button>
-      {open && createPortal(
+      {open && <MenuLayer inline={placement === "inline-above"}>
         <>
         {placement === "center" ? <div className="fixed inset-0 z-[99] bg-black/20 backdrop-blur-[1px]" aria-hidden="true" /> : null}
         <div
           ref={menuRef}
           role="menu"
           aria-label={label}
-          style={placement === "center" ? { left: "50%", top: "50%", transform: "translate(-50%, -50%)" } : position}
+          style={placement === "inline-above" ? { position: "absolute", right: 0, bottom: "calc(100% + 8px)" } : placement === "center" ? { left: "50%", top: "50%", transform: "translate(-50%, -50%)" } : placement === "above" ? { right: position.right, bottom: `calc(100% - ${position.top}px)`, maxHeight: Math.max(44, position.top - 8), overflowY: "auto" } : position}
           className={cn("fixed z-[100] min-w-[190px] max-w-[calc(100vw-16px)] rounded-field border border-line bg-surface p-1.5 shadow-pop", placement === "center" && "w-[min(90vw,320px)] p-3")}
         >
           {items.map((item) => item.href ? (
@@ -88,9 +88,12 @@ export function ActionMenu({ label = "İşlemler", items, trigger, triggerClassN
             </button>
           ))}
         </div>
-        </>,
-        document.body,
-      )}
+        </>
+      </MenuLayer>}
     </>
   );
+}
+
+function MenuLayer({ inline, children }: { inline: boolean; children: ReactNode }) {
+  return inline ? children : createPortal(children, document.body);
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Mail } from "lucide-react";
-import { NewsletterForm } from "@/components/features/visitor/newsletter-form";
+import { NewsletterContent } from "@/components/features/visitor/newsletter-content";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
@@ -26,7 +25,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
-/** One card: what arrives, the field, and one line about the address. */
+/** A short introduction followed by the sign-up and an optional way to explore. */
 export default async function NewsletterPage({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {
   const language = resolveVisitorLanguage((await searchParams).lang);
   const settings = await getSiteSettings();
@@ -39,18 +38,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams: P
           <h1 className="visitor-sans text-[28px] leading-tight text-ink sm:text-[32px]">{isEnglish ? "Newsletter" : "E-bülten"}</h1>
         </header>
 
-        <div className="visitor-card visitor-newsletter-card">
-          <section className="visitor-newsletter-main">
-            <span className="visitor-newsletter-mark" aria-hidden="true"><Mail size={20} strokeWidth={1.7} /></span>
-            <p className="visitor-newsletter-lead visitor-sans">{isEnglish
-              ? "The daily technology briefing, in your inbox."
-              : "Günlük teknoloji özeti e-postanızda."}</p>
-            <NewsletterForm language={language} />
-            <p className="visitor-newsletter-terms visitor-sans">{isEnglish
-              ? "Only for the newsletter. Leave any time."
-              : "Yalnızca bülten için. İstediğiniz an çıkabilirsiniz."}</p>
-          </section>
-        </div>
+        <NewsletterContent language={language} />
       </main>
     </VisitorShell>
   );

@@ -19,12 +19,13 @@ import styles from "./posts-table.module.css";
 
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
 
-type PostsTableProps = { initialPosts: Post[]; total: number; scheduledTotal: number; language: "tr" | "en"; pageSize?: number };
+type PostsTableProps = { initialPosts: Post[]; total: number; scheduledTotal: number; draftTotal: number; language: "tr" | "en"; pageSize?: number };
 
-export function PostsTable({ initialPosts, total, scheduledTotal, language, pageSize = 20 }: PostsTableProps) {
+export function PostsTable({ initialPosts, total, scheduledTotal, draftTotal, language, pageSize = 20 }: PostsTableProps) {
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [posts, setPosts] = useState(initialPosts);
   const [overallTotal, setOverallTotal] = useState(total);
+  const [draftCount, setDraftCount] = useState(draftTotal);
   const [scheduledCount, setScheduledCount] = useState(scheduledTotal);
   const [resultTotal, setResultTotal] = useState(total);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
@@ -90,6 +91,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
       if (!result.success) return false;
       setPosts(current => current.filter(post => post.id !== postToDelete.id));
       setOverallTotal(current => Math.max(0, current - 1));
+      if (postToDelete.status === "draft") setDraftCount(current => Math.max(0, current - 1));
       if (postToDelete.status === "scheduled") setScheduledCount(current => Math.max(0, current - 1));
       // Deleting shifts database offsets: reload page one instead of silently skipping the next row.
       reload();
@@ -115,6 +117,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
           onStatusChange={value => { if (value !== status) { beginChange(); setStatus(value); } }}
           total={overallTotal}
           scheduledTotal={scheduledCount}
+          draftTotal={draftCount}
           resultTotal={resultTotal}
         />
       </div>
@@ -135,6 +138,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
                   <time dateTime={post.created_at} className="tabular-nums">{dateFormatter.format(new Date(post.published_at ?? post.scheduled_at ?? post.created_at))}</time>
                   {/* Published is what almost every row is; saying so on all of them said nothing.
                       Only the exception — a post still waiting for its date — gets a label. */}
+                  {post.status === "draft" && <span className="rounded-md bg-surface-3 px-2 py-0.5 font-semibold text-muted">Taslak</span>}
                   {post.status === "scheduled" && <span className="rounded-md bg-warning-surface px-2 py-0.5 font-semibold text-warning">Planlı</span>}
                   {/* A source is worth naming; the absence of one is not worth a line of its own. */}
                   {post.source_url && <><span aria-hidden="true">·</span><span className="min-w-0 truncate">{sourceLabel(null, post.source_url, "")}</span></>}
@@ -157,6 +161,6 @@ export function PostsTable({ initialPosts, total, scheduledTotal, language, page
         </div>
       </div>
     </section>
-    <ConfirmDialog open={Boolean(postToDelete)} title="Yazı silinsin mi?" description={postToDelete ? `“${postToDelete.title || "Bu yazı"}” ve kapak görseli kalıcı olarak silinecek.` : "Bu işlem geri alınamaz."} confirmLabel="Yazıyı sil" variant="destructive" onOpenChange={open => !open && setPostToDelete(null)} onConfirm={removeSelectedPost} />
+    <ConfirmDialog open={Boolean(postToDelete)} title="Yazı silinsin mi?" description={postToDelete ? `“${postToDelete.title || "Bu yazı"}” kalıcı olarak silinecek.` : "Bu işlem geri alınamaz."} confirmLabel="Yazıyı sil" variant="destructive" onOpenChange={open => !open && setPostToDelete(null)} onConfirm={removeSelectedPost} />
   </>;
 }

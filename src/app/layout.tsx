@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, Source_Serif_4 } from "next/font/google";
+import { Source_Serif_4 } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AccentScript } from "@/components/features/visitor/accent-script";
 import { AppToaster } from "@/components/ui/toast";
@@ -12,9 +13,10 @@ import { siteUrl } from "@/lib/seo";
 
 /* Shared typography: Atkinson for visitor and admin interfaces, its mono cut for
  * the wordmark. Source Serif remains an optional visitor reading preference.
- * latin-ext includes Turkish characters. */
-const visitorSans = Atkinson_Hyperlegible_Next({ subsets: ["latin", "latin-ext"], variable: "--font-visitor-sans", display: "swap" });
-const visitorMono = Atkinson_Hyperlegible_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-visitor-mono", display: "swap" });
+ * The full local variable fonts include Turkish characters. */
+// Local loading avoids Google's missing Atkinson fallback metrics in Turbopack.
+const visitorSans = localFont({ src: "./fonts/atkinson-next.ttf", weight: "200 800", style: "normal", variable: "--font-visitor-sans", display: "swap", adjustFontFallback: false, fallback: ["Arial", "sans-serif"] });
+const visitorMono = localFont({ src: "./fonts/atkinson-mono.ttf", weight: "200 800", style: "normal", variable: "--font-visitor-mono", display: "swap", adjustFontFallback: false, fallback: ["monospace"] });
 const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap", preload: false });
 
 export const metadata: Metadata = {
