@@ -24,7 +24,15 @@ test('failure in Turkish does not prevent the English request', async () => {
 
 test('existing local recordings are skipped, including after reopening and text edits', () => {
   assert.deepEqual(languagesNeedingRecording({ tr: [], en: [] }), ['tr', 'en']);
-  assert.deepEqual(languagesNeedingRecording({ tr: [{ id: 'saved-tr' }], en: [] }), ['en']);
-  assert.deepEqual(languagesNeedingRecording({ tr: [], en: [{ id: 'saved-en' }] }), ['tr']);
-  assert.deepEqual(languagesNeedingRecording({ tr: [{ id: 'saved-tr' }], en: [{ id: 'saved-en' }] }), []);
+  assert.deepEqual(languagesNeedingRecording({ tr: [{ script: 'Turkish script' }], en: [] }), ['en']);
+  assert.deepEqual(languagesNeedingRecording({ tr: [], en: [{ script: 'English script' }] }), ['tr']);
+  assert.deepEqual(languagesNeedingRecording({ tr: [{ script: 'Turkish script' }], en: [{ script: 'English script' }] }), []);
+});
+
+
+test('only edited scripts need regeneration and saved scripts are not generated again', () => {
+  const recordings = { tr: [{ script: 'Turkish script' }], en: [{ script: 'English script' }] };
+  assert.deepEqual(languagesNeedingRecording(recordings, { tr: 'Shorter Turkish', en: null }), ['tr']);
+  assert.deepEqual(languagesNeedingRecording(recordings, { tr: 'Turkish script', en: 'Shorter English' }), ['en']);
+  assert.deepEqual(languagesNeedingRecording(recordings, { tr: 'Turkish script', en: 'English script' }), []);
 });

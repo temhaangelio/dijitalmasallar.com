@@ -47,7 +47,8 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
     if (!audio || !items[next]) return;
     const token = ++request.current;
     setError(false); setAutoplayBlocked(false); setWaiting(true);
-    if (next !== index || restart) {
+    // A failed media element needs a fresh load before play can recover.
+    if (next !== index || restart || audio.error) {
       audio.pause();
       audio.src = items[next].audioUrl;
       audio.load();
@@ -55,7 +56,12 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
     }
     audio.playbackRate = speed;
     try { await audio.play(); }
-    catch { if (token === request.current) { setError(true); setWaiting(false); setPlaying(false); } }
+    catch (reason: unknown) {
+      if (token !== request.current) return;
+      setWaiting(false); setPlaying(false);
+      if (reason instanceof Error && reason.name === "NotAllowedError") setAutoplayBlocked(true);
+      else if (!(reason instanceof Error && reason.name === "AbortError")) setError(true);
+    }
   }
   function pause() {
     request.current++;
@@ -124,7 +130,7 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
           <Button variant="ghost" className="w-11 px-0" disabled={index === items.length - 1} aria-label={english ? "Next recording" : "Sonraki kayıt"} onClick={() => void play(index + 1)}><SkipForward size={20} /></Button>
         </div>
         {autoplayBlocked ? <p role="status" className="mt-3 text-center text-xs text-muted">{english ? "Press play to start listening." : "Dinlemeye başlamak için oynat düğmesine dokunun."}</p> : null}
-        {error ? <p role="alert" className="mt-3 text-center text-sm text-danger">{english ? "Playback failed. Try again or select the next recording." : "Ses oynatılamadı. Yeniden deneyin veya sonraki kaydı seçin."}</p> : null}
+        {error ? <div className="mt-3 text-center"><p role="alert" className="mb-2 text-sm text-danger">{english ? "The recording could not be loaded." : "Kayıt yüklenemedi."}</p><Button variant="secondary" onClick={() => void play(index, true)}>{english ? "Reload recording" : "Kaydı yeniden yükle"}</Button></div> : null}
         <audio ref={audioRef} src={items[initialIndex].audioUrl} preload={autoPlay ? "auto" : "none"} onTimeUpdate={event => setCurrent(event.currentTarget.currentTime)} onLoadedMetadata={event => { if (Number.isFinite(event.currentTarget.duration)) setDuration(event.currentTarget.duration); }} onPlay={() => { setPlaying(true); setAutoplayBlocked(false); }} onPlaying={() => setWaiting(false)} onWaiting={() => setWaiting(true)} onPause={() => setPlaying(false)} onError={() => { setError(true); setWaiting(false); setPlaying(false); }} onEnded={() => { setPlaying(false); setWaiting(false); if (index + 1 < items.length) void play(index + 1); else setCurrent(duration); }} />
       </section>
       <section className="listen-queue" aria-label={english ? "Playback queue" : "Dinleme sırası"}>

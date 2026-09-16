@@ -3,8 +3,8 @@ export type SpeechLanguage = typeof speechLanguages[number];
 export type Bilingual<T> = Record<SpeechLanguage, T>;
 
 /** Existing local recordings are authoritative, including after reopening the modal. */
-export function languagesNeedingRecording(recordings: Bilingual<readonly unknown[]>) {
-  return speechLanguages.filter(language => recordings[language].length === 0);
+export function languagesNeedingRecording(recordings: Bilingual<readonly { script?: string }[]>, drafts?: Bilingual<string | null>) {
+  return speechLanguages.filter(language => !recordings[language].length || (drafts?.[language] != null && drafts[language]!.trim() !== recordings[language][0].script?.trim()));
 }
 
 /** Each language has its own request and outcome; one failure never discards the other result. */

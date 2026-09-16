@@ -30,6 +30,10 @@ Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını payla�
 ### Migration ve RLS
 
 - `supabase/migrations/` — uygulanmaya hazır migration'lar. En yenisi
+  `20260916101500_newsletter_sending.sql`: her aboneye bir `unsubscribe_token` ekler ve gönderilen
+  bültenlerin kaydı için `newsletter_issues` tablosunu oluşturur (RLS açık, politikasız; tüm erişim
+  `src/services/newsletter.ts` içindeki service-role istemcisinden). Uygulanana kadar panel bülten
+  kartında uyarı gösterir ve gönderim kapalı kalır. Bir önceki
   `20260826073940_remove_newsletter_module.sql`: bülten tablolarını, ayarlarını ve reklamlardaki
   bülten bayrağını kaldırır. Web push abonelikleri ayrı tutulur ve bu migration'dan etkilenmez.
   `20260825120000_push_subscriptions.sql` web push abonelikleri için yeni bir tablo ve panelde
@@ -56,7 +60,18 @@ SUPABASE_SERVICE_ROLE_KEY=
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 VAPID_SUBJECT=mailto:merhaba@dijitalmasallar.com
+MAIL_KEY=
+MAIL_FROM=Dijital Masallar <bulten@dijitalmasallar.com>
+NEXT_PUBLIC_GA_ID=
 ```
+
+`NEXT_PUBLIC_GA_ID` Google Analytics 4 ölçüm kimliğidir; boş bırakılırsa koddaki varsayılan mülk
+(`G-QPKHW331QX`) kullanılır. Etiket yalnızca ziyaretçi sayfalarında yükleniyor: panel yollarında
+hiç yüklenmiyor, siteden panele geçilirse Google'ın `ga-disable-<id>` bayrağı kaldırılıyor.
+
+`MAIL_KEY` e-bülten gönderimi için kullanılan mail sağlayıcısının (Resend) anahtarıdır; yalnızca
+sunucuda okunur. `MAIL_FROM` gönderen adresidir ve alan adı sağlayıcıda doğrulanmış olmalıdır.
+Anahtar yoksa panel gönderim düğmesini kapatır, kayıt formu ve abone listesi çalışmaya devam eder.
 
 VAPID anahtarları web push için gerekir; ikisi de tanımlı değilse bildirim arayüzü hiç görünmez.
 Yeni bir çift `npx web-push generate-vapid-keys` ile üretilir. Genel anahtar `NEXT_PUBLIC_` önekiyle

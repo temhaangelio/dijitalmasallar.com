@@ -124,7 +124,14 @@ export function PostsTable({ initialPosts, total, scheduledTotal, draftTotal, la
       <div aria-busy={isSearching} className="relative">
         {isSearching && <p role="status" className="flex min-h-12 items-center gap-2 border-b border-line bg-surface-2 px-4 text-sm font-medium text-muted sm:px-5"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Liste güncelleniyor…</p>}
         {posts.length ? <ul aria-label="Yazılar" className={`${isSearching ? "pointer-events-none opacity-50" : ""}`}>
-          {posts.map(post => <li key={post.id} className={`${styles.row} group flex min-h-[92px] items-center gap-1 border-b border-line px-2 py-3 transition-colors last:border-b-0 hover:bg-surface-2/60 sm:min-h-[104px] sm:gap-3 sm:px-5 sm:py-4`}>
+          {posts.map(post => <li key={post.id} className={`${styles.row} group relative flex min-h-[92px] items-center gap-1 border-b border-line px-2 py-3 transition-colors last:border-b-0 hover:bg-surface-2/60 sm:min-h-[104px] sm:gap-3 sm:px-5 sm:py-4`}>
+            {/* The two rows that are not on the site yet. The badge says which once you are reading
+                the row; the rule down the edge says so while you are still scrolling past it — amber
+                for a post with a date ahead of it, grey for one with no date at all, the same two
+                colours their badges carry. */}
+            {post.status === "scheduled" || post.status === "draft"
+              ? <span aria-hidden="true" className={`absolute inset-y-0 left-0 w-1 ${post.status === "scheduled" ? "bg-warning" : "bg-faint"}`} />
+              : null}
             <Link href={`/yazilar/${post.id}/duzenle`} prefetch={false} aria-label={`${post.title || "Başlıksız not"} yazısını düzenle`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 sm:gap-4">
               <div className="relative grid aspect-[4/3] w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-surface-3 text-faint sm:w-28">
                 {post.cover_path ? isOptimizableImage(post.cover_path)

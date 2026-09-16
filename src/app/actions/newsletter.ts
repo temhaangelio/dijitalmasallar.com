@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { resolveVisitorLanguage } from "@/lib/visitor-language";
 import { emailSchema } from "@/lib/validations/auth";
-import { subscribeToNewsletter } from "@/services/newsletter";
+import { subscribeToNewsletter, unsubscribeByToken } from "@/services/newsletter";
 import { getSiteSettings } from "@/services/settings";
 
 /** An anonymous write, so it carries the same limiter as signing up for notifications. */
@@ -52,5 +52,43 @@ export async function subscribeToNewsletterAction(email: unknown, language: unkn
   if (result === "subscribed" || result === "resubscribed") return { success: true, message: words.subscribed };
   if (result === "already") return { success: true, message: words.already };
   if (result === "unavailable") return { success: false, message: words.unavailable };
+  return { success: false, message: words.error };
+}
+
+const leaveCopy = {
+  tr: {
+    tooMany: "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
+    unsubscribed: "Listeden çıkarıldınız. Artık e-bülten gönderilmeyecek.",
+    already: "Bu adres zaten listede değil.",
+    unknown: "Bu bağlantı geçerli değil. E-postadaki bağlantıyı yeniden deneyin.",
+    error: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
+  },
+  en: {
+    tooMany: "Too many attempts. Please try again later.",
+    unsubscribed: "You have been removed from the list. No further newsletters will be sent.",
+    already: "This address is not on the list.",
+    unknown: "This link is not valid. Please use the link in the e-mail again.",
+    error: "The request could not be completed. Please try again.",
+  },
+} as const;
+
+/**
+ * Leaving the list, from the link at the foot of a message.
+ *
+ * Anonymous, like signing up, and rate limited the same way — the token is the only thing that says
+ * who is leaving. Unlike sign-up, this one does tell the reader when the link matches nothing:
+ * somebody who thinks they have unsubscribed and has not is the one outcome worth avoiding.
+ */
+export async function unsubscribeFromNewsletterAction(token: unknown, language: unknown): Promise<Reply> {
+  const visitorLanguage = resolveVisitorLanguage(typeof language === "string" ? language : null);
+  const words = leaveCopy[visitorLanguage];
+
+  if (await rateLimited()) return { success: false, message: words.tooMany };
+  if (typeof token !== "string" || !token.trim()) return { success: false, message: words.unknown };
+
+  const result = await unsubscribeByToken(token);
+  if (result === "unsubscribed") return { success: true, message: words.unsubscribed };
+  if (result === "already") return { success: true, message: words.already };
+  if (result === "unknown") return { success: false, message: words.unknown };
   return { success: false, message: words.error };
 }

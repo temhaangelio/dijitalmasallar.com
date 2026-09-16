@@ -6,10 +6,14 @@ import { AccentScript } from "@/components/features/visitor/accent-script";
 import { AppToaster } from "@/components/ui/toast";
 import { InstallScript } from "@/components/features/visitor/push";
 import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytics";
+import { GoogleAnalytics } from "@/components/features/visitor/google-analytics";
 import { ThemeScript } from "@/components/features/visitor/theme";
 import { FontScript } from "@/components/features/visitor/font";
 import { FeedViewScript } from "@/components/features/visitor/feed-view-picker";
 import { siteUrl } from "@/lib/seo";
+
+/** The property the public site reports to. Overridable without a code change, as the domain is. */
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-QPKHW331QX";
 
 /* Shared typography: Atkinson for visitor and admin interfaces, its mono cut for
  * the wordmark. Source Serif remains an optional visitor reading preference.
@@ -66,7 +70,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="tr" suppressHydrationWarning>
       <head><ThemeScript /><FontScript /><AccentScript /><FeedViewScript /><InstallScript /></head>
-      <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /></body>
+      <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /><GoogleAnalytics id={googleAnalyticsId} /></body>
     </html>
   );
 }

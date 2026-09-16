@@ -132,22 +132,59 @@ const languageName = (language: SpeechLanguage) => language === "tr" ? "Türkçe
 /** Two editable scripts, one set of controls. Every audio file keeps its own language. */
 function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string; loaded: Bilingual<Loaded>; speech: boolean; geminiReady: boolean }) {
   const router = useRouter();
+  /*
+   * Which of the day's notes the recording is made of. Everything, to begin with — the summary is
+   * the day — but a note that does not belong in a spoken bulletin (a correction, a second piece on
+   * the same story) can be left out without editing it out of two scripts by hand afterwards.
+   *
+   * The ids are shared: both languages are the same rows read in a different column.
+   */
+  const [chosen, setChosen] = useState<Set<string>>(() => new Set(loaded.tr.posts.map((post) => post.id)));
+  const picked: Bilingual<Post[]> = {
+    tr: loaded.tr.posts.filter((post) => chosen.has(post.id)),
+    en: loaded.en.posts.filter((post) => chosen.has(post.id)),
+  };
   const sources: Bilingual<string> = {
-    tr: composeSummary(loaded.tr.posts, `${fullDateLabel(`${day}T12:00:00+03:00`, "tr")} · Günün özeti`),
-    en: composeSummary(loaded.en.posts, `${fullDateLabel(`${day}T12:00:00+03:00`, "en")} · Günün özeti`),
+    tr: composeSummary(picked.tr, `${fullDateLabel(`${day}T12:00:00+03:00`, "tr")} · Günün özeti`),
+    en: composeSummary(picked.en, `${fullDateLabel(`${day}T12:00:00+03:00`, "en")} · Günün özeti`),
   };
   const [drafts, setDrafts] = useState<Bilingual<string | null>>({ tr: null, en: null });
   const scripts: Bilingual<string> = {
-    tr: drafts.tr ?? (loaded.tr.posts.length ? initialSpeechScript(sources.tr, day, "tr") : ""),
-    en: drafts.en ?? (loaded.en.posts.length ? initialSpeechScript(sources.en, day, "en") : ""),
+    tr: drafts.tr ?? (picked.tr.length ? initialSpeechScript(sources.tr, day, "tr") : ""),
+    en: drafts.en ?? (picked.en.length ? initialSpeechScript(sources.en, day, "en") : ""),
   };
+
+  /* The scripts are made from the selection, so changing it writes them again — an edit made before
+     the change was an edit to a different text. The two are never left disagreeing. */
+  function choose(next: Set<string>) {
+    setChosen(next);
+    setDrafts({ tr: null, en: null });
+  }
+  function toggleNote(id: string) {
+    const next = new Set(chosen);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    choose(next);
+  }
   const [working, setWorking] = useState<string | null>(null);
+  /** Which language the current run is on — the per-language buttons show their own progress. */
+  const [running, setRunning] = useState<SpeechLanguage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [takes, setTakes] = useState<Bilingual<Recording[]>>({ tr: loaded.tr.recordings, en: loaded.en.recordings });
   const [live, setLive] = useState({ tr: loaded.tr.published, en: loaded.en.published });
   const busy = working !== null;
-  const toGenerate = languagesNeedingRecording(takes);
-  const canGenerate = speech && geminiReady && !busy && toGenerate.length > 0 && toGenerate.every(language => !loaded[language].message && scripts[language].trim().length >= 40 && scripts[language].length <= MAX_SPEECH_CHARS);
+  /*
+   * A take already made is left alone unless the text on screen is no longer the text it was made
+   * from. That is normally an edit — but leaving a note out changes the script just as much, and
+   * with the selection narrowed the comparison has to be against the composed script rather than
+   * against the edit that was never made. With the whole day selected, nothing changes.
+   */
+  const wholeDay = picked.tr.length === loaded.tr.posts.length && picked.en.length === loaded.en.posts.length;
+  const toGenerate = languagesNeedingRecording(takes, wholeDay ? drafts : scripts);
+  /** One language is recordable when its own script is usable; the pair when both are. */
+  const canRecord = (language: SpeechLanguage) =>
+    speech && geminiReady && !busy && toGenerate.includes(language)
+    && !loaded[language].message && scripts[language].trim().length >= 40 && scripts[language].length <= MAX_SPEECH_CHARS;
+  const canGenerate = toGenerate.length > 0 && toGenerate.every(canRecord);
   const totalTakes = takes.tr.length + takes.en.length;
 
   async function runBoth(label: string, task: (language: SpeechLanguage) => Promise<{ success: boolean; message: string }>, languages: readonly SpeechLanguage[] = speechLanguages) {
@@ -156,16 +193,25 @@ function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string;
     try {
       const results = await runBilingualTasks(languages, async language => {
         setWorking(`${languageName(language)} · ${label}`);
+        setRunning(language);
         return task(language);
       });
       const failures = languages.filter(language => !results[language]?.success).map(language => `${languageName(language)}: ${results[language]?.message}`);
       if (failures.length) setError(failures.join(" "));
       else showToast("İşlem tamamlandı.", "success");
-    } finally { setWorking(null); }
+    } finally { setWorking(null); setRunning(null); }
   }
 
-  async function generateBoth() {
-    if (!canGenerate) return;
+  /**
+   * Records the languages asked for — one of them, or both.
+   *
+   * The two recordings were always made as a pair, which is right when the day is being finished but
+   * wrong the rest of the time: a script reworked in one language should not cost a second call to
+   * the provider for the other, and a failure in one should not have to be retried through the one
+   * that already worked.
+   */
+  async function generate(languages: readonly SpeechLanguage[]) {
+    if (!languages.length || !languages.every(canRecord)) return;
     await runBoth("Ses kaydı oluşturuluyor…", async language => {
       const result = await createDaySpeechAction(day, scripts[language], language);
       if (result.success) {
@@ -173,7 +219,7 @@ function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string;
         router.refresh();
       }
       return result;
-    }, toGenerate);
+    }, languages);
   }
 
   async function publishBoth() {
@@ -215,6 +261,49 @@ function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string;
 
   return (
     <section className="mt-1" aria-label="Türkçe ve İngilizce ses kayıtları">
+      <p className="mb-3 text-sm text-muted">Seslendirilecek notları seçin; metinler seçime göre yazılır. Metinleri aşağıdan düzenleyebilir veya kısaltabilirsiniz. Değiştirdiğiniz dil için yeni kayıt oluşturulur.</p>
+
+      {loaded.tr.posts.length ? (
+        <details className="group/notes mb-3 rounded-2xl border border-line" open>
+          <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-3 text-[13px] [&::-webkit-details-marker]:hidden">
+            <span className="font-semibold text-ink">Seslendirilecek notlar</span>
+            <span className="tabular-nums text-muted">{picked.tr.length} / {loaded.tr.posts.length}</span>
+            <span className="ml-auto flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="px-3 text-xs"
+                disabled={busy}
+                onClick={(event) => {
+                  event.preventDefault();
+                  choose(picked.tr.length === loaded.tr.posts.length ? new Set() : new Set(loaded.tr.posts.map((post) => post.id)));
+                }}
+              >
+                {picked.tr.length === loaded.tr.posts.length ? "Seçimi kaldır" : "Tümünü seç"}
+              </Button>
+              <ChevronDown className="size-4 text-muted group-open/notes:rotate-180" aria-hidden="true" />
+            </span>
+          </summary>
+          <ul className="max-h-56 overflow-y-auto border-t border-line">
+            {loaded.tr.posts.map((post) => (
+              <li key={post.id} className="border-b border-line last:border-b-0">
+                <label className="flex min-h-12 cursor-pointer items-center gap-3 px-3 py-2">
+                  <input
+                    type="checkbox"
+                    checked={chosen.has(post.id)}
+                    disabled={busy}
+                    onChange={() => toggleNote(post.id)}
+                    className="size-4 shrink-0 accent-[var(--color-ink)]"
+                  />
+                  <time dateTime={post.created_at} className="shrink-0 text-[11px] tabular-nums text-muted">{timeLabel(post.created_at, "tr")}</time>
+                  <span className={`min-w-0 flex-1 truncate text-[13px] ${chosen.has(post.id) ? "text-ink" : "text-faint line-through"}`}>{post.title || post.excerpt || "Başlıksız not"}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
       <div className="mb-2 flex items-center justify-end gap-2">
         <div className="flex items-center gap-1">
           <Button type="button" variant="ghost" size="sm" className="w-11 px-0" disabled={busy || (drafts.tr === null && drafts.en === null)} aria-label="İki metni sıfırla" title="İki metni sıfırla" onClick={() => setDrafts({ tr: null, en: null })}><RotateCcw className="size-4" aria-hidden="true" /></Button>
@@ -225,7 +314,7 @@ function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string;
         {speechLanguages.map(language => (
           <div key={language} className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface transition-colors focus-within:border-line-strong">
             <div className="flex items-center justify-between gap-2 border-b border-line bg-surface-2/40 px-3 py-2.5 text-xs">
-              <label htmlFor={`speech-script-${language}`} className="flex items-center gap-2 font-semibold"><span className="rounded-md border border-line bg-surface px-1.5 py-1 text-[10px] uppercase tracking-wide">{language}</span>{languageName(language)}<span className="font-normal text-muted">{loaded[language].posts.length} haber</span></label>
+              <label htmlFor={`speech-script-${language}`} className="flex items-center gap-2 font-semibold"><span className="rounded-md border border-line bg-surface px-1.5 py-1 text-[10px] uppercase tracking-wide">{language}</span>{languageName(language)}<span className="font-normal text-muted">{picked[language].length} haber</span></label>
               <span className={`tabular-nums ${scripts[language].length > MAX_SPEECH_CHARS ? "text-danger" : "text-muted"}`}>{scripts[language].length.toLocaleString("tr-TR")} / 6.000</span>
             </div>
             <div className="border-b border-line px-3 py-2.5">
@@ -236,14 +325,37 @@ function BilingualDaySpeech({ day, loaded, speech, geminiReady }: { day: string;
               className="block min-h-40 w-full resize-y border-0 bg-transparent px-3 py-3 text-[14px] leading-6 text-ink focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink disabled:opacity-60 sm:min-h-48" />
             <p className="flex items-center gap-1.5 border-t border-line bg-surface-2/30 px-3 py-2 text-[11px] tabular-nums text-muted" title="Dakikada 145 kelimelik okuma hızı, intro ve geçiş sesleriyle hesaplanır. Gerçek süre değişebilir."><Clock3 className="size-3.5" aria-hidden="true" />Tahmini süre <span className="ml-auto font-medium text-ink">{estimatedSpeechDuration(scripts[language], true)}</span></p>
             {loaded[language].message ? <p role="alert" className="mt-2 text-xs text-danger">{loaded[language].message}</p> : null}
+            {speech ? (
+              /* Each script carries its own record button: the language you have just reworked is
+                 the one you want to hear, and waiting for the other language's call to finish first
+                 is a minute spent for nothing. */
+              <div className="border-t border-line px-3 py-2.5">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                  disabled={!canRecord(language)}
+                  title={!geminiReady ? "GEMINI_API_KEY tanımlı değil." : !toGenerate.includes(language) ? "Bu dilin kaydı güncel." : undefined}
+                  onClick={() => void generate([language])}
+                >
+                  {running === language
+                    ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                    : <AudioLines className="size-4" aria-hidden="true" />}
+                  {running === language ? "Kayıt alınıyor…" : toGenerate.includes(language) ? `${languageName(language)} kaydı oluştur` : "Kayıt güncel"}
+                </Button>
+              </div>
+            ) : null}
           </div>
         ))}
       </div>
       {speech ? <>
         {!geminiReady ? <p role="status" className="mt-3 text-sm text-danger">Ses üretimini açmak için sunucuda GEMINI_API_KEY tanımlanmalı.</p> : null}
-        <div className="sticky -bottom-5 z-10 -mx-1 mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-line bg-surface/95 px-1 py-3 backdrop-blur-sm sm:-bottom-5">
-          <Button type="button" disabled={!canGenerate} className="min-w-56 shadow-sm max-sm:w-full" onClick={() => void generateBoth()}>{working ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <AudioLines className="size-4" aria-hidden="true" />}{working ? "İşlem sürüyor…" : toGenerate.length === 0 ? "Kayıtlar hazır" : toGenerate.length === 1 ? `${languageName(toGenerate[0])} kaydı oluştur` : "İki dilde kayıt oluştur"}</Button>
-        </div>
+        {toGenerate.length === 2 ? (
+          <div className="sticky -bottom-5 z-10 -mx-1 mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-line bg-surface/95 px-1 py-3 backdrop-blur-sm sm:-bottom-5">
+            <Button type="button" disabled={!canGenerate} className="min-w-56 shadow-sm max-sm:w-full" onClick={() => void generate(toGenerate)}>{working ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <AudioLines className="size-4" aria-hidden="true" />}{working ? "İşlem sürüyor…" : "İki dilde kayıt oluştur"}</Button>
+          </div>
+        ) : null}
       </> : null}
       {working ? <p role="status" className="mt-2 text-xs text-muted">{working}</p> : null}
       {error ? <p role="alert" className="mt-3 rounded-xl bg-danger-surface p-3 text-sm text-danger">{error}</p> : null}

@@ -69,6 +69,18 @@ export function DashboardLoading() {
   return <ShellSkeleton active="/dashboard"><div role="status" aria-label="Genel bakış yükleniyor">
     <PageHeaderSkeleton actionWidth="w-32" />
     <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-5">{[0, 1, 2].map(index => <div key={index} className="card"><Skeleton className="h-3 w-14" /><Skeleton className="mt-3 h-8 w-16" /></div>)}</div>
+    <div className="card mb-5 !p-0">
+      <div className="border-b border-line px-4 py-4 sm:px-6"><Skeleton className="h-7 w-40" /></div>
+      {/* Literal widths: Tailwind reads class names out of the source, so an interpolated one
+          produces no CSS at all. */}
+      <div className="flex gap-6 border-b border-line px-4 py-2.5 sm:px-6"><Skeleton className="h-3 w-8" /><Skeleton className="h-3 w-6" /><Skeleton className="h-3 w-16" /><Skeleton className="h-3 w-12" /></div>
+      {[0, 1, 2].map(index => (
+        <div key={index} className="flex items-center gap-6 border-b border-line px-4 py-3 last:border-b-0 sm:px-6">
+          <div className="w-20"><Skeleton className="h-3.5 w-14" /><Skeleton className="mt-1.5 h-3 w-16" /></div>
+          <Skeleton className="h-3.5 w-4" /><Skeleton className="h-3.5 w-20" /><Skeleton className="h-3.5 w-20" />
+        </div>
+      ))}
+    </div>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(300px,1fr)]">
       <div className="card"><Skeleton className="mb-6 h-7 w-32" />{[0, 1, 2].map(index => <div key={index} className="space-y-3 py-4"><Skeleton className="h-3 w-28" /><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-3/4" /></div>)}</div>
       <div className="space-y-6"><div className="card"><Skeleton className="h-7 w-32" /><Skeleton className="mt-5 h-48 w-full rounded-xl" /></div><div className="card"><Skeleton className="h-7 w-36" /><Skeleton className="mt-4 h-5 w-full" /></div></div>
@@ -125,6 +137,19 @@ export function NewsletterPageLoading() {
     <ShellSkeleton active="/bulten">
       <div role="status" aria-label="Aboneler yükleniyor">
         <PageHeaderSkeleton />
+        <div className="card mb-5 !p-0">
+          <div className="flex flex-col gap-3 border-b border-line px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-2"><Skeleton className="size-11 rounded-full" /><Skeleton className="h-11 w-full min-w-40 rounded-[16px] lg:w-80" /><Skeleton className="size-11 rounded-full" /></div>
+            <div className="flex shrink-0 gap-2"><Skeleton className="h-11 w-28 rounded-full" /><Skeleton className="h-11 w-28 rounded-full" /></div>
+          </div>
+          <div className="border-b border-line px-4 py-3 sm:px-5"><Skeleton className="h-4 w-64 max-w-full" /><Skeleton className="mt-2 h-3 w-40" /></div>
+          <div className="border-b border-line px-4 py-3 sm:px-5"><Skeleton className="h-10 w-52 rounded-full" /></div>
+          <div className="px-4 py-5 sm:px-6">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className={index ? "mt-4" : ""}><Skeleton className="h-3.5 w-full max-w-[60ch]" /><Skeleton className="mt-2 h-3.5 w-full max-w-[52ch]" /></div>
+            ))}
+          </div>
+        </div>
         <div className="card mb-5 !p-0"><div className="grid grid-cols-3 divide-x divide-line">{[0, 1, 2].map((index) => (
           <div key={index} className="px-4 py-4 sm:px-5"><Skeleton className="h-3 w-14" /><Skeleton className="mt-3 h-7 w-12" /></div>
         ))}</div></div>

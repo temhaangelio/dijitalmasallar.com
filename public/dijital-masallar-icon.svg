@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" role="img" aria-labelledby="title">
+  <title id="title">Dijital Masallar</title>
+  <rect width="100" height="100" rx="32.5" fill="#171717"/>
+  <g fill="#ffffff" fill-rule="evenodd">
+    <path transform="translate(28 23)" d="M9 0C3.2 0 0 4.5 0 12s3.2 12 9 12 9-4.5 9-12S14.8 0 9 0ZM9 4.5c3.1 0 4.5 2.5 4.5 7.5s-1.4 7.5-4.5 7.5S4.5 17 4.5 12 5.9 4.5 9 4.5Z"/>
+    <path transform="translate(54 23)" d="M3 5.5 9.5 0H14V24H9.5V5.8L5.4 9Z"/>
+    <path transform="translate(28 54)" d="M3 5.5 9.5 0H14V24H9.5V5.8L5.4 9Z"/>
+    <path transform="translate(54 54)" d="M9 0C3.2 0 0 4.5 0 12s3.2 12 9 12 9-4.5 9-12S14.8 0 9 0ZM9 4.5c3.1 0 4.5 2.5 4.5 7.5s-1.4 7.5-4.5 7.5S4.5 17 4.5 12 5.9 4.5 9 4.5Z"/>
+  </g>
+</svg>
