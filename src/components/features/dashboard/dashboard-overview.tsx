@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, AudioLines, Check, Mail, Minus } from "lucide-react";
+import { ArrowRight, Check, Minus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
 import type { DashboardPostStats } from "@/services/posts";
@@ -23,31 +23,35 @@ function DayLabel({ label }: { label: string }) {
 }
 
 /**
- * Whether one job is done, in both languages — one cell of the table.
+ * Whether one job is done — one cell of the table.
  *
- * Two marks rather than one: the recording and the bulletin are each made twice, and a day that went
- * out in Turkish but not in English is exactly the state worth seeing from here — a single tick
- * would call that day finished. The whole cell is the link to the page where the missing half is
- * made, so the target is a row's worth of pointer rather than a word.
+ * Two marks rather than a sentence. The state used to be written out ("TR + EN", "yalnızca TR",
+ * "eksik", "henüz yok"): four phrasings for four states, read word by word and compared between
+ * rows. A language either has its recording or it does not, so each is drawn as itself — TR and EN,
+ * ticked or not — and a column of these reads as a pattern instead of as prose.
+ *
+ * The whole cell links to the page where the missing half is made.
  */
-function RoutineState({ href, icon, label, state, empty, open }: { href: string; icon: React.ReactNode; label: string; state: { tr: boolean; en: boolean }; empty: boolean; open: boolean }) {
-  const done = state.tr && state.en;
-  const none = !state.tr && !state.en;
+function RoutineState({ href, label, state, empty, open }: { href: string; label: string; state: { tr: boolean; en: boolean }; empty: boolean; open: boolean }) {
   /*
-   * Grey is "nothing to do or not due yet" — an empty day, or today, which is still being lived.
-   * Amber is the one state worth catching from here: a finished day that had notes and did not get
-   * its recording or its letter, or got only one of the two languages.
+   * Grey is "nothing to do or not due yet" — a day with no notes, or today, which is still being
+   * lived. Amber is the one state worth catching from here: a finished day that had notes and did
+   * not get its recording or its letter.
    */
-  const pending = empty || (none && open);
-  const tone = done ? "text-success" : pending ? "text-muted" : "text-warning";
-  const reading = empty ? "not yok" : done ? "TR + EN" : none ? (open ? "henüz yok" : "eksik") : state.tr ? "yalnızca TR" : "yalnızca EN";
+  const missingTone = empty || open ? "bg-surface-3 text-faint" : "bg-warning-surface text-warning";
+  const reading = empty ? "o gün not yok" : (["tr", "en"] as const).map((language) => `${language.toUpperCase()}: ${state[language] ? "var" : "yok"}`).join(", ");
 
   return (
-    <Link href={href} title={`${label}: ${reading}`} className="flex items-center gap-1.5 whitespace-nowrap rounded-lg py-1 text-[12px] hover:underline hover:underline-offset-2">
-      <span className={`shrink-0 ${done ? "text-success" : pending ? "text-faint" : "text-warning"}`}>
-        {done ? <Check size={14} aria-hidden="true" /> : pending ? <Minus size={14} aria-hidden="true" /> : icon}
-      </span>
-      <span className={`font-semibold ${tone}`}>{reading}</span>
+    <Link href={href} title={`${label} — ${reading}`} className="inline-flex items-center gap-1 rounded-full">
+      {(["tr", "en"] as const).map((language) => (
+        <span
+          key={language}
+          className={`inline-flex h-6 items-center gap-1 rounded-full px-2 text-[11px] font-semibold tracking-wide ${state[language] ? "bg-success-surface text-success" : missingTone}`}
+        >
+          {state[language] ? <Check size={11} strokeWidth={3} aria-hidden="true" /> : <Minus size={11} strokeWidth={3} aria-hidden="true" />}
+          {language.toUpperCase()}
+        </span>
+      ))}
     </Link>
   );
 }
@@ -69,34 +73,33 @@ function DailyRoutineCard({ routine }: { routine: DailyRoutine[] }) {
       <div className="border-b border-line px-4 py-4 sm:px-6">
         <h2 className="section-title">Günlük durum</h2>
       </div>
-      {/* The four columns fit a phone at their narrow widths; the scroll container is the guard for
-          anything narrower still, where a table would otherwise push the page sideways. */}
+      {/* Three columns fit a phone; the scroll container is the guard for anything narrower
+          still, where a table would otherwise push the page sideways. */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[280px] border-collapse text-left">
-          {/* The slack belongs to the last column: left to the day, it pushed the three answers
-              apart and the columns stopped reading as columns. */}
-          <colgroup><col className="w-[108px] sm:w-48" /><col className="w-9 sm:w-14" /><col className="w-[86px] sm:w-44" /><col /></colgroup>
           <thead>
             <tr className="border-b border-line text-[11px] text-muted">
               <th scope="col" className="px-4 py-2 font-medium sm:px-6">Gün</th>
-              <th scope="col" className="px-1.5 py-2 text-right font-medium sm:px-3">Not</th>
-              <th scope="col" className="px-1.5 py-2 font-medium sm:px-3">Sesli özet</th>
+              <th scope="col" className="px-2 py-2 font-medium sm:px-3">Sesli özet</th>
               <th scope="col" className="px-4 py-2 font-medium sm:px-6">Bülten</th>
             </tr>
           </thead>
           <tbody>
             {routine.map((entry) => (
               <tr key={entry.day} className="border-b border-line last:border-b-0">
-                <th scope="row" className="px-4 py-2.5 text-[13px] font-normal sm:px-6">
+                {/* The day takes the slack, so the two answers stay side by side however wide the
+                    card gets — they are read across, not hunted for. */}
+                <th scope="row" className="w-full px-4 py-2.5 text-[13px] font-normal sm:px-6">
                   <span className="block font-semibold text-ink">{entry.relative ?? <DayLabel label={entry.label} />}</span>
-                  {entry.relative ? <span className="block text-[11px] text-muted"><DayLabel label={entry.label} /></span> : null}
+                  <span className="block text-[11px] text-muted">
+                    {entry.relative ? <><DayLabel label={entry.label} /> · </> : null}{entry.notes} not
+                  </span>
                 </th>
-                <td className="px-1.5 py-2.5 text-right text-[13px] tabular-nums text-muted sm:px-3">{entry.notes}</td>
-                <td className="px-1.5 py-2.5 sm:px-3">
-                  <RoutineState href="/gunun-ozeti" icon={<AudioLines size={14} aria-hidden="true" />} label="Sesli özet" state={entry.audio} empty={!entry.notes} open={entry.relative === "Bugün"} />
+                <td className="whitespace-nowrap px-2 py-2.5 sm:px-3">
+                  <RoutineState href="/gunun-ozeti" label="Sesli özet" state={entry.audio} empty={!entry.notes} open={entry.relative === "Bugün"} />
                 </td>
-                <td className="px-4 py-2.5 sm:px-6">
-                  <RoutineState href="/bulten" icon={<Mail size={14} aria-hidden="true" />} label="Bülten" state={entry.issue} empty={!entry.notes} open={entry.relative === "Bugün"} />
+                <td className="whitespace-nowrap px-4 py-2.5 sm:px-6">
+                  <RoutineState href="/bulten" label="Bülten" state={entry.issue} empty={!entry.notes} open={entry.relative === "Bugün"} />
                 </td>
               </tr>
             ))}

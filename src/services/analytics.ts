@@ -1,5 +1,6 @@
 import "server-only";
 import { getAuthorizedAdminClient } from "@/lib/supabase/admin";
+import { isAdminRoute } from "@/lib/admin-routes";
 
 export type AnalyticsRange = 1 | 7 | 30 | 365;
 type VisitRow = { timestamp?: string; environment?: string; requestPath?: string; referrerHostname?: string; country?: string; pageviews: number; visitors: number };
@@ -125,7 +126,15 @@ export async function getAnalytics(days: AnalyticsRange, summaryOnly = false): P
       pageviewsChange: previousTotals ? change(pageviews, previousTotals.pageviews) : null,
       visitorsChange: previousTotals ? change(visitors, previousTotals.visitors) : null,
       daily,
-      topPages: pageRows.filter((row) => row.requestPath && row.requestPath !== "Others").map((row) => ({ path: row.requestPath!, pageviews: Number(row.pageviews) || 0, visitors: Number(row.visitors) || 0 })).sort((a, b) => b.visitors - a.visitors || b.pageviews - a.pageviews),
+      /*
+       * Panel paths are dropped from the page list. The measurement script has skipped them since
+       * it learned to, but the figures behind this page go back further than that, and a panel
+       * route in a list of what readers read is noise at best: it is the editor's own work counted
+       * as an audience. The totals above cannot be corrected the same way — they are aggregated by
+       * the provider, not by path — so they still carry whatever the panel contributed before the
+       * script started skipping it.
+       */
+      topPages: pageRows.filter((row) => row.requestPath && row.requestPath !== "Others" && !isAdminRoute(row.requestPath)).map((row) => ({ path: row.requestPath!, pageviews: Number(row.pageviews) || 0, visitors: Number(row.visitors) || 0 })).sort((a, b) => b.visitors - a.visitors || b.pageviews - a.pageviews),
       sources: sourceRows.map((row) => ({ label: sourceLabel(row.referrerHostname ?? ""), pageviews: Number(row.pageviews) || 0, visitors: Number(row.visitors) || 0, percentage: ((Number(row.visitors) || 0) / visitorTotal) * 100 })).sort((a, b) => b.visitors - a.visitors),
       countries: countryRows.map((row) => { const code = row.country ?? "Others"; const countryVisitors = Number(row.visitors) || 0; return { code, label: code === "Others" ? "Diğer" : regionNames.of(code) ?? code, visitors: countryVisitors, percentage: (countryVisitors / visitorTotal) * 100 }; }).sort((a, b) => b.visitors - a.visitors),
       updatedAt: now.toISOString(),

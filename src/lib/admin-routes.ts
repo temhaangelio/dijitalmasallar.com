@@ -6,6 +6,7 @@
  * one that drifts is always the one nobody looks at.
  */
 const adminRoutePrefixes = [
+  "/admin",
   "/dashboard",
   "/yazilar",
   "/gunun-ozeti",
