@@ -88,7 +88,17 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
   function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) {
     event.preventDefault();
     const text = event.clipboardData.getData("text/plain");
-    const replacement = onPasteText?.(text);
+    // Rendered clipboard text can omit link destinations; recover them from the HTML
+    // as markdown without inserting clipboard HTML into the editable document.
+    const html = event.clipboardData.getData("text/html");
+    let replacement: string | false | undefined;
+    if (onPasteText && html) {
+      const document = new DOMParser().parseFromString(html, "text/html");
+      document.querySelectorAll("script, style, noscript").forEach(node => node.remove());
+      const markdown = editorToMarkdown(document.body);
+      replacement = onPasteText(markdown);
+    }
+    if (replacement === undefined || replacement === false) replacement = onPasteText?.(text);
     if (replacement !== undefined && replacement !== false) {
       if (editorRef.current) editorRef.current.innerHTML = markdownToHtml(replacement);
       return;
@@ -105,7 +115,7 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
    */
   return (
     <div className={cn("relative rounded-field border border-transparent bg-surface-2 transition focus-within:border-ink focus-within:bg-surface", fullscreen && "fixed inset-0 z-[200] flex flex-col rounded-none border-0 bg-surface") }>
-      {showToolbar ? <div role="toolbar" aria-label="Metin biçimlendirme" className={cn("z-10 flex items-center gap-0.5 overflow-x-auto rounded-t-field border-b border-line bg-surface/92 px-1.5 py-1 backdrop-blur-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", fullscreen ? "shrink-0 justify-center rounded-none pt-[max(4px,env(safe-area-inset-top))]" : "sticky top-[var(--admin-topbar,0px)] lg:top-0")}>
+      {showToolbar ? <div role="toolbar" aria-label="Metin biçimlendirme" className={cn("admin-editor-toolbar z-10 flex items-center gap-0.5 overflow-x-auto rounded-t-field border-b border-line bg-surface/92 px-1.5 py-1 backdrop-blur-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", fullscreen ? "shrink-0 justify-center rounded-none pt-[max(4px,env(safe-area-inset-top))]" : "sticky top-[var(--admin-topbar,0px)] lg:top-0")}>
         <ToolButton label="Kalın" shortcut="⌘B" onPress={() => command("bold")}><Bold className="size-[17px]" /></ToolButton>
         <ToolButton label="İtalik" shortcut="⌘I" onPress={() => command("italic")}><Italic className="size-[17px]" /></ToolButton>
         <ToolButton label="Vurgula" onPress={() => command("hiliteColor", "#eaeaea")}><Highlighter className="size-[17px]" /></ToolButton>
@@ -120,7 +130,7 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
         <ToolButton label={fullscreen ? "Tam ekrandan çık" : "Tam ekran"} shortcut={fullscreen ? "Esc" : undefined} onPress={() => setFullscreen((current) => !current)}>{fullscreen ? <Minimize2 className="size-[17px]" /> : <Maximize2 className="size-[17px]" />}</ToolButton>
       </div> : null}
       <input type="hidden" name={name} value={value} readOnly />
-      <div ref={editorRef} id={id} role="textbox" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[320px] px-4 py-5 font-[family-name:var(--font-visitor-sans)] text-[19px] leading-7 text-ink outline-none sm:min-h-[360px] sm:px-5 [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-ink [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-line [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-highlight [&_mark]:px-0.5", fullscreen && "min-h-0 flex-1 overflow-y-auto px-6 pb-[max(80px,env(safe-area-inset-bottom))] pt-8 text-[18px] leading-8 sm:px-16 [&>*]:mx-auto [&>*]:max-w-3xl")} />
+      <div ref={editorRef} id={id} data-empty={!value.trim()} data-placeholder="Yazınızı buraya yazın veya yapıştırın…" role="textbox" aria-label={id.startsWith("en") ? "İngilizce içerik" : "Türkçe içerik"} aria-multiline="true" contentEditable suppressContentEditableWarning onInput={syncValue} onBlur={() => { syncValue(); onBlur(); }} onKeyDown={handleKeyDown} onPaste={handlePaste} className={cn("min-h-[320px] px-4 py-5 font-[family-name:var(--font-visitor-sans)] text-[19px] leading-7 text-ink outline-none sm:min-h-[360px] sm:px-5 [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-ink [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-line [&_code]:px-1.5 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_mark]:rounded-[3px] [&_mark]:bg-highlight [&_mark]:px-0.5", fullscreen && "min-h-0 flex-1 overflow-y-auto px-6 pb-[max(80px,env(safe-area-inset-bottom))] pt-8 text-[18px] leading-8 sm:px-16 [&>*]:mx-auto [&>*]:max-w-3xl")} />
     </div>
   );
 }

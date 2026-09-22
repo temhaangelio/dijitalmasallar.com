@@ -75,7 +75,9 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
       images: post.cover_path ? [{ url: post.cover_path, alt: title }] : undefined,
     },
     twitter: {
-      card: post.cover_path ? "summary_large_image" : "summary",
+      // Always the large card: a note without a cover still has one, drawn from its headline by
+      // `opengraph-image.tsx` next to this file.
+      card: "summary_large_image",
       title,
       description,
       images: post.cover_path ? [post.cover_path] : undefined,
@@ -114,8 +116,26 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     isAccessibleForFree: true,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
     author: { "@type": "Person", name: "Temha Angelio", url: "https://www.temhaangelio.com/" },
-    publisher: { "@type": "NewsMediaOrganization", "@id": `${baseUrl}/#organization`, name: settings.siteName, url: baseUrl },
-    image: post.cover_path ? [post.cover_path] : undefined,
+    publisher: {
+      "@type": "NewsMediaOrganization",
+      "@id": `${baseUrl}/#organization`,
+      name: settings.siteName,
+      url: baseUrl,
+      logo: { "@type": "ImageObject", url: absoluteUrl(baseUrl, "/icon-512.png"), width: 512, height: 512 },
+    },
+    isPartOf: { "@id": `${baseUrl}/#website` },
+    /* A note with no cover still has a picture — the card drawn from its own headline — so every
+       article offers an image rather than leaving the result to whatever the page happens to hold. */
+    image: [post.cover_path ?? absoluteUrl(baseUrl, `/haber/${post.id}/opengraph-image`)],
+    /* Where the page says what it is about, for the surfaces that read a page aloud. */
+    speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", ".visitor-article"] },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: settings.siteName, item: absoluteUrl(baseUrl, languageHref("/", language)) },
+        { "@type": "ListItem", position: 2, name: headline },
+      ],
+    },
     isBasedOn: post.source_url || undefined,
     articleSection: language === "en" ? "Technology" : "Teknoloji",
     keywords: language === "en" ? ["technology", "artificial intelligence", "science", "digital culture"] : ["teknoloji", "yapay zekâ", "bilim", "dijital kültür"],

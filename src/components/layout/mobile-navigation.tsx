@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, LogOut, Monitor, Moon, MoreHorizontal, Sun } from "lucide-react";
+import { useState } from "react";
+import { AppDialog } from "@/components/ui/app-dialog";
+import { ExternalLink, LogOut, Monitor, Moon, MoreHorizontal, Sun, Menu, Plus, ChevronRight, LayoutDashboard } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
 import { setThemePreference, useThemePreference } from "@/components/features/visitor/theme";
 import { ActionMenu } from "@/components/ui/action-menu";
@@ -9,14 +11,6 @@ import { BrandMark } from "@/components/ui/brand-mark";
 import { BrandWordmark } from "@/components/ui/brand-wordmark";
 import { adminNavItems, type AdminModules } from "./admin-nav-items";
 
-/**
- * Phone chrome, in two parts.
- *
- * The bar on top is deliberately thin: the mark as a way home, and one menu for the actions that
- * are needed once a session — the public site, the appearance, signing out. The sections
- * themselves are not here; they sit in `AdminTabBar` at the bottom of the screen, under the thumb,
- * where a scrolling strip of links under the title used to ask for a reach across the whole phone.
- */
 export function MobileNavigation({ siteName }: { siteName: string }) {
   const preference = useThemePreference();
   const themes = [
@@ -44,16 +38,31 @@ export function MobileNavigation({ siteName }: { siteName: string }) {
   );
 }
 
-/** The bottom tab bar. Static links, so it renders on the server and stands in the skeleton too. */
+/** Keep destinations in a roomy sheet; creation is always one tap away. */
 export function AdminTabBar({ active, modules }: { active: string; modules?: AdminModules }) {
-  return (
-    <nav aria-label="Bölümler" className="admin-tabbar admin-chrome">
-      {adminNavItems.filter(({ module }) => !module || !modules || modules[module]).map(({ label, href, icon: Icon }) => (
-        <Link key={href} href={href} aria-current={active === href ? "page" : undefined}>
-          <span><Icon size={20} strokeWidth={active === href ? 2 : 1.7} aria-hidden="true" /></span>
-          <span>{label}</span>
-        </Link>
-      ))}
+  const [menuOpen, setMenuOpen] = useState(false);
+  const items = adminNavItems.filter(({ module }) => !module || !modules || modules[module]);
+  const postsEnabled = !modules || modules.posts;
+  return <>
+    <nav aria-label="Hızlı erişim" className="admin-tabbar admin-chrome">
+      <Link href="/dashboard" aria-current={active === "/dashboard" ? "page" : undefined}>
+        <span><LayoutDashboard size={21} aria-hidden="true" /></span><span>Genel bakış</span>
+      </Link>
+      {postsEnabled && <Link href="/yazilar/yeni" className="admin-create-link">
+        <span><Plus size={22} aria-hidden="true" /></span><span>Yazı ekle</span>
+      </Link>}
+      <button type="button" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
+        <span><Menu size={22} aria-hidden="true" /></span><span>Menü</span>
+      </button>
     </nav>
-  );
+    {menuOpen && <AppDialog title="Yönetim" hideIdentity headline="Yönetim" onClose={() => setMenuOpen(false)} panelClassName="admin-navigation-sheet">
+      <nav aria-label="Tüm bölümler" className="admin-section-list">
+        {items.map(({ label, href, icon: Icon }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={active === href ? "page" : undefined}>
+          <span className="admin-section-icon"><Icon size={22} aria-hidden="true" /></span>
+          <span>{label}</span>
+          <ChevronRight size={18} aria-hidden="true" className="ml-auto text-muted" />
+        </Link>)}
+      </nav>
+    </AppDialog>}
+  </>;
 }

@@ -184,6 +184,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         email: settings.contactEmail,
         founder: { "@type": "Person", name: "Temha Angelio", url: "https://www.temhaangelio.com/" },
         knowsAbout: ["Technology", "Artificial intelligence", "Science", "Digital culture"],
+        /* The publisher's logo is what a news result draws next to the headline, and the article
+           pages point their `publisher` at this same node — so it is defined once, here. */
+        logo: { "@type": "ImageObject", url: absoluteUrl(baseUrl, "/icon-512.png"), width: 512, height: 512 },
+        image: absoluteUrl(baseUrl, "/icon-512.png"),
+        /* The accounts that are demonstrably the same publisher. This is how a search engine — and
+           an assistant answering "who writes dijitalmasallar" — ties the site to its author instead
+           of treating the two as unrelated strangers. */
+        sameAs: ["https://www.instagram.com/temhaangelio", "https://www.temhaangelio.com/"],
+        availableLanguage: ["tr", "en"],
       },
       {
         "@type": "WebSite",

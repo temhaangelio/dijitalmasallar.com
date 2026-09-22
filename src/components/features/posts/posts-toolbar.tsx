@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownUp, LoaderCircle, Search, X } from "lucide-react";
+import { ArrowDownUp, LoaderCircle, Search, X, ChevronDown } from "lucide-react";
 import { ActionMenu } from "@/components/ui/action-menu";
 import { Input } from "@/components/ui/input";
 import type { PostSort } from "@/services/posts";
@@ -9,13 +9,7 @@ import { PostsStatusTabs, type PostStatusFilter } from "./posts-status-tabs";
 
 export const sortLabels: Record<PostSort, string> = { newest: "En yeni", oldest: "En eski", "title-asc": "Başlık A–Z", "title-desc": "Başlık Z–A" };
 
-/**
- * Everything that narrows the list, in two rows on a phone and one on a wide screen.
- *
- * The search field is what gets used most, so it comes first and takes the width; the filters
- * scroll sideways on a phone rather than stacking into a third row above the first title. The sort
- * keeps its label from `sm` up and is an icon alone below it.
- */
+/** Search and compact filters stay visible without horizontal scrolling on phones. */
 export function PostsToolbar({
   query,
   onQueryChange,
@@ -74,9 +68,12 @@ export function PostsToolbar({
           items={(Object.keys(sortLabels) as PostSort[]).map((value) => ({ label: sortLabels[value], checked: sort === value, onSelect: () => onSortChange(value) }))}
         />
       </div>
-      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:order-1 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
+      <div className="admin-post-filters flex min-w-0 items-center gap-2 lg:order-1">
         <PostsStatusTabs active={status} total={total} scheduledTotal={scheduledTotal} draftTotal={draftTotal} onChange={onStatusChange} />
-        <div className={segmentGroupClass} role="group" aria-label="Yazı dili">
+        <div className="sm:hidden">
+          <ActionMenu label="Yazı dili" trigger={<>{language === "tr" ? "Türkçe" : "English"}<ChevronDown size={16} aria-hidden="true" /></>} triggerClassName="flex min-h-11 items-center justify-between gap-2 rounded-full border border-line px-3 text-sm font-semibold" items={(["tr", "en"] as const).map(value => ({ label: value === "tr" ? "Türkçe" : "İngilizce", checked: language === value, onSelect: () => { if (!pendingLanguage) onLanguageChange(value); } }))} />
+        </div>
+        <div className={`hidden sm:flex ${segmentGroupClass}`} role="group" aria-label="Yazı dili">
           {(["tr", "en"] as const).map((value) => (
             <button
               key={value}

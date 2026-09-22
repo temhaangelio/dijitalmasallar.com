@@ -19,7 +19,7 @@ export function PostsStatusTabs({ active, total, scheduledTotal, draftTotal, onC
   return <ActionMenu
     label={`Yazı durumu: ${selected.label} (${selected.count.toLocaleString("tr-TR")})`}
     trigger={<><span>{selected.label} ({selected.count.toLocaleString("tr-TR")})</span><ChevronDown size={16} aria-hidden="true" /></>}
-    triggerClassName="flex h-11 w-auto min-w-[190px] shrink-0 items-center justify-between gap-2 rounded-full border border-line bg-surface px-4 text-[13px] font-semibold whitespace-nowrap tabular-nums text-ink-2 transition-colors hover:border-line-strong hover:bg-surface-2 hover:text-ink"
+    triggerClassName="flex h-11 w-auto min-w-0 sm:min-w-[190px] shrink-0 items-center justify-between gap-2 rounded-full border border-line bg-surface px-4 text-[13px] font-semibold whitespace-nowrap tabular-nums text-ink-2 transition-colors hover:border-line-strong hover:bg-surface-2 hover:text-ink"
     items={filters.map((filter) => ({
       label: `${filter.label} (${filter.count.toLocaleString("tr-TR")})`,
       checked: active === filter.value,

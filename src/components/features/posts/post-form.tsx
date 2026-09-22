@@ -5,14 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
-import { Check, Clock3, Save, Images } from "lucide-react";
+import { Check, Clock3, Save, Images, ChevronLeft, ChevronRight } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { createPostAction, updatePostAction } from "@/app/(dashboard)/yazilar/actions";
 import { CoverLibrary } from "@/components/forms/cover-library";
 import { FormField } from "@/components/forms/form-field";
 import { FileUpload } from "@/components/forms/file-upload";
 import { RichTextEditor } from "@/components/forms/rich-text-editor";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/components/ui/toast";
 import { postSchema, type PostFormValues } from "@/lib/validations/post";
@@ -30,6 +30,7 @@ type PostTranslations = Partial<Record<"tr" | "en", Post>>;
 
 export function PostForm({ posts }: { posts?: PostTranslations }) {
   const router = useRouter();
+  const [mobilePanel, setMobilePanel] = useState<"content" | "settings">("content");
   const [activeLanguage, setActiveLanguage] = useState<"tr" | "en">("tr");
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [libraryCover, setLibraryCover] = useState<{ id: string; url: string } | null>(null);
@@ -84,23 +85,31 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
     if (!parsed.success) {
       for (const issue of parsed.error.issues) setError(issue.path.join(".") as Parameters<typeof setError>[0], { message: issue.message });
       const language = parsed.error.issues[0]?.path[0];
-      if (language === "tr" || language === "en") setActiveLanguage(language);
+      if (language === "tr" || language === "en") { setActiveLanguage(language); setMobilePanel("content"); }
+      else setMobilePanel("settings");
       return;
     }
     onSubmit(parsed.data);
   }
 
   const onInvalid = (formErrors: typeof errors) => {
-    if (formErrors.tr) setActiveLanguage("tr");
-    else if (formErrors.en) setActiveLanguage("en");
+    if (formErrors.tr || formErrors.en) { setActiveLanguage(formErrors.tr ? "tr" : "en"); setMobilePanel("content"); }
+    else setMobilePanel("settings");
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="admin-post-form grid gap-5 pb-24 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start xl:pb-0" noValidate>
-      <div className="card min-w-0 space-y-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="admin-composer-heading xl:col-span-2">
+        <Link href="/yazilar" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-muted"><ChevronLeft size={18} aria-hidden="true" />Yazılara dön</Link>
+        <div className="admin-composer-tabs" role="group" aria-label="Yazı düzenleme adımları">
+          <button type="button" aria-pressed={mobilePanel === "content"} onClick={() => setMobilePanel("content")}>1. İçerik</button>
+          <button type="button" aria-pressed={mobilePanel === "settings"} onClick={() => setMobilePanel("settings")}>2. Yayın ayarları</button>
+        </div>
+      </div>
+      <div className={`card min-w-0 space-y-5 admin-composer-content ${mobilePanel !== "content" ? "admin-panel-hidden" : ""}`}>
+        <div className="admin-composer-language flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="section-title">İçerik</h2>
+            <h2 className="section-title hidden lg:block">İçerik</h2>
           </div>
           <div role="group" aria-label="İçerik dili" className="grid grid-cols-2 gap-1 rounded-full bg-surface-2 p-1 sm:w-64">
               {(["tr", "en"] as const).map((language) => (
@@ -122,23 +131,16 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
             render={({ field }) => <RichTextEditor key={activeLanguage} id={`${activeLanguage}-body`} name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} showToolbar onPasteText={importBilingualPaste} />}
           />
         </FormField>
-        <div className="border-t border-line pt-5">
+        <p className="text-sm text-muted">Türkçe ve İngilizce metni birlikte yapıştırabilirsiniz. Daha sonra devam etmek için taslak kaydedin.</p>
+        <Button type="button" variant="secondary" className="admin-composer-next w-full" onClick={() => { setMobilePanel("settings"); window.scrollTo({ top: 0, behavior: "instant" }); }}>Kapak ve yayın ayarları<ChevronRight size={18} aria-hidden="true" /></Button>
+      </div>
+
+      <div className={`space-y-5 admin-composer-settings ${mobilePanel !== "settings" ? "admin-panel-hidden" : ""}`}>
+        <div className="card">
           <FormField label="Kaynak bağlantısı" htmlFor="sourceUrl" error={errors.sourceUrl?.message}>
             <Input id="sourceUrl" type="url" placeholder="https://..." {...register("sourceUrl")} />
           </FormField>
         </div>
-      </div>
-
-      <div className="space-y-5">
-        <div className="admin-save-bar admin-chrome">
-          <Link href="/yazilar" className={buttonVariants({ variant: "secondary" })}>Vazgeç</Link>
-          <Button type="button" variant="secondary" disabled={pending} onClick={saveDraft}>Taslak kaydet</Button>
-          <Button disabled={pending} className="min-w-40">
-            <Save className="size-4" aria-hidden="true" />
-            {pending ? (editing ? "Güncelleniyor…" : "Kaydediliyor…") : (editing && sharedPost?.status !== "draft" ? "Değişiklikleri kaydet" : status === "scheduled" ? "Yazıyı planla" : "Yazıyı yayınla")}
-          </Button>
-        </div>
-
         <div className="card space-y-5">
           <div>
             <h3 className="mb-2 text-sm font-semibold">Kapak görseli <span className="font-normal text-muted">(isteğe bağlı)</span></h3>
@@ -180,6 +182,14 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
         </div>
 
       </div>
+      <div className="admin-save-bar admin-chrome">
+        <Button type="button" variant="secondary" disabled={pending} onClick={saveDraft}>Taslak</Button>
+          <Button disabled={pending} className="min-w-40">
+            <Save className="size-4" aria-hidden="true" />
+            {pending ? (editing ? "Güncelleniyor…" : "Kaydediliyor…") : (editing && sharedPost?.status !== "draft" ? "Kaydet" : status === "scheduled" ? "Planla" : "Yayınla")}
+          </Button>
+      </div>
+
       {libraryOpen ? <CoverLibrary onClose={() => setLibraryOpen(false)} onSelect={item => {
         setLibraryCover(item); setCoverImage(null); setRemoveCover(false); setUploadKey(key => key + 1); setLibraryOpen(false);
       }} /> : null}

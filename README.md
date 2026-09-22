@@ -50,6 +50,23 @@ Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını payla�
 
 Yetkilendirme mevcut `is_admin()` RPC’si ve tablo RLS kurallarıyla uygulanır. `SUPABASE_SERVICE_ROLE_KEY` yalnızca sunucu tarafındaki modüllerde kullanılır; `NEXT_PUBLIC_` öneki verilmez ve tarayıcı paketine girmez. Depodaki `diji_` önekli migration, ileride tamamen bağımsız bir Supabase projesine ayrılmak istenirse başlangıç referansı olarak tutulur; paylaşılan production projesine uygulanmamalıdır.
 
+## SEO ve yapay zekâ keşfi
+
+Ziyaretçi tarafının arama motorlarında ve asistanlarda bulunması için:
+
+- `src/app/sitemap.ts` — tüm genel sayfalar ve notlar, iki dilin `hreflang` alternatifleriyle.
+- `src/app/news-sitemap.xml/route.ts` — Google News biçiminde, yalnızca son 48 saat (Google zaten
+  daha eskisini okumuyor). `robots.txt` her iki haritayı da bildiriyor.
+- `src/app/robots.ts` — panel yolları kapalı; cevap veren tarayıcılar (Google-Extended,
+  Applebot-Extended, GPTBot, ClaudeBot, PerplexityBot, …) tek tek ve bilerek açık. Bu isimlerin
+  yazılmaması bazı ürünlerde "izin verilmedi" sayıldığı için sessizlik tarafsız değildir.
+- `src/app/opengraph-image.tsx` ve `src/app/haber/[id]/opengraph-image.tsx` — paylaşım kartları
+  çalışma anında çiziliyor; kapak görseli olmayan notlar başlığından bir kart alıyor.
+- Yapılandırılmış veri: ana sayfada `NewsMediaOrganization` (logo + `sameAs`), `WebSite` ve
+  `CollectionPage`; not sayfalarında `NewsArticle` (kaynak `isBasedOn`, `breadcrumb`, `speakable`,
+  görsel garantisi); `/podcast` sayfasında bölümleriyle `PodcastSeries`.
+- `src/app/llms.txt/route.ts` — asistanlar için dizin: kaynaklar, alıntı kuralı ve son notlar.
+
 ## Ortam değişkenleri
 
 ```env

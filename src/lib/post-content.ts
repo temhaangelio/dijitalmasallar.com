@@ -25,7 +25,7 @@ function cleanSourceUrl(value: string) {
 
 /** Splits the compact `TR: … EN: … [source](url)` format used by editorial drafts. */
 export function parseBilingualPostPaste(value: string): ParsedBilingualPaste | null {
-  const normalized = value.replace(/\r\n?/g, "\n").trim();
+  const normalized = value.replace(/\r\n?/g, "\n").replace(/&(?:#x20|#32|nbsp);/gi, " ").trim();
   const trMarker = normalized.match(/(?:^|\n)\s*TR:\s*/i);
   if (!trMarker || trMarker.index === undefined) return null;
 

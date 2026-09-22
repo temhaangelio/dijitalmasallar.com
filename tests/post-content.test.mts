@@ -3,6 +3,17 @@ import assert from "node:assert/strict";
 import { parseBilingualPostPaste, parsePostContent, postPlainText, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
 
 describe("parseBilingualPostPaste", () => {
+  test("imports the Anthropic source with encoded clipboard spaces", () => {
+    const parsed = parseBilingualPostPaste(
+      "TR: **Anthropic, Claude’un araçları yaklaşık 4 kat hızlandırdığını** açıkladı.&#x20;\nEN: **Anthropic says Claude accelerated tools by roughly 4×** on average.&#x20;\n[anthropic.com ↗](https://www.anthropic.com/research/claude-uplifts-biomolecular-modeling?utm_source=chatgpt.com)&#x20;",
+    );
+    assert.deepEqual(parsed, {
+      tr: "**Anthropic, Claude’un araçları yaklaşık 4 kat hızlandırdığını** açıkladı.",
+      en: "**Anthropic says Claude accelerated tools by roughly 4×** on average.",
+      sourceUrl: "https://www.anthropic.com/research/claude-uplifts-biomolecular-modeling",
+    });
+  });
+
   test("splits Turkish, English and a Markdown source link", () => {
     const parsed = parseBilingualPostPaste("TR: Türkçe **metin** burada.\nEN: English **copy** here.\n[Kaynak ↗](https://example.com/news)");
     assert.deepEqual(parsed, {

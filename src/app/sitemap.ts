@@ -13,7 +13,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getPosts(1, 500, "tr"),
   ]);
   const baseUrl = siteUrl(settings.domain);
-  const staticPaths = ["/", "/about", "/podcast"];
+  // Every public page, not only the three that existed when this was written.
+  const staticPaths = ["/", "/about", "/podcast", "/ebulten"];
   const staticEntries: MetadataRoute.Sitemap = staticPaths.flatMap((path, index) => {
     const alternates = {
       en: absoluteUrl(baseUrl, languageHref(path, "en")),

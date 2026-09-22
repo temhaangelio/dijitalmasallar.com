@@ -10,6 +10,7 @@ export function PostFormModal({ title, children }: { title: string; children: Re
     <AppDialog
       title={title}
       onClose={() => router.back()}
+      headline={title}
       hideIdentity
       panelClassName="admin-editor-dialog !max-w-[1200px] !bg-canvas lg:p-8"
     >
