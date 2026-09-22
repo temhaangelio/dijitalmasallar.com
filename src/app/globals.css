@@ -520,7 +520,7 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
 .visitor-page .visitor-markdown a:hover { text-decoration-color: currentcolor; }
 
 @media (min-width: 640px) {
-  .visitor-page .visitor-markdown > div { font-size: calc(21px * var(--visitor-text-scale, 1)); line-height: 1.58; }
+  .visitor-page .visitor-markdown > div { font-size: calc(20px * var(--visitor-text-scale, 1)); line-height: 1.58; }
   .visitor-page .visitor-markdown h1 { font-size: calc(28px * var(--visitor-text-scale, 1)); line-height: 1.35; }
   .visitor-page .visitor-markdown h2 { font-size: calc(23px * var(--visitor-text-scale, 1)); line-height: 1.4; }
 }
@@ -893,9 +893,9 @@ html[data-visitor-font="serif"] .visitor-page .visitor-serif {
   background: color-mix(in srgb, var(--color-accent) 10%, var(--color-canvas));
 }
 
-.visitor-page .visitor-article-intro > div { font-size: calc(20px * var(--visitor-text-scale, 1)); line-height: 1.55; }
+.visitor-page .visitor-article-intro > div { font-size: calc(18px * var(--visitor-text-scale, 1)); line-height: 1.58; }
 @media (min-width: 640px) {
-  .visitor-page .visitor-article-intro > div { font-size: calc(23px * var(--visitor-text-scale, 1)); }
+  .visitor-page .visitor-article-intro > div { font-size: calc(20px * var(--visitor-text-scale, 1)); }
 }
 
 /* Visitor typography: brand in Mono, reading in Serif, controls and metadata in Sans. */
