@@ -30,7 +30,9 @@ export const metadata: Metadata = {
   keywords: ["technology news", "artificial intelligence", "science news", "digital culture", "teknoloji haberleri", "yapay zekâ", "bilim"],
   authors: [{ name: "Temha Angelio", url: "https://www.temhaangelio.com/" }],
   applicationName: "dijitalmasallar.com",
-  appleWebApp: { capable: true, title: "dijitalmasallar.com", statusBarStyle: "black-translucent" },
+  // An opaque status bar prevents iOS standalone mode from compositing the light launch canvas
+  // over the top safe area. `black-translucent` produced the grey/white band seen above the app.
+  appleWebApp: { capable: true, title: "dijitalmasallar.com", statusBarStyle: "black" },
   category: "technology",
   creator: "dijitalmasallar.com",
   publisher: "dijitalmasallar.com",

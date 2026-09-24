@@ -20,9 +20,10 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    // The light canvas: the value the browser paints around the app while it starts.
-    background_color: "#fafafa",
-    theme_color: "#fafafa",
+    // Keep iOS/Android launch and standalone chrome aligned with the opaque PWA status bar. The
+    // page itself still switches between its light and dark canvases after launch.
+    background_color: "#0f0f0f",
+    theme_color: "#0f0f0f",
     categories: ["news", "magazines"],
     icons: [
       { src: "/icon-192.png?v=7", sizes: "192x192", type: "image/png", purpose: "any" },
