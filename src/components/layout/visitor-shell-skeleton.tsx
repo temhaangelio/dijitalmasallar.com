@@ -11,13 +11,13 @@ export function VisitorShellSkeleton({ children, label, showHeader = true, readi
           <div className="visitor-topbar-inner">
             <div className="visitor-topbar-brand"><Skeleton className="size-8 rounded-[10px]" /><Skeleton className="h-4 w-28" /></div>
             {reading ? <span className="visitor-topbar-nav" /> : <div className="visitor-topbar-nav"><div className="visitor-header-links"><div className="visitor-nav-track">
-              {["w-10", "w-16", "w-16"].map((width, index) => <div key={index} className="visitor-header-link"><Skeleton className={`h-4 ${width}`} /></div>)}
+              {["w-10", "w-16", "w-16", "w-16"].map((width, index) => <div key={index} className="visitor-header-link"><Skeleton className={`h-4 ${width}`} /></div>)}
             </div></div></div>}
             <div className="visitor-topbar-actions">{[0, 1, 2].map((index) => <Skeleton key={index} className="size-9 rounded-[10px]" />)}</div>
           </div>
         </div>
         {reading ? null : <div className="visitor-subnav"><div className="visitor-header-links"><div className="visitor-nav-track">
-          {["w-10", "w-16", "w-16"].map((width, index) => <div key={index} className="visitor-header-link"><Skeleton className={`h-4 ${width}`} /></div>)}
+          {["w-10", "w-16", "w-16", "w-16"].map((width, index) => <div key={index} className="visitor-header-link"><Skeleton className={`h-4 ${width}`} /></div>)}
         </div></div></div>}
       </> : null}
 
