@@ -30,7 +30,9 @@ Bu uygulama, `dijitalmasallar.com` projesinin mevcut Supabase şemasını payla�
 ### Migration ve RLS
 
 - `supabase/migrations/` — uygulanmaya hazır migration'lar. En yenisi
-  `20260916101500_newsletter_sending.sql`: her aboneye bir `unsubscribe_token` ekler ve gönderilen
+  `20260926120000_post_notified_at.sql`: `posts` tablosuna `notified_at` sütununu ekler; yazı
+  listesi bildirimi gönderilmiş yazıları bununla işaretler. Uygulanana kadar liste işaretsiz çalışır.
+  Bir önceki `20260916101500_newsletter_sending.sql`: her aboneye bir `unsubscribe_token` ekler ve gönderilen
   bültenlerin kaydı için `newsletter_issues` tablosunu oluşturur (RLS açık, politikasız; tüm erişim
   `src/services/newsletter.ts` içindeki service-role istemcisinden). Uygulanana kadar panel bülten
   kartında uyarı gösterir ve gönderim kapalı kalır. Bir önceki

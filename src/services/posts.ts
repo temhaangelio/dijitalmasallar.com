@@ -203,7 +203,20 @@ async function fetchAdminPostRows(page: number, pageSize: number, sort: PostSort
   const { data, count, error } = await query.range(from, from + pageSize - 1);
   if (error) throw error;
   const rows = (data ?? []) as PostRow[];
-  return { rows, total: count ?? rows.length };
+  return { rows, total: count ?? rows.length, notified: await fetchNotifiedAt(access.admin, rows.map(row => row.id)) };
+}
+
+/**
+ * Read apart from `postColumns` so a database without the `notified_at` migration still lists its
+ * posts — the list just shows no notification marks until the column exists.
+ */
+async function fetchNotifiedAt(admin: NonNullable<Awaited<ReturnType<typeof getAuthorizedAdminClient>>>["admin"], ids: string[]) {
+  const notified = new Map<string, string>();
+  if (!ids.length) return notified;
+  const { data, error } = await admin.from("posts").select("id,notified_at").in("id", ids).not("notified_at", "is", null);
+  if (error) return notified;
+  for (const row of (data ?? []) as { id: string; notified_at: string }[]) notified.set(row.id, row.notified_at);
+  return notified;
 }
 
 function clampPageSize(pageSize: number) { return Math.min(Math.max(Math.floor(pageSize), 1), 100); }
@@ -215,10 +228,10 @@ export async function getPostsPage(page = 1, pageSize = 20, language: "tr" | "en
   const requestedPage = clampPage(page);
   if (!isSupabaseConfigured()) return demoPage(requestedPage, safePageSize, language, search, status);
   try {
-    const { rows, total } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), language, search, status);
+    const { rows, total, notified } = await fetchAdminPostRows(requestedPage, safePageSize, safeSort(sort), language, search, status);
     const totalPages = Math.max(Math.ceil(total / safePageSize), 1);
     if (requestedPage > totalPages) return getPostsPage(totalPages, safePageSize, language, sort, search, status);
-    return { posts: rows.map((row) => ({ ...mapPost(row, language), body: "" })), total, page: requestedPage, totalPages };
+    return { posts: rows.map((row) => ({ ...mapPost(row, language), body: "", notified_at: notified.get(row.id) ?? null })), total, page: requestedPage, totalPages };
   } catch (error) {
     console.error("Admin posts lookup failed");
     throw error;
@@ -295,17 +308,15 @@ export async function getNextPublishedPost(createdAt: string, language: "tr" | "
 }
 
 export type DashboardPostStats = {
-  total: number;
   publishedThisWeek: number;
   publishedThisMonth: number;
   publishedDaysThisMonth: number[];
   scheduledTotal: number;
   scheduled: Post[];
-  recent: Post[];
 };
 
 export async function getDashboardPostStats(): Promise<DashboardPostStats> {
-  const empty = { total: 0, publishedThisWeek: 0, publishedThisMonth: 0, publishedDaysThisMonth: [], scheduledTotal: 0, scheduled: [], recent: [] };
+  const empty = { publishedThisWeek: 0, publishedThisMonth: 0, publishedDaysThisMonth: [], scheduledTotal: 0, scheduled: [] };
   try {
     const access = await getAuthorizedAdminClient();
     if (!access) return empty;
@@ -322,23 +333,19 @@ export async function getDashboardPostStats(): Promise<DashboardPostStats> {
     const monthStart = `${year}-${String(month).padStart(2, "0")}-01T00:00:00+03:00`;
     const nowIso = now.toISOString();
 
-    const [totalResult, weekResult, monthResult, scheduledResult, recentResult] = await Promise.all([
-      access.admin.from("posts").select("id", { count: "exact", head: true }),
+    const [weekResult, monthResult, scheduledResult] = await Promise.all([
       access.admin.from("posts").select("id", { count: "exact", head: true }).gte("created_at", isoAtIstanbulMidnight(weekStartDay)).eq("is_draft", false).lte("created_at", nowIso),
       access.admin.from("posts").select("created_at", { count: "exact" }).gte("created_at", monthStart).eq("is_draft", false).lte("created_at", nowIso),
       access.admin.from("posts").select(postColumns, { count: "exact" }).eq("is_draft", false).gt("created_at", nowIso).order("created_at").limit(3),
-      access.admin.from("posts").select(postColumns).eq("is_draft", false).lte("created_at", nowIso).order("created_at", { ascending: false }).limit(3),
     ]);
-    if (totalResult.error || weekResult.error || monthResult.error || scheduledResult.error || recentResult.error) return empty;
+    if (weekResult.error || monthResult.error || scheduledResult.error) return empty;
     const monthDates = monthResult.data ?? [];
     return {
-      total: totalResult.count ?? 0,
       publishedThisWeek: weekResult.count ?? 0,
       publishedThisMonth: monthResult.count ?? monthDates.length,
       publishedDaysThisMonth: [...new Set(monthDates.map((row) => Number(new Intl.DateTimeFormat("en", { timeZone: "Europe/Istanbul", day: "numeric" }).format(new Date(row.created_at)))))],
       scheduledTotal: scheduledResult.count ?? 0,
       scheduled: (scheduledResult.data as PostRow[]).map((row) => mapPost(row, "tr")),
-      recent: (recentResult.data as PostRow[]).map((row) => mapPost(row, "tr")),
     };
   } catch {
     return empty;

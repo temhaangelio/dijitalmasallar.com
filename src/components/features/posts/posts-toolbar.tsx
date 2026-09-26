@@ -70,8 +70,8 @@ export function PostsToolbar({
       </div>
       <div className="admin-post-filters flex min-w-0 items-center gap-2 lg:order-1">
         <PostsStatusTabs active={status} total={total} scheduledTotal={scheduledTotal} draftTotal={draftTotal} onChange={onStatusChange} />
-        <div className="sm:hidden">
-          <ActionMenu label="Yazı dili" trigger={<>{language === "tr" ? "Türkçe" : "English"}<ChevronDown size={16} aria-hidden="true" /></>} triggerClassName="flex min-h-11 items-center justify-between gap-2 rounded-full border border-line px-3 text-sm font-semibold" items={(["tr", "en"] as const).map(value => ({ label: value === "tr" ? "Türkçe" : "İngilizce", checked: language === value, onSelect: () => { if (!pendingLanguage) onLanguageChange(value); } }))} />
+        <div className="shrink-0 sm:hidden">
+          <ActionMenu label="Yazı dili" trigger={<>{language === "tr" ? "Türkçe" : "English"}<ChevronDown size={16} aria-hidden="true" /></>} triggerClassName="flex h-11 w-auto shrink-0 items-center justify-between gap-1.5 whitespace-nowrap rounded-full border border-line bg-surface px-4 text-[13px] font-semibold text-ink-2" items={(["tr", "en"] as const).map(value => ({ label: value === "tr" ? "Türkçe" : "İngilizce", checked: language === value, onSelect: () => { if (!pendingLanguage) onLanguageChange(value); } }))} />
         </div>
         <div className={`hidden sm:flex ${segmentGroupClass}`} role="group" aria-label="Yazı dili">
           {(["tr", "en"] as const).map((value) => (
@@ -89,7 +89,8 @@ export function PostsToolbar({
           ))}
         </div>
       </div>
-      <p className="hidden shrink-0 text-sm font-medium tabular-nums text-muted lg:order-3 lg:block" aria-live="polite">{resultTotal.toLocaleString("tr-TR")} sonuç</p>
+      {/* Unfiltered, the count is already on the status menu; it earns a place once it differs. */}
+      <p className={`hidden shrink-0 text-sm font-medium tabular-nums text-muted lg:order-3 ${query.trim() ? "lg:block" : ""}`} aria-live="polite">{resultTotal.toLocaleString("tr-TR")} sonuç</p>
     </div>
   );
 }

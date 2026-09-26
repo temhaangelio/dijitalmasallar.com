@@ -2161,3 +2161,160 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
   .admin-post-meta > span { font-size: 12px; }
   .admin-post-meta > span[aria-hidden="true"], .admin-post-meta > span.truncate { display: none; }
 }
+
+/*
+ * The overview fits the window: from 1280px, on a window tall enough to hold four readable cards,
+ * the page does not scroll and the two-by-two grid takes exactly the height left under the header —
+ * the same flex chain as `.rss-fit`, so nothing restates the header's or main's height as a number.
+ * Shorter windows keep the equal cards and scroll, rather than cutting the cards off.
+ */
+@media (min-width: 1280px) {
+  .overview-fit .section-title { font-size: 22px; }
+}
+@media (min-width: 1280px) and (min-height: 720px) {
+  html:has(.overview-fit) { overflow: hidden; }
+  .shell:has(.overview-fit) { height: 100dvh; min-height: 0; }
+  .shell:has(.overview-fit) > div { display: flex; min-height: 0; flex-direction: column; }
+  .shell:has(.overview-fit) .main { display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; padding-bottom: 28px; }
+  .overview-fit { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+  .overview-fit .admin-overview-grid { flex: 1; min-height: 0; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+  .admin-page .overview-fit .admin-overview-grid > .card { min-height: 0; overflow: hidden; }
+}
+@media (min-width: 1280px) and (min-height: 960px) {
+  .overview-fit .overview-day { width: 2.5rem; height: 2.5rem; }
+}
+
+/*
+ * On a wide screen the save bar stays in reach: it rides the bottom of the window under the
+ * settings column instead of waiting below the fold. The editor dialog keeps its own bar.
+ */
+@media (min-width: 1280px) {
+  .main .admin-post-form .admin-save-bar { position: sticky; bottom: 0; z-index: 5; padding: 12px 0 24px; background: linear-gradient(to bottom, transparent, var(--color-canvas) 12px); }
+}
+
+/*
+ * The composer fits the window on a desktop: the page does not scroll, the editor takes the height
+ * left in its card and scrolls its own text, and the settings column scrolls inside itself only if
+ * a tall cover preview and a date field outgrow it. Same flex chain as `.overview-fit`. The editor
+ * dialog (`.admin-editor-dialog`, outside `.main`) is left as it is.
+ */
+@media (min-width: 1280px) {
+  .main .admin-post-form { gap: 16px; }
+  .main .admin-post-form .card { padding: 20px 24px; }
+  .main .admin-post-form .section-title { font-size: 22px; }
+  .main .admin-composer-content { display: flex; flex-direction: column; gap: 14px; }
+  .main .admin-composer-content > * { margin-block: 0; }
+  /* The writing area runs to the foot of its card, however tall the settings column beside it is. */
+  .admin-post-form .admin-composer-content { display: flex; flex-direction: column; grid-row: 1 / span 2; }
+  .admin-post-form .admin-composer-editor, .admin-post-form .admin-composer-editor > div { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+  .admin-post-form .admin-composer-editor .admin-editor-root:not(.fixed) { display: flex; flex: 1; flex-direction: column; }
+  .admin-post-form .admin-composer-editor .admin-editor-root:not(.fixed) .admin-editor-body { flex: 1; }
+  .main .admin-composer-settings > .card > div { padding-block: 16px; }
+  .main .admin-composer-settings > .card > div:first-child { padding-top: 0; }
+  .main .admin-composer-settings > .card > div:last-child { padding-bottom: 0; }
+  .main .admin-composer-settings button.border-dashed { min-height: 64px; }
+  .main .admin-composer-settings .mt-3 { margin-top: 8px; }
+}
+@media (min-width: 1280px) and (min-height: 700px) {
+  html:has(.main .admin-post-form) { overflow: hidden; }
+  .shell:has(.main .admin-post-form) { height: 100dvh; min-height: 0; }
+  .shell:has(.main .admin-post-form) > div { display: flex; min-height: 0; flex-direction: column; }
+  .shell:has(.main .admin-post-form) .main { display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; padding-top: 24px; padding-bottom: 24px; }
+  .shell:has(.main .admin-post-form) .page-header { margin-bottom: 16px; padding-bottom: 14px; }
+  .shell:has(.main .admin-post-form) .page-title { font-size: 30px; line-height: 1.15; }
+  .main .admin-post-form { flex: 1; min-height: 0; padding-bottom: 0; grid-template-rows: minmax(0, 1fr) auto; align-items: stretch; }
+  .main .admin-composer-content { grid-row: 1 / span 2; min-height: 0; }
+  .main .admin-composer-editor, .main .admin-composer-editor > div { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+  .main .admin-composer-editor .admin-editor-root:not(.fixed) { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+  .main .admin-composer-editor .admin-editor-root:not(.fixed) .admin-editor-body { flex: 1; min-height: 0; overflow-y: auto; }
+  .main .admin-composer-settings { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .main .admin-post-form .admin-save-bar { position: static; padding: 0; background: none; }
+}
+
+/*
+ * The top bar. One pinned, translucent strip across the window — brand left, sections centred,
+ * controls right — so the notes begin right under it. Its inner row is as wide as the page's
+ * content column (640px, 1080px on wide feed pages), so its edges line up with the cards.
+ */
+.visitor-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  padding-inline: 16px;
+  padding-top: env(safe-area-inset-top);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-line) 80%, transparent);
+  background: color-mix(in srgb, var(--color-canvas) 86%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+.visitor-topbar-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 640px;
+  height: 56px;
+  margin-inline: auto;
+}
+.visitor-topbar-brand { display: flex; min-width: 0; min-height: 44px; align-items: center; gap: 10px; color: var(--color-ink); transition: opacity .18s ease; }
+.visitor-topbar-brand:hover { opacity: .75; }
+.visitor-page .visitor-topbar-wordmark { width: 118px; min-width: 0; flex-shrink: 1; }
+.visitor-topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+/* Controls in the bar are bare glyphs until touched: three boxed buttons read as a toolbar. */
+.visitor-topbar .visitor-top-control { width: 40px; height: 40px; }
+.visitor-topbar .visitor-top-control::before { inset: 2px; border-color: transparent; background: transparent; }
+.visitor-topbar .visitor-top-control:hover:not(:disabled)::before { background: color-mix(in srgb, var(--color-ink) 6%, transparent); }
+.visitor-topbar .visitor-top-badge { top: 2px; right: 2px; }
+
+/* The sections: plain words, the current one in ink with an accent rule under it. */
+.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-links { display: flex; justify-content: flex-start; width: auto; margin: 0; }
+.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-nav-track { gap: 4px; padding: 0; border: 0; border-radius: 0; background: none; }
+.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link {
+  min-height: 44px;
+  padding-inline: 12px;
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: none;
+  box-shadow: none;
+}
+.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link:hover { color: var(--color-ink); background: none; }
+.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link[aria-current="page"] { color: var(--color-ink); background: none; box-shadow: none; }
+.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+.visitor-topbar-nav { display: none; }
+.visitor-topbar-inner { grid-template-columns: minmax(0, 1fr) auto; }
+.visitor-subnav { width: 100%; max-width: 640px; margin-top: 4px; }
+.visitor-subnav .visitor-nav-track { margin-left: -12px; }
+@media (min-width: 768px) {
+  .visitor-topbar { padding-inline: 32px; }
+  .visitor-topbar-inner { height: 64px; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .visitor-page .visitor-topbar-wordmark { width: 138px; }
+  .visitor-topbar-nav { display: flex; justify-content: center; }
+  .visitor-subnav { display: none; }
+  /* The pinned bar already carries the sections, so the capsule would only repeat them. */
+  .visitor-float-nav { display: none; }
+}
+@media (min-width: 1280px) {
+  .visitor-page:has(.visitor-feed, .visitor-wide-page) .visitor-topbar-inner { max-width: min(1080px, 100%); }
+}
+
+/* The feed starts right under the bar (on a phone, under the sections' row). */
+.visitor-page .visitor-feed { margin-top: 24px; }
+@media (max-width: 767px) { .visitor-page .visitor-feed { margin-top: 12px; } }
+/* The feed's search joins the bar's controls and takes their look. */
+.visitor-topbar .visitor-search-trigger { display: grid; width: 40px; height: 40px; border-radius: 12px; color: var(--color-ink-2); }
+.visitor-settings-feed-view { display: none; }
+@media (min-width: 1280px) { .visitor-settings-feed-view { display: grid; } }

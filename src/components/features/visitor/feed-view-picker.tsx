@@ -2,6 +2,9 @@
 
 import { LayoutGrid, Rows3 } from "lucide-react";
 import { useSyncExternalStore } from "react";
+import { Segmented } from "@/components/ui/segmented";
+import { segmentClassName } from "@/components/ui/segmented-style";
+import { cn } from "@/lib/utils";
 import { feedViewAttribute, feedViewChangedEvent, feedViewStorageKey, resolveFeedView, type FeedView } from "@/lib/visitor-feed-view";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 
@@ -38,5 +41,24 @@ export function FeedViewPicker({ language }: { language: VisitorLanguage }) {
     <button type="button" className="visitor-feed-view-picker" aria-label={label} title={label} onClick={() => choose(next)}>
       <Icon size={17} strokeWidth={1.7} aria-hidden="true" />
     </button>
+  );
+}
+
+/** The same choice as a settings row: cards or rows, both named, the current one selected. */
+export function FeedViewSetting({ language }: { language: VisitorLanguage }) {
+  const selected = useSyncExternalStore(subscribe, snapshot, () => "cards");
+  const isEnglish = language === "en";
+  const options: { value: FeedView; label: string; Icon: typeof LayoutGrid }[] = [
+    { value: "cards", label: isEnglish ? "Cards" : "Kart", Icon: LayoutGrid },
+    { value: "rows", label: isEnglish ? "Rows" : "Satır", Icon: Rows3 },
+  ];
+  return (
+    <Segmented className="w-full sm:w-fit" role="radiogroup" label={isEnglish ? "Feed layout" : "Akış görünümü"}>
+      {options.map(({ value, label, Icon }) => (
+        <button key={value} type="button" role="radio" aria-checked={selected === value} data-active={selected === value} onClick={() => choose(value)} className={cn(segmentClassName(selected === value), "flex-1 justify-center sm:flex-none")}>
+          <Icon size={16} strokeWidth={1.8} aria-hidden="true" />{label}
+        </button>
+      ))}
+    </Segmented>
   );
 }

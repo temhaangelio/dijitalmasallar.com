@@ -12,7 +12,8 @@ import { publicStoragePath } from "@/lib/storage-path";
 import { isUuid } from "@/lib/utils";
 import { postSchema } from "@/lib/validations/post";
 import { getPostsPage, type PostPublicationFilter, type PostSort } from "@/services/posts";
-import { notifyNewPost } from "@/services/push";
+import { isPushConfigured, notifyNewPost } from "@/services/push";
+import { getSiteSettings } from "@/services/settings";
 
 const postSorts: PostSort[] = ["newest", "oldest", "title-asc", "title-desc"];
 const postStatuses: PostPublicationFilter[] = ["all", "published", "scheduled", "draft"];
@@ -74,16 +75,25 @@ export async function loadMorePostsAction(page: number, pageSize = 20, language:
   }
 }
 
+type AdminAccess = NonNullable<Awaited<ReturnType<typeof getAuthorizedAdminClient>>>;
+
+/** Stamps the note as announced. Best effort: before the `notified_at` migration the column is missing. */
+async function markNotified(access: AdminAccess, id: string) {
+  const { error } = await access.admin.from("posts").update({ notified_at: new Date().toISOString() }).eq("id", id);
+  if (error) console.error("Post notified_at update failed", { code: error.code, message: error.message });
+}
+
 /**
  * Push goes out after the response, through `after`, so the editor's save is never held up by a
  * thousand endpoints — and a push service having a bad day cannot turn a saved note into an error.
  */
-function notifyPublishedPost(id: string, data: { tr: { body: string }; en: { body: string } }) {
+function notifyPublishedPost(access: AdminAccess, id: string, data: { tr: { body: string }; en: { body: string } }) {
   const tr = parsePostContent(data.tr.body);
   const en = parsePostContent(data.en.body);
   after(async () => {
     try {
-      await notifyNewPost({ id, tr: { title: tr.title, excerpt: tr.excerpt }, en: { title: en.title, excerpt: en.excerpt } });
+      const result = await notifyNewPost({ id, tr: { title: tr.title, excerpt: tr.excerpt }, en: { title: en.title, excerpt: en.excerpt } });
+      if (result.sent > 0) await markNotified(access, id);
     } catch (error) {
       console.error("Push notification for new post failed", error);
     }
@@ -119,7 +129,7 @@ export async function createPostAction(input: unknown, image: File | null = null
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath("/dashboard");
   // A note that is live right now is the only kind that can announce itself here: a scheduled one
   // becomes visible on its own timestamp, with no request to hang the send off.
-  if (created?.id && parsed.data.status === "published") notifyPublishedPost(created.id, parsed.data);
+  if (created?.id && parsed.data.status === "published" && parsed.data.notify === true) notifyPublishedPost(access, created.id, parsed.data);
   return { success: true, message: parsed.data.status === "draft" ? "Taslak kaydedildi." : "Yazı kaydedildi." };
 }
 
@@ -162,8 +172,36 @@ export async function updatePostAction(id: string, input: unknown, image: File |
   revalidatePath("/"); revalidatePath("/yazilar"); revalidatePath(`/yazilar/${id}/duzenle`); revalidatePath("/dashboard");
   // Only the moment a scheduled note is pulled forward counts as publishing it; ordinary edits to an
   // already-published note must not notify the same readers again.
-  if ((wasScheduled || current.is_draft) && parsed.data.status === "published") notifyPublishedPost(current.id, parsed.data);
+  if ((wasScheduled || current.is_draft) && parsed.data.status === "published" && parsed.data.notify === true) notifyPublishedPost(access, current.id, parsed.data);
   return { success: true, message: parsed.data.status === "draft" ? "Taslak kaydedildi." : "Yazı güncellendi." };
+}
+
+/**
+ * Sends a live note's notification by hand — for a note published quietly, or one that went live on
+ * its schedule. Unlike a save, the editor waits for this one: the send is the whole point of the click.
+ */
+export async function sendPostNotificationAction(id: string) {
+  if (!isUuid(id)) return { success: false, message: "Geçersiz yazı." };
+  const access = await getAuthorizedAdminClient();
+  if (!access) return { success: false, message: "Bu işlem için yönetici yetkisi gerekir." };
+  if (!isPushConfigured()) return { success: false, message: "Anlık bildirim yapılandırılmamış." };
+  if (!(await getSiteSettings()).modulePush) return { success: false, message: "Anlık bildirim modülü kapalı." };
+  const { data: current } = await access.admin.from("posts").select("id,created_at,is_draft,content_tr,content_en").or(`id.eq.${id},legacy_english_id.eq.${id}`).maybeSingle();
+  if (!current) return { success: false, message: "Yazı bulunamadı." };
+  if (current.is_draft || new Date(current.created_at).getTime() > Date.now()) return { success: false, message: "Yalnızca yayındaki yazılar için bildirim gönderilebilir." };
+  const tr = parsePostContent(current.content_tr ?? "");
+  const en = parsePostContent(current.content_en ?? "");
+  try {
+    const result = await notifyNewPost({ id: current.id, tr: { title: tr.title, excerpt: tr.excerpt }, en: { title: en.title, excerpt: en.excerpt } });
+    if (result.sent === 0 && result.failed === 0) return { success: true, message: "Bildirim gönderilecek abone yok." };
+    if (result.sent === 0) return { success: false, message: "Bildirim gönderilemedi. Lütfen tekrar deneyin." };
+    await markNotified(access, current.id);
+    revalidatePath("/yazilar");
+    return { success: true, message: `Bildirim ${result.sent.toLocaleString("tr-TR")} aboneye gönderildi.`, notifiedAt: new Date().toISOString() };
+  } catch (error) {
+    console.error("Manual push notification for post failed", error);
+    return { success: false, message: "Bildirim gönderilemedi. Lütfen tekrar deneyin." };
+  }
 }
 
 export async function deletePostAction(id: string) {

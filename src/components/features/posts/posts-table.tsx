@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, ImageIcon, LoaderCircle, Plus, Trash2 } from "lucide-react";
-import { deletePostAction, loadMorePostsAction } from "@/app/(dashboard)/yazilar/actions";
+import { Bell, ChevronRight, ImageIcon, LoaderCircle, Plus, Trash2 } from "lucide-react";
+import { deletePostAction, loadMorePostsAction, sendPostNotificationAction } from "@/app/(dashboard)/yazilar/actions";
 import { EmptyState } from "@/components/feedback/states";
 import type { PostStatusFilter } from "./posts-status-tabs";
 import { PostsToolbar } from "./posts-toolbar";
@@ -29,6 +29,7 @@ export function PostsTable({ initialPosts, total, scheduledTotal, draftTotal, la
   const [scheduledCount, setScheduledCount] = useState(scheduledTotal);
   const [resultTotal, setResultTotal] = useState(total);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
+  const [postToNotify, setPostToNotify] = useState<Post | null>(null);
   const [page, setPage] = useState(1);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoadingMore, startLoadingMore] = useTransition();
@@ -99,6 +100,17 @@ export function PostsTable({ initialPosts, total, scheduledTotal, draftTotal, la
     } catch { showToast("Yazı silinemedi. Lütfen tekrar deneyin.", "error"); return false; }
   }
 
+  async function notifySelectedPost() {
+    if (!postToNotify) return false;
+    try {
+      const result = await sendPostNotificationAction(postToNotify.id);
+      showToast(result.message, result.success ? "success" : "error");
+      const notifiedAt = "notifiedAt" in result ? result.notifiedAt : undefined;
+      if (notifiedAt) setPosts(current => current.map(post => post.id === postToNotify.id ? { ...post, notified_at: notifiedAt } : post));
+      return result.success;
+    } catch { showToast("Bildirim gönderilemedi. Lütfen tekrar deneyin.", "error"); return false; }
+  }
+
   const hasMore = posts.length < resultTotal;
   const filtered = query.trim() || status !== "all";
   const progress = resultTotal > 0 ? Math.min(100, (posts.length / resultTotal) * 100) : 100;
@@ -147,14 +159,20 @@ export function PostsTable({ initialPosts, total, scheduledTotal, draftTotal, la
                       Only the exception — a post still waiting for its date — gets a label. */}
                   {post.status === "draft" && <span className="rounded-md bg-surface-3 px-2 py-0.5 font-semibold text-muted">Taslak</span>}
                   {post.status === "scheduled" && <span className="rounded-md bg-warning-surface px-2 py-0.5 font-semibold text-warning">Planlı</span>}
+                  {/* A mark, not a badge: most live notes will carry it, and a row of grey chips
+                      would out-shout the one "Planlı" worth seeing. The words are in the tooltip. */}
+                  {post.notified_at && <span title={`Bildirim gönderildi: ${dateFormatter.format(new Date(post.notified_at))}`} className="inline-flex shrink-0 items-center text-faint"><Bell className="size-3.5" strokeWidth={1.8} aria-hidden="true" /><span className="sr-only">Bildirim gönderildi</span></span>}
                   {/* A source is worth naming; the absence of one is not worth a line of its own. */}
                   {post.source_url && <><span aria-hidden="true">·</span><span className="min-w-0 truncate">{sourceLabel(null, post.source_url, "")}</span></>}
                 </div>
-                <h2 className="line-clamp-2 font-[family-name:var(--font-visitor-sans)] text-[17px] font-semibold leading-snug tracking-[-0.015em] text-ink sm:text-[18px]">{post.title || post.excerpt || "Başlıksız not"}</h2>
+                <h2 className={`line-clamp-2 font-[family-name:var(--font-visitor-sans)] text-[17px] font-semibold leading-snug tracking-[-0.015em] sm:text-[18px] ${post.title || post.excerpt ? "text-ink" : "font-normal italic text-muted"}`}>{post.title || post.excerpt || "Başlıksız not"}</h2>
                 {post.excerpt && post.excerpt !== post.title ? <p className="mt-1 hidden line-clamp-1 text-sm text-muted md:block">{post.excerpt}</p> : null}
               </div>
               <ChevronRight className="hidden size-5 shrink-0 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-ink sm:block" strokeWidth={1.7} aria-hidden="true" />
             </Link>
+            {/* Rows without a bell keep its slot, so every row's arrow and bin line up. */}
+            {post.status !== "published" ? <span aria-hidden="true" className="size-11 shrink-0" /> : null}
+            {post.status === "published" && <button type="button" disabled={isSearching} onClick={() => setPostToNotify(post)} aria-label={`${post.title || "Yazı"} için bildirim gönder`} title="Bildirim gönder" className={`${styles.rowAction} grid size-11 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-surface-3 hover:text-ink focus-visible:bg-surface-3 focus-visible:text-ink disabled:opacity-40`}><Bell className="size-[18px]" strokeWidth={1.7} aria-hidden="true" /></button>}
             <button type="button" disabled={isSearching} onClick={() => setPostToDelete(post)} aria-label={`${post.title || "Yazı"} sil`} title="Yazıyı sil" className={`${styles.rowAction} grid size-11 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-danger-surface hover:text-danger focus-visible:bg-danger-surface focus-visible:text-danger disabled:opacity-40`}><Trash2 className="size-[18px]" strokeWidth={1.7} aria-hidden="true" /></button>
           </li>)}
         </ul> : !isSearching && <EmptyState title={filtered ? "Eşleşen yazı bulunamadı" : "Henüz yazı yok"} description={filtered ? "Arama veya filtreyi değiştirip tekrar deneyin." : "İlk yazınızı ekleyin; burada listelenecek."} />}
@@ -169,5 +187,8 @@ export function PostsTable({ initialPosts, total, scheduledTotal, draftTotal, la
       </div>
     </section>
     <ConfirmDialog open={Boolean(postToDelete)} title="Yazı silinsin mi?" description={postToDelete ? `“${postToDelete.title || "Bu yazı"}” kalıcı olarak silinecek.` : "Bu işlem geri alınamaz."} confirmLabel="Yazıyı sil" variant="destructive" onOpenChange={open => !open && setPostToDelete(null)} onConfirm={removeSelectedPost} />
+    <ConfirmDialog open={Boolean(postToNotify)} title={postToNotify?.notified_at ? "Bildirim yeniden gönderilsin mi?" : "Bildirim gönderilsin mi?"} description={!postToNotify ? "Tüm abonelere anlık bildirim gönderilecek." : postToNotify.notified_at
+      ? `“${postToNotify.title || "Bu yazı"}” için ${dateFormatter.format(new Date(postToNotify.notified_at))} tarihinde zaten bildirim gönderildi. Tüm abonelere yeniden gönderilecek.`
+      : `“${postToNotify.title || "Bu yazı"}” için tüm abonelere anlık bildirim gönderilecek.`} confirmLabel="Bildirim gönder" onOpenChange={open => !open && setPostToNotify(null)} onConfirm={notifySelectedPost} />
   </>;
 }

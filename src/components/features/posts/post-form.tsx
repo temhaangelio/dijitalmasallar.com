@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
-import { Check, Clock3, Save, Images, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, Clock3, Save, Images, ChevronRight } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { createPostAction, updatePostAction } from "@/app/(dashboard)/yazilar/actions";
 import { CoverLibrary } from "@/components/forms/cover-library";
@@ -14,6 +13,7 @@ import { FileUpload } from "@/components/forms/file-upload";
 import { RichTextEditor } from "@/components/forms/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/ui/toast";
 import { postSchema, type PostFormValues } from "@/lib/validations/post";
 import { isOptimizableImage } from "@/lib/images";
@@ -49,10 +49,13 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
       status: sharedPost?.status === "scheduled" ? "scheduled" : "published",
       scheduledAt: localDateTime(sharedPost?.scheduled_at ?? null),
       publishedAt: sharedPost?.status === "published" ? localDateTime(sharedPost.created_at) : "",
+      notify: false,
     },
   });
   const coverPreview = libraryCover?.url ?? (removeCover ? null : sharedPost?.cover_path);
   const status = useWatch({ control, name: "status" });
+  // Readers are only notified when a note goes live with this save; edits to a live note never notify.
+  const willPublishNow = status === "published" && sharedPost?.status !== "published";
 
   function importBilingualPaste(value: string) {
     const parsed = parseBilingualPostPaste(value);
@@ -98,9 +101,8 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="admin-post-form grid gap-5 pb-24 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start xl:pb-0" noValidate>
-      <div className="admin-composer-heading xl:col-span-2">
-        <Link href="/yazilar" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-muted"><ChevronLeft size={18} aria-hidden="true" />Yazılara dön</Link>
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="admin-post-form grid gap-5 pb-24 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-stretch xl:pb-0" noValidate>
+      <div className="admin-composer-heading lg:hidden">
         <div className="admin-composer-tabs" role="group" aria-label="Yazı düzenleme adımları">
           <button type="button" aria-pressed={mobilePanel === "content"} onClick={() => setMobilePanel("content")}>1. İçerik</button>
           <button type="button" aria-pressed={mobilePanel === "settings"} onClick={() => setMobilePanel("settings")}>2. Yayın ayarları</button>
@@ -119,6 +121,7 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
               ))}
           </div>
         </div>
+        <div className="admin-composer-editor">
         <FormField
           label={activeLanguage === "tr" ? "Türkçe içerik" : "İngilizce içerik"}
           hideLabel
@@ -131,18 +134,20 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
             render={({ field }) => <RichTextEditor key={activeLanguage} id={`${activeLanguage}-body`} name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} showToolbar onPasteText={importBilingualPaste} />}
           />
         </FormField>
-        <p className="text-sm text-muted">Türkçe ve İngilizce metni birlikte yapıştırabilirsiniz. Daha sonra devam etmek için taslak kaydedin.</p>
+        </div>
         <Button type="button" variant="secondary" className="admin-composer-next w-full" onClick={() => { setMobilePanel("settings"); window.scrollTo({ top: 0, behavior: "instant" }); }}>Kapak ve yayın ayarları<ChevronRight size={18} aria-hidden="true" /></Button>
       </div>
 
       <div className={`space-y-5 admin-composer-settings ${mobilePanel !== "settings" ? "admin-panel-hidden" : ""}`}>
-        <div className="card">
+        {/* One settings card, its three concerns split by hairlines — source, cover, publishing —
+            rather than two boxes that divided them at an arbitrary seam. */}
+        <div className="card divide-y divide-line">
+          <div className="pb-5">
           <FormField label="Kaynak bağlantısı" htmlFor="sourceUrl" error={errors.sourceUrl?.message}>
             <Input id="sourceUrl" type="url" placeholder="https://..." {...register("sourceUrl")} />
           </FormField>
-        </div>
-        <div className="card space-y-5">
-          <div>
+          </div>
+          <div className="py-5">
             <h3 className="mb-2 text-sm font-semibold">Kapak görseli <span className="font-normal text-muted">(isteğe bağlı)</span></h3>
             <FileUpload
               key={uploadKey}
@@ -156,14 +161,15 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
             {coverPreview && !coverImage ? <button type="button" onClick={() => { setLibraryCover(null); setRemoveCover(true); }} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-danger hover:underline">Görseli kaldır</button> : null}
             {removeCover && !coverImage ? <button type="button" onClick={() => setRemoveCover(false)} className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-muted hover:text-ink">Mevcut görseli geri getir</button> : null}
           </div>
+          <div className="space-y-4 pt-5">
           <fieldset>
             <legend className="mb-2 text-sm font-semibold text-ink">Yayın zamanı</legend>
             <div className="grid grid-cols-2 gap-2">
-              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex min-h-12 cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "published" ? "border-ink bg-surface text-ink" : "border-line bg-surface-2 text-muted hover:border-line-strong hover:text-ink"}`}>
+              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex min-h-12 cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "published" ? "border-ink bg-surface text-ink ring-1 ring-ink" : "border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink"}`}>
                 <input type="radio" value="published" className="sr-only" {...register("status")} />
                 <Check className="size-4" aria-hidden="true" /> Şimdi
               </label>
-              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex min-h-12 cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "scheduled" ? "border-ink bg-surface text-ink" : "border-line bg-surface-2 text-muted hover:border-line-strong hover:text-ink"}`}>
+              <label className={`has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 flex min-h-12 cursor-pointer items-center gap-2 rounded-field border px-3 py-3 text-sm font-semibold transition ${status === "scheduled" ? "border-ink bg-surface text-ink ring-1 ring-ink" : "border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink"}`}>
                 <input type="radio" value="scheduled" className="sr-only" {...register("status", {
                   onChange: () => {
                     if (!getValues("scheduledAt")) {
@@ -179,6 +185,13 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           </fieldset>
           {sharedPost?.status === "published" && status === "published" && <FormField label="Yayın tarihi" htmlFor="publishedAt" error={errors.publishedAt?.message} hint="Akış sıralaması bu tarih ve saate göre güncellenir."><Input id="publishedAt" type="datetime-local" {...register("publishedAt")} /></FormField>}
           {status === "scheduled" && <FormField label="Yayın tarihi" htmlFor="scheduledAt" error={errors.scheduledAt?.message}><Input id="scheduledAt" type="datetime-local" {...register("scheduledAt")} /></FormField>}
+          {willPublishNow && <Controller name="notify" control={control} render={({ field }) => (
+            <div className="flex items-center justify-between gap-4">
+              <strong className="text-sm font-semibold">Bildirim gönder</strong>
+              <Switch checked={field.value === true} onCheckedChange={field.onChange} disabled={pending} label="Bu yazı için bildirim gönder" />
+            </div>
+          )} />}
+          </div>
         </div>
 
       </div>

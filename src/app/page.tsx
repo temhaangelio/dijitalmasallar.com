@@ -2,11 +2,9 @@ import { getFeedPagination } from "@/lib/feed-pagination";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
-import { FeedRefresh } from "@/components/features/visitor/feed-refresh";
 import { DailyAudioPlayer } from "@/components/features/visitor/daily-audio-player";
 import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memory";
-import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
-import { FeedSearch } from "@/components/features/visitor/feed-search";
+import { FeedTopbarTools } from "@/components/features/visitor/feed-topbar-tools";
 import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
 import { NewsletterPromo } from "@/components/features/visitor/newsletter-promo";
 import { ListenPromo } from "@/components/features/visitor/listen-promo";
@@ -225,11 +223,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
       <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
-        <div className="visitor-feed-tools">
-          <FeedViewPicker language={language} />
-          <FeedSearch language={language} />
-          <FeedRefresh language={language} />
-        </div>
+        <FeedTopbarTools language={language} />
         {/* The day read aloud, above the notes it summarises. Only when one has been published. */}
         {dailyAudio ? <DailyAudioPlayer title={dailyAudio.day === bulletinDays().yesterday ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : (language === "en" ? "Today’s briefing" : "Bugünün bülteni")} day={dailyAudio.day} durationSeconds={dailyAudio.durationSeconds} language={language} /> : null}
         <div>

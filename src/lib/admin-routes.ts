@@ -15,7 +15,6 @@ const adminRoutePrefixes = [
   "/reklamlar",
   "/istatistik",
   "/profil",
-  "/yerel-asistan",
   "/giris",
   "/sifremi-unuttum",
   "/sifre-yenile",

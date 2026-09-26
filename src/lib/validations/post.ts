@@ -10,6 +10,8 @@ export const postSchema = z.object({
   status: z.enum(["draft", "scheduled", "published"]),
   scheduledAt: z.string().optional(),
   publishedAt: z.string().optional(),
+  // Only read when the save publishes the note right now; lets the editor post quietly.
+  notify: z.boolean().optional(),
 }).superRefine((value, context) => {
   if (value.status === "draft") {
     if (!value.tr.body && !value.en.body) context.addIssue({ code: "custom", path: ["tr", "body"], message: "Taslak için en az bir dilde içerik girin." });

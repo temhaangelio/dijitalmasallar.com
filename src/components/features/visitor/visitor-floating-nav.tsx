@@ -25,7 +25,8 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
    * upward move brings the links, since going up is usually going somewhere.
    */
   useEffect(() => {
-    const masthead = document.querySelector(".visitor-masthead");
+    // The phone's section row under the bar; on wider screens the pinned bar carries the sections.
+    const masthead = document.querySelector(".visitor-subnav");
     let belowMasthead = false;
     let lastY = window.scrollY;
     let ticking = false;
