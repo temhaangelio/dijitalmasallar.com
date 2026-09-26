@@ -345,7 +345,7 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
 
 export function VisitorFeedLoading() {
   return (
-    <VisitorShellSkeleton label="Akış yükleniyor">
+    <VisitorShellSkeleton label="Akış yükleniyor" search>
       <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
         <VisitorNoteCardsSkeleton count={8} />
       </main>

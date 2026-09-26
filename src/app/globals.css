@@ -347,7 +347,7 @@ html[data-visitor-theme="dark"] .visitor-page {
   --color-ink-contrast: #0f0f0f;
   --color-ink-2: #c4c4c4;
   --color-muted: #9a9a9a;
-  --color-faint: #757575;
+  --color-faint: #8a8a8a; /* 4.9:1 on the dark surface — small print stays readable at night */
 
   --color-line: #2a2a2a;
   --color-line-strong: #3a3a3a;
@@ -2318,3 +2318,25 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 .visitor-topbar .visitor-search-trigger { display: grid; width: 40px; height: 40px; border-radius: 12px; color: var(--color-ink-2); }
 .visitor-settings-feed-view { display: none; }
 @media (min-width: 1280px) { .visitor-settings-feed-view { display: grid; } }
+
+/*
+ * Visitor polish, for reading first:
+ * - the small print (a note's date and time, its source, the footer) goes to 13px — it is read on
+ *   every card, and 11–12px made the one thing a news note must carry, its time, the hardest to read;
+ * - the top bar keeps one width on every page at 1280px+, so the brand does not jump sideways when a
+ *   reader moves from the two-column feed into a single note;
+ * - a segmented choice outside the settings sheet (the podcast's language) takes the site's light
+ *   selection pill instead of a solid ink one, which competed with the page's single primary action.
+ */
+.visitor-note-time, .visitor-note-footer { font-size: 13px; }
+.visitor-footer :is(p, a, button) { font-size: 13px; }
+.visitor-footer { row-gap: 4px; }
+@media (min-width: 1280px) {
+  .visitor-page .visitor-topbar-inner { max-width: min(1080px, 100%); }
+}
+.visitor-page :is([role="group"], [role="radiogroup"]) > span[aria-hidden="true"].bg-ink {
+  border: 1px solid var(--visitor-selection-border, color-mix(in srgb, var(--color-line) 70%, transparent));
+  background: var(--visitor-selection-surface, var(--color-surface));
+  box-shadow: 0 1px 3px rgb(0 0 0 / .06);
+}
+.visitor-page :is([role="group"], [role="radiogroup"]) > [data-active="true"] { color: var(--color-accent); }
