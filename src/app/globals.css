@@ -2252,13 +2252,13 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 .visitor-about-hint { display: inline-flex; margin-top: 14px; padding: 6px 12px; border-radius: 10px; background: color-mix(in srgb, var(--color-ink) 5%, transparent); font-size: 14px; line-height: 1.5; color: var(--color-ink-2); }
 
 /*
- * A note's first sentence is its headline, so it is set a step above the body — 2px at every width,
+ * A note's first sentence is its headline, so it is set well above the body — 4px at every width,
  * still multiplied by the reader's text-size choice — with a tighter leading to hold it together.
  */
-.visitor-page .visitor-note-initial { font-size: calc(20px * var(--visitor-text-scale)); line-height: 1.5; }
+.visitor-page .visitor-note-initial { font-size: calc(22px * var(--visitor-text-scale)); line-height: 1.45; }
 @media (min-width: 640px) {
-  .visitor-page .visitor-note-initial { font-size: calc(22px * var(--visitor-text-scale)); }
+  .visitor-page .visitor-note-initial { font-size: calc(24px * var(--visitor-text-scale)); }
 }
 @media (min-width: 1280px) {
-  .visitor-page .visitor-feed-grid .visitor-note-initial { font-size: calc(20px * var(--visitor-text-scale)); }
+  .visitor-page .visitor-feed-grid .visitor-note-initial { font-size: calc(22px * var(--visitor-text-scale)); }
 }
