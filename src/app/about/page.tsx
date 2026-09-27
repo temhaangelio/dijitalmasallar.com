@@ -75,7 +75,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
               </a>
             </div>
             <a href="https://www.temhaangelio.com/" target="_blank" rel="noopener noreferrer" className="visitor-about-website visitor-sans">
-              <span>https://www.temhaangelio.com/</span>
+              <span>temhaangelio.com</span>
               <ArrowUpRight size={16} strokeWidth={1.6} aria-hidden="true" />
             </a>
           </section>
@@ -169,7 +169,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             </nav>
           </div>
         </div>
-        <p className="mt-5 flex items-center justify-center gap-2 text-[11px] text-muted">
+        <p className="visitor-sans mt-6 flex items-center justify-center gap-2 text-[13px] text-muted">
           <Heart className="size-3.5" aria-hidden="true" />
           {isEnglish ? "Made with love in Bursa." : "Bursa’da sevgiyle üretiliyor."}
         </p>

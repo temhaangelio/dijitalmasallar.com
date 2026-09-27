@@ -2247,3 +2247,6 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
   box-shadow: 0 1px 3px rgb(0 0 0 / .06);
 }
 .visitor-page :is([role="group"], [role="radiogroup"]) > [data-active="true"] { color: var(--color-accent); }
+
+/* About polish: the install path reads as an instruction, not a footnote. */
+.visitor-about-hint { display: inline-flex; margin-top: 14px; padding: 6px 12px; border-radius: 10px; background: color-mix(in srgb, var(--color-ink) 5%, transparent); font-size: 14px; line-height: 1.5; color: var(--color-ink-2); }
