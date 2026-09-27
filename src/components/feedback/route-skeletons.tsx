@@ -374,20 +374,12 @@ export function VisitorArticleLoading() {
 export function VisitorAboutLoading() {
   return (
     <VisitorShellSkeleton label="Hakkında yükleniyor">
-      <main className="visitor-wide-page mt-6 w-full max-w-[640px] sm:mt-9">
-        <div className="mb-6"><Skeleton className="h-9 w-32" /></div>
-        <div className="visitor-card visitor-about-card">
-          <div className="visitor-about-profile">
-            <Skeleton className="visitor-about-portrait" />
-            <div className="w-full min-w-0 space-y-3 xl:flex xl:flex-col xl:items-center"><Skeleton className="h-7 w-40 max-w-full" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-4/5" /><Skeleton className="h-5 w-3/5" /></div>
-            <div className="visitor-about-website"><Skeleton className="h-4 w-56 max-w-full" /></div>
-          </div>
-          <div className="visitor-about-sections">
-            <div className="space-y-3"><Skeleton className="h-6 w-40" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-11/12" /><Skeleton className="h-5 w-3/5" /><div className="visitor-about-actions"><Skeleton className="h-11 w-28 rounded-xl" /><Skeleton className="h-11 w-28 rounded-xl" /></div></div>
-            <div className="visitor-about-app space-y-3"><Skeleton className="h-6 w-48 max-w-full" /><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-4/5" /><Skeleton className="h-4 w-11/12" /></div>
-          </div>
-          <div className="visitor-about-contact"><div><Skeleton className="h-4 w-48 max-w-full" /><Skeleton className="mt-3 h-5 w-48 max-w-full" /></div><div className="flex gap-1">{[0,1,2,3].map(i => <Skeleton key={i} className="size-11 rounded-full" />)}</div></div>
-        </div>
+      <main className="mt-8 w-full max-w-[560px] sm:mt-12">
+        <Skeleton className="mb-6 h-9 w-36" />
+        <div className="space-y-3"><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-11/12" /><Skeleton className="h-5 w-3/5" /></div>
+        <div className="mt-9 flex items-center gap-3.5 border-t border-line pt-7"><Skeleton className="size-14 rounded-2xl" /><div className="space-y-2"><Skeleton className="h-5 w-32" /><Skeleton className="h-4 w-24" /></div></div>
+        <Skeleton className="mt-6 h-5 w-4/5" />
+        <Skeleton className="mt-3 h-5 w-3/5" />
       </main>
     </VisitorShellSkeleton>
   );
