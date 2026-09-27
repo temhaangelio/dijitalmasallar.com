@@ -25,8 +25,7 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
    * upward move brings the links, since going up is usually going somewhere.
    */
   useEffect(() => {
-    // The phone's section row under the bar; on wider screens the pinned bar carries the sections.
-    const masthead = document.querySelector(".visitor-subnav");
+    const masthead = document.querySelector(".visitor-masthead");
     let belowMasthead = false;
     let lastY = window.scrollY;
     let ticking = false;
@@ -60,7 +59,7 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
           <ArrowUp size={15} strokeWidth={2.5} aria-hidden="true" />
           <span>{isEnglish ? "Top" : "Başa dön"}</span>
         </button>
-        {visitorNavItems.filter((item) => item.href === "/podcast" || item.href === "/ebulten").map((item) => {
+        {visitorNavItems.filter((item) => item.href !== "/").map((item) => {
           const NavLink = item.href === "/podcast" ? ListenLink : item.href === "/ebulten" ? NewsletterLink : Link;
           const Icon = item.href === "/podcast" ? Headphones : Mail;
           return <NavLink key={item.href} href={languageHref(item.href, language)} tabIndex={shown ? undefined : -1} className="visitor-float-link">

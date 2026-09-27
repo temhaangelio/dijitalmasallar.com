@@ -7,9 +7,9 @@ import { usePathname } from "next/navigation";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 
-const headerPaths = new Set(["/", "/podcast", "/ebulten", "/about"]);
+const headerPaths = new Set(["/", "/podcast", "/ebulten"]);
 
-/** The sections, shared by the top bar and the phone's row under it. */
+/** A single, shared navigation group below the wordmark and tagline. */
 export function VisitorHeaderNav({ language }: { language: VisitorLanguage }) {
   const pathname = usePathname();
 

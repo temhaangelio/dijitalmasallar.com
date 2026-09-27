@@ -14,7 +14,7 @@ export default async function NewsletterUnsubscribePage({ searchParams }: { sear
   const isEnglish = language === "en";
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName}>
+    <VisitorShell language={language} siteName={settings.siteName} compact>
       <main className="visitor-wide-page mt-6 w-full max-w-[640px] sm:mt-9">
         <header className="mb-6">
           <h1 className="visitor-sans text-[28px] leading-tight text-ink sm:text-[32px]">

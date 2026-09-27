@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { AccentPicker, resetAccent } from "@/components/features/visitor/accent-picker";
 import { FontPicker, resetReading, TextSizePicker } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
-import { FeedViewSetting } from "@/components/features/visitor/feed-view-picker";
 import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
 import { resetTheme, ThemePicker } from "@/components/features/visitor/theme";
 import type { VisitorLanguage } from "@/lib/visitor-language";
@@ -34,11 +33,6 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
         <div className="visitor-settings-row">
           <h3 className="visitor-settings-label">{isEnglish ? "Size" : "Boyut"}</h3>
           <TextSizePicker language={language} />
-        </div>
-        {/* Only wide screens lay the feed out in two ways; a phone always reads it as cards. */}
-        <div className="visitor-settings-row visitor-settings-feed-view">
-          <h3 className="visitor-settings-label">{isEnglish ? "Feed" : "Akış"}</h3>
-          <FeedViewSetting language={language} />
         </div>
         <div className="visitor-settings-row visitor-settings-colors">
           <h3 className="visitor-settings-label">{isEnglish ? "Color" : "Renk"}</h3>

@@ -1781,56 +1781,59 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 }
 
 /* A compact author profile balances the reading options on the about page. */
-.visitor-about-card { --about-inset: 20px; }
-.visitor-about-profile { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 12px 20px; padding: 24px var(--about-inset); border-bottom: 1px solid var(--color-line); }
-.visitor-about-portrait { width: 112px; aspect-ratio: 1; }
-.visitor-about-author { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.25; letter-spacing: -.025em; }
-.visitor-about-role { margin: 6px 0 0; font-size: 17px; line-height: 1.5; color: var(--color-muted); }
-/* The daily videos, named right under the role they belong to rather than lost among the icons. */
-.visitor-about-role-link { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-top: 2px; font-size: 16px; font-weight: 500; line-height: 1.4; color: var(--color-ink-2); transition: color 160ms ease; }
-.visitor-about-role-link > svg { flex: none; color: var(--color-muted); transition: color 160ms ease; }
-.visitor-about-role-link > span { text-decoration: underline; text-decoration-color: var(--color-line-strong); text-underline-offset: 4px; }
-.visitor-about-role-link:hover, .visitor-about-role-link:hover > svg { color: var(--color-accent); }
-.visitor-about-role-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 6px; }
-.visitor-about-website { grid-column: 1 / -1; display: inline-flex; align-items: center; justify-self: start; gap: 6px; min-height: 44px; max-width: 100%; font-size: 17px; line-height: 1.5; color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-line-strong); text-underline-offset: 4px; transition: color 160ms ease; }
-.visitor-about-website > span { min-width: 0; overflow-wrap: anywhere; }
-.visitor-about-website > svg { flex-shrink: 0; color: var(--color-muted); }
-.visitor-about-website:hover { color: var(--color-accent); }
-.visitor-about-copy { font-size: calc(17px * var(--visitor-text-scale, 1)); line-height: 1.65; color: var(--color-ink-2); }
-.visitor-about-sections { padding: 24px var(--about-inset); }
-.visitor-about-section-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; line-height: 1.4; color: var(--color-ink); }
-.visitor-about-section-title svg { flex-shrink: 0; color: var(--color-muted); }
-.visitor-about-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-.visitor-about-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--color-line); border-radius: 12px; font-size: 14px; font-weight: 500; color: var(--color-ink); background: color-mix(in srgb, var(--color-ink) 2%, transparent); transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease; }
-.visitor-about-action:hover { color: var(--color-accent); border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 4%, transparent); }
-.visitor-about-action:focus-visible, .visitor-about-website:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
-.visitor-about-app { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-line); }
-.visitor-about-hint { margin-top: 12px; font-size: 13px; line-height: 1.7; color: var(--color-muted); text-wrap: pretty; }
-.visitor-about-contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 16px var(--about-inset); border-top: 1px solid var(--color-line); background: color-mix(in srgb, var(--color-ink) 1.5%, transparent); }
-.visitor-about-contact > div { min-width: 0; max-width: 100%; }
-.visitor-about-contact > div > p { font-size: 16px; line-height: 1.5; }
-.visitor-about-contact > div > a { font-size: 17px; line-height: 1.5; }
-@media (max-width: 359px) {
-  .visitor-about-profile { grid-template-columns: 88px minmax(0, 1fr); gap: 12px 16px; }
-  .visitor-about-portrait { width: 88px; }
-}
+/* About: a short story in sections — hero, how a note is made, ways to keep up, the author, contact. */
+.visitor-about-hero { max-width: 44rem; }
+.visitor-about-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-accent); }
+.visitor-about-title { margin-top: 8px; font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -.03em; color: var(--color-ink); text-wrap: balance; }
+.visitor-about-lead { margin-top: 14px; font-size: calc(18px * var(--visitor-text-scale, 1)); line-height: 1.65; color: var(--color-ink-2); text-wrap: pretty; }
+.visitor-about-block { margin-top: 44px; }
+.visitor-about-heading { margin-bottom: 14px; font-size: 20px; font-weight: 700; line-height: 1.3; letter-spacing: -.02em; color: var(--color-ink); }
+.visitor-about-steps { display: grid; gap: 12px; counter-reset: none; }
+.visitor-about-step { position: relative; padding: 20px; }
+.visitor-about-step-number { position: absolute; top: 18px; right: 20px; font-size: 13px; font-weight: 700; color: var(--color-faint); font-variant-numeric: tabular-nums; }
+.visitor-about-step-icon { color: var(--color-accent); }
+.visitor-about-step h3 { margin-top: 12px; font-size: 17px; font-weight: 700; color: var(--color-ink); }
+.visitor-about-step p { margin-top: 4px; font-size: 16px; line-height: 1.6; color: var(--color-ink-2); }
+.visitor-about-ways { display: grid; gap: 12px; }
+.visitor-about-way { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 72px; padding: 16px 18px; color: var(--color-ink); transition: border-color .18s ease; }
+.visitor-about-way > svg:first-child { color: var(--color-muted); }
+.visitor-about-way strong { display: block; font-size: 16px; font-weight: 700; }
+.visitor-about-way span > span { display: block; margin-top: 2px; font-size: 14px; line-height: 1.5; color: var(--color-muted); }
+.visitor-about-way-arrow { color: var(--color-faint); transition: color .18s ease, transform .18s ease; }
+a.visitor-about-way:hover { border-color: var(--color-line-strong); }
+a.visitor-about-way:hover .visitor-about-way-arrow { color: var(--color-accent); transform: translate(2px, -2px); }
+a.visitor-about-way:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.visitor-about-person { padding: 20px; }
+.visitor-about-person-head { display: flex; align-items: center; gap: 16px; }
+.visitor-about-avatar { flex: none; width: 72px; aspect-ratio: 1; overflow: hidden; border-radius: 20px; background: var(--color-surface-2); }
+.visitor-about-person h3 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: var(--color-ink); }
+.visitor-about-person-head p { margin-top: 2px; font-size: 16px; line-height: 1.5; color: var(--color-muted); }
+.visitor-about-socials { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--color-line); }
+.visitor-about-socials a { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; border: 1px solid var(--color-line); border-radius: 12px; color: var(--color-ink-2); transition: border-color .18s ease, color .18s ease; }
+.visitor-about-socials a > svg { flex: none; color: var(--color-muted); }
+.visitor-about-socials a strong { display: block; font-size: 14px; font-weight: 700; color: var(--color-ink); }
+.visitor-about-socials a span > span { display: block; overflow: hidden; font-size: 13px; color: var(--color-muted); text-overflow: ellipsis; white-space: nowrap; }
+.visitor-about-socials a > span:not(.sr-only) { min-width: 0; }
+.visitor-about-socials a:hover { border-color: var(--color-line-strong); }
+.visitor-about-socials a:hover > svg { color: var(--color-accent); }
+.visitor-about-socials a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.visitor-about-contact p { font-size: 17px; line-height: 1.6; color: var(--color-ink-2); }
+.visitor-about-mail { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; margin-top: 12px; padding: 10px 18px; border-radius: 999px; background: var(--color-ink); color: var(--color-canvas); font-size: 15px; font-weight: 600; transition: opacity .18s ease; }
+.visitor-about-mail:hover { opacity: .85; }
+.visitor-about-mail:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 @media (min-width: 640px) {
-  .visitor-about-card { --about-inset: 28px; }
-  .visitor-about-profile { grid-template-columns: 144px minmax(0, 1fr); gap: 16px 28px; padding-block: 28px; }
-  .visitor-about-portrait { width: 144px; }
-  .visitor-about-author { font-size: 28px; }
-  .visitor-about-copy { font-size: calc(18px * var(--visitor-text-scale, 1)); }
+  .visitor-about-title { font-size: 40px; }
+  .visitor-about-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .visitor-about-ways { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .visitor-about-socials { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .visitor-about-person { padding: 24px; }
 }
 @media (min-width: 1280px) {
-  .visitor-about-card { --about-inset: 32px; display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
-  .visitor-about-profile { grid-template-columns: minmax(0, 1fr); align-content: center; justify-items: center; gap: 16px; border-bottom: 0; border-right: 1px solid var(--color-line); text-align: center; }
-  .visitor-about-portrait { width: 176px; }
-  .visitor-about-profile > .min-w-0 { max-width: 28ch; }
-  .visitor-about-website { justify-self: center; }
-  .visitor-about-sections { padding-block: 32px; }
-  .visitor-about-contact { grid-column: 1 / -1; }
+  .visitor-about { max-width: min(880px, 100%) !important; }
+  .visitor-about-title { font-size: 48px; }
+  .visitor-about-socials { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
-@media (prefers-reduced-motion: reduce) { .visitor-about-action, .visitor-about-website { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .visitor-about-way, .visitor-about-way-arrow, .visitor-about-socials a, .visitor-about-mail { transition: none; } }
 
 /* The mobile masthead stays centred above a wider desktop news grid.
    Real cards and loading placeholders share these dimensions. */
@@ -2232,108 +2235,15 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 }
 
 /*
- * The top bar. One pinned, translucent strip across the window — brand left, sections centred,
- * controls right — so the notes begin right under it. Its inner row is as wide as the page's
- * content column (640px, 1080px on wide feed pages), so its edges line up with the cards.
- */
-.visitor-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 60;
-  width: 100vw;
-  margin-inline: calc(50% - 50vw);
-  padding-inline: 16px;
-  padding-top: env(safe-area-inset-top);
-  border-bottom: 1px solid color-mix(in srgb, var(--color-line) 80%, transparent);
-  background: color-mix(in srgb, var(--color-canvas) 86%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-}
-.visitor-topbar-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 640px;
-  height: 56px;
-  margin-inline: auto;
-}
-.visitor-topbar-brand { display: flex; min-width: 0; min-height: 44px; align-items: center; gap: 10px; color: var(--color-ink); transition: opacity .18s ease; }
-.visitor-topbar-brand:hover { opacity: .75; }
-.visitor-page .visitor-topbar-wordmark { width: 118px; min-width: 0; flex-shrink: 1; }
-.visitor-topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
-/* Controls in the bar are bare glyphs until touched: three boxed buttons read as a toolbar. */
-.visitor-topbar .visitor-top-control { width: 40px; height: 40px; }
-.visitor-topbar .visitor-top-control::before { inset: 2px; border-color: transparent; background: transparent; }
-.visitor-topbar .visitor-top-control:hover:not(:disabled)::before { background: color-mix(in srgb, var(--color-ink) 6%, transparent); }
-.visitor-topbar .visitor-top-badge { top: 2px; right: 2px; }
-
-/* The sections: plain words, the current one in ink with an accent rule under it. */
-.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-links { display: flex; justify-content: flex-start; width: auto; margin: 0; }
-.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-nav-track { gap: 4px; padding: 0; border: 0; border-radius: 0; background: none; }
-.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link {
-  min-height: 44px;
-  padding-inline: 12px;
-  border-radius: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-muted);
-  background: none;
-  box-shadow: none;
-}
-.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link:hover { color: var(--color-ink); background: none; }
-.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link[aria-current="page"] { color: var(--color-ink); background: none; box-shadow: none; }
-.visitor-page :is(.visitor-topbar, .visitor-subnav) .visitor-header-link[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 6px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--color-accent);
-}
-.visitor-topbar-nav { display: none; }
-.visitor-topbar-inner { grid-template-columns: minmax(0, 1fr) auto; }
-.visitor-subnav { width: 100%; max-width: 640px; margin-top: 4px; }
-.visitor-subnav .visitor-nav-track { margin-left: -12px; }
-@media (min-width: 768px) {
-  .visitor-topbar { padding-inline: 32px; }
-  .visitor-topbar-inner { height: 64px; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
-  .visitor-page .visitor-topbar-wordmark { width: 138px; }
-  .visitor-topbar-nav { display: flex; justify-content: center; }
-  .visitor-subnav { display: none; }
-  /* The pinned bar already carries the sections, so the capsule would only repeat them. */
-  .visitor-float-nav { display: none; }
-}
-@media (min-width: 1280px) {
-  .visitor-page:has(.visitor-feed, .visitor-wide-page) .visitor-topbar-inner { max-width: min(1080px, 100%); }
-}
-
-/* The feed starts right under the bar (on a phone, under the sections' row). */
-.visitor-page .visitor-feed { margin-top: 24px; }
-@media (max-width: 767px) { .visitor-page .visitor-feed { margin-top: 12px; } }
-/* The feed's search joins the bar's controls and takes their look. */
-.visitor-topbar .visitor-search-trigger { display: grid; width: 40px; height: 40px; border-radius: 12px; color: var(--color-ink-2); }
-.visitor-settings-feed-view { display: none; }
-@media (min-width: 1280px) { .visitor-settings-feed-view { display: grid; } }
-
-/*
  * Visitor polish, for reading first:
  * - the small print (a note's date and time, its source, the footer) goes to 13px — it is read on
  *   every card, and 11–12px made the one thing a news note must carry, its time, the hardest to read;
- * - the top bar keeps one width on every page at 1280px+, so the brand does not jump sideways when a
- *   reader moves from the two-column feed into a single note;
  * - a segmented choice outside the settings sheet (the podcast's language) takes the site's light
  *   selection pill instead of a solid ink one, which competed with the page's single primary action.
  */
 .visitor-note-time, .visitor-note-footer { font-size: 13px; }
 .visitor-footer :is(p, a, button) { font-size: 13px; }
 .visitor-footer { row-gap: 4px; }
-@media (min-width: 1280px) {
-  .visitor-page .visitor-topbar-inner { max-width: min(1080px, 100%); }
-}
 .visitor-page :is([role="group"], [role="radiogroup"]) > span[aria-hidden="true"].bg-ink {
   border: 1px solid var(--visitor-selection-border, color-mix(in srgb, var(--color-line) 70%, transparent));
   background: var(--visitor-selection-surface, var(--color-surface));
