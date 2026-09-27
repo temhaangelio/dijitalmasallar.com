@@ -2262,3 +2262,8 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 @media (min-width: 1280px) {
   .visitor-page .visitor-feed-grid .visitor-note-initial { font-size: calc(22px * var(--visitor-text-scale)); }
 }
+/* The note page's first paragraph carries the same headline step as the feed's first sentence. */
+.visitor-page .visitor-article-intro > div { font-size: calc(22px * var(--visitor-text-scale, 1)); line-height: 1.45; }
+@media (min-width: 640px) {
+  .visitor-page .visitor-article-intro > div { font-size: calc(24px * var(--visitor-text-scale, 1)); }
+}

@@ -155,7 +155,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
             <ArrowLeft className="size-4" strokeWidth={1.5} aria-hidden="true" />
             <span>{language === "en" ? "Back to feed" : "Akışa dön"}</span>
           </BackToFeedLink>
-          <time dateTime={publishedAt} className="flex min-w-0 flex-col items-end text-right text-[11px] leading-5 tabular-nums text-muted sm:flex-row sm:items-center sm:gap-2 sm:text-xs">
+          <time dateTime={publishedAt} className="flex min-w-0 flex-col items-end text-right text-[13px] leading-5 tabular-nums text-muted sm:flex-row sm:items-center sm:gap-2">
             <span>{fullDateLabel(publishedAt, language)}</span>
             <span className="hidden sm:inline" aria-hidden="true">·</span>
             <span className="font-medium text-accent">{timeLabel(publishedAt, language)}</span>
@@ -173,7 +173,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
             </ZoomableImage>
           )}
           {paragraphs.rest ? <div className="visitor-markdown visitor-serif mt-5"><MarkdownPreview value={paragraphs.rest} /></div> : null}
-          <div className="mt-3 flex min-w-0 items-center justify-between gap-3 visitor-sans text-[11px] font-normal leading-[1.6]">
+          <div className="mt-3 flex min-w-0 items-center justify-between gap-3 visitor-sans text-[13px] font-normal leading-[1.6]">
             {post.source_url
               ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source block min-h-11 min-w-0 truncate py-3 text-muted transition-colors hover:text-accent">{displayedSource}<svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg></a>
               : <span title={displayedSource} className="visitor-source min-w-0 truncate text-muted">{displayedSource}</span>}
