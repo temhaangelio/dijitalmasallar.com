@@ -1842,7 +1842,7 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
     font-size: calc(18px * var(--visitor-text-scale));
   }
 
-  /* A saved desktop preference reshapes the same notes; mobile and article pages stay independent. */
+  /* The saved card/row choice reshapes the same notes; on phones the rows are the compact list below. Article pages stay independent. */
   html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-feed-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-card-grid { --note-inset: 24px; position: relative; border-radius: 14px; box-shadow: none; }
   html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-card-grid:has(.visitor-note-cover) {
@@ -2266,4 +2266,47 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 .visitor-page .visitor-article-intro > div { font-size: calc(22px * var(--visitor-text-scale, 1)); line-height: 1.45; }
 @media (min-width: 640px) {
   .visitor-page .visitor-article-intro > div { font-size: calc(24px * var(--visitor-text-scale, 1)); }
+}
+
+/*
+ * The row view on phones and tablets: a compact list, so a screen holds many notes instead of one.
+ * Each note keeps its date and time and its first sentence (clamped to four lines), with the cover
+ * as a small square on the right; the rest of the text is left for the note's own page. The
+ * thumbnail lets taps through to the note rather than opening the zoom.
+ */
+.visitor-feed-view-picker { display: grid; }
+@media (max-width: 1279px) {
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-feed-grid { gap: 12px; }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 14px;
+    padding: 14px 16px 12px;
+  }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-time { grid-column: 1 / -1; margin-bottom: 10px; padding-bottom: 8px; }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-initial {
+    grid-column: 1;
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: calc(18px * var(--visitor-text-scale));
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-cover {
+    grid-column: 2;
+    grid-row: 2;
+    width: 84px;
+    margin: 2px 0 0;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    pointer-events: none;
+  }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-body { display: none; }
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-footer { padding-block: 0; }
+}
+@media (max-width: 1279px) and (min-width: 640px) {
+  html[data-visitor-feed-view="rows"] .visitor-viewable-feed .visitor-note-cover { width: 112px; }
 }
