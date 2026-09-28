@@ -1,5 +1,4 @@
 import "server-only";
-import { bulletinDays } from "@/lib/visitor-date";
 import { recordingNewsExcerpt } from "@/lib/speech/news-excerpt";
 import { randomUUID } from "node:crypto";
 
@@ -48,24 +47,21 @@ function missingTable(error: { code?: string } | null) {
   return error?.code === "PGRST205" || error?.code === "42P01";
 }
 
-/** Today’s published bulletin, falling back to yesterday in the same language. */
-export async function getLatestDailyAudio(language: VisitorLanguage): Promise<DailyAudio | null> {
-  if (!isSupabaseConfigured()) return null;
+/**
+ * Every recording published since a moment, newest first — the feed interleaves them with the notes
+ * by their publishing time. `since` null means all of them (the feed has reached its oldest note).
+ */
+export async function getDailyAudioSince(language: VisitorLanguage, since: string | null): Promise<DailyAudio[]> {
+  if (!isSupabaseConfigured()) return [];
   try {
     const supabase = await createClient();
-    const { today, yesterday } = bulletinDays();
-    const { data, error } = await supabase
-      .from("daily_summary_audio")
-      .select(columns)
-      .eq("language", language)
-      .in("day", [today, yesterday])
-      .order("day", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error || !data) return null;
-    return toAudio(data as Row);
+    let query = supabase.from("daily_summary_audio").select(columns).eq("language", language).order("published_at", { ascending: false }).limit(200);
+    if (since) query = query.gte("published_at", since);
+    const { data, error } = await query;
+    if (error || !data) return [];
+    return (data as Row[]).map(toAudio);
   } catch {
-    return null;
+    return [];
   }
 }
 

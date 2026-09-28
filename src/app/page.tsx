@@ -10,7 +10,7 @@ import { ListenPromo } from "@/components/features/visitor/listen-promo";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
-import { getLatestDailyAudio } from "@/services/daily-audio";
+import { getDailyAudioSince, type DailyAudio } from "@/services/daily-audio";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
@@ -152,14 +152,20 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
   // One extra row is enough to decide whether the automatic "more notes" control is needed.
   const fetchCount = pagination.fetchCount;
-  const [postData, ads, dailyAudio] = await Promise.all([
+  const [postData, ads] = await Promise.all([
     getPosts(1, fetchCount, language),
     settings.moduleAds ? getActiveAds(language) : Promise.resolve([]),
-    getLatestDailyAudio(language),
   ]);
   const publishedPosts = postData.filter((post) => post.status === "published");
   const hasMorePosts = pagination.canLoadMore && publishedPosts.length > visiblePostCount;
   const posts = publishedPosts.slice(0, visiblePostCount);
+  /*
+   * Every published recording takes its place in the feed by the time it went out, like a note.
+   * While older notes are still to load, only the recordings back to the oldest note shown are
+   * fetched; the rest arrive with the notes of their days.
+   */
+  const oldestShown = posts.length ? (posts[posts.length - 1].published_at ?? posts[posts.length - 1].created_at) : null;
+  const recordings = await getDailyAudioSince(language, hasMorePosts ? oldestShown : null);
   const postDays = groupPostsByDay(posts);
   const adSlots = createAdSlots(posts.length, ads);
   const newsletterSlots = createNewsletterSlots(posts.length);
@@ -217,9 +223,24 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     ],
   };
 
-  const audioCard = dailyAudio
-    ? <DailyAudioCard title={dailyAudio.day === bulletinDays().yesterday ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : (language === "en" ? "Today’s briefing" : "Bugünün bülteni")} day={dailyAudio.day} durationSeconds={dailyAudio.durationSeconds} language={language} />
-    : null;
+  const { today: todayKey, yesterday: yesterdayKey } = bulletinDays();
+  const audioCardFor = (recording: DailyAudio) => (
+    <div key={`audio-${recording.day}`} className="xl:flex xl:flex-col">
+      <DailyAudioCard
+        title={recording.day === yesterdayKey ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : recording.day === todayKey ? (language === "en" ? "Today’s briefing" : "Bugünün bülteni") : (language === "en" ? "Audio briefing" : "Sesli bülten")}
+        day={recording.day}
+        durationSeconds={recording.durationSeconds}
+        language={language}
+      />
+    </div>
+  );
+  // Recordings newer than a note go before it; `placed` walks the newest-first list once.
+  let placed = 0;
+  const recordingsBefore = (publishedAt: string) => {
+    const nodes = [];
+    while (placed < recordings.length && Date.parse(recordings[placed].publishedAt) > Date.parse(publishedAt)) nodes.push(audioCardFor(recordings[placed++]));
+    return nodes;
+  };
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
@@ -238,15 +259,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6">
             {(() => {
               return postDays.flatMap((day) => day.items.flatMap(({ post, position }) => {
-                const nodes = [];
+                const nodes = recordingsBefore(post.published_at ?? post.created_at);
                 nodes.push(
                   <div key={post.id} id={noteAnchorId(post.id)} className="visitor-note-anchor group/note relative xl:flex xl:flex-col">
                     <NoteCard post={post} language={language} priority={position < 2} latest={position === 0} layout="grid" />
                   </div>,
                 );
-                // The day read aloud takes the fourth place in the grid, as a card among the notes —
-                // or follows the last one when there are fewer than three.
-                if (audioCard && position === Math.min(2, posts.length - 1)) nodes.push(<div key="daily-audio" className="xl:flex xl:flex-col">{audioCard}</div>);
                 if (adSlots.has(position)) {
                   nodes.push(<AdCard key={`ad-${position}`} ad={adSlots.get(position)!} />);
                 }
@@ -258,7 +276,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   nodes.push(<ListenPromo key={`listen-${position}`} language={language} />);
                 }
                 return nodes;
-              }));
+              })).concat(hasMorePosts ? [] : recordings.slice(placed).map(audioCardFor));
             })()}
           </div>
           </>
