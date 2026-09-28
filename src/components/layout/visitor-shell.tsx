@@ -7,7 +7,6 @@ import { FavoritesNavButton } from "@/components/features/visitor/favorites-nav-
 import { LanguageLink } from "@/components/features/visitor/language-link";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { PullToRefresh } from "@/components/features/visitor/pull-to-refresh";
-import { VisitorHeaderBackdrop } from "@/components/features/visitor/visitor-header-backdrop";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { BrandMark } from "@/components/ui/brand-mark";
@@ -66,7 +65,6 @@ export async function VisitorShell({
         so there they sit centred under it.
       */}
       <header data-reading={reading || undefined} className="visitor-nav visitor-masthead relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
-        {!reading && <VisitorHeaderBackdrop />}
         <div className="visitor-masthead-row relative flex w-full shrink-0 items-center justify-between gap-2">
           <Link
             href={languageHref("/", language)}
