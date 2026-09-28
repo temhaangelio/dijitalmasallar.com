@@ -12,18 +12,7 @@ export function NewsletterContent({ language, modal = false }: { language: Visit
     <div className="visitor-card visitor-newsletter-card newsletter-letter-layout">
       <section className="visitor-newsletter-main" aria-labelledby={headingId}>
         <div className="newsletter-art-panel" aria-hidden="true">
-          <div className="newsletter-letter-cover">
-            <div className="newsletter-envelope">
-              <div className="newsletter-envelope-back" />
-              <div className="newsletter-paper">
-                <span className="newsletter-paper-brand">Dijital Masallar</span>
-                <strong>{isEnglish ? "A little\nfrom the day." : "Her Gün\nGündemden\nKısa Notlar"}</strong>
-                <span className="newsletter-paper-lines" />
-              </div>
-              <div className="newsletter-envelope-front" />
-              <span className="newsletter-envelope-seal"><span className="newsletter-seal-monogram"><BrandDigit value="0" /><BrandDigit value="1" /><BrandDigit value="1" /><BrandDigit value="0" /></span></span>
-            </div>
-          </div>
+          <NewsletterEnvelope language={language} />
         </div>
         <div className="newsletter-details">
           <h2 id={headingId} className="visitor-newsletter-headline visitor-sans">{isEnglish ? "The briefing, in your inbox." : "Gündem e-postanızda."}</h2>
@@ -36,6 +25,25 @@ export function NewsletterContent({ language, modal = false }: { language: Visit
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+/** The sealed envelope with the day's letter in it — the newsletter's picture, here and in the feed's suggestion card. */
+export function NewsletterEnvelope({ language }: { language: VisitorLanguage }) {
+  const isEnglish = language === "en";
+  return (
+    <div className="newsletter-letter-cover">
+      <div className="newsletter-envelope">
+        <div className="newsletter-envelope-back" />
+        <div className="newsletter-paper">
+          <span className="newsletter-paper-brand">Dijital Masallar</span>
+          <strong>{isEnglish ? "A little\nfrom the day." : "Her Gün\nGündemden\nKısa Notlar"}</strong>
+          <span className="newsletter-paper-lines" />
+        </div>
+        <div className="newsletter-envelope-front" />
+        <span className="newsletter-envelope-seal"><span className="newsletter-seal-monogram"><BrandDigit value="0" /><BrandDigit value="1" /><BrandDigit value="1" /><BrandDigit value="0" /></span></span>
+      </div>
     </div>
   );
 }

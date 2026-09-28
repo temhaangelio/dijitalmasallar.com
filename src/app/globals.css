@@ -2245,3 +2245,10 @@ html[data-visitor-theme="dark"] .audio-art-icon { box-shadow: 0 0 0 8px #ffffff1
   .visitor-page .feed-audio-card .feed-audio-card-title { font-size: calc(28px * var(--visitor-text-scale, 1)); }
   .visitor-page .feed-audio-card .feed-audio-card-body { font-size: calc(21px * var(--visitor-text-scale, 1)); }
 }
+
+/* The newsletter suggestion's picture: the e-bülten page's envelope, centred on the soft wash. */
+.newsletter-promo-stage { display: grid; place-items: center; }
+.newsletter-promo-stage .newsletter-letter-cover { width: auto; height: 104%; margin-top: 2%; }
+.feed-audio-card:hover .newsletter-promo-stage .newsletter-letter-cover { transform: translateY(-2px); }
+.newsletter-promo-stage .newsletter-letter-cover { transition: transform 200ms cubic-bezier(.2,.8,.2,1); }
+@media (prefers-reduced-motion: reduce) { .newsletter-promo-stage .newsletter-letter-cover { transition: none; } }
