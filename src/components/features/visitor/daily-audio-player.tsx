@@ -60,18 +60,27 @@ export function DailyAudioCard({ day, durationSeconds, language, title }: {
 }) {
   const english = language === "en";
   const seconds = Math.max(0, Math.floor(durationSeconds));
-  const date = fullDateLabel(`${day}T12:00:00+03:00`, language);
+  const at = new Date(`${day}T12:00:00+03:00`);
+  const date = fullDateLabel(at.toISOString(), language);
+  const dayMonth = new Intl.DateTimeFormat(english ? "en-GB" : "tr-TR", { day: "numeric", month: "long", timeZone: "Europe/Istanbul" }).format(at);
+  const minutes = Math.max(1, Math.round(seconds / 60));
   const duration = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+  // Laid out like a note card: dateline, headline, a 16:9 picture, then a line of body text.
   return (
-    <ListenLink href={`${languageHref("/podcast", language, { day, play: 1 })}#oynatici`} className="visitor-card feed-audio-card visitor-sans" aria-label={english ? `Listen to the ${date} briefing` : `${date} bültenini dinle`}>
-      <span className="visitor-note-time">
-        <span>{title}</span>
-        <span className="ml-auto shrink-0 tabular-nums">{duration} <span aria-hidden="true">·</span> {english ? "English" : "Türkçe"}</span>
-      </span>
-      <span className="feed-audio-card-title">{english ? `The ${date} notes, read aloud.` : `${date} notları, sesli.`}</span>
-      <span className="feed-audio-card-stage">
-        <AudioStageArt />
-        <span className="feed-audio-play" aria-hidden="true"><Play size={26} fill="currentColor" strokeWidth={1.5} /></span>
+    <ListenLink href={`${languageHref("/podcast", language, { day, play: 1 })}#oynatici`} className="visitor-card visitor-note-card feed-audio-card" aria-label={english ? `Listen to the ${date} briefing` : `${date} bültenini dinle`}>
+      <span className="visitor-note-content block min-w-0 flex-1 px-5 py-5 sm:px-6 sm:py-6 xl:px-5 xl:py-5">
+        <span className="visitor-note-time visitor-sans">
+          <span>{title}</span>
+          <span className="ml-auto shrink-0 tabular-nums">{duration} <span aria-hidden="true">·</span> {english ? "English" : "Türkçe"}</span>
+        </span>
+        <span className="visitor-note-initial visitor-copy block font-semibold text-ink [text-wrap:pretty]">{english ? `${dayMonth} briefing` : `${dayMonth} Bülteni`}</span>
+        <span className="feed-audio-card-stage visitor-note-cover relative mt-5 block aspect-video w-full overflow-hidden rounded-[10px]">
+          <AudioStageArt />
+          <span className="feed-audio-play" aria-hidden="true"><Play size={26} fill="currentColor" strokeWidth={1.5} /></span>
+        </span>
+        <span className="visitor-note-body visitor-copy mt-5 block text-ink [text-wrap:pretty] xl:mt-3">{english
+          ? `The day's technology, science, AI and digital culture notes, read aloud in about ${minutes} minute${minutes === 1 ? "" : "s"}. Put your headphones on and catch up without reading.`
+          : `Günün teknoloji, bilim, yapay zekâ ve dijital kültür notları, yaklaşık ${minutes} dakikada sesli olarak. Kulaklığını tak, okumadan gündemi yakala.`}</span>
       </span>
     </ListenLink>
   );
