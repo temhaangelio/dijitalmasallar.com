@@ -31,19 +31,15 @@ export async function VisitorShell({
   siteName,
   children,
   showHeader = true,
-  compact = false,
   reading = false,
 }: {
   language: VisitorLanguage;
   siteName: string;
   children: ReactNode;
   showHeader?: boolean;
-  /** Drops the tagline. A story page has its own subject; the site's pitch is not it. */
-  compact?: boolean;
   reading?: boolean;
 }) {
   const settings = await getSiteSettings();
-  const description = language === "en" ? settings.descriptionEn : settings.description;
   /*
    * iOS Safari paints the band behind the status bar from the `theme-color` it reads as it first
    * parses the document, and never repaints it for a tag written later — so a reader who chose dark
@@ -65,12 +61,13 @@ export async function VisitorShell({
           </>}
       {showHeader ? <>
       {/*
-        The mark and the logotype sit together in the top-left corner as the way home, the reader's
-        controls opposite them; the tagline and the navigation run down the centre under that row.
+        One row: the mark and the logotype in the top-left corner as the way home, the sections in
+        the middle, the reader's controls opposite. A phone has no room for the sections in that row,
+        so there they sit centred under it.
       */}
       <header data-reading={reading || undefined} className="visitor-nav visitor-masthead relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
         {!reading && <VisitorHeaderBackdrop />}
-        <div className="flex w-full shrink-0 items-center justify-between gap-2">
+        <div className="visitor-masthead-row relative flex w-full shrink-0 items-center justify-between gap-2">
           <Link
             href={languageHref("/", language)}
             aria-label={language === "en" ? `${siteName} home` : `${siteName} ana sayfa`}
@@ -81,6 +78,8 @@ export async function VisitorShell({
               ? <span className="visitor-wordmark-art visitor-wordmark-beside" aria-hidden="true" />
               : <span className="visitor-wordmark-beside truncate font-mono text-[17px] font-bold">{siteName}</span>}
           </Link>
+          {/* On wide screens the sections sit in the middle of this row; phones keep them below. */}
+          {reading ? null : <div className="visitor-masthead-nav-top"><VisitorHeaderNav language={language} /></div>}
           <div className="flex shrink-0 items-center gap-2">
             <FavoritesNavButton language={language} />
             {/* Keep the bell visible when the module is enabled, even if a deployment is missing its
@@ -91,10 +90,6 @@ export async function VisitorShell({
         </div>
 
         {reading ? null : <>
-          <div className="visitor-introduction visitor-sans">
-            {compact ? null : <p className="visitor-tagline">{description}</p>}
-            <Link href={languageHref("/about", language)} className="visitor-about-link">{language === "en" ? "About" : "Hakkında"}</Link>
-          </div>
           <VisitorHeaderNav language={language} />
         </>}
       </header>

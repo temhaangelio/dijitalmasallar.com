@@ -59,7 +59,7 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
           <ArrowUp size={15} strokeWidth={2.5} aria-hidden="true" />
           <span>{isEnglish ? "Top" : "Başa dön"}</span>
         </button>
-        {visitorNavItems.filter((item) => item.href !== "/").map((item) => {
+        {visitorNavItems.filter((item) => item.href === "/podcast" || item.href === "/ebulten").map((item) => {
           const NavLink = item.href === "/podcast" ? ListenLink : item.href === "/ebulten" ? NewsletterLink : Link;
           const Icon = item.href === "/podcast" ? Headphones : Mail;
           return <NavLink key={item.href} href={languageHref(item.href, language)} tabIndex={shown ? undefined : -1} className="visitor-float-link">

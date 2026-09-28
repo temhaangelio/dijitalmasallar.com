@@ -142,7 +142,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
   };
 
   return (
-    <VisitorShell language={language} siteName={settings.siteName} compact reading>
+    <VisitorShell language={language} siteName={settings.siteName} reading>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
       <main className="w-full max-w-[640px] pt-4 sm:pt-6">

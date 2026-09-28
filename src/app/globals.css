@@ -2274,3 +2274,59 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 @media (max-width: 359px) { .visitor-page .visitor-wordmark-beside { width: 112px; } }
 /* With the logotype gone from the centre, the tagline opens the centred part of the masthead. */
 .visitor-page .visitor-masthead .visitor-introduction { margin-top: 20px; }
+
+/*
+ * The sections. On the wide feed pages (1280px+) they sit in the middle of the masthead's top row;
+ * elsewhere they are centred under it. Each link is drawn like the controls in that row — a light
+ * chip with a hairline — so the row reads as one set, the current section in the accent.
+ */
+.visitor-masthead-nav-top { display: none; }
+.visitor-page .visitor-masthead .visitor-header-links { margin-top: 16px; }
+.visitor-page .visitor-masthead .visitor-nav-track { gap: 6px; padding: 0; border: 0; border-radius: 0; background: none; }
+.visitor-page .visitor-masthead .visitor-header-link {
+  min-height: 36px;
+  padding-inline: 12px;
+  border: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-ink) 5%, var(--color-canvas));
+  font-size: 14px;
+  color: var(--color-ink-2);
+}
+.visitor-page .visitor-masthead .visitor-header-link:hover { color: var(--color-ink); background: color-mix(in srgb, var(--color-ink) 9%, var(--color-canvas)); }
+.visitor-page .visitor-masthead .visitor-header-link[aria-current="page"] {
+  color: var(--color-accent);
+  background: var(--visitor-selection-surface, var(--color-surface));
+  border-color: var(--visitor-selection-border, color-mix(in srgb, var(--color-line) 70%, transparent));
+  box-shadow: 0 1px 3px rgb(0 0 0 / .06);
+}
+html[data-visitor-theme="dark"] .visitor-page .visitor-masthead .visitor-header-link { border-color: color-mix(in oklab, var(--color-line-strong) 62%, transparent); }
+@media (min-width: 640px) {
+  .visitor-page .visitor-masthead .visitor-header-link { min-height: 40px; padding-inline: 16px; font-size: 15px; }
+}
+@media (max-width: 379px) {
+  .visitor-page .visitor-masthead .visitor-nav-track { gap: 4px; }
+  .visitor-page .visitor-masthead .visitor-header-link { padding-inline: 9px; font-size: 13px; }
+}
+@media (min-width: 1280px) {
+  .visitor-page:has(.visitor-feed, .visitor-wide-page) .visitor-masthead-nav-top { position: absolute; left: 50%; display: block; transform: translateX(-50%); }
+  .visitor-page:has(.visitor-feed, .visitor-wide-page) .visitor-masthead-nav-top .visitor-header-links { margin-top: 0; }
+  .visitor-page:has(.visitor-feed, .visitor-wide-page) .visitor-masthead > .visitor-header-links { display: none; }
+  .visitor-page .visitor-masthead .visitor-header-link { min-height: 42px; border-radius: 14px; }
+}
+
+/* The bulletin as a card in the feed: the note's dateline and headline, then a play stage that fills the rest. */
+.feed-audio-card { display: flex; flex-direction: column; min-height: 280px; padding: 20px; color: var(--color-ink); transition: border-color .18s ease; }
+.xl\:flex > .feed-audio-card { flex: 1; }
+.feed-audio-card:hover { border-color: var(--color-line-strong); }
+.feed-audio-card:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.feed-audio-card .visitor-note-time { width: 100%; }
+.feed-audio-card-title { font-size: calc(22px * var(--visitor-text-scale, 1)); font-weight: 600; line-height: 1.4; letter-spacing: -.015em; color: var(--color-ink); text-wrap: pretty; }
+.feed-audio-card-stage { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 160px; margin-top: 18px; border-radius: 10px; background: color-mix(in srgb, var(--color-ink) 4%, transparent); }
+.feed-audio-card .feed-audio-play { width: 72px; height: 72px; }
+.feed-audio-card:hover .feed-audio-play { transform: scale(1.05); }
+@media (min-width: 640px) { .feed-audio-card { padding: 24px; } .feed-audio-card-title { font-size: calc(24px * var(--visitor-text-scale, 1)); } }
+@media (min-width: 1280px) { .feed-audio-card-title { font-size: calc(22px * var(--visitor-text-scale, 1)); } }
+/* The stage takes the podcast cover's dark ground, so the card reads as "listen" before a word is read. */
+.feed-audio-card-stage { background: var(--color-ink); }
+.feed-audio-card .feed-audio-play { background: var(--color-ink-contrast); color: var(--color-ink); box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-ink-contrast) 12%, transparent); }
+.feed-audio-card .feed-audio-action { background: color-mix(in srgb, var(--color-ink-contrast) 14%, transparent); color: var(--color-ink-contrast); }

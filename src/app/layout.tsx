@@ -9,7 +9,6 @@ import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytic
 import { GoogleAnalytics } from "@/components/features/visitor/google-analytics";
 import { ThemeScript } from "@/components/features/visitor/theme";
 import { FontScript } from "@/components/features/visitor/font";
-import { FeedViewScript } from "@/components/features/visitor/feed-view-picker";
 import { siteUrl } from "@/lib/seo";
 
 /** The property the public site reports to. Overridable without a code change, as the domain is. */
@@ -71,7 +70,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The visitor pages and the admin panel both key their dark tokens off it.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /><FontScript /><AccentScript /><FeedViewScript /><InstallScript /></head>
+      <head><ThemeScript /><FontScript /><AccentScript /><InstallScript /></head>
       <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /><GoogleAnalytics id={googleAnalyticsId} /></body>
     </html>
   );

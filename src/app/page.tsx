@@ -2,11 +2,8 @@ import { getFeedPagination } from "@/lib/feed-pagination";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
-import { FeedRefresh } from "@/components/features/visitor/feed-refresh";
-import { DailyAudioPlayer } from "@/components/features/visitor/daily-audio-player";
+import { DailyAudioCard } from "@/components/features/visitor/daily-audio-player";
 import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memory";
-import { FeedViewPicker } from "@/components/features/visitor/feed-view-picker";
-import { FeedSearch } from "@/components/features/visitor/feed-search";
 import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
 import { NewsletterPromo } from "@/components/features/visitor/newsletter-promo";
 import { ListenPromo } from "@/components/features/visitor/listen-promo";
@@ -220,18 +217,14 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     ],
   };
 
+  const audioCard = dailyAudio
+    ? <DailyAudioCard title={dailyAudio.day === bulletinDays().yesterday ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : (language === "en" ? "Today’s briefing" : "Bugünün bülteni")} day={dailyAudio.day} durationSeconds={dailyAudio.durationSeconds} language={language} />
+    : null;
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
       <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
-        <div className="visitor-feed-tools">
-          <FeedViewPicker language={language} />
-          <FeedSearch language={language} />
-          <FeedRefresh language={language} />
-        </div>
-        {/* The day read aloud, above the notes it summarises. Only when one has been published. */}
-        {dailyAudio ? <DailyAudioPlayer title={dailyAudio.day === bulletinDays().yesterday ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : (language === "en" ? "Today’s briefing" : "Bugünün bülteni")} day={dailyAudio.day} durationSeconds={dailyAudio.durationSeconds} language={language} /> : null}
         <div>
         {posts.length ? (
           <>
@@ -251,6 +244,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                     <NoteCard post={post} language={language} priority={position < 2} latest={position === 0} layout="grid" />
                   </div>,
                 );
+                // The day read aloud takes the fourth place in the grid, as a card among the notes —
+                // or follows the last one when there are fewer than three.
+                if (audioCard && position === Math.min(2, posts.length - 1)) nodes.push(<div key="daily-audio" className="xl:flex xl:flex-col">{audioCard}</div>);
                 if (adSlots.has(position)) {
                   nodes.push(<AdCard key={`ad-${position}`} ad={adSlots.get(position)!} />);
                 }
