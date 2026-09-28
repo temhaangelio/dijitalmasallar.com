@@ -2267,3 +2267,10 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 @media (min-width: 640px) {
   .visitor-page .visitor-article-intro > div { font-size: calc(24px * var(--visitor-text-scale, 1)); }
 }
+
+/* The logotype beside the mark in the top-left corner, sized to sit with it on one line. */
+.visitor-page .visitor-wordmark-beside { width: 132px; min-width: 0; flex-shrink: 1; }
+@media (min-width: 640px) { .visitor-page .visitor-wordmark-beside { width: 160px; } }
+@media (max-width: 359px) { .visitor-page .visitor-wordmark-beside { width: 112px; } }
+/* With the logotype gone from the centre, the tagline opens the centred part of the masthead. */
+.visitor-page .visitor-masthead .visitor-introduction { margin-top: 20px; }

@@ -65,12 +65,8 @@ export async function VisitorShell({
           </>}
       {showHeader ? <>
       {/*
-        The mark anchors the top-left corner as a way home; the name, the tagline and the navigation
-        run down the centre under it.
-
-        The two are separate on purpose, at the reader's request. Worth knowing about the trade: the
-        header carries two alignments at once this way, and the site states its identity twice — as
-        a glyph in the corner and as a logotype in the middle.
+        The mark and the logotype sit together in the top-left corner as the way home, the reader's
+        controls opposite them; the tagline and the navigation run down the centre under that row.
       */}
       <header data-reading={reading || undefined} className="visitor-nav visitor-masthead relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
         {!reading && <VisitorHeaderBackdrop />}
@@ -78,9 +74,12 @@ export async function VisitorShell({
           <Link
             href={languageHref("/", language)}
             aria-label={language === "en" ? `${siteName} home` : `${siteName} ana sayfa`}
-            className="flex min-h-11 min-w-0 items-center gap-3 transition-opacity hover:opacity-75"
+            className="flex min-h-11 min-w-0 items-center gap-3 text-ink transition-opacity hover:opacity-75"
           >
             <BrandMark className="visitor-logo-mark block shrink-0 !size-9 !rounded-[12px] sm:!size-10 sm:!rounded-[13px] xl:!size-[44px] xl:!rounded-[14px]" />
+            {siteName === "Dijital Masallar"
+              ? <span className="visitor-wordmark-art visitor-wordmark-beside" aria-hidden="true" />
+              : <span className="visitor-wordmark-beside truncate font-mono text-[17px] font-bold">{siteName}</span>}
           </Link>
           <div className="flex shrink-0 items-center gap-2">
             <FavoritesNavButton language={language} />
@@ -90,16 +89,6 @@ export async function VisitorShell({
             <VisitorMenu language={language} pushPublicKey={publicKey} />
           </div>
         </div>
-
-        <Link
-          href={languageHref("/", language)}
-          className="visitor-wordmark mt-6 max-w-full py-1 font-mono font-bold text-ink antialiased transition-opacity [text-rendering:geometricPrecision] hover:opacity-75 sm:mt-7"
-        >
-          {siteName === "Dijital Masallar" ? <>
-            <span className="sr-only">{siteName}</span>
-            <span className="visitor-wordmark-art" aria-hidden="true" />
-          </> : siteName}
-        </Link>
 
         {reading ? null : <>
           <div className="visitor-introduction visitor-sans">
