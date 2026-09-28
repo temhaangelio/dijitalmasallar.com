@@ -62,7 +62,6 @@ export function DailyAudioCard({ day, durationSeconds, language, title }: {
   const seconds = Math.max(0, Math.floor(durationSeconds));
   const at = new Date(`${day}T12:00:00+03:00`);
   const date = fullDateLabel(at.toISOString(), language);
-  const dayMonth = new Intl.DateTimeFormat(english ? "en-GB" : "tr-TR", { day: "numeric", month: "long", timeZone: "Europe/Istanbul" }).format(at);
   const minutes = Math.max(1, Math.round(seconds / 60));
   const duration = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
   // Laid out like a note card: dateline, headline, a 16:9 picture, then a line of body text.
@@ -73,12 +72,12 @@ export function DailyAudioCard({ day, durationSeconds, language, title }: {
           <span>{title}</span>
           <span className="ml-auto shrink-0 tabular-nums">{duration} <span aria-hidden="true">·</span> {english ? "English" : "Türkçe"}</span>
         </span>
-        <span className="visitor-note-initial visitor-copy block font-semibold text-ink [text-wrap:pretty]">{english ? `${dayMonth} briefing` : `${dayMonth} Bülteni`}</span>
+        <span className="visitor-note-initial feed-audio-card-title visitor-copy block font-semibold text-ink [text-wrap:pretty]">{`${date} Podcast`}</span>
         <span className="feed-audio-card-stage visitor-note-cover relative mt-5 block aspect-video w-full overflow-hidden rounded-[10px]">
           <AudioStageArt />
           <span className="feed-audio-play" aria-hidden="true"><Play size={26} fill="currentColor" strokeWidth={1.5} /></span>
         </span>
-        <span className="visitor-note-body visitor-copy mt-5 block text-ink [text-wrap:pretty] xl:mt-3">{english
+        <span className="visitor-note-body feed-audio-card-body visitor-copy mt-5 block text-ink [text-wrap:pretty] xl:mt-3">{english
           ? `The day's technology, science, AI and digital culture notes, read aloud in about ${minutes} minute${minutes === 1 ? "" : "s"}. Put your headphones on and catch up without reading.`
           : `Günün teknoloji, bilim, yapay zekâ ve dijital kültür notları, yaklaşık ${minutes} dakikada sesli olarak. Kulaklığını tak, okumadan gündemi yakala.`}</span>
       </span>

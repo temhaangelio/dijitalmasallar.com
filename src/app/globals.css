@@ -2237,3 +2237,11 @@ html[data-visitor-theme="dark"] .audio-art-icon { box-shadow: 0 0 0 8px #ffffff1
 .visitor-nav::before, .visitor-nav::after,
 .visitor-masthead:not([data-reading])::before, .visitor-masthead:not([data-reading])::after { content: none; }
 .visitor-page .visitor-masthead .visitor-header-link[aria-current="page"]::after { background: var(--color-ink); }
+
+/* The podcast card's headline and body a step above a note's, so it stands out among them. */
+.visitor-page .feed-audio-card .feed-audio-card-title { font-size: calc(26px * var(--visitor-text-scale, 1)); line-height: 1.3; }
+.visitor-page .feed-audio-card .feed-audio-card-body { font-size: calc(20px * var(--visitor-text-scale, 1)); line-height: 1.55; }
+@media (min-width: 640px) {
+  .visitor-page .feed-audio-card .feed-audio-card-title { font-size: calc(28px * var(--visitor-text-scale, 1)); }
+  .visitor-page .feed-audio-card .feed-audio-card-body { font-size: calc(21px * var(--visitor-text-scale, 1)); }
+}
