@@ -5,10 +5,9 @@ import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 /**
  * The newsletter, offered inside the feed the way an ad is.
  *
- * It borrows the ad slot's place in the column and nothing else: no image, no body copy, one line
- * and a way in. A reader scrolling past a wall of notes should be able to take it in without
- * stopping, and a suggestion that costs a screenful of reading is an interruption, not a
- * suggestion.
+ * A card among the notes, one grid cell like theirs: the note's dateline ("Öneri"), a one-line
+ * headline, a quiet stage with the mark, and a way in. No body copy — it should be taken in without
+ * stopping.
  *
  * A link rather than a field. The sign-up already has a page of its own with one input on it, and
  * dropping a live form into the feed several times over would mean several forms racing to be the
@@ -17,18 +16,16 @@ import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 export function NewsletterPromo({ language }: { language: VisitorLanguage }) {
   const isEnglish = language === "en";
   return (
-    <div className="visitor-ad-slot xl:col-span-full">
-      <NewsletterLink href={languageHref("/ebulten", language)} className="visitor-card visitor-newsletter-promo visitor-sans group">
-        <span className="visitor-newsletter-promo-mark" aria-hidden="true"><Mail size={19} strokeWidth={1.7} /></span>
-        <span className="visitor-newsletter-promo-body">
-          <span className="visitor-newsletter-promo-label">{isEnglish ? "Suggested" : "Öneri"}</span>
-          <span className="visitor-newsletter-promo-title">{isEnglish
+    <div className="visitor-ad-slot xl:flex xl:flex-col">
+      <NewsletterLink href={languageHref("/ebulten", language)} className="visitor-card visitor-promo-card visitor-sans group">
+        <span className="visitor-note-time"><span>{isEnglish ? "Suggested" : "Öneri"}</span></span>
+        <span className="visitor-promo-title">{isEnglish
             ? "The daily technology briefing, in your inbox."
             : "Günlük teknoloji özeti e-postanızda."}</span>
-          <span className="visitor-newsletter-promo-cta">
-            {isEnglish ? "Subscribe to the newsletter" : "E-bültene kaydolun"}
-            <ArrowRight size={14} strokeWidth={2} aria-hidden="true" />
-          </span>
+        <span className="visitor-promo-stage" aria-hidden="true"><Mail strokeWidth={1.5} /></span>
+        <span className="visitor-promo-cta">
+          {isEnglish ? "Subscribe to the newsletter" : "E-bültene kaydolun"}
+          <ArrowRight size={15} strokeWidth={2} aria-hidden="true" />
         </span>
       </NewsletterLink>
     </div>

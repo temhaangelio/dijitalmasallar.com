@@ -49,10 +49,10 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
-/** Ads span all desktop columns; mobile keeps the reading-card layout. */
+/** An ad is a card among the notes: one grid cell, the note's dateline, headline, image and body. */
 function AdCard({ ad }: { ad: Advertisement }) {
   return (
-    <div className="visitor-ad-slot xl:col-span-full">
+    <div className="visitor-ad-slot xl:flex xl:flex-col">
       <a
         href={ad.target_url}
         target="_blank"
