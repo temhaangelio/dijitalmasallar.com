@@ -15,11 +15,6 @@ export function NewsletterContent({ language, modal = false }: { language: Visit
       <p className="feed-newsletter-lead">{isEnglish
         ? "Short notes on technology, AI, science and digital culture, once a day. Free, and you can leave any time."
         : "Teknoloji, yapay zekâ, bilim ve dijital kültürden kısa notlar, günde bir kez. Ücretsiz, istediğiniz an ayrılabilirsiniz."}</p>
-      <ul className="feed-newsletter-points">
-        <li>{isEnglish ? "The day's notes, in one e-mail." : "Günün notları, tek bir e-postada."}</li>
-        <li>{isEnglish ? "No ads in the letter, no tracking links." : "Mektupta reklam yok, takip bağlantısı yok."}</li>
-        <li>{isEnglish ? "Leave from a link at the foot of any issue." : "Her sayının altındaki bağlantıdan ayrılabilirsiniz."}</li>
-      </ul>
       <div className="feed-newsletter-signup">
         <NewsletterForm language={language} inlineConfirmation={modal} />
         <p className="visitor-newsletter-terms visitor-sans">{isEnglish ? "Your address is only for the newsletter." : "Adresiniz yalnızca bülten için kullanılır."}</p>
