@@ -1,7 +1,10 @@
 "use client";
 
 import { ChevronDown, RotateCcw, Smartphone } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
+import { languageHref } from "@/lib/visitor-language";
 import { resetReading } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
 import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
@@ -16,7 +19,12 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
   const pathname = usePathname();
   const isEnglish = language === "en";
   return (
-    <section className="visitor-settings visitor-sans text-left" aria-label={isEnglish ? "Settings" : "Ayarlar"}>
+    <section className="visitor-settings visitor-sans text-left" aria-label={isEnglish ? "Menu" : "Menü"}>
+      {/* The sections first, then the settings. */}
+      <nav className="feed-menu-nav" aria-label={isEnglish ? "Sections" : "Bölümler"}>
+        {visitorNavItems.map((item) => <Link key={item.href} href={languageHref(item.href, language)} aria-current={pathname === item.href ? "page" : undefined} onClick={onClose} className="feed-menu-link">{item[language]}</Link>)}
+        <Link href={languageHref("/favoriler", language)} aria-current={pathname === "/favoriler" ? "page" : undefined} onClick={onClose} className="feed-menu-link">{isEnglish ? "Favorites" : "Favoriler"}</Link>
+      </nav>
       <div className="visitor-settings-section">
         <div className="visitor-settings-row">
           <h3 className="visitor-settings-label">{isEnglish ? "Theme" : "Tema"}</h3>

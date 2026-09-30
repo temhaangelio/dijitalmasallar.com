@@ -5,7 +5,6 @@ import { FavoritesNavButton } from "@/components/features/visitor/favorites-nav-
 import { LanguageLink } from "@/components/features/visitor/language-link";
 import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/components/features/visitor/push";
 import { PullToRefresh } from "@/components/features/visitor/pull-to-refresh";
-import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { BrandMark } from "@/components/ui/brand-mark";
@@ -59,9 +58,8 @@ export async function VisitorShell({
           </>}
       {showHeader ? <>
       {/*
-        A newspaper's nameplate: the mark and the logotype centred, the sections in a row under
-        them, the reader's controls in the top-right corner. Article pages keep the nameplate and
-        drop the sections, so nothing competes with the note.
+        One row: the mark and the logotype on the left, the reader's controls on the right. The
+        sections live in the menu, behind the last of those controls.
       */}
       <header data-reading={reading || undefined} className="visitor-nav visitor-masthead feed-masthead relative z-[1] flex w-full flex-col items-center" aria-label="Site">
         <div className="feed-masthead-top relative flex w-full items-center justify-center">
@@ -83,7 +81,6 @@ export async function VisitorShell({
             <VisitorMenu language={language} pushPublicKey={publicKey} />
           </div>
         </div>
-        {reading ? null : <div className="feed-masthead-nav"><VisitorHeaderNav language={language} /></div>}
       </header>
       </> : null}
       <div className="visitor-content flex w-full flex-col items-center">

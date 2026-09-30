@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { SlidersHorizontal } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { VisitorBottomSheet } from "@/components/features/visitor/visitor-bottom-sheet";
 import type { VisitorLanguage } from "@/lib/visitor-language";
@@ -19,15 +19,15 @@ const VisitorSettingsContent = dynamic(() => import("./visitor-settings-content"
 export function VisitorMenu({ language, pushPublicKey }: { language: VisitorLanguage; pushPublicKey: string }) {
   const [open, setOpen] = useState(false);
   const isEnglish = language === "en";
-  const name = isEnglish ? "Settings" : "Ayarlar";
+  const name = isEnglish ? "Menu" : "Menü";
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} aria-label={isEnglish ? "Open settings" : "Ayarları aç"} aria-expanded={open} aria-haspopup="dialog" title={name} className="visitor-top-control">
-        <SlidersHorizontal size={18} strokeWidth={1.8} aria-hidden="true" />
+      <button type="button" onClick={() => setOpen(true)} aria-label={isEnglish ? "Open menu" : "Menüyü aç"} aria-expanded={open} aria-haspopup="dialog" title={name} className="visitor-top-control">
+        <Menu size={20} strokeWidth={1.8} aria-hidden="true" />
       </button>
 
-      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={name} panelClassName="visitor-settings-sheet max-h-[85dvh]" titleClassName="visitor-sans text-[22px] font-bold leading-tight tracking-[-.03em]" closeLabel={isEnglish ? "Close settings" : "Ayarları kapat"}>
+      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={name} panelClassName="visitor-settings-sheet max-h-[85dvh]" titleClassName="visitor-sans text-[22px] font-bold leading-tight tracking-[-.03em]" closeLabel={isEnglish ? "Close menu" : "Menüyü kapat"}>
         {open ? <VisitorSettingsContent language={language} pushPublicKey={pushPublicKey} onClose={() => setOpen(false)} /> : null}
       </VisitorBottomSheet>
     </>
