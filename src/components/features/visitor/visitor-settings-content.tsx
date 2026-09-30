@@ -2,11 +2,6 @@
 
 import { ChevronDown, RotateCcw, Smartphone } from "lucide-react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
-import { ListenLink } from "@/components/features/visitor/listen-modal";
-import { NewsletterLink } from "@/components/features/visitor/newsletter-modal";
-import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
-import { languageHref } from "@/lib/visitor-language";
 import { resetReading } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
 import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
@@ -21,15 +16,7 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
   const pathname = usePathname();
   const isEnglish = language === "en";
   return (
-    <section className="visitor-settings visitor-sans text-left" aria-label={isEnglish ? "Menu" : "Menü"}>
-      {/* The sections, for the phone masthead that has no room for them in its one row. */}
-      <nav className="feed-menu-nav" aria-label={isEnglish ? "Sections" : "Bölümler"}>
-        {visitorNavItems.map((item) => {
-          const NavLink = item.href === "/podcast" ? ListenLink : item.href === "/ebulten" ? NewsletterLink : Link;
-          const current = pathname === item.href;
-          return <NavLink key={item.href} href={languageHref(item.href, language)} aria-current={current ? "page" : undefined} onClick={onClose} className="feed-menu-link">{item[language]}</NavLink>;
-        })}
-      </nav>
+    <section className="visitor-settings visitor-sans text-left" aria-label={isEnglish ? "Settings" : "Ayarlar"}>
       <div className="visitor-settings-section">
         <div className="visitor-settings-row">
           <h3 className="visitor-settings-label">{isEnglish ? "Theme" : "Tema"}</h3>

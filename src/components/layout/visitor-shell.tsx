@@ -59,25 +59,23 @@ export async function VisitorShell({
           </>}
       {showHeader ? <>
       {/*
-        One row and nothing under it: the mark and the logotype top-left as the way home, the
-        sections beside them from `sm` up, the reader's controls on the right. A phone has no room
-        for the sections in the row, so there they live in the menu and in the capsule that
-        appears on the way back up the feed.
+        A newspaper's nameplate: the mark and the logotype centred, the sections in a row under
+        them, the reader's controls in the top-right corner. Article pages keep the nameplate and
+        drop the sections, so nothing competes with the note.
       */}
-      <header data-reading={reading || undefined} className="visitor-nav visitor-masthead feed-masthead relative z-[1] flex w-full flex-col pb-2 pt-4 sm:pb-3 sm:pt-6" aria-label="Site">
-        <div className="visitor-masthead-row relative flex w-full shrink-0 items-center justify-between gap-2">
+      <header data-reading={reading || undefined} className="visitor-nav visitor-masthead feed-masthead relative z-[1] flex w-full flex-col items-center" aria-label="Site">
+        <div className="feed-masthead-top relative flex w-full items-center justify-center">
           <Link
             href={languageHref("/", language)}
             aria-label={language === "en" ? `${siteName} home` : `${siteName} ana sayfa`}
-            className="flex min-h-11 min-w-0 items-center gap-3 text-ink transition-opacity hover:opacity-75"
+            className="feed-masthead-lockup flex min-h-11 min-w-0 items-center text-ink transition-opacity hover:opacity-75"
           >
             <BrandMark className="visitor-logo-mark feed-logo-mark block shrink-0" />
             {siteName === "Dijital Masallar"
               ? <span className="visitor-wordmark-art visitor-wordmark-beside" aria-hidden="true" />
               : <span className="visitor-wordmark-beside truncate font-mono text-[17px] font-bold">{siteName}</span>}
           </Link>
-          {reading ? null : <div className="feed-masthead-nav"><VisitorHeaderNav language={language} /></div>}
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="feed-masthead-controls absolute right-0 top-1/2 flex -translate-y-1/2 items-center">
             <FavoritesNavButton language={language} />
             {/* Keep the bell visible when the module is enabled, even if a deployment is missing its
                 VAPID configuration; the button then explains the configuration problem safely. */}
@@ -85,6 +83,7 @@ export async function VisitorShell({
             <VisitorMenu language={language} pushPublicKey={publicKey} />
           </div>
         </div>
+        {reading ? null : <div className="feed-masthead-nav"><VisitorHeaderNav language={language} /></div>}
       </header>
       </> : null}
       <div className="visitor-content flex w-full flex-col items-center">

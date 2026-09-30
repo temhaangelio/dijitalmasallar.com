@@ -1574,60 +1574,68 @@ html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 22p
 @media (min-width: 640px) {
 html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 30px; }
 }
-/* ---- The masthead: a nameplate on the canvas, a heavy ink rule under it. ---- */
-html .visitor-page .feed-masthead { position: relative; isolation: isolate; padding: 12px 0 10px; border-bottom: 2px solid var(--color-ink); color: var(--color-ink); }
-@media (min-width: 640px) { html .visitor-page .feed-masthead { padding: 18px 0 14px; } }
+/* ---- The masthead: a newspaper's nameplate, centred, the sections in a row under it. ---- */
+html .visitor-page .feed-masthead { position: relative; isolation: isolate; padding: 14px 0 0; color: var(--color-ink); }
 html .visitor-page .feed-masthead::before, html .visitor-page .feed-masthead::after { content: none; }
-
-html .visitor-page .feed-masthead .visitor-masthead-row { gap: 8px; }
-html .visitor-page .feed-masthead .visitor-masthead-row > a { gap: 8px; color: var(--color-ink); }
-html .visitor-page .feed-masthead .visitor-masthead-row > a:hover { opacity: .75; }
-html .visitor-page .feed-logo-mark { width: 26px; height: 26px; border: 0; border-radius: 8px; background: var(--color-ink); box-shadow: none; }
+html .visitor-page .feed-masthead-top { min-height: 48px; }
+html .visitor-page .feed-masthead-lockup { gap: 9px; color: var(--color-ink); }
+html .visitor-page .feed-logo-mark { width: 30px; height: 30px; border: 0; border-radius: 9px; background: var(--color-ink); box-shadow: none; }
 html .visitor-page .feed-logo-mark .brand-bit { fill: var(--color-ink-contrast); }
 html .visitor-page .feed-masthead .visitor-wordmark-art { background: var(--color-ink); }
-html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 122px; min-width: 0; flex-shrink: 1; }
+html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 138px; min-width: 0; flex-shrink: 1; }
 @media (min-width: 640px) {
-  html .visitor-page .feed-masthead .visitor-masthead-row > a { gap: 9px; }
-  html .visitor-page .feed-logo-mark { width: 28px; height: 28px; border-radius: 9px; }
-  html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 136px; }
+  html .visitor-page .feed-masthead { padding-top: 26px; }
+  html .visitor-page .feed-masthead-lockup { gap: 11px; }
+  html .visitor-page .feed-logo-mark { width: 38px; height: 38px; border-radius: 11px; }
+  html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 176px; }
+}
+/* On a phone the controls and the lockup share the row; the lockup gives way, never overlaps. */
+@media (max-width: 419px) {
+  html .visitor-page .feed-masthead-top { justify-content: flex-start; }
+  html .visitor-page .feed-masthead-lockup { padding-right: 96px; }
 }
 
-/* The sections: centred between the lockup and the controls from `sm`; in the sheet on phones. */
-html .visitor-page .feed-masthead-nav { display: none; }
-@media (min-width: 640px) {
-html .visitor-page .feed-masthead-nav { display: flex; flex: 1 1 auto; justify-content: center; margin: 0; white-space: nowrap; }
-}
+/* The sections: a centred row under the lockup, the current one underlined in ink. */
+html .visitor-page .feed-masthead-nav { display: flex; justify-content: center; width: 100%; margin-top: 10px; border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-ink); }
 html .visitor-page .feed-masthead-nav .visitor-header-links { width: auto; margin: 0; }
-html .visitor-page .feed-masthead-nav .visitor-nav-track { gap: 2px; padding: 0; border: 0; border-radius: 0; background: none; }
+html .visitor-page .feed-masthead-nav .visitor-nav-track { gap: 0; padding: 0; border: 0; border-radius: 0; background: none; }
 html .visitor-page .feed-masthead-nav .visitor-header-link {
   position: relative;
   flex: none;
-  min-height: 40px;
-  padding-inline: 9px;
+  min-height: 42px;
+  padding-inline: 14px;
   border: 0;
   border-radius: 0;
   background: none;
   box-shadow: none;
   white-space: nowrap;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -.01em;
   color: var(--color-muted);
 }
-html .visitor-page .feed-masthead-nav .visitor-header-link:hover,
+html .visitor-page .feed-masthead-nav .visitor-header-link:hover { color: var(--color-ink); background: none; box-shadow: none; }
 html .visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"] { color: var(--color-ink); background: none; box-shadow: none; }
-html .visitor-page .feed-masthead-nav .visitor-header-link::after { content: none; }
-html .visitor-page .feed-masthead-nav .visitor-header-link[href="/"],
-html .visitor-page .feed-masthead-nav .visitor-header-link[href^="/?"] { display: none; }
-/* The controls: a tight grey group. */
-html .visitor-page .feed-masthead .visitor-masthead-row > div:last-child { gap: 0; }
-html .visitor-page .feed-masthead .visitor-top-control { width: 34px; height: 34px; color: var(--color-muted); }
+html .visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"]::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--color-ink); }
+html .visitor-page .feed-masthead[data-reading] { padding-bottom: 12px; border-bottom: 1px solid var(--color-ink); }
+@media (min-width: 640px) {
+  html .visitor-page .feed-masthead-nav { margin-top: 16px; }
+  html .visitor-page .feed-masthead-nav .visitor-header-link { min-height: 44px; padding-inline: 18px; font-size: 15px; }
+  html .visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"]::after { left: 18px; right: 18px; }
+  html .visitor-page .feed-masthead[data-reading] { padding-bottom: 18px; }
+}
+
+/* The controls, top right: a tight grey group. */
+html .visitor-page .feed-masthead-controls { gap: 0; }
+html .visitor-page .feed-masthead .visitor-top-control { width: 32px; height: 32px; color: var(--color-muted); }
 html .visitor-page .feed-masthead .visitor-top-control::before { content: none; }
 html .visitor-page .feed-masthead .visitor-top-control svg { width: 17px; height: 17px; }
 html .visitor-page .feed-masthead .visitor-top-control:hover:not(:disabled),
 html .visitor-page .feed-masthead .visitor-top-control[aria-expanded="true"],
 html .visitor-page .feed-masthead .visitor-top-control[aria-pressed="true"],
 html .visitor-page .feed-masthead .visitor-top-control[aria-current="page"] { color: var(--color-ink); background: transparent; }
-html .visitor-page .feed-masthead :focus-visible { outline-color: var(--color-accent); }
+@media (min-width: 640px) { html .visitor-page .feed-masthead .visitor-top-control { width: 36px; height: 36px; } }
+
 /* ---- The feed. ---- */
 html .visitor-page .feed-day + .feed-day { margin-top: 52px; }
 html .visitor-page .feed-day-heading {
