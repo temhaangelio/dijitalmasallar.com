@@ -490,9 +490,7 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
    */
   const title = isEnglish ? "Add to home screen" : "Ana ekrana ekle";
   // The iOS row gives its width to the "how" button, so it takes the shorter of the two notes.
-  const note = status === "ready"
-    ? (isEnglish ? "Opens like an app, from its own icon." : "Kendi simgesinden, uygulama gibi açılır.")
-    : (isEnglish ? "Opens like an app." : "Uygulama gibi açılır.");
+  const note = isEnglish ? "Opens like an app." : "Uygulama gibi açılır.";
 
   return (
     <aside
