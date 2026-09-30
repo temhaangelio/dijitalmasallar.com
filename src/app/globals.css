@@ -1596,7 +1596,7 @@ html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 138px; min-w
 }
 
 /* The sections: a centred row under the lockup, the current one underlined in ink. */
-html .visitor-page .feed-masthead-nav { display: flex; justify-content: center; width: 100%; margin-top: 10px; border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-ink); }
+html .visitor-page .feed-masthead-nav { display: flex; justify-content: center; width: 100%; margin-top: 6px; }
 html .visitor-page .feed-masthead-nav .visitor-header-links { width: auto; margin: 0; }
 html .visitor-page .feed-masthead-nav .visitor-nav-track { gap: 0; padding: 0; border: 0; border-radius: 0; background: none; }
 html .visitor-page .feed-masthead-nav .visitor-header-link {
@@ -1616,10 +1616,10 @@ html .visitor-page .feed-masthead-nav .visitor-header-link {
 }
 html .visitor-page .feed-masthead-nav .visitor-header-link:hover { color: var(--color-ink); background: none; box-shadow: none; }
 html .visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"] { color: var(--color-ink); background: none; box-shadow: none; }
-html .visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"]::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--color-ink); }
+html .visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"]::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 6px; height: 2px; background: var(--color-ink); }
 html .visitor-page .feed-masthead[data-reading] { padding-bottom: 12px; border-bottom: 1px solid var(--color-ink); }
 @media (min-width: 640px) {
-  html .visitor-page .feed-masthead-nav { margin-top: 16px; }
+  html .visitor-page .feed-masthead-nav { margin-top: 10px; }
   html .visitor-page .feed-masthead-nav .visitor-header-link { min-height: 44px; padding-inline: 18px; font-size: 15px; }
   html .visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"]::after { left: 18px; right: 18px; }
   html .visitor-page .feed-masthead[data-reading] { padding-bottom: 18px; }
@@ -1952,7 +1952,7 @@ html[data-visitor-theme="dark"] .visitor-page .feed-float-top-button { backgroun
 html[data-visitor-theme="dark"] .feed-install-banner { background: #161616; border-color: #2a2a2a; box-shadow: 0 12px 36px rgb(0 0 0 / .55); }
 .feed-install-mark { width: 34px; height: 34px; border-radius: 10px; }
 .feed-install-banner strong { font-size: 15px; font-weight: 700; letter-spacing: -.02em; color: var(--color-ink); }
-.feed-install-banner strong + p, .feed-install-banner strong + span { margin-top: 2px; font-family: var(--visitor-reading-family, Georgia, serif); font-size: 13px; line-height: 1.4; color: var(--color-muted); }
+.feed-install-banner strong + p, .feed-install-banner strong + span { margin-top: 2px; font-family: var(--visitor-reading-family); font-size: 13px; line-height: 1.4; color: var(--color-muted); }
 .feed-install-banner-steps { margin-top: 12px; padding-top: 4px; border-top: 1px solid var(--color-line); }
 .feed-install-banner button[aria-label] { color: var(--color-faint); }
 .feed-install-banner button[aria-label]:hover { color: var(--color-ink); background: var(--color-surface-2); }
