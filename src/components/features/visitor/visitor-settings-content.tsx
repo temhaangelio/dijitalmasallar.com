@@ -8,7 +8,7 @@ import { ListenLink } from "@/components/features/visitor/listen-modal";
 import { NewsletterLink } from "@/components/features/visitor/newsletter-modal";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { languageHref } from "@/lib/visitor-language";
-import { resetReading, TextSizePicker } from "@/components/features/visitor/font";
+import { resetReading } from "@/components/features/visitor/font";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
 import { InstallPrompt, PushToggle } from "@/components/features/visitor/push";
 import { resetTheme, ThemePicker } from "@/components/features/visitor/theme";
@@ -35,10 +35,6 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
         <div className="visitor-settings-row">
           <h3 className="visitor-settings-label">{isEnglish ? "Theme" : "Tema"}</h3>
           <ThemePicker language={language} />
-        </div>
-        <div className="visitor-settings-row">
-          <h3 className="visitor-settings-label">{isEnglish ? "Size" : "Boyut"}</h3>
-          <TextSizePicker language={language} />
         </div>
       </div>
       <div className="visitor-settings-extra feed-settings-extra">

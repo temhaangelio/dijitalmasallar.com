@@ -23,7 +23,7 @@ import {
  * every load, and reflow under the reader.
  */
 export function FontScript() {
-  const script = `(function(){try{var e=document.documentElement;e.setAttribute(${JSON.stringify(fontAttribute)},"serif");var s=localStorage.getItem(${JSON.stringify(sizeStorageKey)});e.setAttribute(${JSON.stringify(textSizeAttribute)},s==="small"||s==="large"?s:"normal");}catch(e){}})();`;
+  const script = `(function(){try{var e=document.documentElement;e.setAttribute(${JSON.stringify(fontAttribute)},"serif");e.setAttribute(${JSON.stringify(textSizeAttribute)},"large");}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
@@ -89,11 +89,11 @@ function getSizeSnapshot(): TextSize {
     const value = localStorage.getItem(sizeStorageKey);
     if (isTextSize(value)) return value;
   } catch { /* Storage may be unavailable in private browsing modes. */ }
-  return "normal";
+  return "large";
 }
 
 function getServerSizeSnapshot(): TextSize {
-  return "normal";
+  return "large";
 }
 
 function setSize(size: TextSize) {
@@ -133,5 +133,5 @@ export function TextSizePicker({ language }: { language: "tr" | "en" }) {
 /** Used by the settings sheet's reset: the default face and the design's own size. */
 export function resetReading() {
   setPreference("serif");
-  setSize("normal");
+  setSize("large");
 }
