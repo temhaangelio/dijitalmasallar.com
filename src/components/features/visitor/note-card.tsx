@@ -6,11 +6,11 @@ import type { ReactNode } from "react";
 import { PostImageActions } from "@/components/features/visitor/post-image-actions";
 import { sourceLabel } from "@/lib/source-label";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
-import { dateLabel, fullDateLabel, timeLabel } from "@/lib/visitor-date";
+import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
 import { isOptimizableImage } from "@/lib/images";
 import type { Post } from "@/types/database";
 
-/** The note as it appears in the editorial feed. */
+/** The note as it appears in the editorial feed: a flat entry in a single reading column. */
 
 /** Wraps every occurrence of `term` in `<mark>`, used to show why a search result matched. */
 function highlightMatches(text: string, term: string, keyPrefix: string): ReactNode[] {
@@ -23,8 +23,6 @@ function highlightMatches(text: string, term: string, keyPrefix: string): ReactN
     // A zero-length match would never advance the cursor; only a bad escape can produce one.
     if (!match[0]) break;
     if (match.index > cursor) nodes.push(text.slice(cursor, match.index));
-    // Tighter than an authored `==highlight==`: a search can light up several words in one
-    // sentence, and the wider padding starts to look like the words have come apart.
     nodes.push(<mark key={`${keyPrefix}-match-${match.index}`} className="visitor-highlight rounded-[3px] px-0.5 text-inherit">{match[0]}</mark>);
     cursor = match.index + match[0].length;
   }
@@ -36,8 +34,11 @@ function highlightMatches(text: string, term: string, keyPrefix: string): ReactN
 /**
  * Renders the compact set of inline Markdown supported by the editor. Calling the function again
  * for matched content also preserves combinations such as `**_bold italic_**`.
+ *
+ * `quiet` drops the weight of `**bold**`: the headline is set in one weight, because a sentence
+ * that switches between regular and bold halfway through reads as two competing things.
  */
-function renderFeedInline(content: string, highlight: string | undefined, keyPrefix: string): ReactNode[] {
+function renderFeedInline(content: string, highlight: string | undefined, keyPrefix: string, quiet = false): ReactNode[] {
   const nodes: ReactNode[] = [];
   const pattern = /\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|==([^=]+)==|_([^_\n]+)_|\*([^*\n]+)\*/g;
   let cursor = 0;
@@ -46,8 +47,8 @@ function renderFeedInline(content: string, highlight: string | undefined, keyPre
   while ((match = pattern.exec(content)) !== null) {
     if (match.index > cursor) nodes.push(plain(content.slice(cursor, match.index), `${keyPrefix}-plain-${match.index}`));
     const inner = match[1] ?? match[2] ?? match[3] ?? match[4] ?? match[5] ?? match[6] ?? "";
-    const children = renderFeedInline(inner, highlight, `${keyPrefix}-${match.index}`);
-    if (match[1] || match[2]) nodes.push(<strong key={`${keyPrefix}-strong-${match.index}`} className="font-semibold">{children}</strong>);
+    const children = renderFeedInline(inner, highlight, `${keyPrefix}-${match.index}`, quiet);
+    if (match[1] || match[2]) nodes.push(quiet ? <span key={`${keyPrefix}-strong-${match.index}`}>{children}</span> : <strong key={`${keyPrefix}-strong-${match.index}`} className="font-semibold">{children}</strong>);
     else if (match[3]) nodes.push(<del key={`${keyPrefix}-strike-${match.index}`}>{children}</del>);
     else if (match[4]) nodes.push(<mark key={`${keyPrefix}-highlight-${match.index}`} className="visitor-highlight rounded-[3px] px-1 py-0.5 text-inherit">{children}</mark>);
     else nodes.push(<em key={`${keyPrefix}-italic-${match.index}`}>{children}</em>);
@@ -74,70 +75,57 @@ function feedParagraphs(post: Post) {
 }
 
 /**
- * `priority` is for the one note that opens the feed. Every cover was lazy, the topmost included,
- * so the largest thing on the first screen was fetched only after the browser had finished laying
- * the page out — which is the page's LCP arriving late for no reason.
+ * `priority` is for the one note that opens the feed: its cover is the page's LCP, so it is not
+ * lazy. `layout` is accepted for older call sites; the feed is one column everywhere now.
  */
-export function NoteCard({ post, language, highlight, priority = false, latest = false, layout = "column" }: {
+export function NoteCard({ post, language, highlight, priority = false, latest = false }: {
   post: Post;
   language: VisitorLanguage;
   highlight?: string;
   priority?: boolean;
-  /** The newest note in the feed, which earns the dot beside its dateline. */
+  /** The newest note in the feed, which earns the dot beside its time. */
   latest?: boolean;
-  /**
-   * How the card sits from 1280px up. `column` is the single reading column and changes nothing.
-   * `grid` shares a row with other cards on wide screens.
-   */
   layout?: "column" | "grid";
 }) {
   const paragraphs = feedParagraphs(post);
-  const grid = layout === "grid";
-  const first = renderFeedInline(paragraphs.first, highlight, "first");
+  const first = renderFeedInline(paragraphs.first, highlight, "first", true);
   const rest = paragraphs.rest ? renderFeedInline(paragraphs.rest, highlight, "rest") : [];
   const displayedSource = sourceLabel(null, post.source_url, language === "en" ? "Source" : "Kaynak");
   const postHref = languageHref(`/haber/${post.id}`, post.language === "tr" ? "tr" : "en");
   const publishedAt = post.published_at ?? post.created_at;
   const cover = post.cover_path ? (
-    <ZoomableImage src={post.cover_path} alt={post.title} language={language} className="visitor-note-cover relative z-10 mt-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
+    <ZoomableImage src={post.cover_path} alt={post.title} language={language} className="feed-note-cover relative z-10 block aspect-video w-full overflow-hidden rounded-[8px] bg-surface-3">
       {isOptimizableImage(post.cover_path)
-        ? <Image src={post.cover_path} alt={post.title} fill priority={priority} sizes={grid ? "(max-width: 680px) calc(100vw - 72px), (min-width: 1280px) 490px, 590px" : "(max-width: 680px) calc(100vw - 72px), 590px"} className="object-cover" />
+        ? <Image src={post.cover_path} alt={post.title} fill priority={priority} sizes="(max-width: 680px) calc(100vw - 32px), 600px" className="object-cover" />
         // eslint-disable-next-line @next/next/no-img-element -- source images may come from any official publisher host
         : <img src={post.cover_path} alt={post.title} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : undefined} decoding="async" className="absolute inset-0 size-full object-cover" />}
     </ZoomableImage>
   ) : null;
   return (
-    <article data-latest={latest || undefined} className={`visitor-card visitor-note-card group relative flex flex-col transition-colors hover:border-line-strong${grid ? " visitor-note-card-grid xl:flex-1" : ""}`}>
-      <div className={`visitor-note-content min-w-0 flex-1 px-5 py-5 sm:px-6 sm:py-6${grid ? " xl:px-5 xl:py-5" : ""}`}>
-        <time
-          dateTime={publishedAt}
-          title={fullDateLabel(publishedAt, language)}
-          className={`visitor-note-time visitor-sans`}
-        >
-          <span className="flex min-w-0 items-center gap-2">
-            <span>{dateLabel(publishedAt, language)}</span>
-            {latest ? <span className="visitor-note-time-new shrink-0" aria-hidden="true" /> : null}
-          </span>
-          <span className="ml-auto shrink-0 tabular-nums">{timeLabel(publishedAt, language)}</span>
-        </time>
-        <Link
-          href={postHref}
-          className={`visitor-note-initial visitor-card-link visitor-copy visitor-serif block whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink transition-colors duration-200 [text-wrap:pretty] before:absolute before:inset-0 before:content-[''] sm:text-[20px] sm:leading-[1.6]`}
-        >
-          {first}
-        </Link>
-        {cover}
-        {rest.length > 0 ? (
-          <div className={`visitor-note-body visitor-copy visitor-serif mt-5 whitespace-pre-line text-[18px] leading-[1.65] text-ink sm:text-[20px] sm:leading-[1.6]${grid ? " xl:mt-3" : ""}`}>
-            {rest}
-          </div>
-        ) : null}
+    <article data-latest={latest || undefined} className="feed-note group relative">
+      <div className="feed-note-meta visitor-sans">
+        <time dateTime={publishedAt} title={fullDateLabel(publishedAt, language)} className="tabular-nums">{timeLabel(publishedAt, language)}</time>
+        {latest ? <span className="feed-note-new" aria-hidden="true" /> : null}
       </div>
-      <div className="visitor-note-footer visitor-sans">
+      <Link
+        href={postHref}
+        className="feed-note-title visitor-card-link visitor-copy visitor-sans block whitespace-pre-line text-ink [text-wrap:pretty] before:absolute before:inset-0 before:content-['']"
+      >
+        {first}
+      </Link>
+      {cover}
+      {rest.length > 0 ? (
+        <div className="feed-note-body visitor-copy visitor-serif whitespace-pre-line text-ink">
+          {rest}
+        </div>
+      ) : null}
+      <div className="feed-note-foot visitor-sans">
         {post.source_url
-          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="visitor-source relative z-10 block min-h-11 min-w-0 truncate py-3 text-muted transition-colors hover:border-accent hover:text-accent">{displayedSource}<svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg></a>
-          : <span title={displayedSource} className="visitor-source min-w-0 truncate text-muted">{displayedSource}</span>}
-        <PostImageActions postId={post.id} href={postHref} title={post.title} language={language} placement="inline" />
+          ? <a href={post.source_url} target="_blank" rel="noreferrer noopener nofollow" title={displayedSource} className="feed-note-source relative z-10 min-w-0 truncate text-muted transition-colors hover:text-ink">{displayedSource}<svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg></a>
+          : <span title={displayedSource} className="feed-note-source min-w-0 truncate text-muted">{displayedSource}</span>}
+        <div className="feed-note-actions">
+          <PostImageActions postId={post.id} href={postHref} title={post.title} language={language} placement="inline" />
+        </div>
       </div>
     </article>
   );

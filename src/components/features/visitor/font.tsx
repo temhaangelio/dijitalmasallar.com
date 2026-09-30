@@ -23,7 +23,7 @@ import {
  * every load, and reflow under the reader.
  */
 export function FontScript() {
-  const script = `(function(){try{var e=document.documentElement;var f=localStorage.getItem(${JSON.stringify(storageKey)});e.setAttribute(${JSON.stringify(fontAttribute)},f==="serif"?f:"hyperlegible");var s=localStorage.getItem(${JSON.stringify(sizeStorageKey)});e.setAttribute(${JSON.stringify(textSizeAttribute)},s==="small"||s==="large"?s:"normal");}catch(e){}})();`;
+  const script = `(function(){try{var e=document.documentElement;e.setAttribute(${JSON.stringify(fontAttribute)},"serif");var s=localStorage.getItem(${JSON.stringify(sizeStorageKey)});e.setAttribute(${JSON.stringify(textSizeAttribute)},s==="small"||s==="large"?s:"normal");}catch(e){}})();`;
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
@@ -43,12 +43,12 @@ function getSnapshot(): ReadingFont {
     const value = localStorage.getItem(storageKey);
     if (isReadingFont(value)) return value;
   } catch { /* Storage may be unavailable in private browsing modes. */ }
-  return "hyperlegible";
+  return "serif";
 }
 
 /** The server cannot know the choice, so it renders the default and React reconciles on mount. */
 function getServerSnapshot(): ReadingFont {
-  return "hyperlegible";
+  return "serif";
 }
 
 function setPreference(font: ReadingFont) {
@@ -132,6 +132,6 @@ export function TextSizePicker({ language }: { language: "tr" | "en" }) {
 
 /** Used by the settings sheet's reset: the default face and the design's own size. */
 export function resetReading() {
-  setPreference("hyperlegible");
+  setPreference("serif");
   setSize("normal");
 }

@@ -145,11 +145,11 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     <VisitorShell language={language} siteName={settings.siteName} reading>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
-      <main className="w-full max-w-[640px] pt-4 sm:pt-6">
-        <article className="visitor-card visitor-article">
+      <main className="feed-column w-full">
+        <article className="visitor-article feed-article">
           {/* The first paragraph is the headline as the reader sees it; assistive tech and search get it as the page's one heading. */}
           <h1 className="sr-only">{headline}</h1>
-          <div className="px-4 py-5 sm:px-6 sm:py-6">
+          <div>
         <header className="visitor-sans mb-5 flex items-center justify-between gap-3 border-b border-line pb-4 sm:mb-6">
           <BackToFeedLink href={languageHref("/", language)} className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md pr-2 text-[13px] font-medium text-muted transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent">
             <ArrowLeft className="size-4" strokeWidth={1.5} aria-hidden="true" />
@@ -161,7 +161,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
             <span className="font-medium text-accent">{timeLabel(publishedAt, language)}</span>
           </time>
         </header>
-          <div className="visitor-markdown visitor-serif visitor-article-intro">
+          <div className="visitor-markdown visitor-sans visitor-article-intro">
             <MarkdownPreview value={paragraphs.first} />
           </div>
           {post.cover_path && (
@@ -185,7 +185,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
         {nextPost && (
           <Link
             href={languageHref(`/haber/${nextPost.id}`, language)}
-            className="visitor-card group mt-7 block px-5 py-5 transition-colors duration-150 hover:border-line-strong focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:mt-9 sm:px-6 sm:py-6"
+            className="feed-next group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           >
             <div className="mb-3 flex items-center justify-between gap-4">
               <span className="visitor-sans text-[11px] font-medium leading-5 text-muted">{language === "en" ? "Next story" : "Sonraki haber"}</span>

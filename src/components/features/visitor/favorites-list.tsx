@@ -60,12 +60,12 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
   const visible = (loaded?.posts ?? []).filter((post) => savedIds.has(post.id));
 
   const emptyState = (
-    <div className="visitor-card grid min-h-64 place-items-center px-6 py-10 text-center sm:py-12">
+    <div className="feed-empty grid place-items-center">
       <div>
-        <span className="mx-auto grid size-12 place-items-center rounded-full bg-surface-2 text-muted"><Bookmark className="size-5" aria-hidden="true" /></span>
-        <h2 className="visitor-heading visitor-sans mt-4 text-[length:var(--vt-h3)] font-normal leading-[1.3] tracking-normal text-ink">{isEnglish ? "No favorites yet" : "Okumalık notların burada"}</h2>
+        <Bookmark className="mx-auto size-6 text-muted" strokeWidth={1.5} aria-hidden="true" />
+        <h2 className="visitor-heading visitor-sans mt-4 text-[20px] font-semibold leading-[1.3] tracking-[-.01em] text-ink">{isEnglish ? "No favorites yet" : "Okumalık notların burada"}</h2>
         <p className="visitor-copy mx-auto mt-2 max-w-[38ch] text-[length:var(--vt-small)] font-normal leading-6 text-muted">{isEnglish ? "Save a note from the bookmark button on its card and it will appear here." : "Akışta ilgini çeken bir notu yer imi düğmesiyle kaydet. Sonra buradan devam et."}</p>
-        <Link href={languageHref("/", language)} className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-5 text-sm font-medium text-ink-contrast transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink">
+        <Link href={languageHref("/", language)} className="feed-about-action mt-4 visitor-sans">
           {isEnglish ? "Browse posts" : "Akışı keşfet"}
         </Link>
       </div>
@@ -107,12 +107,12 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
      should not be told their list is empty because the network dropped. */
   if (!visible.length && loaded?.failed) {
     return (
-      <div className="visitor-card grid min-h-64 place-items-center px-6 py-10 text-center sm:py-12">
+      <div className="feed-empty grid place-items-center">
         <div>
           <p className="visitor-copy mx-auto max-w-[38ch] text-[length:var(--vt-small)] font-normal leading-6 text-muted">
             {isEnglish ? "Your saved posts could not be loaded." : "Notların yüklenemedi. Lütfen yeniden dene."}
           </p>
-          <button type="button" onClick={() => { setLoaded(null); setAttempt((current) => current + 1); }} className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-5 text-sm font-medium text-ink-contrast transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink">
+          <button type="button" onClick={() => { setLoaded(null); setAttempt((current) => current + 1); }} className="feed-about-action mt-4 visitor-sans">
             {isEnglish ? "Try again" : "Yeniden dene"}
           </button>
         </div>
@@ -121,7 +121,7 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
   }
 
   if (!visible.length) return (
-    <div className="visitor-card px-6 py-10 text-center">
+    <div className="feed-empty">
       <p className="text-sm leading-6 text-muted">{isEnglish ? "No saved notes are available in this language. They may have been removed or saved in another language." : "Bu dilde gösterilebilen kayıtlı not yok. Notlar diğer dilde kaydedilmiş veya yayından kaldırılmış olabilir."}</p>
       <Link href={languageHref("/", language)} className="mt-4 inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4">{isEnglish ? "Back to feed" : "Akışa dön"}</Link>
     </div>
@@ -129,8 +129,8 @@ export function FavoritesList({ language }: { language: VisitorLanguage }) {
 
   return (
     <>
-      <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6">
-        {visible.map((post) => <NoteCard key={post.id} post={post} language={language} layout="grid" />)}
+      <div className="feed-day-notes">
+        {visible.map((post) => <NoteCard key={post.id} post={post} language={language} />)}
       </div>
       {/* Worth saying once, at the end rather than over the list: this is not an account, and
           clearing the browser clears it. */}

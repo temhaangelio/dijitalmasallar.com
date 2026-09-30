@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NewsletterContent } from "@/components/features/visitor/newsletter-content";
 import { VisitorShell } from "@/components/layout/visitor-shell";
+import { VisitorPageHeading } from "@/components/features/visitor/page-heading";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
@@ -33,11 +34,8 @@ export default async function NewsletterPage({ searchParams }: { searchParams: P
 
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
-      <main className="visitor-wide-page mt-6 w-full max-w-[640px] sm:mt-9">
-        <header className="mb-6">
-          <h1 className="visitor-sans text-[28px] leading-tight text-ink sm:text-[32px]">{isEnglish ? "Newsletter" : "E-bülten"}</h1>
-        </header>
-
+      <main className="feed-column feed-page w-full">
+        <VisitorPageHeading title={isEnglish ? "Newsletter" : "E-bülten"} />
         <NewsletterContent language={language} />
       </main>
     </VisitorShell>

@@ -1,24 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ComponentProps } from "react";
+import Link from "next/link";
 import { Headphones, LoaderCircle } from "lucide-react";
 import { loadListeningQueue } from "@/app/podcast/actions";
 import { AudioPlaylist, type PlaylistItem } from "./audio-playlist";
 import { VisitorBottomSheet } from "./visitor-bottom-sheet";
 import { Button } from "@/components/ui/button";
-import { resolveVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
+import type { VisitorLanguage } from "@/lib/visitor-language";
 
 const eventName = "visitor:open-listening";
 type Selection = { language: VisitorLanguage; day?: string; autoPlay: boolean };
 
-export function ListenLink({ href, children, onClick, ...props }: ComponentProps<"a"> & { href: string }) {
-  return <a {...props} href={href} aria-haspopup="dialog" onClick={event => {
-    onClick?.(event);
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    const url = new URL(href, window.location.href);
-    window.dispatchEvent(new CustomEvent<Selection>(eventName, { detail: { language: resolveVisitorLanguage(url.searchParams.get("lang")), day: url.searchParams.get("day") ?? undefined, autoPlay: url.searchParams.get("play") === "1" } }));
-  }}>{children}</a>;
+/** A link to the podcast page. It used to open a listening sheet; now it simply goes there. */
+export function ListenLink({ href, children, ...props }: ComponentProps<"a"> & { href: string }) {
+  return <Link {...props} href={href}>{children}</Link>;
 }
 
 export function ListenModal() {
@@ -39,7 +35,7 @@ export function ListenModal() {
   }, [selection, attempt]);
   if (!selection) return null;
   const english = selection.language === "en";
-  return <VisitorBottomSheet open title="Podcast" closeLabel={english ? "Close player" : "Oynatıcıyı kapat"} onOpenChange={close} panelClassName="listen-modal !max-w-[1000px] visitor-sans" titleClassName="text-xl font-semibold tracking-tight">
+  return <VisitorBottomSheet open title="Podcast" closeLabel={english ? "Close player" : "Oynatıcıyı kapat"} onOpenChange={close} panelClassName="listen-modal feed-sheet visitor-sans" titleClassName="text-xl font-semibold tracking-tight">
     {!result ? <p role="status" className="flex min-h-48 items-center justify-center gap-2 text-sm text-muted"><LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" />{english ? "Loading recordings…" : "Kayıtlar yükleniyor…"}</p>
       : result.error ? <div className="py-8 text-center"><p role="alert" className="mb-4 text-sm text-danger">{english ? "Recordings could not be loaded." : "Kayıtlar yüklenemedi."}</p><Button variant="secondary" onClick={() => { setResult(null); setAttempt(value => value + 1); }}>{english ? "Try again" : "Yeniden dene"}</Button></div>
         : result.items.length ? <AudioPlaylist key={`${selection.language}-${selection.day ?? ""}`} items={result.items} language={selection.language} initialDay={selection.day} autoPlay={selection.autoPlay} />

@@ -2,20 +2,19 @@ import { getFeedPagination } from "@/lib/feed-pagination";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { AutoLoadMore } from "@/components/features/visitor/auto-load-more";
-import { DailyAudioCard } from "@/components/features/visitor/daily-audio-player";
+import { DailyAudioRow } from "@/components/features/visitor/daily-audio-player";
 import { FeedScrollMemory } from "@/components/features/visitor/feed-scroll-memory";
 import { VisitorFloatingNav } from "@/components/features/visitor/visitor-floating-nav";
 import { NewsletterPromo } from "@/components/features/visitor/newsletter-promo";
-import { ListenPromo } from "@/components/features/visitor/listen-promo";
 import { NoteCard } from "@/components/features/visitor/note-card";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { getActiveAds, type Advertisement } from "@/services/ads";
-import { getDailyAudioSince, type DailyAudio } from "@/services/daily-audio";
+import { getDailyAudioSince } from "@/services/daily-audio";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
-import { bulletinDays, dateKey } from "@/lib/visitor-date";
+import { bulletinDays, dateKey, dateLabel, relativeDayLabel } from "@/lib/visitor-date";
 import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
 
@@ -49,44 +48,34 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
-/** An ad is a card among the notes: one grid cell, the note's dateline, headline, image and body. */
+/** An ad is an entry among the notes: the same column, marked as an ad in its meta line. */
 function AdCard({ ad }: { ad: Advertisement }) {
   return (
-    <div className="visitor-ad-slot xl:flex xl:flex-col">
-      <a
-        href={ad.target_url}
-        target="_blank"
-        rel="sponsored noopener noreferrer"
-        aria-label={`${ad.label}: ${ad.title}`}
-        className="visitor-card group block transition-colors hover:border-line-strong xl:flex xl:flex-1 xl:flex-col"
-      >
-        <div className={`visitor-ad-content min-w-0 flex-1 px-5 pb-3 pt-5 sm:px-6 sm:pb-4 sm:pt-6${ad.image_url ? " visitor-ad-with-image" : ""}`}>
-          <span className="visitor-note-time visitor-sans">{ad.label}</span>
-
-          <h2 className="visitor-ad-title visitor-copy visitor-sans block text-ink transition-colors [text-wrap:pretty] group-hover:text-accent">{ad.title}</h2>
-
-          {ad.image_url ? (
-            <div className="visitor-ad-image relative mt-5 block aspect-video w-full overflow-hidden rounded-[10px] bg-surface-3">
-              {isOptimizableImage(ad.image_url)
-                ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 680px) calc(100vw - 72px), (min-width: 1280px) 340px, 590px" className="object-cover transition-transform duration-500 group-hover:scale-[1.015]" />
-                // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
-                : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.015]" />}
-            </div>
-          ) : null}
-
-          {ad.description ? (
-            <p className="visitor-note-body visitor-copy visitor-sans mt-5 whitespace-pre-line text-[18px] font-normal leading-[1.65] text-ink [text-wrap:pretty] sm:text-[20px] sm:leading-[1.6] xl:mt-3">{ad.description}</p>
-          ) : null}
-
-          <div className="mt-5 flex min-w-0 items-center justify-between gap-3 pt-2 visitor-sans text-[12px] font-normal leading-[1.6] xl:mt-auto xl:pt-1">
-            <span className="visitor-source min-w-0 truncate text-muted transition-colors group-hover:text-accent">
-              {ad.cta_label}
-              <svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg>
-            </span>
-          </div>
-        </div>
-      </a>
-    </div>
+    <a
+      href={ad.target_url}
+      target="_blank"
+      rel="sponsored noopener noreferrer"
+      aria-label={`${ad.label}: ${ad.title}`}
+      className="feed-note feed-ad group relative block"
+    >
+      <span className="feed-note-meta visitor-sans"><span className="feed-ad-label">{ad.label}</span></span>
+      <span className="feed-note-title visitor-copy visitor-sans block text-ink [text-wrap:pretty]">{ad.title}</span>
+      {ad.image_url ? (
+        <span className="feed-note-cover relative block aspect-video w-full overflow-hidden rounded-[8px] bg-surface-3">
+          {isOptimizableImage(ad.image_url)
+            ? <Image src={ad.image_url} alt="" fill sizes="(max-width: 680px) calc(100vw - 32px), 600px" className="object-cover" />
+            // eslint-disable-next-line @next/next/no-img-element -- host is outside the image allow-list
+            : <img src={ad.image_url} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
+        </span>
+      ) : null}
+      {ad.description ? <span className="feed-note-body visitor-copy visitor-sans block whitespace-pre-line text-ink [text-wrap:pretty]">{ad.description}</span> : null}
+      <span className="feed-note-foot visitor-sans">
+        <span className="feed-note-source min-w-0 truncate text-muted transition-colors group-hover:text-ink">
+          {ad.cta_label}
+          <svg className="ml-1 inline-block size-2.5 align-baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" /></svg>
+        </span>
+      </span>
+    </a>
   );
 }
 
@@ -99,23 +88,6 @@ function createAdSlots(postCount: number, ads: Advertisement[]) {
   for (let position = adInterval - 1, adIndex = 0; position < postCount; position += adInterval, adIndex++) {
     slots.set(position, ads[adIndex % ads.length]);
   }
-  return slots;
-}
-
-/*
- * The newsletter suggestion turns up far less often than an ad, and never in the same gap as one.
- *
- * Ads sit at every sixth note, which is every position ≡ 5 (mod 6). A suggestion starting at 13 and
- * repeating every 18 lands on 13, 31, 49 — all ≡ 1 (mod 6) — so the two never stack. The first one
- * appears far enough down the feed to read as something met while scrolling rather than as a
- * banner across the top.
- */
-const newsletterInterval = 18;
-const newsletterFirst = 13;
-
-function createNewsletterSlots(postCount: number) {
-  const slots = new Set<number>();
-  for (let position = newsletterFirst; position < postCount; position += newsletterInterval) slots.add(position);
   return slots;
 }
 
@@ -168,7 +140,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const recordings = await getDailyAudioSince(language, hasMorePosts ? oldestShown : null);
   const postDays = groupPostsByDay(posts);
   const adSlots = createAdSlots(posts.length, ads);
-  const newsletterSlots = createNewsletterSlots(posts.length);
   const baseUrl = siteUrl(settings.domain);
   const homeUrl = absoluteUrl(baseUrl, languageHref("/", language));
   const structuredData = {
@@ -224,69 +195,66 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   };
 
   const { today: todayKey, yesterday: yesterdayKey } = bulletinDays();
-  const audioCardFor = (recording: DailyAudio) => (
-    <div key={`audio-${recording.day}`} className="xl:flex xl:flex-col">
-      <DailyAudioCard
-        title={recording.day === yesterdayKey ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : recording.day === todayKey ? (language === "en" ? "Today’s briefing" : "Bugünün bülteni") : (language === "en" ? "Audio briefing" : "Sesli bülten")}
-        day={recording.day}
-        durationSeconds={recording.durationSeconds}
-        language={language}
-      />
-    </div>
-  );
-  // Recordings newer than a note go before it; `placed` walks the newest-first list once.
-  let placed = 0;
-  const recordingsBefore = (publishedAt: string) => {
-    const nodes = [];
-    while (placed < recordings.length && Date.parse(recordings[placed].publishedAt) > Date.parse(publishedAt)) nodes.push(audioCardFor(recordings[placed++]));
-    return nodes;
-  };
+  const audioTitle = (day: string) => day === todayKey
+    ? (language === "en" ? "Today’s briefing" : "Bugünün bülteni")
+    : day === yesterdayKey ? (language === "en" ? "Yesterday’s briefing" : "Dünün bülteni") : (language === "en" ? "Audio briefing" : "Sesli bülten");
+  const recordingByDay = new Map(recordings.map((recording) => [recording.day, recording]));
+  /*
+   * A day's recording sits directly under that day's heading. A recording whose day has no notes
+   * (only once every note is loaded, so an older day cannot be shown before its notes) gets a day
+   * heading of its own, in its place in the order.
+   */
+  const dayKeys = new Set(postDays.map((day) => day.key));
+  const days: { key: string; publishedAt: string; items: { post: Post; position: number }[] }[] = [];
+  const orphanRecordings = hasMorePosts ? [] : recordings.filter((recording) => !dayKeys.has(recording.day));
+  const orphanQueue = [...orphanRecordings];
+  for (const day of postDays) {
+    while (orphanQueue.length && orphanQueue[0].day > day.key) {
+      const recording = orphanQueue.shift()!;
+      days.push({ key: recording.day, publishedAt: recording.publishedAt, items: [] });
+    }
+    days.push(day);
+  }
+  for (const recording of orphanQueue) days.push({ key: recording.day, publishedAt: recording.publishedAt, items: [] });
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
       <h1 className="sr-only">{settings.siteName}</h1>
-      <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
-        <div>
+      <main className="visitor-feed feed-column relative flex w-full flex-col">
         {posts.length ? (
-          <>
-          {/*
-            One list, two shapes. The first two notes load their covers eagerly: on wide screens they
-            share the first row, and the second one was turning up as the LCP.
-
-            On phones it is a single column; desktop readers can choose cards or horizontal rows.
-            Both layouts share the same content, chronological order and full-width ad slots.
-          */}
-          <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6">
-            {(() => {
-              return postDays.flatMap((day) => day.items.flatMap(({ post, position }) => {
-                const nodes = recordingsBefore(post.published_at ?? post.created_at);
-                nodes.push(
-                  <div key={post.id} id={noteAnchorId(post.id)} className="visitor-note-anchor group/note relative xl:flex xl:flex-col">
-                    <NoteCard post={post} language={language} priority={position < 2} latest={position === 0} layout="grid" />
-                  </div>,
-                );
-                if (adSlots.has(position)) {
-                  nodes.push(<AdCard key={`ad-${position}`} ad={adSlots.get(position)!} />);
-                }
-                if (newsletterSlots.has(position)) {
-                  nodes.push(<NewsletterPromo key={`newsletter-${position}`} language={language} />);
-                }
-                // Offset from newsletter and ad slots so suggestions never share a gap.
-                if (position >= 7 && (position - 7) % 18 === 0) {
-                  nodes.push(<ListenPromo key={`listen-${position}`} language={language} />);
-                }
-                return nodes;
-              })).concat(hasMorePosts ? [] : recordings.slice(placed).map(audioCardFor));
-            })()}
+          <div className="feed-days">
+            {days.map((day) => {
+              const recording = recordingByDay.get(day.key);
+              return (
+                <section key={day.key} className="feed-day" aria-label={dateLabel(day.publishedAt, language)}>
+                  <h2 className="feed-day-heading visitor-sans" title={dateLabel(day.publishedAt, language)}>
+                    <span className="feed-day-name">{relativeDayLabel(day.publishedAt, language)}</span>
+                    {relativeDayLabel(day.publishedAt, language) !== dateLabel(day.publishedAt, language)
+                      ? <span className="feed-day-date">{dateLabel(day.publishedAt, language)}</span>
+                      : null}
+                  </h2>
+                  {recording ? <DailyAudioRow title={audioTitle(recording.day)} day={recording.day} durationSeconds={recording.durationSeconds} language={language} /> : null}
+                  <div className="feed-day-notes">
+                    {day.items.flatMap(({ post, position }) => {
+                      const nodes = [
+                        <div key={post.id} id={noteAnchorId(post.id)} className="visitor-note-anchor">
+                          <NoteCard post={post} language={language} priority={position < 2} latest={position === 0} />
+                        </div>,
+                      ];
+                      if (adSlots.has(position)) nodes.push(<AdCard key={`ad-${position}`} ad={adSlots.get(position)!} />);
+                      return nodes;
+                    })}
+                  </div>
+                </section>
+              );
+            })}
           </div>
-          </>
         ) : (
-          <div className="visitor-panel visitor-muted rounded-[14px] border border-dashed border-line-strong/80 px-6 py-16 text-center">
+          <div className="visitor-muted px-2 py-16 text-center">
             <p className="visitor-copy text-[length:var(--vt-small)] font-medium text-muted">{language === "en" ? "No English notes have been published yet." : "Henüz Türkçe not yayınlanmadı."}</p>
             <p className="visitor-muted mt-2 text-[length:var(--vt-ui)] text-muted">{language === "en" ? "New notes land here through the day." : "Yeni notlar gün boyunca buraya düşer."}</p>
           </div>
         )}
-        </div>
 
         {hasMorePosts && (() => {
           const nextHref = languageHref("/", language, { limit: pagination.nextCount });
@@ -305,6 +273,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </>
           );
         })()}
+        {!hasMorePosts && posts.length ? <NewsletterPromo language={language} /> : null}
       </main>
       <VisitorFloatingNav language={language} />
       <FeedScrollMemory />

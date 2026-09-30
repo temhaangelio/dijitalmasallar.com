@@ -305,37 +305,33 @@ export function EditorLoading({ active, asideFields }: { active: string; asideFi
  */
 
 /**
- * A feed note as the card now draws it: the dateline, opening paragraph, cover, remaining lines,
- * and the source row at the foot. On a phone the cards stack; from 1280px they sit two to a row in
- * the same grid the feed uses, so the fallback and the page share one geometry.
+ * A feed note as the flat column draws it: a day heading, then for each note the time, headline
+ * lines, cover, body lines and the source row. One column at every width, like the page.
  */
 export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; withCount?: boolean }) {
   return (
     <>
       {withCount ? <Skeleton className="mb-4 ml-1 h-3 w-32" /> : null}
-      <div className="visitor-feed-grid flex flex-col gap-8 sm:gap-10 xl:grid xl:grid-cols-2 xl:items-stretch xl:gap-6">
-        {Array.from({ length: count }, (_, index) => (
-          <div key={index} className="visitor-card visitor-note-card visitor-note-card-grid flex flex-col">
-            <div className="visitor-note-content flex-1 px-5 py-5 sm:px-6 sm:py-6 xl:px-5 xl:py-5">
-              <div className="visitor-note-time justify-between"><Skeleton className="h-3 w-28" /><Skeleton className="h-3 w-9" /></div>
-              <div className="visitor-note-initial">
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="mt-2.5 h-5 w-11/12" />
-                <Skeleton className="mt-2.5 h-5 w-2/3" />
+      <div className="feed-day">
+        <div className="feed-day-heading"><Skeleton className="h-4 w-14" /><Skeleton className="h-3 w-28" /></div>
+        <div className="feed-day-notes">
+          {Array.from({ length: count }, (_, index) => (
+            <div key={index} className="feed-note">
+              <div className="feed-note-meta"><Skeleton className="h-3 w-9" /></div>
+              <div>
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="mt-2.5 h-6 w-3/4" />
               </div>
-              <Skeleton className="visitor-note-cover mt-5 aspect-video w-full rounded-[10px]" />
-              <div className="visitor-note-body mt-6">
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="mt-2.5 h-5 w-10/12" />
-                <Skeleton className={`mt-2.5 h-5 ${index % 2 ? "w-1/2" : "w-3/4"}`} />
+              <Skeleton className="feed-note-cover aspect-video w-full rounded-[8px]" />
+              <div className="feed-note-body">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="mt-2.5 h-4 w-10/12" />
+                <Skeleton className={`mt-2.5 h-4 ${index % 2 ? "w-1/2" : "w-3/4"}`} />
               </div>
+              <div className="feed-note-foot"><Skeleton className="h-3 w-24" /></div>
             </div>
-            <div className="visitor-note-footer">
-              <Skeleton className="h-3 w-24" />
-              <div className="visitor-card-actions flex gap-1 rounded-full"><Skeleton className="size-11 rounded-full" /><Skeleton className="size-11 rounded-full" /></div>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </>
   );
@@ -346,7 +342,7 @@ export function VisitorNoteCardsSkeleton({ count, withCount }: { count: number; 
 export function VisitorFeedLoading() {
   return (
     <VisitorShellSkeleton label="Akış yükleniyor">
-      <main className="visitor-feed visitor-viewable-feed relative mt-6 flex w-full max-w-[640px] flex-col sm:mt-9">
+      <main className="visitor-feed feed-column relative flex w-full flex-col">
         <VisitorNoteCardsSkeleton count={8} />
       </main>
     </VisitorShellSkeleton>

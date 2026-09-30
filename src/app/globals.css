@@ -1717,8 +1717,7 @@ html[data-visitor-theme="dark"] .visitor-page .visitor-deck-card {
 /* The mobile masthead stays centred above a wider desktop news grid.
    Real cards and loading placeholders share these dimensions. */
 @media (min-width: 1280px) {
-  .visitor-page :is(.visitor-feed, .visitor-wide-page),
-  .visitor-page:has(.visitor-feed, .visitor-wide-page) .visitor-masthead { max-width: min(1080px, calc(100% - 64px)); }
+  /* (The wide two-column measure is gone; the column width is declared at the end of the file.) */
   .visitor-page .visitor-feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .visitor-page .visitor-feed-grid :is(.visitor-note-initial, .visitor-note-body) {
     font-size: calc(18px * var(--visitor-text-scale));
@@ -2252,3 +2251,601 @@ html[data-visitor-theme="dark"] .audio-art-icon { box-shadow: 0 0 0 8px #ffffff1
 .feed-audio-card:hover .newsletter-promo-stage .newsletter-letter-cover { transform: translateY(-2px); }
 .newsletter-promo-stage .newsletter-letter-cover { transition: transform 200ms cubic-bezier(.2,.8,.2,1); }
 @media (prefers-reduced-motion: reduce) { .newsletter-promo-stage .newsletter-letter-cover { transition: none; } }
+
+/* ==========================================================================================
+ * The flat feed (September 2026 redesign).
+ *
+ * One reading column at every width, no cards. A day opens with its name; under it the day's
+ * bulletin as one line, then the notes separated by nothing but space and a hairline. Each note
+ * is: a small time, the headline in one weight, the picture, the body, a small source line.
+ * The masthead is one row. These rules are unlayered on purpose, so they win over the older card
+ * styles and utilities without a specificity contest.
+ * ========================================================================================== */
+
+/* Masthead: one row. The sections sit beside the logotype from `sm`; below that the menu has them. */
+.visitor-page .feed-masthead { padding-bottom: 8px; }
+.visitor-page .feed-masthead-nav { display: none; }
+.visitor-page .feed-masthead-nav .visitor-header-links { margin: 0; width: auto; }
+.visitor-page .feed-masthead-nav .visitor-nav-track { gap: 2px; padding: 0; border: 0; border-radius: 0; background: none; }
+.visitor-page .feed-masthead-nav .visitor-header-link {
+  position: relative;
+  min-height: 40px;
+  padding-inline: 9px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+.visitor-page .feed-masthead-nav .visitor-header-link:hover { color: var(--color-ink); background: none; }
+.visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"] { color: var(--color-ink); background: none; box-shadow: none; }
+.visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"]::after { content: none; }
+.visitor-page .feed-masthead-nav .visitor-header-link[href="/"],
+.visitor-page .feed-masthead-nav .visitor-header-link[href^="/?"] { display: none; }
+@media (min-width: 640px) {
+  .visitor-page .feed-masthead-nav { display: block; margin-left: 12px; margin-right: auto; }
+}
+.visitor-page .feed-masthead .visitor-top-control { width: 40px; height: 40px; }
+.visitor-page .feed-masthead .visitor-top-control::before { content: none; }
+.visitor-page .feed-masthead .visitor-top-control:hover:not(:disabled) { color: var(--color-ink); }
+
+/* The menu sheet: the sections first, on phones only. */
+.feed-menu-nav { display: none; }
+@media (max-width: 639px) {
+  .feed-menu-nav { display: grid; gap: 2px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--color-line); }
+  .feed-menu-link { display: flex; align-items: center; min-height: 44px; padding: 0 4px; border-radius: 8px; font-size: 17px; font-weight: 500; color: var(--color-ink); }
+  .feed-menu-link[aria-current="page"] { color: var(--color-muted); }
+  .feed-menu-link:hover { background: var(--color-surface-2); }
+  .feed-menu-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+}
+
+/* The column. */
+.visitor-page .feed-column { margin-top: 12px; }
+@media (min-width: 640px) { .visitor-page .feed-column { margin-top: 20px; } }
+
+/* A day: its name as the only heading in the column, in ink, small and firm. */
+.feed-day + .feed-day { margin-top: 52px; }
+.feed-day-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--color-ink);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--color-ink);
+}
+.feed-day-date { font-size: 13px; font-weight: 400; color: var(--color-muted); }
+
+/* The day's bulletin, one line under the heading. */
+.feed-audio-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 14px;
+  color: var(--color-ink);
+  transition: color .15s ease;
+}
+.feed-audio-row-play {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-ink);
+  color: var(--color-ink-contrast);
+  transition: transform .15s ease;
+}
+.feed-audio-row-play svg { margin-left: 1px; }
+.feed-audio-row-title { font-weight: 500; }
+.feed-audio-row-meta { margin-left: auto; font-size: 13px; color: var(--color-muted); }
+.feed-audio-row:hover .feed-audio-row-play { transform: scale(1.08); }
+.feed-audio-row:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+/* A note. Space and a hairline between notes, nothing around them. */
+.feed-note { padding: 26px 0 22px; border-bottom: 1px solid var(--color-line); }
+.feed-day-notes > :last-child .feed-note, .feed-day-notes > .feed-note:last-child { border-bottom: 0; }
+.feed-note-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+.feed-note-new { width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
+.visitor-page .feed-note-title {
+  font-size: calc(21px * var(--visitor-text-scale, 1));
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -.012em;
+  transition: color .15s ease;
+}
+.feed-note:hover .feed-note-title { color: var(--color-ink-2); }
+.feed-note-cover { margin-top: 16px; }
+.visitor-page .feed-note-body {
+  margin-top: 14px;
+  font-size: calc(17px * var(--visitor-text-scale, 1));
+  line-height: 1.6;
+  color: var(--color-ink-2);
+}
+.feed-note-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  min-height: 32px;
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.feed-note-source { display: inline-block; }
+/* Share and save stay out of the way: they appear when the note is hovered, and always on touch. */
+.feed-note-actions { position: relative; z-index: 10; margin-right: -12px; transition: opacity .15s ease; }
+.feed-note-actions .visitor-card-actions { gap: 0; }
+.feed-note-actions .visitor-card-actions button { width: 40px; height: 40px; color: var(--color-faint); }
+.feed-note-actions .visitor-card-actions button:hover { color: var(--color-ink); background: transparent; }
+@media (hover: hover) and (pointer: fine) {
+  .feed-note-actions { opacity: 0; }
+  .feed-note:hover .feed-note-actions, .feed-note:focus-within .feed-note-actions, .feed-note-actions:has([aria-pressed="true"]) { opacity: 1; }
+}
+@media (min-width: 640px) {
+  .feed-note { padding: 30px 0 26px; }
+  .visitor-page .feed-note-title { font-size: calc(23px * var(--visitor-text-scale, 1)); line-height: 1.38; }
+  .visitor-page .feed-note-body { font-size: calc(18px * var(--visitor-text-scale, 1)); }
+  .feed-note-cover { margin-top: 18px; }
+  .feed-note-body { margin-top: 16px; }
+}
+
+/* An ad in the column: the same shape, its label says what it is. */
+.feed-ad { color: var(--color-ink); }
+.feed-ad-label { display: inline-block; padding: 1px 6px; border: 1px solid var(--color-line-strong); border-radius: 4px; font-size: 11px; font-weight: 500; letter-spacing: .02em; text-transform: uppercase; color: var(--color-muted); }
+.feed-ad:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+
+/* The newsletter, once, at the end of the feed. */
+.feed-newsletter {
+  display: block;
+  margin-top: 56px;
+  padding: 26px 0;
+  border-top: 1px solid var(--color-ink);
+  color: var(--color-ink);
+}
+.feed-newsletter-title { display: block; font-size: 21px; font-weight: 600; letter-spacing: -.015em; line-height: 1.3; }
+.feed-newsletter-body { display: block; margin-top: 6px; font-size: 15px; color: var(--color-muted); }
+.feed-newsletter-cta { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; margin-top: 10px; font-size: 14px; font-weight: 600; }
+.feed-newsletter-cta > svg { transition: transform .2s cubic-bezier(.2,.8,.2,1); }
+.feed-newsletter:hover .feed-newsletter-cta > svg { transform: translateX(3px); }
+.feed-newsletter:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+
+/* The note page: the article on the canvas, not in a box. */
+.visitor-page .visitor-article.visitor-card { border: 0; background: transparent; box-shadow: none; border-radius: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-audio-row-play, .feed-note-actions, .feed-note-title, .feed-newsletter-cta > svg { transition: none; }
+}
+
+/* (The column width is declared once, at the end of this file.) */
+
+/* ------------------------------------------------------------------------------------------
+ * The section pages in the same language as the feed: Hakkında, E-bülten, Podcast, Favoriler,
+ * the note page, the menu sheet, the capsule at the foot of a scrolled feed, the footer.
+ * ------------------------------------------------------------------------------------------ */
+
+/* The day heading stays put while its notes scroll under it. */
+.feed-day-heading { position: sticky; top: 0; z-index: 2; padding-top: 10px; background: var(--color-canvas); }
+html[data-visitor-theme="dark"] .visitor-page .feed-day-heading { background: #0f0f0f; }
+html:has(.visitor-page) .feed-day-heading { background: #fafafa; }
+html[data-visitor-theme="dark"]:has(.visitor-page) .feed-day-heading { background: #0f0f0f; }
+
+/* A page's heading: same rule as a day heading, larger. */
+.visitor-page .feed-page { margin-top: 12px; }
+@media (min-width: 640px) { .visitor-page .feed-page { margin-top: 20px; } }
+.feed-page-heading { padding: 6px 0 14px; border-bottom: 1px solid var(--color-ink); }
+.feed-page-heading-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.feed-page-title { margin: 0; font-size: 26px; font-weight: 600; line-height: 1.15; letter-spacing: -.025em; color: var(--color-ink); }
+.feed-page-lede { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--color-muted); text-wrap: pretty; }
+.feed-page-aside { flex: none; }
+@media (min-width: 640px) { .feed-page-title { font-size: 30px; } }
+
+/* An empty or failed state: quiet text in the column, no box. */
+.feed-empty { padding: 56px 8px; text-align: center; font-size: 15px; line-height: 1.6; color: var(--color-muted); }
+.feed-empty p { margin: 0; }
+
+/* Hakkında */
+.feed-about-profile { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 20px; padding: 28px 0 24px; border-bottom: 1px solid var(--color-line); }
+.feed-about-portrait { width: 96px; aspect-ratio: 1; overflow: hidden; border-radius: 22px; background: var(--color-surface-3); }
+.feed-about-author { margin: 0; font-size: 21px; font-weight: 600; line-height: 1.2; letter-spacing: -.02em; color: var(--color-ink); }
+.feed-about-role { margin: 4px 0 0; font-size: 15px; line-height: 1.5; color: var(--color-muted); }
+.feed-about-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 6px; }
+.feed-about-link { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; font-size: 14px; font-weight: 500; color: var(--color-ink-2); transition: color .15s ease; }
+.feed-about-link > svg { flex: none; color: var(--color-muted); }
+.feed-about-link:hover { color: var(--color-ink); }
+.feed-about-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 6px; }
+@media (min-width: 640px) { .feed-about-profile { grid-template-columns: 120px minmax(0, 1fr); gap: 24px; padding: 32px 0 28px; } .feed-about-portrait { width: 120px; border-radius: 26px; } }
+.feed-about-section { padding: 26px 0; border-bottom: 1px solid var(--color-line); }
+.feed-about-section-title { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.35; letter-spacing: -.01em; color: var(--color-ink); }
+.feed-about-copy { margin: 10px 0 0; font-size: calc(17px * var(--visitor-text-scale, 1)); line-height: 1.65; color: var(--color-ink-2); text-wrap: pretty; }
+.feed-about-actions { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px; }
+.feed-about-action { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; font-size: 14px; font-weight: 500; color: var(--color-ink); border-bottom: 1px solid var(--color-line-strong); transition: border-color .15s ease; }
+.feed-about-action > svg { color: var(--color-muted); }
+.feed-about-action:hover { border-color: var(--color-ink); }
+.feed-about-action:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.feed-about-hint { display: inline-flex; align-items: center; gap: 7px; margin: 12px 0 0; font-size: 13px; line-height: 1.6; color: var(--color-muted); }
+.feed-about-mail { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 8px; font-size: 16px; color: var(--color-ink); border-bottom: 1px solid var(--color-line-strong); transition: border-color .15s ease; }
+.feed-about-mail:hover { border-color: var(--color-ink); }
+.feed-about-social { display: flex; gap: 2px; margin: 14px 0 0 -12px; }
+.feed-about-social-link { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: var(--color-muted); transition: color .15s ease, background-color .15s ease; }
+.feed-about-social-link:hover { color: var(--color-ink); background: var(--color-surface-2); }
+.feed-about-social-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.feed-about-contact { border-bottom: 0; }
+.feed-about-made { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 8px 0 0; padding-top: 22px; border-top: 1px solid var(--color-line); font-size: 13px; color: var(--color-muted); }
+
+/* E-bülten: the envelope on the canvas, then the words, then the one field. */
+.feed-newsletter-page { padding-top: 8px; }
+.feed-newsletter-art { display: grid; place-items: center; padding: 26px 0 10px; }
+.feed-newsletter-art .newsletter-letter-cover { width: min(100%, 300px); }
+.feed-newsletter-headline { margin: 18px 0 0; font-size: 28px; font-weight: 600; line-height: 1.15; letter-spacing: -.03em; color: var(--color-ink); text-wrap: balance; }
+.feed-newsletter-lead { margin: 10px 0 0; max-width: 48ch; font-size: 16px; line-height: 1.6; color: var(--color-muted); text-wrap: pretty; }
+.feed-newsletter-signup { margin-top: 22px; padding-top: 6px; border-top: 1px solid var(--color-line); }
+.feed-newsletter-signup .visitor-newsletter-label { margin-top: 18px; font-weight: 500; color: var(--color-muted); }
+.feed-newsletter-signup .visitor-newsletter-input { height: 50px; border-radius: 10px; border-color: var(--color-line-strong); background: transparent; }
+.feed-newsletter-signup .visitor-newsletter-submit { height: 50px; border-radius: 10px; }
+.feed-newsletter-signup .visitor-newsletter-terms { font-size: 13px; }
+@media (min-width: 640px) { .feed-newsletter-headline { font-size: 34px; } .feed-newsletter-art { padding: 34px 0 14px; } .feed-newsletter-art .newsletter-letter-cover { width: min(100%, 340px); } }
+
+/* Podcast: the turntable on the canvas, the transport, then the recordings as a plain list. */
+.visitor-page .listen-page { overflow: visible; border: 0; border-radius: 0; background: transparent; }
+.visitor-page .listen-studio.visitor-card, .listen-modal .listen-studio.visitor-card { display: block; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.visitor-page .listen-console, .listen-modal .listen-console { padding: 26px 0 6px; background: none; }
+.listen-modal .listen-console { padding-inline: 20px; }
+.visitor-page .listen-queue, .listen-modal .listen-queue { border: 0; }
+.visitor-page .listen-queue-heading, .listen-modal .listen-queue-heading { padding: 18px 0 10px; border-bottom: 1px solid var(--color-ink); }
+.listen-modal .listen-queue-heading { padding-inline: 20px; }
+.listen-queue-heading h2 { font-size: 15px; font-weight: 600; }
+.listen-queue-heading h2 > svg { display: none; }
+.visitor-page .listen-queue-list, .listen-modal .listen-queue-list { max-height: none; overflow: visible; }
+.listen-modal .listen-queue-list { max-height: min(340px, 40dvh); overflow-y: auto; }
+.visitor-page .listen-queue-item, .listen-modal .listen-queue-item { padding: 14px 0; border-bottom: 1px solid var(--color-line); background: none; box-shadow: none; }
+.listen-modal .listen-queue-item { padding-inline: 20px; }
+.visitor-page .listen-queue-item:hover, .listen-modal .listen-queue-item:hover { background: none; }
+.visitor-page .listen-queue-item[aria-current], .listen-modal .listen-queue-item[aria-current] { color: var(--color-ink); box-shadow: none; background: none; }
+.visitor-page .listen-queue-item[aria-current] .listen-queue-number, .listen-modal .listen-queue-item[aria-current] .listen-queue-number { color: var(--color-ink); }
+.listen-queue-item .visitor-audio-wave { color: var(--color-ink); }
+
+/* The note page, on the canvas. */
+.feed-article { padding-top: 8px; }
+.feed-article header { border-bottom-color: var(--color-line); }
+.feed-article .visitor-article-intro { font-weight: 500; letter-spacing: -.012em; }
+.feed-article .visitor-article-intro strong { font-weight: inherit; }
+.visitor-page .feed-article .visitor-article-intro > div { line-height: 1.38; }
+.feed-next { display: block; margin-top: 40px; padding: 22px 0 6px; border-top: 1px solid var(--color-ink); color: var(--color-ink); }
+.feed-next:hover p { color: var(--color-ink-2); }
+
+/* Sheets: one width, canvas surface, hairlines. */
+.visitor-sheet-panel.feed-sheet { max-width: 640px; }
+.visitor-sheet-panel { border-color: var(--color-line); box-shadow: 0 24px 70px rgb(0 0 0 / .18); }
+.newsletter-modal .visitor-sheet-body { padding: 0 20px max(24px, env(safe-area-inset-bottom)); }
+.newsletter-modal .feed-newsletter-art { padding-top: 6px; }
+.newsletter-modal .feed-newsletter-art .newsletter-letter-cover { width: min(100%, 240px); }
+.newsletter-modal .feed-newsletter-headline { font-size: 26px; }
+
+/* The menu sheet's controls, in line with the rest: a hairline segmented control, ink for the choice. */
+.visitor-settings-row > :is([role="group"], [role="radiogroup"]) { border-color: var(--color-line-strong); border-radius: 10px; background: transparent; }
+.visitor-settings [role="group"] > span[aria-hidden="true"],
+.visitor-settings [role="radiogroup"] > span[aria-hidden="true"] { border-color: transparent; border-radius: 7px; background: var(--color-ink); box-shadow: none; }
+.visitor-page :is([role="group"], [role="radiogroup"]) > span[aria-hidden="true"].bg-ink { border-color: transparent; background: var(--color-ink); box-shadow: none; }
+.visitor-settings [data-active="true"], .visitor-page :is([role="group"], [role="radiogroup"]) > [data-active="true"] { color: var(--color-ink-contrast); }
+.visitor-settings [data-active] { font-weight: 500; }
+.visitor-settings-action { border-radius: 10px; }
+.visitor-settings-label { color: var(--color-muted); }
+
+/* The capsule at the foot of a scrolled feed: solid ink, so it is one thing and not a second toolbar. */
+.visitor-float-track { gap: 0; padding: 4px; border: 0; background: var(--color-ink); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 10px 30px rgb(0 0 0 / .22); }
+html[data-visitor-theme="dark"] .visitor-page .visitor-float-track { background: var(--color-ink); box-shadow: 0 10px 30px rgb(0 0 0 / .5); }
+.visitor-float-top { min-height: 40px; padding: 0 14px 0 12px; font-size: 13px; font-weight: 600; letter-spacing: 0; color: var(--color-ink-contrast); background: color-mix(in srgb, var(--color-ink-contrast) 14%, transparent); box-shadow: none; }
+.visitor-float-top:hover { color: var(--color-ink-contrast); background: color-mix(in srgb, var(--color-ink-contrast) 22%, transparent); }
+.visitor-float-link { min-height: 40px; padding: 0 14px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--color-on-dark); }
+.visitor-float-link:hover { color: var(--color-ink-contrast); background: transparent; }
+.visitor-float-link:focus-visible, .visitor-float-top:focus-visible { outline: 2px solid var(--color-ink-contrast); outline-offset: -3px; }
+@media (min-width: 640px) { .visitor-float-link { padding-inline: 16px; font-size: 14px; } .visitor-float-top { font-size: 14px; padding-inline: 16px 14px; } }
+
+/* The footer: the sections once more, then the small print. */
+.feed-footer { display: block; }
+.feed-footer-nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.feed-footer-link { display: inline-flex; align-items: center; min-height: 36px; font-size: 14px; font-weight: 500; color: var(--color-ink-2); transition: color .15s ease; }
+.feed-footer-link:hover { color: var(--color-ink); }
+.feed-footer-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
+.feed-footer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 14px; font-size: 12px; }
+.feed-footer-meta :is(p, a, button) { font-size: 12px; }
+.visitor-footer.feed-footer :is(p, a, button) { font-size: 12px; }
+
+/* On the page the envelope is already open and the letter already out: no flap to wait for. */
+.feed-newsletter-art .newsletter-envelope-back { animation: none; transform: perspective(700px) rotateX(0deg); z-index: 0; }
+.feed-newsletter-art .newsletter-paper { animation: none; transform: none; opacity: 1; clip-path: none; }
+.feed-about-portrait { background: transparent; border-radius: 0; }
+
+/* The masthead: the mark, the logotype and the controls a size smaller, so the row sits lightly. */
+.visitor-page .feed-masthead .visitor-logo-mark { width: 32px !important; height: 32px !important; border-radius: 10px !important; }
+.visitor-page .feed-masthead .visitor-wordmark-beside { width: 118px; }
+.visitor-page .feed-masthead .visitor-top-control { width: 36px; height: 36px; color: var(--color-muted); }
+.visitor-page .feed-masthead .visitor-top-control svg { width: 17px; height: 17px; }
+.visitor-page .feed-masthead .visitor-masthead-row > div:last-child { gap: 2px; }
+.visitor-page .feed-masthead-nav, .visitor-page .feed-masthead-nav .visitor-header-link { flex: none; white-space: nowrap; }
+@media (min-width: 640px) {
+  .visitor-page .feed-masthead .visitor-logo-mark { width: 34px !important; height: 34px !important; border-radius: 11px !important; }
+  .visitor-page .feed-masthead .visitor-wordmark-beside { width: 132px; }
+  .visitor-page .feed-masthead .visitor-masthead-row > div:last-child { gap: 4px; }
+}
+/* The mark: smaller, and closer to the logotype. */
+.visitor-page .feed-masthead .visitor-logo-mark { width: 26px !important; height: 26px !important; border-radius: 8px !important; }
+.visitor-page .feed-masthead .visitor-masthead-row > a { gap: 8px; }
+@media (min-width: 640px) {
+  .visitor-page .feed-masthead .visitor-logo-mark { width: 28px !important; height: 28px !important; border-radius: 9px !important; }
+  .visitor-page .feed-masthead .visitor-masthead-row > a { gap: 9px; }
+}
+/* A hairline the full width of the window under the masthead, so the header reads as the site's
+   chrome and the column below it as the page. */
+.visitor-page .feed-masthead { position: relative; padding-bottom: 12px; }
+.visitor-page .feed-masthead::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100vw;
+  height: 1px;
+  transform: translateX(-50%);
+  background: var(--color-line-strong);
+  pointer-events: none;
+}
+html[data-visitor-theme="dark"] .visitor-page .feed-masthead::after { background: color-mix(in srgb, var(--color-line-strong) 60%, transparent); }
+@media (min-width: 640px) { .visitor-page .feed-masthead { padding-bottom: 14px; } }
+/* The mark at the logotype's own height. */
+.visitor-page .feed-masthead .visitor-logo-mark { width: 22px !important; height: 22px !important; border-radius: 7px !important; }
+.visitor-page .feed-masthead .visitor-masthead-row > a { gap: 7px; }
+@media (min-width: 640px) {
+  .visitor-page .feed-masthead .visitor-logo-mark { width: 24px !important; height: 24px !important; border-radius: 7px !important; }
+  .visitor-page .feed-masthead .visitor-masthead-row > a { gap: 8px; }
+}
+.visitor-page .feed-masthead::after { background: color-mix(in srgb, var(--color-ink) 14%, transparent); }
+.visitor-page .feed-logo-mark { width: 22px; height: 22px; border-radius: 7px; }
+@media (min-width: 640px) { .visitor-page .feed-logo-mark { width: 24px; height: 24px; } }
+/* The menu: every setting in view, the reset at the foot. */
+.feed-settings-extra { padding-top: 0; }
+.feed-settings-footer { justify-content: flex-end; }
+
+/* Add to home screen, in the menu and as the invitation low on the page: the same plain language. */
+.feed-settings-install { margin-top: 4px; }
+.feed-settings-install-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+.feed-settings-install-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--color-ink); }
+.feed-settings-install-toggle > svg:first-child { color: var(--color-muted); }
+.feed-settings-install-summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 6px; }
+.feed-settings-install-help { padding: 4px 0 8px; }
+.feed-install-steps ol { display: flex; flex-direction: column; }
+.feed-install-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-top: 1px solid var(--color-line); }
+.feed-install-step-icon { display: grid; place-items: center; width: 24px; height: 24px; flex: none; margin-top: 1px; border-radius: 50%; background: var(--color-ink); color: var(--color-ink-contrast); }
+.feed-install-steps strong { font-weight: 600; color: var(--color-ink); }
+.feed-install-note { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-line); }
+.feed-install-steps > p + p { margin-top: 6px; }
+.feed-install-button { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 14px; border-radius: 10px; background: var(--color-ink); color: var(--color-ink-contrast); font-size: 13px; font-weight: 600; transition: opacity .15s ease; }
+.feed-install-button:hover { opacity: .85; }
+.feed-install-button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.feed-install-how { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 4px; font-size: 13px; font-weight: 500; color: var(--color-ink); border-bottom: 1px solid var(--color-line-strong); }
+.feed-install-banner { padding: 12px 14px; border: 1px solid var(--color-line-strong); border-radius: 12px; background: var(--color-canvas); box-shadow: 0 10px 30px rgb(0 0 0 / .12); }
+html:has(.visitor-page) .feed-install-banner { background: #fafafa; }
+html[data-visitor-theme="dark"]:has(.visitor-page) .feed-install-banner { background: #0f0f0f; box-shadow: 0 10px 30px rgb(0 0 0 / .5); }
+.feed-install-mark { width: 28px; height: 28px; border-radius: 8px; }
+.feed-install-banner-steps { margin-top: 10px; }
+/* The sections centred in the row; the controls in a tight group on the right. */
+@media (min-width: 640px) {
+  .visitor-page .feed-masthead-nav { position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, -50%); }
+}
+.visitor-page .feed-masthead .visitor-masthead-row > div:last-child { gap: 0; }
+.visitor-page .feed-masthead .visitor-top-control { width: 34px; height: 34px; }
+/* The sticky day heading stays above the notes' covers and their controls. */
+.feed-day-heading { z-index: 30; }
+
+/* ------------------------------------------------------------------------------------------
+ * The menu sheet, tidied: one grid for every row (a label column, a control column), controls of
+ * one height, hairlines between groups, the reset as a quiet line at the foot.
+ * ------------------------------------------------------------------------------------------ */
+.visitor-settings-sheet { max-width: 400px; }
+.visitor-settings-sheet .visitor-sheet-header { padding: 14px 20px 6px; }
+.visitor-settings-sheet .visitor-sheet-header h2 { font-size: 18px !important; font-weight: 600 !important; letter-spacing: -.02em !important; }
+.visitor-settings-sheet .visitor-sheet-close { width: 36px; height: 36px; color: var(--color-muted); }
+.visitor-settings-sheet .visitor-sheet-close svg { width: 16px; height: 16px; }
+.visitor-settings-sheet .visitor-sheet-body { padding: 0 20px max(16px, env(safe-area-inset-bottom)); }
+
+/* The sections: a short list with hairlines, the current one muted. */
+.feed-menu-nav { gap: 0; margin: 4px 0 12px; padding: 0; border-bottom: 1px solid var(--color-line); }
+.feed-menu-link { min-height: 42px; padding: 0; font-size: 16px; }
+.feed-menu-link + .feed-menu-link { border-top: 1px solid var(--color-line); }
+.feed-menu-link:hover { background: none; color: var(--color-ink-2); }
+
+/* Rows. */
+.visitor-settings-section, .visitor-settings-extra { display: flex; flex-direction: column; }
+.visitor-settings-row { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; min-height: 48px; padding-block: 5px; }
+.visitor-settings-label { font-size: 13px; font-weight: 500; color: var(--color-muted); }
+.visitor-settings-row > :is([role="group"], [role="radiogroup"]) { padding: 2px; border-radius: 9px; border-color: var(--color-line-strong); }
+.visitor-settings [data-active] { min-height: 34px; font-size: 13px; font-weight: 500; }
+.visitor-settings [role="group"] > span[aria-hidden="true"],
+.visitor-settings [role="radiogroup"] > span[aria-hidden="true"] { top: 2px; bottom: 2px; border-radius: 7px; }
+.visitor-settings-font-sample { font-size: 16px; }
+.visitor-settings-size-sample { font-size: 15px; }
+.visitor-settings-size-sample[data-size="small"] { font-size: 12px; }
+.visitor-settings-size-sample[data-size="large"] { font-size: 19px; }
+.visitor-settings [data-active] svg { width: 16px; height: 16px; }
+
+/* Text-only rows (notifications, home screen) read like the others: label left, value right. */
+.visitor-settings-row > .visitor-muted { font-size: 13px; line-height: 1.5; text-align: right; max-width: none; }
+.visitor-settings-row > [role="status"] { min-height: 38px; border-radius: 9px; font-size: 13px; }
+.feed-settings-install { margin: 0; }
+.feed-settings-install-summary { min-height: 48px; padding-block: 5px; }
+.feed-settings-install-summary > .visitor-settings-label { flex: 0 0 84px; }
+.feed-settings-install-toggle { font-size: 13px; }
+.feed-settings-install-toggle > svg { width: 14px; height: 14px; }
+.feed-settings-install-help { padding: 0 0 10px; }
+.feed-install-steps { font-size: 13px; }
+.feed-install-step { gap: 10px; padding: 9px 0; }
+.feed-install-step-icon { width: 22px; height: 22px; }
+.feed-install-step-icon svg { width: 13px; height: 13px; }
+
+/* Foot: reset as one quiet line. */
+.visitor-settings-footer.feed-settings-footer { justify-content: center; margin-top: 10px; padding-top: 10px; }
+.feed-settings-footer .visitor-settings-action { min-height: 40px; padding: 0; border: 0; background: none; font-size: 13px; font-weight: 500; color: var(--color-muted); }
+.feed-settings-footer .visitor-settings-action:hover { color: var(--color-ink); background: none; }
+.feed-settings-footer .visitor-settings-action svg { width: 14px; height: 14px; }
+.visitor-page .feed-logo-mark { width: 25px; height: 25px; border-radius: 8px; }
+@media (min-width: 640px) { .visitor-page .feed-logo-mark { width: 27px; height: 27px; } }
+/* The masthead on its own band: white edge to edge above the canvas, the hairline as its edge. */
+.visitor-page .feed-masthead { isolation: isolate; }
+.visitor-page .feed-masthead::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: -100vh;
+  bottom: 0;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: var(--color-surface);
+  pointer-events: none;
+}
+html[data-visitor-theme="dark"] .visitor-page .feed-masthead::before { background: #161616; }
+.visitor-page .feed-masthead::after { background: var(--color-line-strong); }
+html[data-visitor-theme="dark"] .visitor-page .feed-masthead::after { background: #2a2a2a; }
+html:has(.visitor-page) .feed-masthead::before { background: #f1f1f1; }
+html[data-visitor-theme="dark"]:has(.visitor-page) .feed-masthead::before { background: #171717; }
+/* A clear edge under the masthead: a white band with a brand-red rule along its foot. */
+html:has(.visitor-page) .feed-masthead::before { background: #ffffff; }
+html[data-visitor-theme="dark"]:has(.visitor-page) .feed-masthead::before { background: #181818; }
+.visitor-page .feed-masthead::after, html[data-visitor-theme="dark"] .visitor-page .feed-masthead::after { height: 3px; background: var(--color-accent); }
+/* The old masthead decoration set an opacity and a mask on these pseudo-elements; cleared here. */
+.visitor-page .feed-masthead::before, .visitor-page .feed-masthead::after {
+  opacity: 1;
+  background-image: none;
+  background-size: auto;
+  -webkit-mask-image: none;
+  mask-image: none;
+  inset: auto;
+}
+.visitor-page .feed-masthead::before { left: 50%; top: -100vh; bottom: 0; width: 100vw; z-index: -1; }
+.visitor-page .feed-masthead::after { left: 50%; bottom: 0; width: 100vw; height: 3px; transform: translateX(-50%); z-index: 0; }
+/* Quieter: the masthead on a soft grey band, its edge a hairline rather than a coloured rule. */
+html:has(.visitor-page) .feed-masthead::before { background: #f0f0f0; }
+html[data-visitor-theme="dark"]:has(.visitor-page) .feed-masthead::before { background: #181818; }
+.visitor-page .feed-masthead::after, html[data-visitor-theme="dark"] .visitor-page .feed-masthead::after { height: 1px; background: color-mix(in srgb, var(--color-ink) 10%, transparent); }
+
+/* ------------------------------------------------------------------------------------------
+ * The masthead as an ink bar: a black band edge to edge, the mark inverted to a white chip, the
+ * logotype and the sections in white, the controls in the band's grey. The page starts below it.
+ * ------------------------------------------------------------------------------------------ */
+.visitor-page .feed-masthead { padding: 10px 0 10px; color: #ffffff; }
+.visitor-page .feed-masthead::before { top: -100vh; bottom: 0; background: #0a0a0a !important; }
+.visitor-page .feed-masthead::after { height: 0; background: transparent !important; }
+html[data-visitor-theme="dark"]:has(.visitor-page) .feed-masthead::before { background: #000000 !important; }
+html[data-visitor-theme="dark"] .visitor-page .feed-masthead::after { height: 1px; background: #262626 !important; }
+@media (min-width: 640px) { .visitor-page .feed-masthead { padding: 12px 0; } }
+
+/* The lockup on ink. */
+.visitor-page .feed-masthead .visitor-masthead-row > a { color: #ffffff; }
+.visitor-page .feed-masthead .visitor-masthead-row > a:hover { opacity: .8; }
+.visitor-page .feed-masthead .visitor-wordmark-art { background: #ffffff; }
+.visitor-page .feed-masthead .feed-logo-mark, html[data-visitor-theme="dark"] .visitor-page .feed-masthead .feed-logo-mark { border: 0; background: #ffffff; box-shadow: none; }
+.visitor-page .feed-masthead .feed-logo-mark .brand-bit, html[data-visitor-theme="dark"] .visitor-page .feed-masthead .feed-logo-mark .brand-bit { fill: #0a0a0a; }
+
+/* The sections and the controls, on ink. */
+.visitor-page .feed-masthead-nav .visitor-header-link { color: #a1a1a1; font-weight: 500; }
+.visitor-page .feed-masthead-nav .visitor-header-link:hover { color: #ffffff; }
+.visitor-page .feed-masthead-nav .visitor-header-link[aria-current="page"] { color: #ffffff; }
+.visitor-page .feed-masthead .visitor-top-control { color: #a1a1a1; }
+.visitor-page .feed-masthead .visitor-top-control:hover:not(:disabled) { color: #ffffff; }
+.visitor-page .feed-masthead .visitor-top-control[aria-expanded="true"],
+.visitor-page .feed-masthead .visitor-top-control[aria-pressed="true"],
+.visitor-page .feed-masthead .visitor-top-control[aria-current="page"] { color: #ffffff; }
+.visitor-page .feed-masthead :focus-visible { outline-color: #ffffff; }
+
+/* The page below starts with a little more air under the bar. */
+.visitor-page .feed-column, .visitor-page .feed-page { margin-top: 22px; }
+@media (min-width: 640px) { .visitor-page .feed-column, .visitor-page .feed-page { margin-top: 30px; } }
+/* The sections sit in the middle of the space between the lockup and the controls. */
+@media (min-width: 640px) {
+  .visitor-page .feed-masthead-nav { position: static; flex: 1 1 auto; display: flex; justify-content: center; margin: 0; transform: none; }
+}
+/* A slightly wider measure on a desktop screen. */
+@media (min-width: 1024px) {
+  .visitor-page .feed-column,
+  .visitor-page .feed-page,
+  .visitor-page:has(.feed-column) .feed-masthead,
+  .visitor-page .visitor-footer.feed-footer { max-width: 680px; }
+}
+
+/* ------------------------------------------------------------------------------------------
+ * Newspaper type: the headline in the sans, the body in the serif. The reading face setting
+ * still switches the body between the two; the headline stays in the sans either way.
+ * ------------------------------------------------------------------------------------------ */
+.visitor-page { --visitor-reading-family: var(--font-source-serif), Georgia, "Apple Color Emoji", "Segoe UI Emoji", serif; }
+html[data-visitor-font="hyperlegible"] .visitor-page { --visitor-reading-family: var(--font-visitor-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+html:not([data-visitor-font="hyperlegible"]) .visitor-page .visitor-serif { font-optical-sizing: auto; letter-spacing: normal; }
+
+.visitor-page .feed-note-title,
+.visitor-page .feed-article .visitor-article-intro,
+.visitor-page .feed-article .visitor-article-intro p,
+.visitor-page .feed-next p {
+  font-family: var(--font-visitor-sans), Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-weight: 700;
+  letter-spacing: -.025em;
+  line-height: 1.3;
+}
+.visitor-page .feed-note-title { font-size: calc(22px * var(--visitor-text-scale, 1)); }
+.visitor-page .feed-note-body { font-size: calc(17.5px * var(--visitor-text-scale, 1)); line-height: 1.62; color: var(--color-ink); }
+html[data-visitor-font="hyperlegible"] .visitor-page .feed-note-body { color: var(--color-ink-2); }
+.visitor-page .feed-article .visitor-markdown:not(.visitor-article-intro) { color: var(--color-ink); }
+.visitor-page .feed-article .visitor-article-intro > div { font-size: calc(24px * var(--visitor-text-scale, 1)); line-height: 1.3; }
+@media (min-width: 640px) {
+  .visitor-page .feed-note-title { font-size: calc(24px * var(--visitor-text-scale, 1)); line-height: 1.28; }
+  .visitor-page .feed-note-body { font-size: calc(18.5px * var(--visitor-text-scale, 1)); }
+  .visitor-page .feed-article .visitor-article-intro > div { font-size: calc(27px * var(--visitor-text-scale, 1)); line-height: 1.26; }
+}
+/* The column and the masthead take one width, declared here and nowhere else. */
+.visitor-page .feed-column, .visitor-page .feed-page, .visitor-page .feed-masthead, .visitor-page .visitor-footer.feed-footer, .visitor-page .feed-article { width: 100%; max-width: 600px; }
+@media (min-width: 1024px) {
+  .visitor-page .feed-column, .visitor-page .feed-page, .visitor-page .feed-masthead, .visitor-page .visitor-footer.feed-footer { max-width: 680px; }
+}
+
+/* The body is always the serif now that the face picker is gone; the headline always the sans. */
+.visitor-page, html[data-visitor-font] .visitor-page { --visitor-reading-family: var(--font-source-serif), Georgia, "Apple Color Emoji", "Segoe UI Emoji", serif; }
+html[data-visitor-font] .visitor-page .visitor-serif { font-family: var(--visitor-reading-family); font-optical-sizing: auto; letter-spacing: normal; }
+.visitor-page .feed-note-body { color: var(--color-ink); }
+
+/* Pinned with room to spare over any older rule: the masthead, the column and the footer share one measure. */
+html .visitor-page .feed-masthead, html .visitor-page .feed-column, html .visitor-page .feed-page, html .visitor-page footer.visitor-footer { width: 100%; max-width: 600px; }
+@media (min-width: 1024px) {
+  html .visitor-page .feed-masthead, html .visitor-page .feed-column, html .visitor-page .feed-page, html .visitor-page footer.visitor-footer { max-width: 680px; }
+}
+
+/* Larger type for the notes: the headline and the body a size up at every width. */
+html .visitor-page .feed-note-title { font-size: calc(25px * var(--visitor-text-scale, 1)); line-height: 1.25; }
+html .visitor-page .feed-note-body { font-size: calc(19.5px * var(--visitor-text-scale, 1)); line-height: 1.65; }
+html .visitor-page .feed-note-cover { margin-top: 18px; }
+html .visitor-page .feed-note-body { margin-top: 18px; }
+html .visitor-page .feed-article .visitor-article-intro > div { font-size: calc(28px * var(--visitor-text-scale, 1)); line-height: 1.22; }
+html .visitor-page .feed-article .visitor-markdown:not(.visitor-article-intro) p,
+html .visitor-page .feed-article .visitor-markdown:not(.visitor-article-intro) li { font-size: calc(19.5px * var(--visitor-text-scale, 1)); line-height: 1.65; }
+html .visitor-page .feed-next p { font-size: calc(22px * var(--visitor-text-scale, 1)); }
+@media (min-width: 640px) {
+  html .visitor-page .feed-note-title { font-size: calc(28px * var(--visitor-text-scale, 1)); line-height: 1.22; }
+  html .visitor-page .feed-note-body { font-size: calc(20.5px * var(--visitor-text-scale, 1)); line-height: 1.65; }
+  html .visitor-page .feed-article .visitor-article-intro > div { font-size: calc(32px * var(--visitor-text-scale, 1)); line-height: 1.2; }
+  html .visitor-page .feed-article .visitor-markdown:not(.visitor-article-intro) p,
+  html .visitor-page .feed-article .visitor-markdown:not(.visitor-article-intro) li { font-size: calc(20.5px * var(--visitor-text-scale, 1)); }
+}

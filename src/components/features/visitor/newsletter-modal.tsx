@@ -1,20 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ComponentProps } from "react";
+import Link from "next/link";
 import { VisitorBottomSheet } from "./visitor-bottom-sheet";
 import { NewsletterContent } from "./newsletter-content";
-import { resolveVisitorLanguage, type VisitorLanguage } from "@/lib/visitor-language";
+import type { VisitorLanguage } from "@/lib/visitor-language";
 
 const eventName = "visitor:open-newsletter";
 
-export function NewsletterLink({ href, children, onClick, ...props }: ComponentProps<"a"> & { href: string }) {
-  return <a {...props} href={href} aria-haspopup="dialog" onClick={event => {
-    onClick?.(event);
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || props.target === "_blank") return;
-    event.preventDefault();
-    const url = new URL(href, window.location.href);
-    window.dispatchEvent(new CustomEvent<VisitorLanguage>(eventName, { detail: resolveVisitorLanguage(url.searchParams.get("lang")) }));
-  }}>{children}</a>;
+/** A link to the newsletter page. It used to open a sheet; now it simply goes there. */
+export function NewsletterLink({ href, children, ...props }: ComponentProps<"a"> & { href: string }) {
+  return <Link {...props} href={href}>{children}</Link>;
 }
 
 export function NewsletterModal() {
@@ -27,7 +23,7 @@ export function NewsletterModal() {
   }, []);
   if (!language) return null;
   const english = language === "en";
-  return <VisitorBottomSheet open title={english ? "Newsletter" : "E-bülten"} closeLabel={english ? "Close" : "Kapat"} onOpenChange={close} panelClassName="newsletter-modal !max-w-[1000px] visitor-sans" titleClassName="text-xl font-semibold tracking-tight">
+  return <VisitorBottomSheet open title={english ? "Newsletter" : "E-bülten"} closeLabel={english ? "Close" : "Kapat"} onOpenChange={close} panelClassName="newsletter-modal feed-sheet visitor-sans" titleClassName="text-xl font-semibold tracking-tight">
     <NewsletterContent key={language} language={language} modal />
   </VisitorBottomSheet>;
 }

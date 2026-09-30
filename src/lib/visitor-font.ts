@@ -7,8 +7,8 @@
  *
  * Two faces. `hyperlegible` is Atkinson Hyperlegible Next — the site's one family, drawn by the
  * Braille Institute to keep confusable letterforms (I l 1, O 0) apart — and it is the default;
- * `serif` is Source Serif 4 for readers who want a serif for long reads. (A stored `sans` from an
- * earlier build falls back to the default.)
+ * `serif` is Source Serif 4, the default for the body text since the feed took its newspaper
+ * shape: sans headlines over a serif body. (A stored `sans` from an earlier build falls back to it.)
  */
 
 export type ReadingFont = "hyperlegible" | "serif";

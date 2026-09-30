@@ -9,23 +9,19 @@ export function NewsletterContent({ language, modal = false }: { language: Visit
   const isEnglish = language === "en";
   const headingId = useId();
   return (
-    <div className="visitor-card visitor-newsletter-card newsletter-letter-layout">
-      <section className="visitor-newsletter-main" aria-labelledby={headingId}>
-        <div className="newsletter-art-panel" aria-hidden="true">
-          <NewsletterEnvelope language={language} />
-        </div>
-        <div className="newsletter-details">
-          <h2 id={headingId} className="visitor-newsletter-headline visitor-sans">{isEnglish ? "The briefing, in your inbox." : "Gündem e-postanızda."}</h2>
-          <p className="visitor-newsletter-lead visitor-sans">{isEnglish
-            ? "Short notes on technology, AI, science and digital culture."
-            : "Teknoloji, yapay zekâ, bilim ve dijital kültürden kısa notlar."}</p>
-          <div className="visitor-newsletter-signup">
-            <NewsletterForm language={language} inlineConfirmation={modal} />
-            <p className="visitor-newsletter-terms visitor-sans">{isEnglish ? "Your address is only for the newsletter." : "Adresiniz yalnızca bülten için kullanılır."}</p>
-          </div>
-        </div>
-      </section>
-    </div>
+    <section className="feed-newsletter-page" aria-labelledby={headingId}>
+      <div className="feed-newsletter-art" aria-hidden="true">
+        <NewsletterEnvelope language={language} />
+      </div>
+      <h2 id={headingId} className="feed-newsletter-headline visitor-sans">{isEnglish ? "The briefing, in your inbox." : "Gündem e-postanızda."}</h2>
+      <p className="feed-newsletter-lead visitor-sans">{isEnglish
+        ? "Short notes on technology, AI, science and digital culture, once a day. Free, and you can leave any time."
+        : "Teknoloji, yapay zekâ, bilim ve dijital kültürden kısa notlar, günde bir kez. Ücretsiz, istediğiniz an ayrılabilirsiniz."}</p>
+      <div className="feed-newsletter-signup">
+        <NewsletterForm language={language} inlineConfirmation={modal} />
+        <p className="visitor-newsletter-terms visitor-sans">{isEnglish ? "Your address is only for the newsletter." : "Adresiniz yalnızca bülten için kullanılır."}</p>
+      </div>
+    </section>
   );
 }
 

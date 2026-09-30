@@ -137,8 +137,16 @@ function usePushSubscription(language: VisitorLanguage, publicKey: string) {
     let cancelled = false;
     void (async () => {
       try {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
+        /*
+         * `serviceWorker.ready` never settles when the worker could not be registered (a blocked
+         * script, a private window, an embedded browser), and the bell spun forever. A few seconds
+         * without a worker means "not subscribed": the bell shows, and turning it on registers.
+         */
+        const registration = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+        ]);
+        const subscription = registration ? await registration.pushManager.getSubscription() : null;
         if (!cancelled) setSubscribed(Boolean(subscription));
       } catch {
         if (!cancelled) setSubscribed(false);
@@ -411,18 +419,18 @@ function InstallSteps({ language, platform }: { language: VisitorLanguage; platf
   ];
   const icons = platform === "ios" ? [Compass, Share, SquarePlus, Check]
     : platform === "android" ? [Globe, MoreVertical, SquarePlus] : [Download, Check];
-  return <div className="space-y-3 text-[13px] leading-6 text-ink-2">
-    <ol className="space-y-3">
+  return <div className="feed-install-steps text-[14px] leading-6 text-ink-2">
+    <ol>
       {steps.map((step, index) => {
         const Icon = icons[index];
-        return <li key={index} className="flex items-start gap-3">
-          <span aria-hidden="true" className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[10px] border border-line bg-surface-2 text-ink-2"><Icon size={17} strokeWidth={1.6} /></span>
-          <span className="min-w-0 flex-1"><span aria-hidden="true" className="mr-1.5 text-[11px] font-medium tabular-nums text-muted">{index + 1}.</span>{step}</span>
+        return <li key={index} className="feed-install-step">
+          <span aria-hidden="true" className="feed-install-step-icon"><Icon size={15} strokeWidth={1.6} /></span>
+          <span className="min-w-0 flex-1">{step}</span>
         </li>;
       })}
     </ol>
     {platform === "ios" && <p className="text-xs leading-5 text-muted">{en ? "Missing the option? At the bottom of the share list, tap Edit Actions and add Add to Home Screen." : "Seçenek yoksa paylaşım listesinin altındaki Eylemleri Düzenle bölümünden Ana Ekrana Ekle’yi ekleyin."}</p>}
-    <p className="border-t border-line pt-3 text-xs leading-5 text-muted">{en ? "Once added, open Dijital Masallar from its new icon. No app store download is needed." : "İşlem tamamlanınca Dijital Masallar’ı eklenen simgesinden açabilirsiniz. Uygulama mağazasından indirmeniz gerekmez."}</p>
+    <p className="feed-install-note text-xs leading-5 text-muted">{en ? "Once added, open Dijital Masallar from its new icon. No app store download is needed." : "İşlem tamamlanınca Dijital Masallar’ı eklenen simgesinden açabilirsiniz. Uygulama mağazasından indirmeniz gerekmez."}</p>
   </div>;
 }
 
@@ -434,7 +442,7 @@ export function InstallPrompt({ language }: { language: VisitorLanguage }) {
   if (status === "installed") return <p className="text-[13px] leading-6 text-muted">{isEnglish ? "The app is installed. You can open it from its icon." : "Uygulama yüklü. Eklenen simgesinden açabilirsiniz."}</p>;
   if (status === "ready") return <div className="space-y-3">
     <p className="text-[13px] leading-6 text-muted">{isEnglish ? "Tap Install below, then confirm in your browser’s window. Dijital Masallar will open from its own icon." : "Aşağıdaki Yükle düğmesine dokunun, ardından tarayıcının açtığı pencerede onaylayın. Dijital Masallar kendi simgesinden açılacak."}</p>
-    <button type="button" onClick={() => { void runInstall(); }} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-5 text-[13px] font-semibold text-ink-contrast hover:opacity-85"><Download size={16} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}</button>
+    <button type="button" onClick={() => { void runInstall(); }} className="feed-install-button"><Download size={15} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}</button>
   </div>;
   const platform = isIos() ? "ios" : /Android/i.test(navigator.userAgent) ? "android" : "desktop";
   return <InstallSteps language={language} platform={platform} />;
@@ -491,10 +499,10 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
       className="install-banner fixed inset-x-0 bottom-0 z-[150] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       aria-label={isEnglish ? "Install dijitalmasallar.com" : "dijitalmasallar.com'u yükle"}
     >
-      <div className="visitor-install-card relative mx-auto w-full max-w-[440px] max-h-[78dvh] overflow-y-auto rounded-[18px] border border-line-strong bg-surface p-2.5 shadow-modal">
+      <div className="visitor-install-card feed-install-banner relative mx-auto w-full max-w-[440px] max-h-[78dvh] overflow-y-auto">
         {status === "ready" ? (
           <div className="flex items-center gap-3">
-            <BrandMark className="!size-10 !rounded-[12px] shrink-0" />
+            <BrandMark className="feed-install-mark shrink-0" />
             <div className="min-w-0 flex-1">
               <strong className="block truncate text-[14px] font-semibold leading-tight tracking-[-.02em] text-ink">{title}</strong>
               <p className="mt-0.5 truncate text-[12px] leading-5 text-muted">{note}</p>
@@ -502,7 +510,7 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
             <button
               type="button"
               onClick={() => { setClosed(true); bannerClosedThisLoad = true; void runInstall(); }}
-              className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-ink px-4 text-[13px] font-semibold text-ink-contrast transition-opacity hover:opacity-85"
+              className="feed-install-button shrink-0"
             >
               <Download size={15} strokeWidth={2} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}
             </button>
@@ -513,18 +521,18 @@ export function InstallBanner({ language }: { language: VisitorLanguage }) {
         ) : (
           <details className="group">
             <summary className="flex cursor-pointer list-none items-center gap-3 pr-9 [&::-webkit-details-marker]:hidden">
-              <BrandMark className="!size-10 !rounded-[12px] shrink-0" />
+              <BrandMark className="feed-install-mark shrink-0" />
               <span className="min-w-0 flex-1">
                 <strong className="block truncate text-[14px] font-semibold leading-tight tracking-[-.02em] text-ink">{title}</strong>
                 <span className="mt-0.5 block truncate text-[12px] leading-5 text-muted">{note}</span>
               </span>
-              <span className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3.5 text-[13px] font-semibold text-ink">
+              <span className="feed-install-how shrink-0">
                 <Share size={15} strokeWidth={1.8} aria-hidden="true" />
                 {isEnglish ? "How" : "Nasıl?"}
                 <ChevronDown size={14} className="text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
               </span>
             </summary>
-            <div className="mt-2.5 rounded-[12px] bg-surface-2 p-3"><InstallSteps language={language} platform="ios" /></div>
+            <div className="feed-install-banner-steps"><InstallSteps language={language} platform="ios" /></div>
           </details>
         )}
         {status !== "ready" ? (

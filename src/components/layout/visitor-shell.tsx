@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { NewsletterModal } from "@/components/features/visitor/newsletter-modal";
-import { ListenModal } from "@/components/features/visitor/listen-modal";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { FavoritesNavButton } from "@/components/features/visitor/favorites-nav-button";
@@ -9,6 +7,7 @@ import { InstallBanner, PushNavButton, ServiceWorkerRegistrar } from "@/componen
 import { PullToRefresh } from "@/components/features/visitor/pull-to-refresh";
 import { VisitorHeaderNav } from "@/components/features/visitor/visitor-header-nav";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
+import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
 import { darkThemeColor, lightThemeColor, themeCookie } from "@/lib/visitor-theme";
@@ -60,25 +59,25 @@ export async function VisitorShell({
           </>}
       {showHeader ? <>
       {/*
-        One row: the mark and the logotype in the top-left corner as the way home, the sections in
-        the middle, the reader's controls opposite. A phone has no room for the sections in that row,
-        so there they sit centred under it.
+        One row and nothing under it: the mark and the logotype top-left as the way home, the
+        sections beside them from `sm` up, the reader's controls on the right. A phone has no room
+        for the sections in the row, so there they live in the menu and in the capsule that
+        appears on the way back up the feed.
       */}
-      <header data-reading={reading || undefined} className="visitor-nav visitor-masthead relative z-[1] flex w-full max-w-[640px] flex-col items-center pb-2 pt-6 text-center sm:pb-3 sm:pt-8" aria-label="Site">
+      <header data-reading={reading || undefined} className="visitor-nav visitor-masthead feed-masthead relative z-[1] flex w-full flex-col pb-2 pt-4 sm:pb-3 sm:pt-6" aria-label="Site">
         <div className="visitor-masthead-row relative flex w-full shrink-0 items-center justify-between gap-2">
           <Link
             href={languageHref("/", language)}
             aria-label={language === "en" ? `${siteName} home` : `${siteName} ana sayfa`}
             className="flex min-h-11 min-w-0 items-center gap-3 text-ink transition-opacity hover:opacity-75"
           >
-            <BrandMark className="visitor-logo-mark block shrink-0 !size-9 !rounded-[12px] sm:!size-10 sm:!rounded-[13px] xl:!size-[44px] xl:!rounded-[14px]" />
+            <BrandMark className="visitor-logo-mark feed-logo-mark block shrink-0" />
             {siteName === "Dijital Masallar"
               ? <span className="visitor-wordmark-art visitor-wordmark-beside" aria-hidden="true" />
               : <span className="visitor-wordmark-beside truncate font-mono text-[17px] font-bold">{siteName}</span>}
           </Link>
-          {/* On wide screens the sections sit in the middle of this row; phones keep them below. */}
-          {reading ? null : <div className="visitor-masthead-nav-top"><VisitorHeaderNav language={language} /></div>}
-          <div className="flex shrink-0 items-center gap-2">
+          {reading ? null : <div className="feed-masthead-nav"><VisitorHeaderNav language={language} /></div>}
+          <div className="flex shrink-0 items-center gap-1">
             <FavoritesNavButton language={language} />
             {/* Keep the bell visible when the module is enabled, even if a deployment is missing its
                 VAPID configuration; the button then explains the configuration problem safely. */}
@@ -86,10 +85,6 @@ export async function VisitorShell({
             <VisitorMenu language={language} pushPublicKey={publicKey} />
           </div>
         </div>
-
-        {reading ? null : <>
-          <VisitorHeaderNav language={language} />
-        </>}
       </header>
       </> : null}
       <div className="visitor-content flex w-full flex-col items-center">
@@ -99,21 +94,24 @@ export async function VisitorShell({
       <ServiceWorkerRegistrar language={language} publicKey={publicKey} />
       <PullToRefresh language={language} />
       <InstallBanner language={language} />
-      <ListenModal />
-      <NewsletterModal />
     </div>
   );
 }
 
 function VisitorFooter({ siteName, language }: { siteName: string; language: VisitorLanguage }) {
   return (
-    <footer className="visitor-footer mt-14 flex w-full max-w-[640px] flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-line px-1 pt-6">
-      <p className="visitor-muted visitor-sans text-[11px] font-normal text-muted">© {new Date().getFullYear()} {siteName}</p>
-      <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
-      <a href={languageHref("/feed.xml", language)} className="visitor-tap visitor-sans text-[11px] font-normal text-muted transition-colors hover:text-accent">RSS</a>
-      <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
-      <LanguageLink language={language} />
-
+    <footer className="visitor-footer feed-footer mt-16 w-full border-t border-line pt-5 visitor-sans">
+      <nav className="feed-footer-nav" aria-label={language === "en" ? "Sections" : "Bölümler"}>
+        {visitorNavItems.map((item) => <Link key={item.href} href={languageHref(item.href, language)} className="feed-footer-link">{item[language]}</Link>)}
+        <Link href={languageHref("/favoriler", language)} className="feed-footer-link">{language === "en" ? "Favorites" : "Favoriler"}</Link>
+      </nav>
+      <div className="feed-footer-meta">
+        <p className="visitor-muted text-muted">© {new Date().getFullYear()} {siteName}</p>
+        <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
+        <a href={languageHref("/feed.xml", language)} className="visitor-tap text-muted transition-colors hover:text-ink">RSS</a>
+        <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
+        <LanguageLink language={language} />
+      </div>
     </footer>
   );
 }
