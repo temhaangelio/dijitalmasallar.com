@@ -2,7 +2,6 @@
 
 import { ChevronDown, RotateCcw, Smartphone } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { resetAccent } from "@/components/features/visitor/accent-picker";
 import Link from "next/link";
 import { ListenLink } from "@/components/features/visitor/listen-modal";
 import { NewsletterLink } from "@/components/features/visitor/newsletter-modal";
@@ -61,7 +60,7 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
         </details>
       </div>
       <div className="visitor-settings-footer feed-settings-footer">
-        <button type="button" onClick={() => { resetTheme(); resetReading(); resetAccent(); }} className="visitor-settings-action visitor-settings-reset" aria-label={isEnglish ? "Reset appearance" : "Görünümü sıfırla"} title={isEnglish ? "Reset appearance" : "Görünümü sıfırla"}>
+        <button type="button" onClick={() => { resetTheme(); resetReading(); }} className="visitor-settings-action visitor-settings-reset" aria-label={isEnglish ? "Reset appearance" : "Görünümü sıfırla"} title={isEnglish ? "Reset appearance" : "Görünümü sıfırla"}>
           <RotateCcw size={16} className="shrink-0" aria-hidden="true" />
           {isEnglish ? "Reset appearance" : "Görünümü sıfırla"}
         </button>

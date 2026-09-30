@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import { AccentScript } from "@/components/features/visitor/accent-script";
 import { AppToaster } from "@/components/ui/toast";
 import { InstallScript } from "@/components/features/visitor/push";
 import { VisitorAnalytics } from "@/components/features/visitor/visitor-analytics";
@@ -70,7 +69,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // `suppressHydrationWarning`. The visitor pages and the admin panel both key their dark tokens off it.
   return (
     <html lang="tr" suppressHydrationWarning>
-      <head><ThemeScript /><FontScript /><AccentScript /><InstallScript /></head>
+      <head><ThemeScript /><FontScript /><InstallScript /></head>
       <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /><GoogleAnalytics id={googleAnalyticsId} /></body>
     </html>
   );
