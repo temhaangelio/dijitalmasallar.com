@@ -1526,9 +1526,9 @@ html .visitor-page .feed-masthead,
   html .visitor-page .feed-article,
   html .visitor-page footer.visitor-footer { max-width: 680px; }
 }
-html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 22px; }
+html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 14px; }
 @media (min-width: 640px) {
-html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 30px; }
+html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 16px; }
 }
 /* ---- The masthead: a newspaper's nameplate, centred, the sections in a row under it. ---- */
 html .visitor-page .feed-masthead { position: relative; isolation: isolate; padding: 14px 0 0; color: var(--color-ink); }
