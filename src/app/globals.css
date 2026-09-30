@@ -1689,42 +1689,48 @@ html .visitor-page :is([role="group"], [role="radiogroup"]) > :is(a, button) { h
 html .visitor-page :is([role="group"], [role="radiogroup"]) > [data-active="true"],
 html .visitor-page :is([role="group"], [role="radiogroup"]) > .text-ink-contrast { color: var(--color-ink-contrast); background: var(--color-ink); }
 html .visitor-page :is([role="group"], [role="radiogroup"]) > [data-active="false"]:hover { color: var(--color-ink); }
-/* ---- Hakkında ---- */
-html .visitor-page .feed-about-profile { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 20px; padding: 28px 0 24px; border-bottom: 1px solid var(--color-line); }
-html .visitor-page .feed-about-portrait { width: 96px; aspect-ratio: 1; }
-html .visitor-page .feed-about-author { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.2; letter-spacing: -.025em; color: var(--color-ink); }
-html .visitor-page .feed-about-role { margin: 4px 0 0; font-family: var(--visitor-reading-family); font-size: 17px; line-height: 1.5; color: var(--color-ink-2); }
-html .visitor-page .feed-about-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 6px; }
-html .visitor-page .feed-about-link { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; font-size: 14px; font-weight: 500; color: var(--color-ink-2); transition: color .15s ease; }
-html .visitor-page .feed-about-link > svg { flex: none; color: var(--color-muted); }
-html .visitor-page .feed-about-link:hover { color: var(--color-ink); }
-html .visitor-page .feed-about-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 6px; }
-@media (min-width: 640px) {
-html .visitor-page .feed-about-profile { grid-template-columns: 120px minmax(0, 1fr); gap: 24px; padding: 32px 0 28px; }
-html .visitor-page .feed-about-portrait { width: 120px; }
-}
-html .visitor-page .feed-about-section { padding: 30px 0; border-bottom: 1px solid var(--color-line); }
-html .visitor-page .feed-about-section-title { margin: 0; font-size: 21px; font-weight: 700; line-height: 1.3; letter-spacing: -.02em; color: var(--color-ink); }
-html .visitor-page .feed-about-copy { margin: 10px 0 0; font-family: var(--visitor-reading-family); font-size: calc(19.5px * var(--visitor-text-scale)); line-height: 1.65; color: var(--color-ink); text-wrap: pretty; }
-html .visitor-page .feed-about-actions { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px; }
+/* ---- Hakkında: a letter. The dateline, a greeting, the paragraphs, a signature, a postscript. ---- */
+html .visitor-page .feed-letter { padding-top: 30px; font-family: var(--visitor-reading-family); color: var(--color-ink); }
+html .visitor-page .feed-letter-dateline { margin: 0; text-align: right; font-size: 13px; color: var(--color-muted); }
+html .visitor-page .feed-letter-greeting { margin: 26px 0 0; font-size: calc(21px * var(--visitor-text-scale)); font-weight: 500; }
+html .visitor-page .feed-letter-body { margin-top: 18px; }
+html .visitor-page .feed-letter-body p { margin: 0; font-size: calc(19.5px * var(--visitor-text-scale)); line-height: 1.65; text-wrap: pretty; }
+html .visitor-page .feed-letter-body p + p { margin-top: 18px; }
+html .visitor-page .feed-letter-closing { margin-top: 32px; }
+html .visitor-page .feed-letter-valediction { margin: 0; font-size: calc(19.5px * var(--visitor-text-scale)); }
+html .visitor-page .feed-letter-signature { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+html .visitor-page .feed-letter-portrait { width: 88px; flex: none; }
+html .visitor-page .feed-letter-name { margin: 0; font-family: var(--visitor-reading-family); font-style: italic; font-size: 30px; line-height: 1.1; letter-spacing: -.01em; }
+html .visitor-page .feed-letter-role { margin: 6px 0 0; font-size: 13px; color: var(--color-muted); }
+html .visitor-page .feed-letter-links { display: flex; flex-wrap: wrap; gap: 2px 16px; margin: 4px 0 0; }
+html .visitor-page .feed-letter-links a { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; font-size: 13px; font-weight: 500; color: var(--color-ink-2); }
+html .visitor-page .feed-letter-links a > svg { color: var(--color-muted); }
+html .visitor-page .feed-letter-links a:hover { color: var(--color-ink); }
+html .visitor-page .feed-letter-ps { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--color-ink); }
+html .visitor-page .feed-letter-ps-label { margin: 0; padding-top: 3px; font-size: 13px; font-weight: 700; color: var(--color-ink); }
+html .visitor-page .feed-letter-ps-body > p { margin: 0; font-size: calc(17px * var(--visitor-text-scale)); line-height: 1.6; color: var(--color-ink-2); }
+html .visitor-page .feed-about-actions { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 10px; }
 html .visitor-page .feed-about-action { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; font-size: 14px; font-weight: 500; color: var(--color-ink); border-bottom: 1px solid var(--color-line-strong); transition: border-color .15s ease; }
 html .visitor-page .feed-about-action > svg { color: var(--color-muted); }
 html .visitor-page .feed-about-action:hover { border-color: var(--color-ink); }
 html .visitor-page .feed-about-action:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
-html .visitor-page .feed-about-hint { display: inline-flex; align-items: center; gap: 7px; margin: 12px 0 0; font-size: 13px; line-height: 1.6; color: var(--color-muted); }
-html .visitor-page .feed-about-contact { border-bottom: 0; }
-html .visitor-page .feed-about-contact .feed-about-section-title { font-size: 18px; }
-html .visitor-page .feed-about-mail { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 8px; font-size: 16px; color: var(--color-ink); border-bottom: 1px solid var(--color-line-strong); transition: border-color .15s ease; }
+html .visitor-page .feed-about-hint { display: flex; align-items: flex-start; gap: 7px; margin: 12px 0 0; font-size: 13px; line-height: 1.6; color: var(--color-muted); }
+html .visitor-page .feed-about-hint > svg { flex: none; margin-top: 3px; }
+html .visitor-page .feed-letter-contact { margin-top: 8px; }
+html .visitor-page .feed-about-mail { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-size: 15px; color: var(--color-ink); border-bottom: 1px solid var(--color-line-strong); transition: border-color .15s ease; }
 html .visitor-page .feed-about-mail:hover { border-color: var(--color-ink); }
-html .visitor-page .feed-about-social { display: flex; gap: 2px; margin: 14px 0 0 -12px; }
+html .visitor-page .feed-about-social { display: flex; gap: 2px; margin: 10px 0 0 -12px; }
 html .visitor-page .feed-about-social-link { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: var(--color-muted); transition: color .15s ease, background-color .15s ease; }
 html .visitor-page .feed-about-social-link:hover { color: var(--color-ink); background: var(--color-surface-2); }
 html .visitor-page .feed-about-social-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-html .visitor-page .feed-about-made { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 8px 0 0; padding-top: 22px; border-top: 1px solid var(--color-line); font-size: 13px; color: var(--color-muted); }
 @media (min-width: 640px) {
-html .visitor-page .feed-about-section-title { font-size: 23px; }
-html .visitor-page .feed-about-copy { font-size: calc(20.5px * var(--visitor-text-scale)); }
+  html .visitor-page .feed-letter { padding-top: 36px; }
+  html .visitor-page .feed-letter-body p { font-size: calc(20.5px * var(--visitor-text-scale)); }
+  html .visitor-page .feed-letter-greeting, html .visitor-page .feed-letter-valediction { font-size: calc(22px * var(--visitor-text-scale)); }
+  html .visitor-page .feed-letter-name { font-size: 34px; }
+  html .visitor-page .feed-letter-portrait { width: 104px; }
 }
+
 /* ---- E-bülten: a headline, a line of serif, three facts, one field. ---- */
 html .visitor-page .feed-newsletter-page { padding-top: 26px; }
 html .visitor-page .feed-newsletter-eyebrow { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-muted); }
