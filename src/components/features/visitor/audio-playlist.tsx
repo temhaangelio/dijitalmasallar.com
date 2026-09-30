@@ -6,7 +6,6 @@ import { fullDateLabel } from "@/lib/visitor-date";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 import { Button } from "@/components/ui/button";
 import { ActionMenu } from "@/components/ui/action-menu";
-import { BrandDigit } from "@/components/ui/brand-mark";
 
 export type PlaylistItem = { day: string; audioUrl: string; durationSeconds: number; excerpt: string };
 const clock = (seconds: number) => `${Math.floor(Math.max(0, seconds) / 60)}:${String(Math.floor(Math.max(0, seconds) % 60)).padStart(2, "0")}`;
@@ -79,41 +78,11 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
     <div id="oynatici" className="visitor-card listen-studio scroll-mt-4" data-playing={playing && !waiting || undefined}>
       <section className="listen-console" aria-label={english ? "Audio player" : "Ses oynatıcı"} data-playing={playing && !waiting || undefined}>
         <div className="listen-now">
-          <div className="listen-cover">
-            <div className="listen-cover-binary" aria-hidden="true">
-              {[
-                { digit: "0", x: 8, y: 23, size: 5, opacity: .12 },
-                { digit: "1", x: 24, y: 18, size: 3, opacity: .08 },
-                { digit: "1", x: 18, y: 34, size: 8, opacity: .09 },
-                { digit: "0", x: 36, y: 27, size: 4, opacity: .13 },
-                { digit: "0", x: 5, y: 43, size: 3, opacity: .07 },
-                { digit: "1", x: 47, y: 13, size: 2.5, opacity: .08 },
-              ].map((bit, i) => <span key={i} style={{
-                left: `${bit.x}%`, top: `${bit.y}%`, width: `${bit.size}%`, opacity: bit.opacity,
-              }}><BrandDigit value={bit.digit} /></span>)}
-            </div>
-            <div className="listen-cover-top"><span>Dijital Masallar</span><span>{english ? "EN" : "TR"} / AUDIO</span></div>
-            <div className="listen-cover-record"><span /></div>
-            <div className="listen-tonearm-base" />
-            <div className="listen-tonearm">
-              <span className="listen-tonearm-weight" />
-              <span className="listen-tonearm-shaft" />
-              <span className="listen-tonearm-cartridge" />
-            </div>
-            <div className="listen-cover-bottom"><strong>{english ? "Daily\nbriefing." : "Günün\nBülteni"}</strong><span>{date(active.day)}</span></div>
-            <div className="listen-speed">
-              <ActionMenu
-                label={`${english ? "Playback speed" : "Oynatma hızı"}: ${speed}×`}
-                trigger={<><span>{speed}×</span><ChevronDown size={10} aria-hidden="true" /></>}
-                triggerClassName="listen-speed-trigger"
-                placement="inline-above"
-                items={[.75, 1, 1.25, 1.5, 2].map(value => ({
-                  label: value === 1 ? "1× · Normal" : `${value}×`,
-                  checked: speed === value,
-                  onSelect: () => { setSpeed(value); if (audioRef.current) audioRef.current.playbackRate = value; },
-                }))}
-              />
-            </div>
+          {/* What is playing, said the way a note is: a small label, the date as the headline, the facts under it. */}
+          <div className="listen-head">
+            <span className="listen-head-eyebrow">{english ? "Daily briefing" : "Günün bülteni"}</span>
+            <h2 className="listen-head-title">{date(active.day)}</h2>
+            <span className="listen-head-meta tabular-nums">{clock(active.durationSeconds)} <span aria-hidden="true">·</span> {english ? "English" : "Türkçe"} <span aria-hidden="true">·</span> {index + 1}/{items.length}</span>
           </div>
           <span className="sr-only" aria-live="polite">{date(active.day)}</span>
         </div>
@@ -128,6 +97,19 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
           <Button className="!size-16 !min-h-16 !p-0" aria-label={playing || waiting ? (english ? "Pause" : "Duraklat") : (english ? "Play" : "Dinle")} onClick={() => playing || waiting ? pause() : void play()}>{waiting ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : playing ? <Pause size={25} /> : <Play size={25} />}</Button>
           <Button variant="ghost" className="listen-skip" aria-label={english ? "Forward 10 seconds" : "10 saniye ileri"} onClick={() => skip(10)}><RotateCw size={24} aria-hidden="true" /><span>10</span></Button>
           <Button variant="ghost" className="w-11 px-0" disabled={index === items.length - 1} aria-label={english ? "Next recording" : "Sonraki kayıt"} onClick={() => void play(index + 1)}><SkipForward size={20} /></Button>
+        </div>
+        <div className="listen-speed listen-speed-row">
+          <ActionMenu
+            label={`${english ? "Playback speed" : "Oynatma hızı"}: ${speed}×`}
+            trigger={<><span>{speed}×</span><ChevronDown size={12} aria-hidden="true" /></>}
+            triggerClassName="listen-speed-trigger"
+            placement="inline-above"
+            items={[.75, 1, 1.25, 1.5, 2].map(value => ({
+              label: value === 1 ? "1× · Normal" : `${value}×`,
+              checked: speed === value,
+              onSelect: () => { setSpeed(value); if (audioRef.current) audioRef.current.playbackRate = value; },
+            }))}
+          />
         </div>
         {autoplayBlocked ? <p role="status" className="mt-3 text-center text-xs text-muted">{english ? "Press play to start listening." : "Dinlemeye başlamak için oynat düğmesine dokunun."}</p> : null}
         {error ? <div className="mt-3 text-center"><p role="alert" className="mb-2 text-sm text-danger">{english ? "The recording could not be loaded." : "Kayıt yüklenemedi."}</p><Button variant="secondary" onClick={() => void play(index, true)}>{english ? "Reload recording" : "Kaydı yeniden yükle"}</Button></div> : null}

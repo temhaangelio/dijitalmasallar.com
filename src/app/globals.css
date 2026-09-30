@@ -3001,3 +3001,22 @@ html .visitor-page .feed-next > div > span { font-size: 12px; font-weight: 600; 
 html .visitor-page .feed-next p { font-size: calc(24px * var(--visitor-text-scale, 1)); line-height: 1.25; }
 html .visitor-page .feed-next > span:last-child { font-family: var(--font-source-serif), Georgia, serif; font-size: 15px; margin-top: 10px; }
 @media (min-width: 640px) { html .visitor-page .feed-article .visitor-article-intro > div { font-size: calc(34px * var(--visitor-text-scale, 1)); line-height: 1.18; } }
+
+/* ------------------------------------------------------------------------------------------
+ * Podcast, without a cover: what is playing is a headline like the feed's, then the timeline,
+ * the transport and the speed in one quiet row.
+ * ------------------------------------------------------------------------------------------ */
+html .visitor-page .listen-now { display: block; }
+html .visitor-page .listen-head { padding: 22px 0 6px; }
+html .visitor-page .listen-head-eyebrow { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-muted); }
+html .visitor-page .listen-head-title { margin: 8px 0 0; font-size: 30px; font-weight: 700; letter-spacing: -.03em; line-height: 1.15; color: var(--color-ink); }
+html .visitor-page .listen-head-meta { display: block; margin-top: 8px; font-family: var(--font-source-serif), Georgia, serif; font-size: 16px; color: var(--color-ink-2); }
+html .visitor-page .listen-timeline { margin: 18px 0 8px; }
+html .visitor-page .listen-transport { gap: 10px; }
+html .visitor-page .listen-speed-row { display: flex; justify-content: center; margin-top: 8px; }
+html .visitor-page .listen-speed-row .listen-speed-trigger { height: 36px; padding: 0 12px; border: 1px solid var(--color-line-strong); border-radius: 9px; background: transparent; font-size: 13px; font-weight: 600; color: var(--color-ink-2); }
+html .visitor-page .listen-speed-row .listen-speed-trigger:hover { color: var(--color-ink); border-color: var(--color-ink); }
+html .visitor-page .listen-console { padding-top: 0; }
+html .visitor-page .listen-queue-heading { margin-top: 28px; }
+@media (min-width: 640px) { html .visitor-page .listen-head-title { font-size: 36px; } html .visitor-page .listen-head { padding-top: 28px; } }
+html .visitor-page .listen-speed-row { position: static; inset: auto; width: auto; margin-top: 10px; }
