@@ -16,8 +16,8 @@ export const themeCookie = "diji-news-theme";
 export const themeAttribute = "data-visitor-theme";
 export const themeCookieMaxAge = 60 * 60 * 24 * 365;
 
-export const lightThemeColor = "#ffffff";
-export const darkThemeColor = "#0f0f0f";
+export const lightThemeColor = "#0a0a0a";
+export const darkThemeColor = "#000000";
 
 export function isThemePreference(value: string | undefined): value is ThemePreference {
   return value === "light" || value === "dark" || value === "system";

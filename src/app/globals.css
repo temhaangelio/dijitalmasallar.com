@@ -1526,38 +1526,52 @@ html .visitor-page .feed-masthead,
   html .visitor-page .feed-article,
   html .visitor-page footer.visitor-footer { max-width: 680px; }
 }
-html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 14px; }
+html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 18px; }
 @media (min-width: 640px) {
-html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 16px; }
+html .visitor-page .feed-column, html .visitor-page .feed-page { margin-top: 22px; }
 }
-/* ---- The masthead: a newspaper's nameplate, centred, the sections in a row under it. ---- */
-html .visitor-page .feed-masthead { position: relative; isolation: isolate; padding: 14px 0 0; color: var(--color-ink); }
-html .visitor-page .feed-masthead::before, html .visitor-page .feed-masthead::after { content: none; }
-html .visitor-page .feed-masthead-top { min-height: 48px; }
-html .visitor-page .feed-masthead-lockup { gap: 9px; color: var(--color-ink); }
-html .visitor-page .feed-logo-mark { width: 30px; height: 30px; border: 0; border-radius: 9px; background: var(--color-ink); box-shadow: none; }
-html .visitor-page .feed-logo-mark .brand-bit { fill: var(--color-ink-contrast); }
-html .visitor-page .feed-masthead .visitor-wordmark-art { background: var(--color-ink); }
-html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 138px; min-width: 0; flex-shrink: 1; }
+/* ---- The masthead: one row on an ink band, edge to edge, the same air above and below. ---- */
+html .visitor-page .feed-masthead { position: relative; isolation: isolate; padding: 12px 0; border: 0; color: #ffffff; }
+@media (min-width: 640px) { html .visitor-page .feed-masthead { padding: 14px 0; } }
+html .visitor-page .feed-masthead::after { content: none; }
+html .visitor-page .feed-masthead::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: -100vh;
+  bottom: 0;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: #0a0a0a;
+  opacity: 1;
+  background-image: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+  pointer-events: none;
+}
+html .visitor-page .feed-masthead-top { min-height: 36px; }
+html[data-visitor-theme="dark"] .visitor-page .feed-masthead::before { background: #000000; }
+html[data-visitor-theme="dark"] .visitor-page .feed-masthead { border-bottom: 1px solid #262626; }
+html .visitor-page .feed-masthead-lockup { gap: 8px; min-height: 36px; color: #ffffff; }
+html .visitor-page .feed-logo-mark { width: 28px; height: 28px; border: 0; border-radius: 8px; background: #ffffff; box-shadow: none; }
+html .visitor-page .feed-logo-mark .brand-bit { fill: #0a0a0a; }
+html .visitor-page .feed-masthead .visitor-wordmark-art { background: #ffffff; }
+html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 128px; min-width: 0; flex-shrink: 1; }
 @media (min-width: 640px) {
-html .visitor-page .feed-masthead { padding-top: 26px; }
-html .visitor-page .feed-masthead-lockup { gap: 11px; }
-html .visitor-page .feed-logo-mark { width: 38px; height: 38px; border-radius: 11px; }
-html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 176px; }
+html .visitor-page .feed-masthead-lockup { gap: 9px; }
+html .visitor-page .feed-logo-mark { width: 30px; height: 30px; border-radius: 9px; }
+html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 140px; }
 }
-/* The lockup on the left, the controls on the right, the sections centred under them. */
+/* The lockup on the left, the controls on the right. */
 html .visitor-page .feed-masthead-top { justify-content: flex-start; }
-html .visitor-page .feed-masthead-lockup { padding-right: 110px; }
-/* Under the row, a hairline; the sections are in the menu. */
-html .visitor-page .feed-masthead { padding-bottom: 12px; border-bottom: 1px solid var(--color-ink); }
-@media (min-width: 640px) {
-html .visitor-page .feed-masthead { padding-bottom: 16px; }
-}
+html .visitor-page .feed-masthead-lockup { padding-right: 126px; }
+html .visitor-page .feed-masthead-controls { top: 50%; }
 /* The controls, top right: a tight grey group. */
-html .visitor-page .feed-masthead-controls { gap: 0; }
-html .visitor-page .feed-masthead .visitor-top-control { width: 32px; height: 32px; color: var(--color-muted); }
+html .visitor-page .feed-masthead-controls { gap: 2px; }
+html .visitor-page .feed-masthead .visitor-top-control { width: 38px; height: 38px; color: #b4b4b4; }
 html .visitor-page .feed-masthead .visitor-top-control::before { content: none; }
-html .visitor-page .feed-masthead .visitor-top-control svg { width: 17px; height: 17px; }
+html .visitor-page .feed-masthead .visitor-top-control svg { width: 21px; height: 21px; }
 html .visitor-page .feed-masthead .visitor-top-control:hover:not(:disabled),
 html .visitor-page .feed-masthead .visitor-top-control[aria-expanded="true"],
 html .visitor-page .feed-masthead .visitor-top-control[aria-pressed="true"],
