@@ -1554,14 +1554,14 @@ html .visitor-page .feed-masthead-top { min-height: 36px; }
 html[data-visitor-theme="dark"] .visitor-page .feed-masthead::before { background: #000000; }
 html[data-visitor-theme="dark"] .visitor-page .feed-masthead { border-bottom: 1px solid #262626; }
 html .visitor-page .feed-masthead-lockup { gap: 8px; min-height: 36px; color: #ffffff; }
-html .visitor-page .feed-logo-mark { width: 28px; height: 28px; border: 0; border-radius: 8px; background: #ffffff; box-shadow: none; }
+html .visitor-page .feed-logo-mark { width: 32px; height: 32px; border: 0; border-radius: 9px; background: #ffffff; box-shadow: none; }
 html .visitor-page .feed-logo-mark .brand-bit { fill: #0a0a0a; }
 html .visitor-page .feed-masthead .visitor-wordmark-art { background: #ffffff; }
-html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 128px; min-width: 0; flex-shrink: 1; }
+html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 150px; min-width: 0; flex-shrink: 1; }
 @media (min-width: 640px) {
 html .visitor-page .feed-masthead-lockup { gap: 9px; }
-html .visitor-page .feed-logo-mark { width: 30px; height: 30px; border-radius: 9px; }
-html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 140px; }
+html .visitor-page .feed-logo-mark { width: 34px; height: 34px; border-radius: 10px; }
+html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 172px; }
 }
 /* The lockup on the left, the controls on the right. */
 html .visitor-page .feed-masthead-top { justify-content: flex-start; }
@@ -1572,12 +1572,17 @@ html .visitor-page .feed-masthead-controls { gap: 2px; }
 html .visitor-page .feed-masthead .visitor-top-control { width: 38px; height: 38px; color: #b4b4b4; }
 html .visitor-page .feed-masthead .visitor-top-control::before { content: none; }
 html .visitor-page .feed-masthead .visitor-top-control svg { width: 21px; height: 21px; }
-html .visitor-page .feed-masthead .visitor-top-control:hover:not(:disabled),
+html .visitor-page .feed-masthead .visitor-top-control { border-radius: 10px; transition: color .15s ease, background-color .15s ease; }
+html .visitor-page .feed-masthead .visitor-top-control:hover:not(:disabled) { color: #ffffff; background: rgb(255 255 255 / .08); }
+/* The states that mean something — the menu open, favorites on, notifications on — in the accent, lit. */
 html .visitor-page .feed-masthead .visitor-top-control[aria-expanded="true"],
 html .visitor-page .feed-masthead .visitor-top-control[aria-pressed="true"],
-html .visitor-page .feed-masthead .visitor-top-control[aria-current="page"] { color: var(--color-ink); background: transparent; }
+html .visitor-page .feed-masthead .visitor-top-control[aria-current="page"] { color: #ff8a73; background: rgb(255 255 255 / .1); }
+html .visitor-page .feed-masthead .visitor-top-control:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+html .visitor-page .feed-masthead .feed-masthead-lockup:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; border-radius: 8px; }
 @media (min-width: 640px) {
-html .visitor-page .feed-masthead .visitor-top-control { width: 36px; height: 36px; }
+html .visitor-page .feed-masthead .visitor-top-control { width: 40px; height: 40px; }
+html .visitor-page .feed-masthead .visitor-top-control svg { width: 22px; height: 22px; }
 }
 /* ---- The feed. ---- */
 html .visitor-page .feed-day + .feed-day { margin-top: 52px; }
