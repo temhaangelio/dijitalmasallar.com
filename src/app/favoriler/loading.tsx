@@ -1,3 +1,3 @@
-import { VisitorFavoritesLoading } from "@/components/feedback/route-skeletons";
+import { VisitorLoading } from "@/components/feedback/visitor-loading";
 
-export default function Loading() { return <VisitorFavoritesLoading />; }
+export default function Loading() { return <VisitorLoading label="Favoriler yükleniyor" />; }

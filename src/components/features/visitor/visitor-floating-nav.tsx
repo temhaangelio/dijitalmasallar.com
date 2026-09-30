@@ -1,19 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { ListenLink } from "./listen-modal";
-import { NewsletterLink } from "./newsletter-modal";
 import { useEffect, useState } from "react";
-import { ArrowUp, Headphones, Mail } from "lucide-react";
-import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
-import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
+import { ArrowUp } from "lucide-react";
+import type { VisitorLanguage } from "@/lib/visitor-language";
 
 /**
- * The header's navigation, back within reach.
- *
- * A long feed leaves the masthead several screens above. Feed page only: a capsule pinned to the
- * bottom edge with the way back to the top first, then the two other pages. It appears on the way
- * back up, once the masthead has scrolled out of view, so at the top of the page nothing is doubled.
+ * The way back to the top of a long feed: one round button in the bottom corner. It appears on
+ * the way back up, once the masthead has scrolled out of view, and is gone at the top.
  */
 export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) {
   const [shown, setShown] = useState(false);
@@ -53,21 +46,10 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
   }
 
   return (
-    <nav aria-label={isEnglish ? "Quick navigation" : "Hızlı gezinme"} data-shown={shown || undefined} className="visitor-float-nav visitor-sans" aria-hidden={!shown}>
-      <div className="visitor-float-track">
-        <button type="button" onClick={scrollToTop} tabIndex={shown ? undefined : -1} className="visitor-float-top">
-          <ArrowUp size={15} strokeWidth={2.5} aria-hidden="true" />
-          <span>{isEnglish ? "Top" : "Başa dön"}</span>
-        </button>
-        {visitorNavItems.filter((item) => item.href === "/podcast" || item.href === "/ebulten").map((item) => {
-          const NavLink = item.href === "/podcast" ? ListenLink : item.href === "/ebulten" ? NewsletterLink : Link;
-          const Icon = item.href === "/podcast" ? Headphones : Mail;
-          return <NavLink key={item.href} href={languageHref(item.href, language)} tabIndex={shown ? undefined : -1} className="visitor-float-link">
-            <Icon size={15} strokeWidth={2.5} aria-hidden="true" className="shrink-0" />
-            {item[language]}
-          </NavLink>;
-        })}
-      </div>
-    </nav>
+    <div data-shown={shown || undefined} className="visitor-float-nav feed-float-top" aria-hidden={!shown}>
+      <button type="button" onClick={scrollToTop} tabIndex={shown ? undefined : -1} className="feed-float-top-button" aria-label={isEnglish ? "Back to top" : "Başa dön"} title={isEnglish ? "Back to top" : "Başa dön"}>
+        <ArrowUp size={18} strokeWidth={2.2} aria-hidden="true" />
+      </button>
+    </div>
   );
 }

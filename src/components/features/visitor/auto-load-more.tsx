@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
+import { VisitorLoading } from "@/components/feedback/visitor-loading";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useTransition } from "react";
 
@@ -39,12 +39,7 @@ export function AutoLoadMore({ href, label }: { href: string; label: string }) {
 
   return (
     <div ref={sentinel} className="flex min-h-24 items-center justify-center py-6" role="status" aria-live="polite" aria-atomic="true">
-      {loading ? (
-        <span className="visitor-sans inline-flex min-h-11 items-center gap-2.5 rounded-full bg-surface-2/60 px-4 text-[13px] font-normal leading-5 text-muted">
-          <LoaderCircle className="size-4 shrink-0 animate-spin text-accent motion-reduce:animate-none" strokeWidth={1.6} aria-hidden="true" />
-          {label}
-        </span>
-      ) : null}
+      {loading ? <VisitorLoading label={label} size="inline" /> : null}
     </div>
   );
 }
