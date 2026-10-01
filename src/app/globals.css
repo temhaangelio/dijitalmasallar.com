@@ -1932,3 +1932,11 @@ html[data-visitor-theme="dark"] .feed-statusbar { background: #000000; }
 
 /* ---- Breathing room at the sides on a phone. ---- */
 @media (max-width: 639px) { html .visitor-page { padding-left: 22px; padding-right: 22px; } }
+
+/* ---- iOS 26 Safari ignores theme-color and tints the status bar from the root background colour
+   and from a fixed element touching the top edge. So the root is ink (the page column paints its
+   own white over it), and the fixed strip is at least 1px tall even where there is no inset. ---- */
+html:has(.visitor-page), html[data-visitor-theme="dark"]:has(.visitor-page) { background: #0a0a0a; }
+html[data-visitor-theme="dark"]:has(.visitor-page) { background: #000000; }
+html:has(.visitor-page) body { background: var(--feed-canvas); }
+.feed-statusbar { height: max(env(safe-area-inset-top, 0px), 1px); }
