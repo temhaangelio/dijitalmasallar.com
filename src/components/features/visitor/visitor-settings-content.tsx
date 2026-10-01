@@ -1,5 +1,6 @@
 "use client";
 
+import { useId, useState } from "react";
 import { ChevronDown, RotateCcw, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,13 +19,49 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
 }) {
   const pathname = usePathname();
   const isEnglish = language === "en";
+  const [tab, setTab] = useState<"menu" | "settings">("menu");
+  const id = useId();
+  const tabs = [
+    { key: "menu" as const, label: isEnglish ? "Menu" : "Menü" },
+    { key: "settings" as const, label: isEnglish ? "Settings" : "Ayarlar" },
+  ];
+  /* Arrow keys move between the two tabs, as a tab list should. */
+  function onTabKey(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const next = tab === "menu" ? "settings" : "menu";
+    setTab(next);
+    document.getElementById(`${id}-tab-${next}`)?.focus();
+  }
   return (
     <section className="visitor-settings visitor-sans text-left" aria-label={isEnglish ? "Menu" : "Menü"}>
-      {/* The sections first, then the settings. */}
+      <div className="feed-sheet-tabs" role="tablist" aria-label={isEnglish ? "Menu and settings" : "Menü ve ayarlar"}>
+        {tabs.map((item) => (
+          <button
+            key={item.key}
+            id={`${id}-tab-${item.key}`}
+            type="button"
+            role="tab"
+            aria-selected={tab === item.key}
+            aria-controls={`${id}-panel-${item.key}`}
+            tabIndex={tab === item.key ? 0 : -1}
+            onClick={() => setTab(item.key)}
+            onKeyDown={onTabKey}
+            className="feed-sheet-tab"
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div id={`${id}-panel-menu`} role="tabpanel" aria-labelledby={`${id}-tab-menu`} hidden={tab !== "menu"}>
       <nav className="feed-menu-nav" aria-label={isEnglish ? "Sections" : "Bölümler"}>
         {visitorNavItems.map((item) => <Link key={item.href} href={languageHref(item.href, language)} aria-current={pathname === item.href ? "page" : undefined} onClick={onClose} className="feed-menu-link">{item[language]}</Link>)}
         <Link href={languageHref("/favoriler", language)} aria-current={pathname === "/favoriler" ? "page" : undefined} onClick={onClose} className="feed-menu-link">{isEnglish ? "Favorites" : "Favoriler"}</Link>
       </nav>
+      </div>
+
+      <div id={`${id}-panel-settings`} role="tabpanel" aria-labelledby={`${id}-tab-settings`} hidden={tab !== "settings"}>
       <div className="visitor-settings-section">
         <div className="visitor-settings-row">
           <h3 className="visitor-settings-label">{isEnglish ? "Theme" : "Tema"}</h3>
@@ -59,6 +96,7 @@ export default function VisitorSettingsContent({ language, pushPublicKey, onClos
           <RotateCcw size={16} className="shrink-0" aria-hidden="true" />
           {isEnglish ? "Reset appearance" : "Görünümü sıfırla"}
         </button>
+      </div>
       </div>
     </section>
   );

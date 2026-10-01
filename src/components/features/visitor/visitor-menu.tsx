@@ -27,7 +27,7 @@ export function VisitorMenu({ language, pushPublicKey }: { language: VisitorLang
         <Menu size={20} strokeWidth={1.8} aria-hidden="true" />
       </button>
 
-      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={name} panelClassName="visitor-settings-sheet max-h-[85dvh]" titleClassName="visitor-sans text-[22px] font-bold leading-tight tracking-[-.03em]" closeLabel={isEnglish ? "Close menu" : "Menüyü kapat"}>
+      <VisitorBottomSheet open={open} onOpenChange={setOpen} title={name} panelClassName="visitor-settings-sheet max-h-[85dvh]" titleClassName="sr-only" closeLabel={isEnglish ? "Close menu" : "Menüyü kapat"}>
         {open ? <VisitorSettingsContent language={language} pushPublicKey={pushPublicKey} onClose={() => setOpen(false)} /> : null}
       </VisitorBottomSheet>
     </>
