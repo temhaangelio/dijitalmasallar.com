@@ -56,6 +56,9 @@ export async function VisitorShell({
             <meta name="theme-color" media="(prefers-color-scheme: light)" content={lightThemeColor} />
             <meta name="theme-color" media="(prefers-color-scheme: dark)" content={darkThemeColor} />
           </>}
+      {/* A fixed ink strip the height of the phone's status-bar inset, so what the bar sits on is
+          always black, whatever has scrolled under it. Zero height where there is no inset. */}
+      <div className="feed-statusbar" aria-hidden="true" />
       {showHeader ? <>
       {/*
         One row: the mark and the logotype on the left, the reader's controls on the right. The

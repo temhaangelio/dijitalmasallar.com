@@ -1925,3 +1925,7 @@ html .visitor-page .feed-masthead::before { top: -200px; }
   html .visitor-page .feed-masthead { padding-top: calc(12px + env(safe-area-inset-top)); }
   @media (min-width: 640px) { html .visitor-page .feed-masthead { padding-top: calc(14px + env(safe-area-inset-top)); } }
 }
+
+/* ---- Under the phone's status bar: always ink. ---- */
+.feed-statusbar { position: fixed; top: 0; left: 0; right: 0; z-index: 210; height: env(safe-area-inset-top, 0px); background: #0a0a0a; pointer-events: none; }
+html[data-visitor-theme="dark"] .feed-statusbar { background: #000000; }
