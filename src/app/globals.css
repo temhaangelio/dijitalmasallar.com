@@ -2077,3 +2077,29 @@ html[data-visitor-theme="dark"] .feed-sheet-tab[aria-selected="true"] { backgrou
 @media (min-width: 640px) { .visitor-settings-sheet .visitor-sheet-header { padding-top: 12px; } }
 .visitor-settings-sheet .visitor-sheet-body { padding-top: 2px; }
 .feed-sheet-tabs { margin-right: 0; }
+
+/* ---- The footer: the masthead's bookend, an ink band edge to edge. ---- */
+html .visitor-page .feed-footer { margin-top: 72px; padding: 40px 0 max(32px, env(safe-area-inset-bottom)); color: #ffffff; }
+html .visitor-page .feed-footer::before { background: #0a0a0a; }
+html[data-visitor-theme="dark"] .visitor-page .feed-footer::before { background: #000000; border-top: 1px solid #262626; }
+html .visitor-page .feed-footer-brand { padding-bottom: 24px; border-bottom: 1px solid rgb(255 255 255 / .12); }
+html .visitor-page .feed-footer-lockup { display: inline-flex; align-items: center; gap: 9px; color: #ffffff; }
+html .visitor-page .feed-footer-lockup:hover { opacity: .8; }
+html .visitor-page .feed-footer-lockup:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; border-radius: 8px; }
+html .visitor-page .feed-footer-mark { width: 30px; height: 30px; border-radius: 9px; background: #ffffff; box-shadow: none; border: 0; }
+html .visitor-page .feed-footer-mark .brand-bit { fill: #0a0a0a; }
+html .visitor-page .feed-footer-wordmark { width: 140px; background: #ffffff; }
+html .visitor-page .feed-footer-lede { margin: 14px 0 0; max-width: 40ch; font-family: var(--visitor-reading-family); font-size: 17px; line-height: 1.55; color: #c8c8c8; }
+html .visitor-page .feed-footer-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; padding: 18px 0; border-bottom: 1px solid rgb(255 255 255 / .12); }
+html .visitor-page .feed-footer-link { min-height: 40px; font-family: var(--visitor-reading-family); font-size: 17px; font-weight: 500; color: #ffffff; }
+html .visitor-page .feed-footer-link:hover { color: #c8c8c8; }
+html .visitor-page .feed-footer-link:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+html .visitor-page .feed-footer-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 0; border-top: 0; font-size: 13px; color: #8c8c8c; }
+html .visitor-page .feed-footer-meta p { margin: 0; font-size: 13px; }
+html .visitor-page .feed-footer-meta-links { display: flex; align-items: center; gap: 10px; }
+html .visitor-page .feed-footer-meta-links :is(a, button) { font-size: 13px; color: #c8c8c8; transition: color .15s ease; }
+html .visitor-page .feed-footer-meta-links :is(a, button):hover { color: #ffffff; }
+@media (min-width: 640px) {
+  html .visitor-page .feed-footer { padding-top: 48px; }
+  html .visitor-page .feed-footer-nav { display: flex; flex-wrap: wrap; gap: 4px 28px; }
+}

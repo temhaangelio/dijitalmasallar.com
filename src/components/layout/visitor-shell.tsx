@@ -79,18 +79,33 @@ export async function VisitorShell({
 }
 
 function VisitorFooter({ siteName, language }: { siteName: string; language: VisitorLanguage }) {
+  const isEnglish = language === "en";
+  /* The masthead's bookend: an ink band with the lockup and a line about the site, the sections in
+     two columns, and the small print at the foot. */
   return (
-    <footer className="visitor-footer feed-footer mt-16 w-full border-t border-line pt-5 visitor-sans">
-      <nav className="feed-footer-nav" aria-label={language === "en" ? "Sections" : "Bölümler"}>
+    <footer className="visitor-footer feed-footer mt-16 w-full visitor-sans">
+      <div className="feed-footer-brand">
+        <Link href={languageHref("/", language)} aria-label={isEnglish ? `${siteName} home` : `${siteName} ana sayfa`} className="feed-footer-lockup">
+          <BrandMark className="visitor-logo-mark feed-footer-mark block shrink-0" />
+          {siteName === "Dijital Masallar"
+            ? <span className="visitor-wordmark-art feed-footer-wordmark" aria-hidden="true" />
+            : <span className="truncate font-mono text-[16px] font-bold">{siteName}</span>}
+        </Link>
+        <p className="feed-footer-lede">{isEnglish
+          ? "Short, sourced notes on technology, AI, science and digital culture."
+          : "Teknoloji, yapay zekâ, bilim ve dijital kültürden kaynaklı kısa notlar."}</p>
+      </div>
+      <nav className="feed-footer-nav" aria-label={isEnglish ? "Sections" : "Bölümler"}>
         {visitorNavItems.map((item) => <Link key={item.href} href={languageHref(item.href, language)} className="feed-footer-link">{item[language]}</Link>)}
-        <Link href={languageHref("/favoriler", language)} className="feed-footer-link">{language === "en" ? "Favorites" : "Favoriler"}</Link>
+        <Link href={languageHref("/favoriler", language)} className="feed-footer-link">{isEnglish ? "Favorites" : "Favoriler"}</Link>
       </nav>
       <div className="feed-footer-meta">
-        <p className="visitor-muted text-muted">© {new Date().getFullYear()} {siteName}</p>
-        <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
-        <a href={languageHref("/feed.xml", language)} className="visitor-tap text-muted transition-colors hover:text-ink">RSS</a>
-        <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
-        <LanguageLink language={language} />
+        <p>© {new Date().getFullYear()} {siteName}</p>
+        <div className="feed-footer-meta-links">
+          <a href={languageHref("/feed.xml", language)}>RSS</a>
+          <span aria-hidden="true">·</span>
+          <LanguageLink language={language} />
+        </div>
       </div>
     </footer>
   );
