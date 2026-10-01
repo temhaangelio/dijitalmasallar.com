@@ -1960,3 +1960,18 @@ html:has(.visitor-page) body { background: var(--feed-canvas); }
 /* A saved note's bookmark: the icon filled in ink (white at night), no tile behind it. */
 html .visitor-page .visitor-card-actions button[aria-pressed="true"],
 html .visitor-page .visitor-card-actions button[aria-pressed="true"]:hover { background: transparent; color: var(--color-ink); box-shadow: none; }
+
+/* ---- Toasts, in the page's language: a white slip with an ink hairline, the words in the sans,
+   a small mark for the kind — ink for done, the accent for a problem. ---- */
+.feed-toast { gap: 12px; padding: 6px 6px 6px 14px; border: 1px solid var(--color-ink, #0f0f0f); border-radius: 10px; background: var(--color-surface, #ffffff); color: var(--color-ink, #0f0f0f); box-shadow: 0 10px 30px rgb(0 0 0 / .12); }
+.feed-toast-dot { width: 7px; height: 7px; background: var(--color-muted, #6a6a6a); }
+.feed-toast[data-variant="success"] .feed-toast-dot { background: var(--color-ink, #0f0f0f); }
+.feed-toast[data-variant="error"] .feed-toast-dot { background: var(--color-accent, #bd3c28); }
+.feed-toast p { font-size: 14px; font-weight: 500; letter-spacing: -.005em; }
+.feed-toast button { width: 36px; height: 36px; border-radius: 8px; color: var(--color-muted, #6a6a6a); }
+.feed-toast button:hover { color: var(--color-ink, #0f0f0f); background: var(--color-surface-2, #f4f4f4); }
+.feed-toast button:focus-visible { outline: 2px solid var(--color-accent, #bd3c28); outline-offset: -2px; }
+html[data-visitor-theme="dark"] .feed-toast { border-color: #3a3a3a; background: #161616; color: #f2f2f2; box-shadow: 0 10px 30px rgb(0 0 0 / .5); }
+html[data-visitor-theme="dark"] .feed-toast[data-variant="success"] .feed-toast-dot { background: #f2f2f2; }
+html[data-visitor-theme="dark"] .feed-toast button { color: #8c8c8c; }
+html[data-visitor-theme="dark"] .feed-toast button:hover { color: #ffffff; background: #222222; }
