@@ -2072,3 +2072,8 @@ html[data-visitor-theme="dark"] .feed-sheet-tab[aria-selected="true"] { backgrou
 .visitor-settings [role="tabpanel"] .feed-settings-install { border-bottom: 1px solid var(--color-line); }
 .visitor-settings [role="tabpanel"] .visitor-settings-footer.feed-settings-footer { margin-top: 8px; padding-top: 6px; border-top: 0; }
 @media (prefers-reduced-motion: reduce) { .feed-menu-link::after { transition: none; } }
+/* The close button in the top-right corner on its own line; the tabs the full width under it. */
+.visitor-settings-sheet .visitor-sheet-header { position: static; display: flex; justify-content: flex-end; margin: 0; padding: 6px 12px 0; }
+@media (min-width: 640px) { .visitor-settings-sheet .visitor-sheet-header { padding-top: 12px; } }
+.visitor-settings-sheet .visitor-sheet-body { padding-top: 2px; }
+.feed-sheet-tabs { margin-right: 0; }
