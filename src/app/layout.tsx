@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Source_Serif_4 } from "next/font/google";
+import { Literata } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AppToaster } from "@/components/ui/toast";
@@ -19,7 +19,9 @@ const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-QPKHW331QX
 // Local loading avoids Google's missing Atkinson fallback metrics in Turbopack.
 const visitorSans = localFont({ src: "./fonts/atkinson-next.ttf", weight: "200 800", style: "normal", variable: "--font-visitor-sans", display: "swap", adjustFontFallback: false, fallback: ["Arial", "sans-serif"] });
 const visitorMono = localFont({ src: "./fonts/atkinson-mono.ttf", weight: "200 800", style: "normal", variable: "--font-visitor-mono", display: "swap", adjustFontFallback: false, fallback: ["monospace"] });
-const sourceSerif = Source_Serif_4({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap", preload: false });
+// The reading face (Literata, drawn for long reading on screens). The variable keeps its old name so
+// every rule that sets the body in the serif picks it up unchanged.
+const sourceSerif = Literata({ subsets: ["latin", "latin-ext"], axes: ["opsz"], variable: "--font-source-serif", display: "swap", preload: true, fallback: ["Georgia", "serif"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
