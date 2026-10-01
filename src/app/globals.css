@@ -1976,12 +1976,12 @@ html[data-visitor-theme="dark"] .feed-toast[data-variant="success"] .feed-toast-
 html[data-visitor-theme="dark"] .feed-toast button { color: #8c8c8c; }
 html[data-visitor-theme="dark"] .feed-toast button:hover { color: #ffffff; background: #222222; }
 
-/* ---- A notebook under the page: faint ruled lines, fixed to the window so the sticky day heading
+/* ---- A dotted notebook under the page, fixed to the window so the sticky day heading
    can carry the same paper and never shows a blank strip as the notes scroll under it. ---- */
-html:has(.visitor-page) { --feed-paper: repeating-linear-gradient(to bottom, transparent 0 31px, rgb(15 15 15 / .032) 31px 32px); }
-html[data-visitor-theme="dark"]:has(.visitor-page) { --feed-paper: repeating-linear-gradient(to bottom, transparent 0 31px, rgb(255 255 255 / .04) 31px 32px); }
+html:has(.visitor-page) { --feed-paper: radial-gradient(circle at 1px 1px, rgb(15 15 15 / .1) 1px, transparent 1.4px); --feed-paper-size: 22px 22px; }
+html[data-visitor-theme="dark"]:has(.visitor-page) { --feed-paper: radial-gradient(circle at 1px 1px, rgb(255 255 255 / .09) 1px, transparent 1.4px); }
 html .visitor-page,
-html .visitor-page .feed-day-heading { background-color: var(--feed-canvas); background-image: var(--feed-paper); background-attachment: fixed; }
+html .visitor-page .feed-day-heading { background-color: var(--feed-canvas); background-image: var(--feed-paper); background-size: var(--feed-paper-size, 22px 22px); background-attachment: fixed; }
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
   html .visitor-page, html .visitor-page .feed-day-heading { background-image: none; }
 }
