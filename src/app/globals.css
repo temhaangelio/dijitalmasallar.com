@@ -1914,3 +1914,14 @@ html[data-visitor-theme="dark"] .feed-toast { background: #ffffff; color: #0f0f0
 html[data-visitor-theme="dark"] .feed-toast button { color: #6a6a6a; }
 html[data-visitor-theme="dark"] .feed-toast button:hover { color: #0f0f0f; background: rgb(0 0 0 / .06); }
 html[data-visitor-theme="dark"] .feed-toast button:focus-visible { outline-color: #0f0f0f; }
+
+/* ---- The top of the document is ink, like the masthead, so the phone's status bar sits on
+   black rather than fading from white into the band. In the installed app the status bar lies
+   over the page, and the band grows by that inset. ---- */
+html:has(.visitor-page) { background: #ffffff linear-gradient(#0a0a0a, #0a0a0a) top / 100% 160px no-repeat; }
+html[data-visitor-theme="dark"]:has(.visitor-page) { background: #0f0f0f linear-gradient(#000000, #000000) top / 100% 160px no-repeat; }
+html .visitor-page .feed-masthead::before { top: -200px; }
+@media (display-mode: standalone) {
+  html .visitor-page .feed-masthead { padding-top: calc(12px + env(safe-area-inset-top)); }
+  @media (min-width: 640px) { html .visitor-page .feed-masthead { padding-top: calc(14px + env(safe-area-inset-top)); } }
+}
