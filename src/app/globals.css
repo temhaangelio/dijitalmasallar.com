@@ -2134,3 +2134,19 @@ html[data-visitor-theme="dark"] .visitor-page .feed-masthead::after { height: au
   html .visitor-page .feed-masthead::after, html .visitor-page .feed-footer::after { animation: none; }
 }
 @media (max-width: 639px) { html .visitor-page .feed-masthead::after, html .visitor-page .feed-footer::after { opacity: .07; } }
+
+/* ---- The newest note's dot: larger, with a slow "live" pulse — a ring that breathes out and fades. ---- */
+html .visitor-page .feed-note-new { position: relative; width: 9px; height: 9px; border-radius: 50%; background: var(--color-accent); }
+html .visitor-page .feed-note-new::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: feed-live-pulse 1.8s cubic-bezier(.2,.6,.3,1) infinite;
+}
+@keyframes feed-live-pulse {
+  0% { transform: scale(1); opacity: .55; }
+  70%, 100% { transform: scale(2.8); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html .visitor-page .feed-note-new::after { animation: none; content: none; } }
