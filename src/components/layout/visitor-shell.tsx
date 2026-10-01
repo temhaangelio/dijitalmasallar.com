@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { FavoritesNavButton } from "@/components/features/visitor/favorites-nav-button";
 import { LanguageLink } from "@/components/features/visitor/language-link";
@@ -9,7 +8,6 @@ import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
-import { darkThemeColor, lightThemeColor, themeCookie } from "@/lib/visitor-theme";
 import { isPushConfigured, pushPublicKey } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
 
@@ -37,25 +35,11 @@ export async function VisitorShell({
   reading?: boolean;
 }) {
   const settings = await getSiteSettings();
-  /*
-   * iOS Safari paints the band behind the status bar from the `theme-color` it reads as it first
-   * parses the document, and never repaints it for a tag written later — so a reader who chose dark
-   * on a light phone sat under a white band whatever the client did afterwards. The choice travels
-   * in a cookie for exactly this tag. With no cookie, "system" is the preference, and there the
-   * media queries and the resolved theme agree by definition.
-   */
-  const themePreference = (await cookies()).get(themeCookie)?.value;
   // The key is only handed out when the panel switch is on and the VAPID pair is configured; with an
   // empty key the toggle can register the worker but never subscribe.
   const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
   return (
     <div lang={language} className="visitor-page relative flex min-h-screen flex-col items-center overflow-x-clip bg-canvas px-4 pb-10 text-ink sm:px-8">
-      {themePreference === "dark" || themePreference === "light"
-        ? <meta name="theme-color" content={themePreference === "dark" ? darkThemeColor : lightThemeColor} />
-        : <>
-            <meta name="theme-color" media="(prefers-color-scheme: light)" content={lightThemeColor} />
-            <meta name="theme-color" media="(prefers-color-scheme: dark)" content={darkThemeColor} />
-          </>}
       {/* A fixed ink strip the height of the phone's status-bar inset, so what the bar sits on is
           always black, whatever has scrolled under it. Zero height where there is no inset. */}
       <div className="feed-statusbar" aria-hidden="true" />

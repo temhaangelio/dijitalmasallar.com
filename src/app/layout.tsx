@@ -53,13 +53,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * `themeColor` is deliberately absent here. It depends on the reader's stored preference, and this
- * export is shared with the always-light admin panel; Next also refuses runtime data in
- * `generateViewport` without making the whole document block on it. `VisitorShell` renders the tag
- * instead, where the cookie is already being read and only the public pages are affected.
+ * The masthead is an ink band whatever the theme, so the colour behind the phone's status bar is
+ * one value and can live here, in <head>, where Safari reads it on its first parse. (It used to be
+ * rendered in the body by `VisitorShell`, and Safari never saw it there.)
  */
 export const viewport: Viewport = {
   viewportFit: "cover",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
