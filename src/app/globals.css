@@ -1957,3 +1957,6 @@ html:has(.visitor-page) body { background: var(--feed-canvas); }
 .visitor-settings :is([role="group"], [role="radiogroup"]) > span[aria-hidden="true"] { display: none; }
 .visitor-settings :is([role="group"], [role="radiogroup"]) > :is([data-active="true"], .text-ink-contrast) { background: var(--color-ink); color: var(--color-ink-contrast); border-radius: 7px; }
 .feed-sheet-tab { transition: none; }
+/* A saved note's bookmark: the icon filled in ink (white at night), no tile behind it. */
+html .visitor-page .visitor-card-actions button[aria-pressed="true"],
+html .visitor-page .visitor-card-actions button[aria-pressed="true"]:hover { background: transparent; color: var(--color-ink); box-shadow: none; }

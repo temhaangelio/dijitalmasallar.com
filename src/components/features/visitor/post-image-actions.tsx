@@ -118,7 +118,7 @@ export function PostImageActions({
         aria-label={favoriteLabel}
         title={favoriteLabel}
         aria-pressed={favorite}
-        className={`${buttonClass} rounded-full ${favorite ? "bg-surface-2 text-accent" : ""}`}
+        className={`${buttonClass} rounded-full ${favorite ? "!text-ink" : ""}`}
       >
         <Bookmark className={`size-[21px] ${favorite ? "fill-current" : ""}`} strokeWidth={1.7} aria-hidden="true" />
       </button>
