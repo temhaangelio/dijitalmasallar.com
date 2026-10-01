@@ -2044,3 +2044,31 @@ html .visitor-page { padding-top: 0; }
 html .visitor-page .feed-masthead { position: sticky; top: 0; z-index: 40; }
 html .visitor-page .feed-day-heading { top: var(--feed-masthead-h, 62px); }
 html .visitor-page .visitor-note-anchor { scroll-margin-top: calc(var(--feed-masthead-h, 62px) + 56px); }
+
+/* ---- The menu sheet, polished. The close button joins the tab row, so there is no empty header
+   line; the sections read as a short list with arrows, the current one marked with a dot. ---- */
+.visitor-settings-sheet { position: relative; border-radius: 18px 18px 0 0; }
+@media (min-width: 640px) { .visitor-settings-sheet { border-radius: 16px; } }
+.visitor-settings-sheet .visitor-sheet-header { position: absolute; z-index: 2; top: 22px; right: 16px; margin: 0; padding: 0; border: 0; }
+@media (min-width: 640px) { .visitor-settings-sheet .visitor-sheet-header { top: 18px; } }
+.visitor-settings-sheet .visitor-sheet-close { width: 40px; height: 40px; border-radius: 10px; }
+.visitor-settings-sheet .visitor-sheet-body { padding: 8px 20px max(18px, env(safe-area-inset-bottom)); }
+@media (min-width: 640px) { .visitor-settings-sheet .visitor-sheet-body { padding-top: 18px; } }
+
+.feed-sheet-tabs { margin: 0 52px 18px 0; padding: 3px; border-radius: 12px; background: var(--color-surface-2); border-color: transparent; }
+.feed-sheet-tab { min-height: 38px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--color-muted); }
+.feed-sheet-tab[aria-selected="true"] { background: var(--color-surface); color: var(--color-ink); box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 0 0 1px var(--color-line); }
+html[data-visitor-theme="dark"] .feed-sheet-tab[aria-selected="true"] { background: #262626; box-shadow: none; }
+
+.visitor-settings [role="tabpanel"] > .feed-menu-nav { margin: 0; border: 0; }
+.feed-menu-link { position: relative; justify-content: space-between; min-height: 52px; padding: 0 2px; font-size: 19px; font-weight: 500; }
+.feed-menu-link::after { content: "→"; font-family: var(--font-visitor-sans), Arial, sans-serif; font-size: 16px; color: var(--color-faint); transition: transform .15s ease, color .15s ease; }
+.feed-menu-link:hover::after { transform: translateX(3px); color: var(--color-ink); }
+.feed-menu-link[aria-current="page"] { color: var(--color-ink); font-weight: 600; }
+.feed-menu-link[aria-current="page"]::before { content: ""; position: absolute; left: -12px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--color-accent); }
+.feed-menu-link[aria-current="page"]::after { content: none; }
+
+.visitor-settings [role="tabpanel"] .visitor-settings-row { min-height: 52px; border-bottom: 1px solid var(--color-line); }
+.visitor-settings [role="tabpanel"] .feed-settings-install { border-bottom: 1px solid var(--color-line); }
+.visitor-settings [role="tabpanel"] .visitor-settings-footer.feed-settings-footer { margin-top: 8px; padding-top: 6px; border-top: 0; }
+@media (prefers-reduced-motion: reduce) { .feed-menu-link::after { transition: none; } }
