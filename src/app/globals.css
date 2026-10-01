@@ -1870,8 +1870,8 @@ html[data-visitor-theme="dark"] .feed-install-banner { box-shadow: 0 10px 30px r
 .feed-install-mark { width: 28px; height: 28px; border-radius: 8px; }
 .feed-install-banner-steps { margin-top: 10px; }
 /* ---- The way back to the top: one round ink button in the corner. ---- */
-.feed-float-top { position: fixed; z-index: 120; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); opacity: 0; transform: translateY(12px) scale(.96); pointer-events: none; transition: transform .26s cubic-bezier(.2,.8,.2,1), opacity .2s ease; }
-.feed-float-top[data-shown] { opacity: 1; transform: none; pointer-events: auto; }
+.feed-float-top { position: fixed; z-index: 120; left: 50%; right: auto; bottom: max(16px, env(safe-area-inset-bottom)); opacity: 0; transform: translate(-50%, 12px) scale(.96); pointer-events: none; transition: transform .26s cubic-bezier(.2,.8,.2,1), opacity .2s ease; }
+.feed-float-top[data-shown] { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 .visitor-page:has(.install-banner) .feed-float-top { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 78px); }
 .feed-float-top-button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--color-ink); color: var(--color-ink-contrast); box-shadow: 0 8px 24px rgb(0 0 0 / .22); transition: transform .15s ease; }
 .feed-float-top-button:hover { transform: translateY(-1px); }

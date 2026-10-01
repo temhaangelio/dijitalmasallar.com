@@ -46,7 +46,7 @@ export function VisitorFloatingNav({ language }: { language: VisitorLanguage }) 
   }
 
   return (
-    <div data-shown={shown || undefined} className="visitor-float-nav feed-float-top" aria-hidden={!shown}>
+    <div data-shown={shown || undefined} className="feed-float-top" aria-hidden={!shown}>
       <button type="button" onClick={scrollToTop} tabIndex={shown ? undefined : -1} className="feed-float-top-button" aria-label={isEnglish ? "Back to top" : "Başa dön"} title={isEnglish ? "Back to top" : "Başa dön"}>
         <ArrowUp size={18} strokeWidth={2.2} aria-hidden="true" />
       </button>
