@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   applicationName: "dijitalmasallar.com",
   // An opaque status bar prevents iOS standalone mode from compositing the light launch canvas
   // over the top safe area. `black-translucent` produced the grey/white band seen above the app.
-  appleWebApp: { capable: true, title: "dijitalmasallar.com", statusBarStyle: "black" },
+  appleWebApp: { capable: true, title: "dijitalmasallar.com", statusBarStyle: "black-translucent" },
   category: "technology",
   creator: "dijitalmasallar.com",
   publisher: "dijitalmasallar.com",

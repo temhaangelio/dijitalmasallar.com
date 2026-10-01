@@ -40,9 +40,6 @@ export async function VisitorShell({
   const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
   return (
     <div lang={language} className="visitor-page relative flex min-h-screen flex-col items-center overflow-x-clip bg-canvas px-4 pb-10 text-ink sm:px-8">
-      {/* A fixed ink strip the height of the phone's status-bar inset, so what the bar sits on is
-          always black, whatever has scrolled under it. Zero height where there is no inset. */}
-      <div className="feed-statusbar" aria-hidden="true" />
       {showHeader ? <>
       {/*
         One row: the mark and the logotype on the left, the reader's controls on the right. The

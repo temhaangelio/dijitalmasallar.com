@@ -1927,8 +1927,6 @@ html .visitor-page .feed-masthead::before { top: -200px; }
 }
 
 /* ---- Under the phone's status bar: always ink. ---- */
-.feed-statusbar { position: fixed; top: 0; left: 0; right: 0; z-index: 210; height: env(safe-area-inset-top, 0px); background: #0a0a0a; pointer-events: none; }
-html[data-visitor-theme="dark"] .feed-statusbar { background: #000000; }
 
 /* ---- Breathing room at the sides on a phone. ---- */
 @media (max-width: 639px) { html .visitor-page { padding-left: 22px; padding-right: 22px; } }
@@ -1939,7 +1937,6 @@ html[data-visitor-theme="dark"] .feed-statusbar { background: #000000; }
 html:has(.visitor-page), html[data-visitor-theme="dark"]:has(.visitor-page) { background: #0a0a0a; }
 html[data-visitor-theme="dark"]:has(.visitor-page) { background: #000000; }
 html:has(.visitor-page) body { background: var(--feed-canvas); }
-.feed-statusbar { height: max(env(safe-area-inset-top, 0px), 1px); }
 
 /* ---- The sheet's two tabs: Menü and Ayarlar, a hairline segmented control under the title. ---- */
 .feed-sheet-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 4px 0 14px; padding: 3px; border: 1px solid var(--color-line-strong); border-radius: 11px; }
@@ -2041,3 +2038,9 @@ html .visitor-page .feed-day-heading:has(.feed-day-name:only-child) .feed-day-na
 /* The masthead takes the top safe-area inset itself (in the installed app); the page must not add
    it again, or a white strip the height of the status bar opens above the ink band. */
 html .visitor-page { padding-top: 0; }
+
+/* ---- The masthead stays at the top: the status bar always sits on ink, and nothing scrolls under
+   it. The day heading sticks just below the masthead instead of at the window's edge. ---- */
+html .visitor-page .feed-masthead { position: sticky; top: 0; z-index: 40; }
+html .visitor-page .feed-day-heading { top: var(--feed-masthead-h, 62px); }
+html .visitor-page .visitor-note-anchor { scroll-margin-top: calc(var(--feed-masthead-h, 62px) + 56px); }
