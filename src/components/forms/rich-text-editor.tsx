@@ -15,13 +15,20 @@ function ToolButton({ label, shortcut, onPress, children }: ToolButtonProps) {
 function escapeHtml(value: string) { return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
 function inlineMarkdownToHtml(value: string) {
-  return escapeHtml(value)
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer noopener nofollow">$1</a>')
+  // Links are set aside before emphasis runs: `utm_source` in an address, or the `_blank` of the
+  // anchor itself, would otherwise be read as italics and an `<em>` written into the URL.
+  const links: string[] = [];
+  const withoutLinks = escapeHtml(value).replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_, text: string, url: string) => {
+    links.push(`<a href="${url}" target="_blank" rel="noreferrer noopener nofollow">${text}</a>`);
+    return `\u0000${links.length - 1}\u0000`;
+  });
+  return withoutLinks
     .replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, "<strong>$1$2</strong>")
     .replace(/~~([^~]+)~~/g, "<del>$1</del>")
     .replace(/==([^=]+)==/g, "<mark>$1</mark>")
-    .replace(/_([^_\n]+)_|\*([^*\n]+)\*/g, "<em>$1$2</em>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>");
+    .replace(/(?<![\p{L}\p{N}])_([^_\n]+)_(?![\p{L}\p{N}])|\*([^*\n]+)\*/gu, "<em>$1$2</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\u0000(\d+)\u0000/g, (_, index: string) => links[Number(index)]);
 }
 
 function markdownToHtml(value: string) {

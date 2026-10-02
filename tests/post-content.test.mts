@@ -210,3 +210,9 @@ describe("extractTrailingSource in English notes", () => {
     });
   }
 });
+
+describe("extractTrailingSource repairs mangled addresses", () => {
+  test("turns an <em> written into utm_source back into an underscore and drops it", () => {
+    assert.deepEqual(extractTrailingSource("Evaluated on JevBench. [GitHub](https://github.com/strands-labs/strands-decider?utm%3Cem%3Esource=chatgpt.com)"), { body: "Evaluated on JevBench.", sourceUrl: "https://github.com/strands-labs/strands-decider" });
+  });
+});

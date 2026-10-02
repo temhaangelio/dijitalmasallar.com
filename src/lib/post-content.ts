@@ -12,7 +12,8 @@ const excerptLimit = 180;
 
 function cleanSourceUrl(value: string) {
   try {
-    const url = new URL(value);
+    // An older editor build read the `_` of `utm_source` as italics and wrote `<em>` into the address.
+    const url = new URL(value.replace(/%3C\/?em%3E|<\/?em>/gi, "_"));
     for (const key of [...url.searchParams.keys()]) {
       const normalizedKey = key.toLowerCase();
       if (normalizedKey === "utc" || normalizedKey.startsWith("utm_")) url.searchParams.delete(key);
