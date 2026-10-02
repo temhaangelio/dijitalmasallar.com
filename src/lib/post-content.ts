@@ -62,11 +62,15 @@ function truncate(value: string, limit: number) {
 
 /** Finds the opening sentence without treating initialisms such as “U.S.” as sentence endings. */
 function firstSentence(value: string) {
-  const endings = value.matchAll(/[.!?](?:\s|$)/g);
+  // Closing quotes and brackets belong to the sentence they close (`dedi: “Başladı.”`), and a
+  // sentence only ends where the next one starts with a capital, a digit or an opening quote —
+  // otherwise `“Başladı.” dedi.` would be cut inside the quotation.
+  const endings = value.matchAll(/[.!?…]+["'”’»)\]]*(?=\s|$)/g);
   for (const ending of endings) {
-    const punctuationIndex = ending.index;
-    const candidate = value.slice(0, punctuationIndex + 1);
-    if (ending[0][0] === "." && /(?:\b[A-Za-z]\.){2,}$/.test(candidate)) continue;
+    const candidate = value.slice(0, ending.index + ending[0].length);
+    if (ending[0][0] === "." && /(?:\b[A-Za-z]\.){2,}$/.test(candidate.replace(/["'”’»)\]]+$/, ""))) continue;
+    const next = value.slice(candidate.length).trimStart();
+    if (next && !/^[\p{Lu}\p{N}"'“‘«(\[*_=#>-]/u.test(next)) continue;
     return candidate.trim();
   }
   return value;

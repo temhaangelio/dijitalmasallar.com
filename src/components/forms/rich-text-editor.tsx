@@ -107,8 +107,10 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
     // A whole note pasted into an empty editor (or over all of it) gets its opening sentence set
     // apart as its own paragraph; a fragment pasted into existing text goes in untouched.
     const editor = editorRef.current;
-    const selected = window.getSelection()?.toString().trim() ?? "";
-    const current = editor?.innerText.trim() ?? "";
+    // Selection text and innerText count paragraph breaks differently, so compare without whitespace.
+    const compact = (value: string) => value.replace(/\s+/g, "");
+    const selected = compact(window.getSelection()?.toString() ?? "");
+    const current = compact(editor?.innerText ?? "");
     if (editor && text.trim() && (!current || selected === current)) {
       editor.innerHTML = markdownToHtml(separateLeadSentence(text));
       const range = document.createRange();

@@ -178,3 +178,12 @@ describe("separateLeadSentence", () => {
     assert.equal(separateLeadSentence("# Başlık\n\nBir. İki."), "# Başlık\n\nBir.\n\nİki.");
   });
 });
+
+describe("separateLeadSentence with quotations", () => {
+  test("keeps a quotation inside the opening sentence", () => {
+    assert.equal(separateLeadSentence("Şirket “yeni dönem başladı.” dedi. İkinci cümle burada."), "Şirket “yeni dönem başladı.” dedi.\n\nİkinci cümle burada.");
+  });
+  test("ends the sentence after a closing quote", () => {
+    assert.equal(separateLeadSentence("CEO şöyle dedi: “Hazırız.” Lansman yarın."), "CEO şöyle dedi: “Hazırız.”\n\nLansman yarın.");
+  });
+});
