@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/ui/toast";
 import { postSchema, type PostFormValues } from "@/lib/validations/post";
 import { isOptimizableImage } from "@/lib/images";
-import { parseBilingualPostPaste } from "@/lib/post-content";
+import { parseBilingualPostPaste, separateLeadSentence } from "@/lib/post-content";
 import type { Post } from "@/types/database";
 
 function localDateTime(value: string | null) {
@@ -64,12 +64,12 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   function importBilingualPaste(value: string) {
     const parsed = parseBilingualPostPaste(value);
     if (!parsed) return false;
-    setValue("tr.body", parsed.tr, { shouldDirty: true, shouldValidate: true });
-    setValue("en.body", parsed.en, { shouldDirty: true, shouldValidate: true });
+    setValue("tr.body", separateLeadSentence(parsed.tr), { shouldDirty: true, shouldValidate: true });
+    setValue("en.body", separateLeadSentence(parsed.en), { shouldDirty: true, shouldValidate: true });
     if (parsed.sourceUrl) setValue("sourceUrl", parsed.sourceUrl, { shouldDirty: true, shouldValidate: true });
     setActiveLanguage("tr");
     showToast(parsed.sourceUrl ? "Türkçe, İngilizce ve kaynak bağlantısı yerleştirildi." : "Türkçe ve İngilizce içerikler yerleştirildi.", "success");
-    return parsed.tr;
+    return separateLeadSentence(parsed.tr);
   }
 
   const onSubmit = (values: PostFormValues) => startTransition(async () => {

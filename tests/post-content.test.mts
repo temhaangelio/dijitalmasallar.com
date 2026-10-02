@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { parseBilingualPostPaste, parsePostContent, postPlainText, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
+import { parseBilingualPostPaste, parsePostContent, postPlainText, separateLeadSentence, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
 
 describe("parseBilingualPostPaste", () => {
   test("imports the Anthropic source with encoded clipboard spaces", () => {
@@ -161,5 +161,20 @@ describe("postPlainText", () => {
 
   test("an empty body yields an empty string", () => {
     assert.equal(postPlainText("   \n\n  "), "");
+  });
+});
+
+describe("separateLeadSentence", () => {
+  test("puts a paragraph break after the opening sentence", () => {
+    assert.equal(separateLeadSentence("OpenAI yeni bir model duyurdu. Model iki kat hızlı.\n\nÜçüncü paragraf."), "OpenAI yeni bir model duyurdu.\n\nModel iki kat hızlı.\n\nÜçüncü paragraf.");
+  });
+  test("does not split on initialisms", () => {
+    assert.equal(separateLeadSentence("The U.S. agency approved it. More follows."), "The U.S. agency approved it.\n\nMore follows.");
+  });
+  test("leaves a lone opening sentence alone", () => {
+    assert.equal(separateLeadSentence("Tek cümle.\n\nİkinci paragraf."), "Tek cümle.\n\nİkinci paragraf.");
+  });
+  test("skips a leading heading", () => {
+    assert.equal(separateLeadSentence("# Başlık\n\nBir. İki."), "# Başlık\n\nBir.\n\nİki.");
   });
 });

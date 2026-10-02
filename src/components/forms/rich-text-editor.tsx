@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Bold, Eraser, Heading1, Heading2, Highlighter, Italic, Link2, Maximize2, Minimize2, Quote } from "lucide-react";
+import { separateLeadSentence } from "@/lib/post-content";
 import { cn } from "@/lib/utils";
 
 type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean; onPasteText?: (value: string) => string | false };
@@ -101,6 +102,21 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
     if (replacement === undefined || replacement === false) replacement = onPasteText?.(text);
     if (replacement !== undefined && replacement !== false) {
       if (editorRef.current) editorRef.current.innerHTML = markdownToHtml(replacement);
+      return;
+    }
+    // A whole note pasted into an empty editor (or over all of it) gets its opening sentence set
+    // apart as its own paragraph; a fragment pasted into existing text goes in untouched.
+    const editor = editorRef.current;
+    const selected = window.getSelection()?.toString().trim() ?? "";
+    const current = editor?.innerText.trim() ?? "";
+    if (editor && text.trim() && (!current || selected === current)) {
+      editor.innerHTML = markdownToHtml(separateLeadSentence(text));
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+      syncValue();
       return;
     }
     document.execCommand("insertText", false, text);

@@ -141,3 +141,22 @@ export function splitAfterFirstParagraph(value: string): { first: string; rest: 
   const boundary = firstParagraph < 0 ? blocks.length : firstParagraph + 1;
   return { first: blocks.slice(0, boundary).join("\n\n"), rest: blocks.slice(boundary).join("\n\n") };
 }
+
+/**
+ * Gives a pasted note's opening sentence a paragraph of its own. The feed sets the first paragraph
+ * as the headline, so a paste whose first paragraph runs on past one sentence would otherwise turn
+ * the whole paragraph into the title. Headings and notes that already open with a lone sentence are
+ * left as they are.
+ */
+export function separateLeadSentence(value: string) {
+  const normalized = value.replace(/\r\n?/g, "\n").trim();
+  const blocks = normalized.split(/\n[ \t]*\n+/);
+  const index = blocks.findIndex((block) => !/^#{1,6}\s+[^\n]+$/.test(block));
+  if (index < 0) return normalized;
+  const block = blocks[index];
+  const lead = firstSentence(block);
+  const remainder = block.slice(block.indexOf(lead) + lead.length).trim();
+  if (lead === block || !remainder) return normalized;
+  blocks.splice(index, 1, lead, remainder);
+  return blocks.join("\n\n");
+}
