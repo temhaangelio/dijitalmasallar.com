@@ -59,7 +59,12 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
     description,
     alternates: {
       canonical,
-      languages: { tr: path, en: `${path}?lang=en`, "x-default": path },
+      // Only the languages the note is written in.
+      languages: {
+        ...(post.languages?.includes("tr") !== false ? { tr: path } : {}),
+        ...(post.languages?.includes("en") !== false ? { en: `${path}?lang=en` } : {}),
+        "x-default": post.languages?.includes("tr") === false ? `${path}?lang=en` : path,
+      },
       types: { "application/rss+xml": languageHref("/feed.xml", language) },
     },
     openGraph: {

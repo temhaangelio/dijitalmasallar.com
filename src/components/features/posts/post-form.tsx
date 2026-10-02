@@ -54,6 +54,10 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   });
   const coverPreview = libraryCover?.url ?? (removeCover ? null : sharedPost?.cover_path);
   const status = useWatch({ control, name: "status" });
+  // Which languages have text, so the switcher can show it and say where the note will appear.
+  const trBody = useWatch({ control, name: "tr.body" }) ?? "";
+  const enBody = useWatch({ control, name: "en.body" }) ?? "";
+  const filled = { tr: Boolean(trBody.trim()), en: Boolean(enBody.trim()) };
   // Readers are only notified when a note goes live with this save; edits to a live note never notify.
   const willPublishNow = status === "published" && sharedPost?.status !== "published";
 
@@ -116,11 +120,22 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
           <div role="group" aria-label="İçerik dili" className="grid grid-cols-2 gap-1 rounded-full bg-surface-2 p-1 sm:w-64">
               {(["tr", "en"] as const).map((language) => (
                 <button key={language} type="button" aria-pressed={activeLanguage === language} onClick={() => setActiveLanguage(language)} className={`min-h-10 rounded-full text-sm font-semibold transition-[color,background-color,box-shadow] ${activeLanguage === language ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>
-                  {language === "tr" ? "Türkçe" : "English"}
+                  <span className="inline-flex items-center justify-center gap-1.5">
+                    <span aria-hidden="true" className={`size-1.5 rounded-full ${filled[language] ? "bg-current" : "border border-current opacity-50"}`} />
+                    {language === "tr" ? "Türkçe" : "English"}
+                    <span className="sr-only">{filled[language] ? " (dolu)" : " (boş)"}</span>
+                  </span>
                 </button>
               ))}
           </div>
         </div>
+        {filled.tr !== filled.en ? (
+          <p className="-mt-2 text-[13px] leading-5 text-muted" role="status">
+            {filled.tr
+              ? "Yalnızca Türkçe yazıldı: haber yalnızca Türkçe akışta görünür. İngilizce akışta da görünsün isterseniz English sekmesini doldurun."
+              : "Yalnızca İngilizce yazıldı: haber yalnızca İngilizce akışta görünür. Türkçe akışta da görünsün isterseniz Türkçe sekmesini doldurun."}
+          </p>
+        ) : null}
         <div className="admin-composer-editor">
         <FormField
           label={activeLanguage === "tr" ? "Türkçe içerik" : "İngilizce içerik"}

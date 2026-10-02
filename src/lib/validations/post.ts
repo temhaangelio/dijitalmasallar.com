@@ -16,8 +16,12 @@ export const postSchema = z.object({
   if (value.status === "draft") {
     if (!value.tr.body && !value.en.body) context.addIssue({ code: "custom", path: ["tr", "body"], message: "Taslak için en az bir dilde içerik girin." });
   } else {
+    // A note may be published in one language only; it then appears only in that language's feed.
+    // At least one language must be written, and any language that is started must be complete.
+    if (!value.tr.body && !value.en.body) context.addIssue({ code: "custom", path: ["tr", "body"], message: "En az bir dilde içerik girin." });
     for (const language of ["tr", "en"] as const) {
-      if (value[language].body.length < 50) context.addIssue({ code: "custom", path: [language, "body"], message: "İçerik en az 50 karakter olmalı." });
+      const length = value[language].body.length;
+      if (length > 0 && length < 50) context.addIssue({ code: "custom", path: [language, "body"], message: "İçerik en az 50 karakter olmalı." });
     }
   }
   if ((value.sourceUrl || value.status !== "draft") && !sourceSchema.safeParse(value.sourceUrl).success) {

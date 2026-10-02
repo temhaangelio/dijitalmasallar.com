@@ -30,17 +30,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [{ url: alternates.en, ...shared }, { url: alternates.tr, ...shared }];
   });
 
+  // A note may be written in one language only: it is listed, and alternates are given, only in the
+  // languages it exists in.
+  const inEnglish = new Set(englishPosts.map((post) => post.id));
+  const inTurkish = new Set(turkishPosts.map((post) => post.id));
   const byId = new Map(englishPosts.map((post) => [post.id, post]));
   for (const post of turkishPosts) if (!byId.has(post.id)) byId.set(post.id, post);
   const articleEntries: MetadataRoute.Sitemap = [...byId.values()]
     .filter((post) => post.status === "published")
     .flatMap((post) => {
       const path = `/haber/${post.id}`;
-      const alternates = {
-        en: absoluteUrl(baseUrl, languageHref(path, "en")),
-        tr: absoluteUrl(baseUrl, languageHref(path, "tr")),
-        "x-default": absoluteUrl(baseUrl, languageHref(path, "tr")),
-      };
+      const urls: Partial<Record<"en" | "tr", string>> = {};
+      if (inEnglish.has(post.id)) urls.en = absoluteUrl(baseUrl, languageHref(path, "en"));
+      if (inTurkish.has(post.id)) urls.tr = absoluteUrl(baseUrl, languageHref(path, "tr"));
+      const alternates = { ...urls, "x-default": urls.tr ?? urls.en! };
       const shared = {
         lastModified: post.published_at ?? post.created_at,
         changeFrequency: "never" as const,
@@ -48,10 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         alternates: { languages: alternates },
         images: post.cover_path ? [post.cover_path] : undefined,
       };
-      return [
-        { url: alternates.en, ...shared },
-        { url: alternates.tr, ...shared },
-      ];
+      return Object.values(urls).map((url) => ({ url, ...shared }));
     });
 
   return [...staticEntries, ...articleEntries];

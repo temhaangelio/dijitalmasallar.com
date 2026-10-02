@@ -88,11 +88,12 @@ async function markNotified(access: AdminAccess, id: string) {
  * thousand endpoints — and a push service having a bad day cannot turn a saved note into an error.
  */
 function notifyPublishedPost(access: AdminAccess, id: string, data: { tr: { body: string }; en: { body: string } }) {
-  const tr = parsePostContent(data.tr.body);
-  const en = parsePostContent(data.en.body);
+  const tr = data.tr.body.trim() ? parsePostContent(data.tr.body) : null;
+  const en = data.en.body.trim() ? parsePostContent(data.en.body) : null;
   after(async () => {
     try {
-      const result = await notifyNewPost({ id, tr: { title: tr.title, excerpt: tr.excerpt }, en: { title: en.title, excerpt: en.excerpt } });
+      // Only the languages the note is written in are announced.
+      const result = await notifyNewPost({ id, tr: tr ? { title: tr.title, excerpt: tr.excerpt } : undefined, en: en ? { title: en.title, excerpt: en.excerpt } : undefined });
       if (result.sent > 0) await markNotified(access, id);
     } catch (error) {
       console.error("Push notification for new post failed", error);

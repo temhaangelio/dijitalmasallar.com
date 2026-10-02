@@ -72,7 +72,7 @@ const batchSize = 100;
  * cleared their site data, uninstalled the app, or changed browsers. Those endpoints are deleted
  * here; keeping them would mean retrying dead endpoints on every note forever.
  */
-export async function sendPushToSubscribers(messages: Record<VisitorLanguage, PushMessage>, tag?: string) {
+export async function sendPushToSubscribers(messages: Partial<Record<VisitorLanguage, PushMessage>>, tag?: string) {
   if (!isPushConfigured()) return { sent: 0, failed: 0, removed: 0 };
   configure();
 
@@ -83,7 +83,10 @@ export async function sendPushToSubscribers(messages: Record<VisitorLanguage, Pu
     return { sent: 0, failed: 0, removed: 0 };
   }
 
-  const rows = (data ?? []) as SubscriptionRow[];
+  // A reader only hears about a note written in their language; one stored with no known language
+  // gets the English line if there is one.
+  const messageFor = (language: string) => messages[language as VisitorLanguage] ?? (language === "tr" || language === "en" ? undefined : messages.en);
+  const rows = ((data ?? []) as SubscriptionRow[]).filter((row) => messageFor(row.language));
   const expired: string[] = [];
   let sent = 0;
   let failed = 0;
@@ -91,7 +94,7 @@ export async function sendPushToSubscribers(messages: Record<VisitorLanguage, Pu
   for (let index = 0; index < rows.length; index += batchSize) {
     const batch = rows.slice(index, index + batchSize);
     const results = await Promise.allSettled(batch.map((row) => {
-      const message = messages[row.language] ?? messages.en;
+      const message = messageFor(row.language)!;
       return webpush.sendNotification(
         { endpoint: row.endpoint, keys: { p256dh: row.p256dh, auth: row.auth } },
         JSON.stringify({ title: message.title, body: message.body, url: message.url, lang: row.language, tag }),
@@ -121,8 +124,9 @@ export async function sendPushToSubscribers(messages: Record<VisitorLanguage, Pu
 
 export type NewPostNotification = {
   id: string;
-  tr: { title: string; excerpt: string };
-  en: { title: string; excerpt: string };
+  // A note written in one language carries only that one.
+  tr?: { title: string; excerpt: string };
+  en?: { title: string; excerpt: string };
 };
 
 /** A notification body longer than this is cut off by the platform anyway. */
@@ -145,16 +149,16 @@ export async function notifyNewPost(post: NewPostNotification) {
   const settings = await getSiteSettings();
   if (!settings.modulePush) return { sent: 0, failed: 0, removed: 0 };
 
-  return sendPushToSubscribers({
-    tr: {
-      title: trim(post.tr.title, 80) || settings.siteName,
-      body: trim(post.tr.excerpt, bodyLimit),
-      url: languageHref(`/haber/${post.id}`, "tr"),
-    },
-    en: {
-      title: trim(post.en.title, 80) || settings.siteName,
-      body: trim(post.en.excerpt, bodyLimit),
-      url: languageHref(`/haber/${post.id}`, "en"),
-    },
-  }, post.id);
+  const messages: Partial<Record<VisitorLanguage, PushMessage>> = {};
+  for (const language of ["tr", "en"] as const) {
+    const content = post[language];
+    if (!content || !(content.title || content.excerpt)) continue;
+    messages[language] = {
+      title: trim(content.title, 80) || settings.siteName,
+      body: trim(content.excerpt, bodyLimit),
+      url: languageHref(`/haber/${post.id}`, language),
+    };
+  }
+  if (!messages.tr && !messages.en) return { sent: 0, failed: 0, removed: 0 };
+  return sendPushToSubscribers(messages, post.id);
 }

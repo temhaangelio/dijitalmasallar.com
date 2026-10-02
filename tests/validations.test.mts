@@ -49,3 +49,18 @@ describe("post validation", () => {
   });
 
 });
+
+describe("single-language posts", () => {
+  test("a note may be published in Turkish only", () => {
+    assert.equal(postSchema.safeParse(basePost({ en: { body: "" } })).success, true);
+  });
+  test("a note may be published in English only", () => {
+    assert.equal(postSchema.safeParse(basePost({ tr: { body: "" } })).success, true);
+  });
+  test("a published note needs text in at least one language", () => {
+    assert.equal(postSchema.safeParse(basePost({ tr: { body: "" }, en: { body: "" } })).success, false);
+  });
+  test("a language that is started must still be complete", () => {
+    assert.equal(postSchema.safeParse(basePost({ en: { body: "kısa" } })).success, false);
+  });
+});

@@ -12,7 +12,20 @@ const postColumns = "is_draft,id,content_tr,content_en,legacy_english_id,source_
 export type PostSort = "newest" | "oldest" | "title-asc" | "title-desc";
 export type PostPublicationFilter = "all" | "published" | "scheduled" | "draft";
 
-function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
+/** The column holding a language's text. A note may be written in one language only; the other is ''. */
+export function contentColumn(language: "tr" | "en") {
+  return language === "en" ? "content_en" : "content_tr";
+}
+
+/** Whether a row has text in a language. */
+export function hasLanguage(row: Pick<PostRow, "content_tr" | "content_en">, language: "tr" | "en") {
+  return Boolean((language === "en" ? row.content_en : row.content_tr)?.trim());
+}
+
+function mapPost(row: PostRow, requested: "tr" | "en" = "tr"): Post {
+  // A note written in one language only is shown in that language wherever it is reached directly
+  // (an old link, the panel); the visitor lists never reach it in the other language, they filter.
+  const language = hasLanguage(row, requested) || !hasLanguage(row, requested === "en" ? "tr" : "en") ? requested : requested === "en" ? "tr" : "en";
   const content = parsePostContent(language === "en" ? row.content_en : row.content_tr);
   const scheduled = new Date(row.created_at).getTime() > Date.now();
   return {
@@ -23,6 +36,7 @@ function mapPost(row: PostRow, language: "tr" | "en" = "tr"): Post {
     excerpt: content.excerpt,
     body: content.body,
     language,
+    languages: (["tr", "en"] as const).filter((code) => hasLanguage(row, code)),
     status: row.is_draft ? "draft" : scheduled ? "scheduled" : "published",
     cover_path: row.cover_path,
     source_url: row.source_url,
@@ -44,6 +58,7 @@ export async function getPosts(page = 1, pageSize = 20, language: "tr" | "en" = 
       .from("posts")
       .select(postColumns)
       .eq("is_draft", false).lte("created_at", new Date().toISOString())
+      .neq(contentColumn(language), "")
       .order("created_at", { ascending: false })
       .range(from, from + safePageSize - 1);
     if (error) throw error;
@@ -60,6 +75,7 @@ export async function getBriefPosts(since: string, until: string, language: "tr"
     const supabase = await createClient();
     const { data, error } = await supabase.from("posts").select(postColumns)
       .gte("created_at", since).eq("is_draft", false).lte("created_at", until)
+      .neq(contentColumn(language), "")
       .order("created_at", { ascending: false }).limit(500);
     if (error) throw error;
     return (data as PostRow[]).map(row => mapPost(row, language));
@@ -83,6 +99,7 @@ export async function getPostsForDay(dayKey: string, language: "tr" | "en" = "tr
     const { data, error } = await access.admin.from("posts").select(postColumns)
       .gte("created_at", `${dayKey}T00:00:00+03:00`)
       .eq("is_draft", false).lte("created_at", `${dayKey}T23:59:59.999+03:00`)
+      .neq(contentColumn(language), "")
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw error;
@@ -145,6 +162,7 @@ export async function getPostsByIds(ids: string[], language: "tr" | "en" = "tr")
       .in("id", wanted)
       // A scheduled note is not public yet, and a favourite must not become a way to read one early.
       .eq("is_draft", false).lte("created_at", new Date().toISOString())
+      .neq(contentColumn(language), "")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data as PostRow[]).map((row) => mapPost(row, language));
@@ -297,6 +315,7 @@ export async function getNextPublishedPost(createdAt: string, language: "tr" | "
       .select(postColumns)
       .lt("created_at", createdAt)
       .eq("is_draft", false).lte("created_at", new Date().toISOString())
+      .neq(contentColumn(language), "")
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
