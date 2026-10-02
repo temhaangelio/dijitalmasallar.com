@@ -29,8 +29,11 @@ function cleanSourceUrl(value: string) {
  */
 export function extractTrailingSource(value: string): { body: string; sourceUrl?: string } {
   const text = value.trim();
-  const markdownSource = text.match(/\n*\s*\[[^\]]+\]\((https?:\/\/[^)\s]+)\)\s*(?:↗\s*)?\.*\s*$/i);
-  const plainSource = markdownSource ? null : text.match(/\n*\s*(https?:\/\/[^\s↗]+)\s*(?:↗\s*)?$/i);
+  // Optional `Source:`/`Kaynak:` label and wrapping brackets, then the link, then `↗` and closing punctuation.
+  const lead = String.raw`(?:\s*(?:source|sources|kaynak|kaynaklar|via|from)\s*[:：-]?\s*)?[(\[]?\s*`;
+  const tail = String.raw`\s*[)\]]?\s*(?:↗\s*)?[.,;:!]*\s*$`;
+  const markdownSource = text.match(new RegExp(String.raw`\n*\s*${lead}\[[^\]]+\]\((https?:\/\/[^)\s]+)\)${tail}`, "i"));
+  const plainSource = markdownSource ? null : text.match(new RegExp(String.raw`\n*\s*${lead}(https?:\/\/[^\s↗)\]]+)${tail}`, "i"));
   const match = markdownSource ?? plainSource;
   if (!match?.[1] || match.index === undefined) return { body: text };
   return { body: text.slice(0, match.index).trim(), sourceUrl: cleanSourceUrl(match[1]) };

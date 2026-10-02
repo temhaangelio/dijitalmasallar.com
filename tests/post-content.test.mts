@@ -201,3 +201,12 @@ describe("extractTrailingSource", () => {
     assert.equal(parsed?.sourceUrl, "https://github.com/a/b");
   });
 });
+
+describe("extractTrailingSource in English notes", () => {
+  const url = "https://github.com/strands-agents/decider";
+  for (const ending of [` [GitHub](${url}).`, ` ([GitHub](${url}))`, ` ([GitHub](${url})).`, `\nSource: [GitHub](${url})`, ` Source: ${url}`, ` (${url})`, ` [GitHub](${url}) ↗`]) {
+    test(`moves ${JSON.stringify(ending)} to the source`, () => {
+      assert.deepEqual(extractTrailingSource(`It is released under Apache 2.0.${ending}`), { body: "It is released under Apache 2.0.", sourceUrl: url });
+    });
+  }
+});
