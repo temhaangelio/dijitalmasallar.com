@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { parseBilingualPostPaste, parsePostContent, postPlainText, separateLeadSentence, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
+import { extractTrailingSource, parseBilingualPostPaste, parsePostContent, postPlainText, separateLeadSentence, stripMarkdown, summaryLine } from "../src/lib/post-content.ts";
 
 describe("parseBilingualPostPaste", () => {
   test("imports the Anthropic source with encoded clipboard spaces", () => {
@@ -185,5 +185,19 @@ describe("separateLeadSentence with quotations", () => {
   });
   test("ends the sentence after a closing quote", () => {
     assert.equal(separateLeadSentence("CEO şöyle dedi: “Hazırız.” Lansman yarın."), "CEO şöyle dedi: “Hazırız.”\n\nLansman yarın.");
+  });
+});
+
+describe("extractTrailingSource", () => {
+  test("moves a closing Markdown link and full stop to the source", () => {
+    assert.deepEqual(extractTrailingSource("Model JevBench üzerinde değerlendiriliyor. [GitHub](https://github.com/strands/decider)."), { body: "Model JevBench üzerinde değerlendiriliyor.", sourceUrl: "https://github.com/strands/decider" });
+  });
+  test("leaves text without a closing link alone", () => {
+    assert.deepEqual(extractTrailingSource("Bir [bağlantı](https://x.com) ortada. Son cümle."), { body: "Bir [bağlantı](https://x.com) ortada. Son cümle." });
+  });
+  test("removes a source left on the Turkish side of a bilingual paste", () => {
+    const parsed = parseBilingualPostPaste("TR: Türkçe metin burada. [GitHub](https://github.com/a/b)\nEN: English text here. [GitHub](https://github.com/a/b)");
+    assert.equal(parsed?.tr, "Türkçe metin burada.");
+    assert.equal(parsed?.sourceUrl, "https://github.com/a/b");
   });
 });

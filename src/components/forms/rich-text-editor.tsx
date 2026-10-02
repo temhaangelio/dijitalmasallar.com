@@ -5,7 +5,7 @@ import { Bold, Eraser, Heading1, Heading2, Highlighter, Italic, Link2, Maximize2
 import { separateLeadSentence } from "@/lib/post-content";
 import { cn } from "@/lib/utils";
 
-type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean; onPasteText?: (value: string) => string | false };
+type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean; onPasteText?: (value: string, replacesAll: boolean) => string | false };
 type ToolButtonProps = { label: string; shortcut?: string; onPress: () => void; children: React.ReactNode };
 
 function ToolButton({ label, shortcut, onPress, children }: ToolButtonProps) {
@@ -55,6 +55,14 @@ function nodeToMarkdown(node: Node): string {
   }
 }
 
+function placeCaretAtEnd(editor: HTMLElement) {
+  const range = document.createRange();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  window.getSelection()?.removeAllRanges();
+  window.getSelection()?.addRange(range);
+}
+
 function editorToMarkdown(editor: HTMLElement) { return Array.from(editor.childNodes).map(nodeToMarkdown).join("").replace(/\n{3,}/g, "\n\n").trim(); }
 
 export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar = true, onPasteText }: RichTextEditorProps) {
@@ -89,6 +97,12 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
   function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) {
     event.preventDefault();
     const text = event.clipboardData.getData("text/plain");
+    const editor = editorRef.current;
+    // A paste into an empty editor, or over all of it, is a whole note rather than a fragment.
+    // Selection text and innerText count paragraph breaks differently, so compare without whitespace.
+    const compact = (value: string) => value.replace(/\s+/g, "");
+    const current = compact(editor?.innerText ?? "");
+    const replacesAll = !current || compact(window.getSelection()?.toString() ?? "") === current;
     // Rendered clipboard text can omit link destinations; recover them from the HTML
     // as markdown without inserting clipboard HTML into the editable document.
     const html = event.clipboardData.getData("text/html");
@@ -97,27 +111,19 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
       const document = new DOMParser().parseFromString(html, "text/html");
       document.querySelectorAll("script, style, noscript").forEach(node => node.remove());
       const markdown = editorToMarkdown(document.body);
-      replacement = onPasteText(markdown);
+      replacement = onPasteText(markdown, replacesAll);
     }
-    if (replacement === undefined || replacement === false) replacement = onPasteText?.(text);
+    if (replacement === undefined || replacement === false) replacement = onPasteText?.(text, replacesAll);
     if (replacement !== undefined && replacement !== false) {
-      if (editorRef.current) editorRef.current.innerHTML = markdownToHtml(replacement);
+      if (editor) { editor.innerHTML = markdownToHtml(replacement); placeCaretAtEnd(editor); }
+      syncValue();
       return;
     }
-    // A whole note pasted into an empty editor (or over all of it) gets its opening sentence set
-    // apart as its own paragraph; a fragment pasted into existing text goes in untouched.
-    const editor = editorRef.current;
-    // Selection text and innerText count paragraph breaks differently, so compare without whitespace.
-    const compact = (value: string) => value.replace(/\s+/g, "");
-    const selected = compact(window.getSelection()?.toString() ?? "");
-    const current = compact(editor?.innerText ?? "");
-    if (editor && text.trim() && (!current || selected === current)) {
+    // A whole note gets its opening sentence set apart as its own paragraph; a fragment pasted
+    // into existing text goes in untouched.
+    if (editor && text.trim() && replacesAll) {
       editor.innerHTML = markdownToHtml(separateLeadSentence(text));
-      const range = document.createRange();
-      range.selectNodeContents(editor);
-      range.collapse(false);
-      window.getSelection()?.removeAllRanges();
-      window.getSelection()?.addRange(range);
+      placeCaretAtEnd(editor);
       syncValue();
       return;
     }

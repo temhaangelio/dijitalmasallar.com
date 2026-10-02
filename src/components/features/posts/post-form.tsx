@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/ui/toast";
 import { postSchema, type PostFormValues } from "@/lib/validations/post";
 import { isOptimizableImage } from "@/lib/images";
-import { parseBilingualPostPaste, separateLeadSentence } from "@/lib/post-content";
+import { extractTrailingSource, parseBilingualPostPaste, separateLeadSentence } from "@/lib/post-content";
 import type { Post } from "@/types/database";
 
 function localDateTime(value: string | null) {
@@ -61,15 +61,25 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
   // Readers are only notified when a note goes live with this save; edits to a live note never notify.
   const willPublishNow = status === "published" && sharedPost?.status !== "published";
 
-  function importBilingualPaste(value: string) {
+  function importBilingualPaste(value: string, replacesAll: boolean) {
     const parsed = parseBilingualPostPaste(value);
-    if (!parsed) return false;
+    if (!parsed) return replacesAll ? importSourcedPaste(value) : false;
     setValue("tr.body", separateLeadSentence(parsed.tr), { shouldDirty: true, shouldValidate: true });
     setValue("en.body", separateLeadSentence(parsed.en), { shouldDirty: true, shouldValidate: true });
     if (parsed.sourceUrl) setValue("sourceUrl", parsed.sourceUrl, { shouldDirty: true, shouldValidate: true });
     setActiveLanguage("tr");
     showToast(parsed.sourceUrl ? "Türkçe, İngilizce ve kaynak bağlantısı yerleştirildi." : "Türkçe ve İngilizce içerikler yerleştirildi.", "success");
     return separateLeadSentence(parsed.tr);
+  }
+
+  /** A one-language note whose source link closes the text: the link moves to the source field. */
+  function importSourcedPaste(value: string) {
+    const { body, sourceUrl } = extractTrailingSource(value);
+    if (!sourceUrl || !body) return false;
+    setValue("sourceUrl", sourceUrl, { shouldDirty: true, shouldValidate: true });
+    showToast("Kaynak bağlantısı ayrı alana taşındı.", "success");
+    // Clipboard HTML ends each paragraph with a single line break; the editor separates them with a blank line.
+    return separateLeadSentence(body.replace(/\n+/g, "\n\n"));
   }
 
   const onSubmit = (values: PostFormValues) => startTransition(async () => {

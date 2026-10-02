@@ -23,6 +23,19 @@ function cleanSourceUrl(value: string) {
   }
 }
 
+/**
+ * Takes the source link off the end of a pasted note — `[GitHub](url)`, a bare URL, either with a
+ * trailing `↗` or full stop — so it lands in the source field instead of the text as a link.
+ */
+export function extractTrailingSource(value: string): { body: string; sourceUrl?: string } {
+  const text = value.trim();
+  const markdownSource = text.match(/\n*\s*\[[^\]]+\]\((https?:\/\/[^)\s]+)\)\s*(?:↗\s*)?\.*\s*$/i);
+  const plainSource = markdownSource ? null : text.match(/\n*\s*(https?:\/\/[^\s↗]+)\s*(?:↗\s*)?$/i);
+  const match = markdownSource ?? plainSource;
+  if (!match?.[1] || match.index === undefined) return { body: text };
+  return { body: text.slice(0, match.index).trim(), sourceUrl: cleanSourceUrl(match[1]) };
+}
+
 /** Splits the compact `TR: … EN: … [source](url)` format used by editorial drafts. */
 export function parseBilingualPostPaste(value: string): ParsedBilingualPaste | null {
   const normalized = value.replace(/\r\n?/g, "\n").replace(/&(?:#x20|#32|nbsp);/gi, " ").trim();
@@ -34,13 +47,11 @@ export function parseBilingualPostPaste(value: string): ParsedBilingualPaste | n
   const enMarker = afterTr.match(/\bEN:\s*/i);
   if (!enMarker || enMarker.index === undefined) return null;
 
-  const tr = afterTr.slice(0, enMarker.index).trim();
-  let en = afterTr.slice(enMarker.index + enMarker[0].length).trim();
-  const markdownSource = en.match(/\n*\s*\[[^\]]+\]\((https?:\/\/[^)\s]+)\)\s*(?:↗\s*)?$/i);
-  const plainSource = markdownSource ? null : en.match(/\n*\s*(https?:\/\/[^\s↗]+)\s*(?:↗\s*)?$/i);
-  const sourceMatch = markdownSource ?? plainSource;
-  const sourceUrl = sourceMatch?.[1] ? cleanSourceUrl(sourceMatch[1]) : undefined;
-  if (sourceMatch?.index !== undefined) en = en.slice(0, sourceMatch.index).trim();
+  const trPart = extractTrailingSource(afterTr.slice(0, enMarker.index));
+  const enPart = extractTrailingSource(afterTr.slice(enMarker.index + enMarker[0].length));
+  const { body: tr } = trPart;
+  const { body: en } = enPart;
+  const sourceUrl = enPart.sourceUrl ?? trPart.sourceUrl;
 
   if (!tr || !en) return null;
   return { tr, en, ...(sourceUrl ? { sourceUrl } : {}) };
