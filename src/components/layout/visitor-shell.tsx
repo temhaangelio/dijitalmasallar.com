@@ -80,17 +80,11 @@ export async function VisitorShell({
 
 function VisitorFooter({ siteName, language }: { siteName: string; language: VisitorLanguage }) {
   const isEnglish = language === "en";
-  /* The masthead's bookend: an ink band with the lockup and a line about the site, the sections in
+  /* The masthead's bookend: an ink band with a line about the site, the sections in
      two columns, and the small print at the foot. */
   return (
     <footer className="visitor-footer feed-footer mt-16 w-full visitor-sans">
       <div className="feed-footer-brand">
-        <Link href={languageHref("/", language)} aria-label={isEnglish ? `${siteName} home` : `${siteName} ana sayfa`} className="feed-footer-lockup">
-          <BrandMark className="visitor-logo-mark feed-footer-mark block shrink-0" />
-          {siteName === "Dijital Masallar"
-            ? <span className="visitor-wordmark-art feed-footer-wordmark" aria-hidden="true" />
-            : <span className="truncate font-mono text-[16px] font-bold">{siteName}</span>}
-        </Link>
         <p className="feed-footer-lede">{isEnglish
           ? "Short, sourced notes on technology, AI, science and digital culture."
           : "Teknoloji, yapay zekâ, bilim ve dijital kültürden kaynaklı kısa notlar."}</p>
