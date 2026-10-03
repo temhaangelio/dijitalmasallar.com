@@ -1,4 +1,4 @@
-import { languageHref } from "@/lib/visitor-language";
+import { languageHref, siteNameFor } from "@/lib/visitor-language";
 import { absoluteUrl, plainText, postDescription, postHeadline, siteUrl } from "@/lib/seo";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
@@ -21,6 +21,10 @@ export async function GET() {
     "",
     `> ${markdownText(settings.descriptionEn)}`,
     "",
+    // The English pages go by an English name; saying so ties both names to the one site.
+    ...(siteNameFor(settings.siteName, "en") !== settings.siteName
+      ? [`Also known as ${markdownText(siteNameFor(settings.siteName, "en"))} — the name of its English edition (\`?lang=en\`). Both names refer to the same site, ${baseUrl.replace(/^https?:\/\//, "")}.`, ""]
+      : []),
     "## About / Hakkında",
     "",
     `English: ${markdownText(settings.descriptionEn)} ${markdownText(settings.aboutTextEn)}`,

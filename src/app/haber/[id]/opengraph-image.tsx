@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { brandMarkDataUri } from "@/lib/og-mark";
 import { getPublishedPostById } from "@/services/posts";
-import { postHeadline } from "@/lib/seo";
+import { postTitle } from "@/lib/seo";
 
 /**
  * The card a single note shows when it is shared.
@@ -22,7 +22,7 @@ const dayFormat = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "lon
 export default async function PostOpengraphImage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const post = await getPublishedPostById(id, "tr");
-  const headline = post ? postHeadline(post) : "Dijital Masallar";
+  const headline = post ? postTitle(post, 110) : "Dijital Masallar";
   const published = post?.published_at ?? post?.created_at;
 
   return new ImageResponse(

@@ -14,7 +14,7 @@ import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
 import { languageHref, siteNameFor } from "@/lib/visitor-language";
 import { isOptimizableImage } from "@/lib/images";
 import { sourceLabel } from "@/lib/source-label";
-import { absoluteUrl, jsonLd, postDescription, postHeadline, siteUrl } from "@/lib/seo";
+import { absoluteUrl, jsonLd, postDescription, postHeadline, postTitle, siteUrl } from "@/lib/seo";
 import { getNextPublishedPost, getPublishedPostById } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -55,7 +55,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   const description = postDescription(post);
   const publishedAt = post.published_at ?? post.created_at;
   return {
-    title: { absolute: `${title} · ${siteNameFor(settings.siteName, language)}` },
+    title: { absolute: `${postTitle(post)} · ${siteNameFor(settings.siteName, language)}` },
     description,
     alternates: {
       canonical,

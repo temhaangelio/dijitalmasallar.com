@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Literata } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -64,13 +65,15 @@ export const viewport: Viewport = {
   themeColor: "#0a0a0a",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Set by `proxy.ts` from `?lang`: English pages say so on <html>, not only on the visitor shell.
+  const language = (await headers()).get("x-visitor-language") === "en" ? "en" : "tr";
   // `ThemeScript` sits in <head> so it runs before the first paint and is part of the initial HTML
   // rather than a React-rendered <script>, which React never executes on the client. It stamps
   // `data-visitor-theme` on <html>, an attribute the server render cannot contain — hence
   // `suppressHydrationWarning`. The visitor pages and the admin panel both key their dark tokens off it.
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang={language} suppressHydrationWarning>
       <head><ThemeScript /><FontScript /><InstallScript /></head>
       <body className={`${visitorSans.variable} ${visitorMono.variable} ${sourceSerif.variable}`}>{children}<AppToaster /><VisitorAnalytics /><GoogleAnalytics id={googleAnalyticsId} /></body>
     </html>

@@ -122,6 +122,11 @@ export function parsePostContent(value: string): ParsedPostContent {
   };
 }
 
+/** A note's whole opening sentence as plain text, however long — the headline before any shortening. */
+export function openingSentence(value: string) {
+  return firstSentence(stripMarkdown(value.replace(/^#\s+[^\n]+\n+/, "")));
+}
+
 /**
  * The one-line gist of a note, for places that show a story without opening it — the daily brief on
  * the feed, and anywhere else a single sentence has to stand in for the whole note.
