@@ -430,7 +430,7 @@ function InstallSteps({ language, platform }: { language: VisitorLanguage; platf
       })}
     </ol>
     {platform === "ios" && <p className="text-xs leading-5 text-muted">{en ? "Missing the option? At the bottom of the share list, tap Edit Actions and add Add to Home Screen." : "Seçenek yoksa paylaşım listesinin altındaki Eylemleri Düzenle bölümünden Ana Ekrana Ekle’yi ekleyin."}</p>}
-    <p className="feed-install-note text-xs leading-5 text-muted">{en ? "Once added, open Dijital Masallar from its new icon. No app store download is needed." : "İşlem tamamlanınca Dijital Masallar’ı eklenen simgesinden açabilirsiniz. Uygulama mağazasından indirmeniz gerekmez."}</p>
+    <p className="feed-install-note text-xs leading-5 text-muted">{en ? "Once added, open Digital Tales from its new icon. No app store download is needed." : "İşlem tamamlanınca Dijital Masallar’ı eklenen simgesinden açabilirsiniz. Uygulama mağazasından indirmeniz gerekmez."}</p>
   </div>;
 }
 
@@ -441,7 +441,7 @@ export function InstallPrompt({ language }: { language: VisitorLanguage }) {
   if (status === "unknown") return <p role="status" className="text-xs text-muted">{isEnglish ? "Checking installation…" : "Yükleme durumu kontrol ediliyor…"}</p>;
   if (status === "installed") return <p className="text-[13px] leading-6 text-muted">{isEnglish ? "The app is installed. You can open it from its icon." : "Uygulama yüklü. Eklenen simgesinden açabilirsiniz."}</p>;
   if (status === "ready") return <div className="space-y-3">
-    <p className="text-[13px] leading-6 text-muted">{isEnglish ? "Tap Install below, then confirm in your browser’s window. Dijital Masallar will open from its own icon." : "Aşağıdaki Yükle düğmesine dokunun, ardından tarayıcının açtığı pencerede onaylayın. Dijital Masallar kendi simgesinden açılacak."}</p>
+    <p className="text-[13px] leading-6 text-muted">{isEnglish ? "Tap Install below, then confirm in your browser’s window. Digital Tales will open from its own icon." : "Aşağıdaki Yükle düğmesine dokunun, ardından tarayıcının açtığı pencerede onaylayın. Dijital Masallar kendi simgesinden açılacak."}</p>
     <button type="button" onClick={() => { void runInstall(); }} className="feed-install-button"><Download size={15} aria-hidden="true" />{isEnglish ? "Install" : "Yükle"}</button>
   </div>;
   const platform = isIos() ? "ios" : /Android/i.test(navigator.userAgent) ? "android" : "desktop";

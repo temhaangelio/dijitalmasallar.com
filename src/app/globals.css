@@ -2202,3 +2202,9 @@ html .visitor-page .feed-footer::after { opacity: .17; -webkit-mask-image: linea
 html .visitor-page .feed-footer-lede { display: flex; align-items: flex-start; gap: 14px; max-width: 46ch; }
 html .visitor-page .feed-footer-mark { flex: none; width: 34px; height: 34px; margin-top: 2px; border: 0; border-radius: 10px; background: #ffffff; box-shadow: none; }
 html .visitor-page .feed-footer-mark .brand-bit { fill: #0a0a0a; }
+
+/* English pages carry the English lockup, drawn in the same lettering and a little shorter. */
+.visitor-wordmark-art[data-language="en"] { aspect-ratio: 483 / 87; -webkit-mask-image: url("/digital-tales-wordmark.svg"); mask-image: url("/digital-tales-wordmark.svg"); }
+/* Same letter height as the Turkish lockup: the width scaled by the two drawings' ratio. */
+html .visitor-page .feed-masthead .visitor-wordmark-beside[data-language="en"] { width: 124px; }
+@media (min-width: 640px) { html .visitor-page .feed-masthead .visitor-wordmark-beside[data-language="en"] { width: 142px; } }

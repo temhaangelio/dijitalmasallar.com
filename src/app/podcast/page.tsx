@@ -4,7 +4,7 @@ import { VisitorShell } from "@/components/layout/visitor-shell";
 import { VisitorPageHeading } from "@/components/features/visitor/page-heading";
 import { LanguagePicker } from "@/components/features/visitor/language-picker";
 import { AudioPlaylist } from "@/components/features/visitor/audio-playlist";
-import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage, siteNameFor } from "@/lib/visitor-language";
 import { absoluteUrl, jsonLd, siteUrl } from "@/lib/seo";
 import { fullDateLabel } from "@/lib/visitor-date";
 import { getPublishedAudioQueue } from "@/services/daily-audio";
@@ -18,7 +18,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const language = resolveVisitorLanguage(query.lang);
   return {
     title: "Podcast",
-    description: language === "en" ? "Listen to the daily technology briefings from Dijital Masallar." : "Dijital Masallar’ın günlük teknoloji bültenlerini dinleyin.",
+    description: language === "en" ? "Listen to the daily technology briefings from Digital Tales." : "Dijital Masallar’ın günlük teknoloji bültenlerini dinleyin.",
     alternates: {
       canonical: languageHref("/podcast", language),
       languages: { tr: languageHref("/podcast", "tr"), en: languageHref("/podcast", "en"), "x-default": languageHref("/podcast", "tr") },
@@ -43,7 +43,7 @@ export default async function ListenPage({ searchParams }: Props) {
     "@context": "https://schema.org",
     "@type": "PodcastSeries",
     "@id": `${baseUrl}/podcast#series`,
-    name: english ? `${settings.siteName} — daily briefing` : `${settings.siteName} — günün özeti`,
+    name: english ? `${siteNameFor(settings.siteName, language)} — daily briefing` : `${siteNameFor(settings.siteName, language)} — günün özeti`,
     url: seriesUrl,
     description: english
       ? "The day in technology, artificial intelligence, science and digital culture, read aloud."

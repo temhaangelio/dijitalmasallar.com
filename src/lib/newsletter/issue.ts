@@ -1,3 +1,5 @@
+import { siteNameFor } from "../visitor-language.ts";
+
 /**
  * One day's notes as an e-mail.
  *
@@ -101,6 +103,7 @@ function preheader(input: IssueInput) {
  * next to the send itself.
  */
 export function renderIssue(input: IssueInput): RenderedIssue {
+  const siteName = siteNameFor(input.siteName, input.language);
   const language = input.language;
   const text = words[language];
   const subject = issueSubject(input.day, language);
@@ -129,7 +132,7 @@ export function renderIssue(input: IssueInput): RenderedIssue {
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:${surface};border:1px solid ${line};border-radius:16px;">
         <tr>
           <td style="padding:30px 30px 0;">
-            <a href="${escapeHtml(input.siteUrl)}" style="font:700 13px/1 ${family};color:${ink};text-decoration:none;letter-spacing:0.02em;">${escapeHtml(input.siteName)}</a>
+            <a href="${escapeHtml(input.siteUrl)}" style="font:700 13px/1 ${family};color:${ink};text-decoration:none;letter-spacing:0.02em;">${escapeHtml(siteName)}</a>
             <h1 style="margin:14px 0 0;font:700 23px/1.3 ${family};color:${ink};">${escapeHtml(dateLabel)}</h1>
             <p style="margin:6px 0 0;font:400 14px/1.6 ${family};color:${muted};">${escapeHtml(text.greeting)}</p>
           </td>
@@ -161,7 +164,7 @@ export function renderIssue(input: IssueInput): RenderedIssue {
 </html>`;
 
   const plain = [
-    `${input.siteName} — ${dateLabel}`,
+    `${siteName} — ${dateLabel}`,
     "",
     text.greeting,
     "",

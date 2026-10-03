@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { VisitorShell } from "@/components/layout/visitor-shell";
-import { defaultVisitorLanguage, languageHref } from "@/lib/visitor-language";
+import { defaultVisitorLanguage, languageHref, siteNameFor } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
 /** A page that does not exist is not a page to index, however nicely it is drawn. */
@@ -31,7 +31,7 @@ export default async function NotFound() {
   return (
     <VisitorShell language={language} siteName={settings.siteName} showHeader={false}>
       <main className="flex w-full max-w-[640px] flex-1 flex-col items-center justify-center py-24 text-center sm:py-32">
-        <Link href={languageHref("/", language)} aria-label={`${settings.siteName} ana sayfa`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink">
+        <Link href={languageHref("/", language)} aria-label={`${siteNameFor(settings.siteName, language)} ana sayfa`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink">
           <BrandMark className="size-11 sm:size-12" />
         </Link>
 

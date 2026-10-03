@@ -1,5 +1,5 @@
 import { absoluteUrl, plainText, postDescription, postHeadline, siteUrl } from "@/lib/seo";
-import { languageHref } from "@/lib/visitor-language";
+import { languageHref, siteNameFor } from "@/lib/visitor-language";
 import { getPosts } from "@/services/posts";
 import { getSiteSettings } from "@/services/settings";
 
@@ -31,6 +31,6 @@ export async function GET(request: Request) {
     ].filter(Boolean).join("");
   }).join("");
 
-  const body = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>${xml(settings.siteName)}</title><description>${xml(description)}</description><link>${xml(homeUrl)}</link><language>${language}</language><atom:link href="${xml(feedUrl)}" rel="self" type="application/rss+xml"/>${items}</channel></rss>`;
+  const body = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>${xml(siteNameFor(settings.siteName, language))}</title><description>${xml(description)}</description><link>${xml(homeUrl)}</link><language>${language}</language><atom:link href="${xml(feedUrl)}" rel="self" type="application/rss+xml"/>${items}</channel></rss>`;
   return new Response(body, { headers: { "Content-Type": "application/rss+xml; charset=utf-8", "Cache-Control": "public, max-age=0, s-maxage=600, stale-while-revalidate=3600" } });
 }

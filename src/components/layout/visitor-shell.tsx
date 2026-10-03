@@ -7,7 +7,7 @@ import { PullToRefresh } from "@/components/features/visitor/pull-to-refresh";
 import { VisitorMenu } from "@/components/features/visitor/visitor-menu";
 import { visitorNavItems } from "@/components/features/visitor/visitor-nav-items";
 import { BrandMark } from "@/components/ui/brand-mark";
-import { languageHref, type VisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, siteNameFor, type VisitorLanguage } from "@/lib/visitor-language";
 import { isPushConfigured, pushPublicKey } from "@/services/push";
 import { getSiteSettings } from "@/services/settings";
 
@@ -35,6 +35,8 @@ export async function VisitorShell({
   reading?: boolean;
 }) {
   const settings = await getSiteSettings();
+  const isBuiltInName = siteName === "Dijital Masallar";
+  siteName = siteNameFor(siteName, language);
   // The key is only handed out when the panel switch is on and the VAPID pair is configured; with an
   // empty key the toggle can register the worker but never subscribe.
   const publicKey = settings.modulePush && isPushConfigured() ? pushPublicKey() : "";
@@ -53,8 +55,8 @@ export async function VisitorShell({
             className="feed-masthead-lockup flex min-h-11 min-w-0 items-center text-ink transition-opacity hover:opacity-75"
           >
             <BrandMark className="visitor-logo-mark feed-logo-mark block shrink-0" />
-            {siteName === "Dijital Masallar"
-              ? <span className="visitor-wordmark-art visitor-wordmark-beside" aria-hidden="true" />
+            {isBuiltInName
+              ? <span className="visitor-wordmark-art visitor-wordmark-beside" data-language={language} aria-hidden="true" />
               : <span className="visitor-wordmark-beside truncate font-mono text-[17px] font-bold">{siteName}</span>}
           </Link>
           <div className="feed-masthead-controls absolute right-0 top-1/2 flex -translate-y-1/2 items-center">

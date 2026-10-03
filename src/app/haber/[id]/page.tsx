@@ -11,7 +11,7 @@ import { PostImageActions } from "@/components/features/visitor/post-image-actio
 import { MarkdownPreview } from "@/components/forms/markdown-preview";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { fullDateLabel, timeLabel } from "@/lib/visitor-date";
-import { languageHref } from "@/lib/visitor-language";
+import { languageHref, siteNameFor } from "@/lib/visitor-language";
 import { isOptimizableImage } from "@/lib/images";
 import { sourceLabel } from "@/lib/source-label";
 import { absoluteUrl, jsonLd, postDescription, postHeadline, siteUrl } from "@/lib/seo";
@@ -55,7 +55,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   const description = postDescription(post);
   const publishedAt = post.published_at ?? post.created_at;
   return {
-    title: { absolute: `${title} · ${settings.siteName}` },
+    title: { absolute: `${title} · ${siteNameFor(settings.siteName, language)}` },
     description,
     alternates: {
       canonical,
@@ -69,14 +69,14 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
     },
     openGraph: {
       type: "article",
-      siteName: settings.siteName,
+      siteName: siteNameFor(settings.siteName, language),
       title,
       description,
       url: absoluteUrl(baseUrl, canonical),
       locale: language === "en" ? "en_US" : "tr_TR",
       publishedTime: publishedAt,
       modifiedTime: post.updated_at,
-      authors: [settings.siteName],
+      authors: [siteNameFor(settings.siteName, language)],
       images: post.cover_path ? [{ url: post.cover_path, alt: title }] : undefined,
     },
     twitter: {
@@ -124,7 +124,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     publisher: {
       "@type": "NewsMediaOrganization",
       "@id": `${baseUrl}/#organization`,
-      name: settings.siteName,
+      name: siteNameFor(settings.siteName, language),
       url: baseUrl,
       logo: { "@type": "ImageObject", url: absoluteUrl(baseUrl, "/icon-512.png"), width: 512, height: 512 },
     },
@@ -137,7 +137,7 @@ export default async function NewsPage({ params, searchParams }: { params: Promi
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: settings.siteName, item: absoluteUrl(baseUrl, languageHref("/", language)) },
+        { "@type": "ListItem", position: 1, name: siteNameFor(settings.siteName, language), item: absoluteUrl(baseUrl, languageHref("/", language)) },
         { "@type": "ListItem", position: 2, name: headline },
       ],
     },

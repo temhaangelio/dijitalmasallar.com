@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { NewsletterContent } from "@/components/features/visitor/newsletter-content";
 import { VisitorShell } from "@/components/layout/visitor-shell";
 import { VisitorPageHeading } from "@/components/features/visitor/page-heading";
-import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage, siteNameFor } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
@@ -14,15 +14,15 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     ? "The daily technology briefing, in your inbox."
     : "Günlük teknoloji özeti e-postanızda.";
   return {
-    title: { absolute: `${title} · ${settings.siteName}` },
+    title: { absolute: `${title} · ${siteNameFor(settings.siteName, language)}` },
     description,
     alternates: {
       canonical: languageHref("/ebulten", language),
       languages: { tr: "/ebulten", en: "/ebulten?lang=en", "x-default": "/ebulten" },
       types: { "application/rss+xml": languageHref("/feed.xml", language) },
     },
-    openGraph: { type: "website", siteName: settings.siteName, title: `${title} · ${settings.siteName}`, description, url: languageHref("/ebulten", language), locale: isEnglish ? "en_US" : "tr_TR" },
-    twitter: { card: "summary", title: `${title} · ${settings.siteName}`, description },
+    openGraph: { type: "website", siteName: siteNameFor(settings.siteName, language), title: `${title} · ${siteNameFor(settings.siteName, language)}`, description, url: languageHref("/ebulten", language), locale: isEnglish ? "en_US" : "tr_TR" },
+    twitter: { card: "summary", title: `${title} · ${siteNameFor(settings.siteName, language)}`, description },
   };
 }
 

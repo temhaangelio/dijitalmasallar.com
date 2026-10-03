@@ -15,7 +15,7 @@ import { getSiteSettings } from "@/services/settings";
 import { isOptimizableImage } from "@/lib/images";
 import { absoluteUrl, jsonLd, postHeadline, siteUrl } from "@/lib/seo";
 import { bulletinDays, dateKey, dateLabel, relativeDayLabel } from "@/lib/visitor-date";
-import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage, siteNameFor } from "@/lib/visitor-language";
 import type { Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +28,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const canonical = languageHref("/", language);
   // `absolute` stops the root layout template from appending a second brand name.
   return {
-    title: { absolute: settings.siteName },
+    title: { absolute: siteNameFor(settings.siteName, language) },
     description,
     alternates: {
       canonical,
@@ -37,14 +37,14 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     },
     openGraph: {
       type: "website",
-      siteName: settings.siteName,
-      title: settings.siteName,
+      siteName: siteNameFor(settings.siteName, language),
+      title: siteNameFor(settings.siteName, language),
       description,
       url: absoluteUrl(baseUrl, canonical),
       locale: language === "en" ? "en_US" : "tr_TR",
       alternateLocale: [language === "en" ? "tr_TR" : "en_US"],
     },
-    twitter: { card: "summary", title: settings.siteName, description },
+    twitter: { card: "summary", title: siteNameFor(settings.siteName, language), description },
   };
 }
 
@@ -121,7 +121,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const language = resolveVisitorLanguage(params.lang);
   const pagination = getFeedPagination(settings.postsPerPage, params.limit);
   const visiblePostCount = pagination.visibleCount;
-  if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{settings.siteName}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
+  if (settings.maintenanceMode) return <main className="visitor-page grid min-h-screen place-items-center bg-canvas px-5 text-center"><div><div className="mx-auto mb-6 size-12 rounded-field bg-ink" /><h1 className="text-[length:var(--vt-h1)] font-bold tracking-[-.05em]">{siteNameFor(settings.siteName, language)}</h1><p className="mt-3 text-[length:var(--vt-small)] text-muted">Kısa bir bakım çalışması yapıyoruz. Birazdan tekrar buradayız.</p></div></main>;
   // One extra row is enough to decide whether the automatic "more notes" control is needed.
   const fetchCount = pagination.fetchCount;
   const [postData, ads] = await Promise.all([
@@ -148,7 +148,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {
         "@type": "NewsMediaOrganization",
         "@id": `${baseUrl}/#organization`,
-        name: settings.siteName,
+        name: siteNameFor(settings.siteName, language),
         url: baseUrl,
         description: language === "en" ? settings.descriptionEn : settings.description,
         email: settings.contactEmail,
@@ -167,7 +167,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {
         "@type": "WebSite",
         "@id": `${baseUrl}/#website`,
-        name: settings.siteName,
+        name: siteNameFor(settings.siteName, language),
         url: homeUrl,
         inLanguage: language,
         publisher: { "@id": `${baseUrl}/#organization` },
@@ -177,7 +177,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         "@type": "CollectionPage",
         "@id": `${homeUrl}#webpage`,
         url: homeUrl,
-        name: settings.siteName,
+        name: siteNameFor(settings.siteName, language),
         description: language === "en" ? settings.descriptionEn : settings.description,
         inLanguage: language,
         isPartOf: { "@id": `${baseUrl}/#website` },
@@ -219,7 +219,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   return (
     <VisitorShell language={language} siteName={settings.siteName}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
-      <h1 className="sr-only">{settings.siteName}</h1>
+      <h1 className="sr-only">{siteNameFor(settings.siteName, language)}</h1>
       <main className="visitor-feed feed-column relative flex w-full flex-col">
         {posts.length ? (
           <div className="feed-days">

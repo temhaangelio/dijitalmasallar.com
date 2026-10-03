@@ -4,7 +4,7 @@ import Image from "next/image";
 import { ArrowUpRight, Bookmark, Heart, Mail, Rss, Smartphone } from "lucide-react";
 import { VisitorPageHeading } from "@/components/features/visitor/page-heading";
 import { VisitorShell } from "@/components/layout/visitor-shell";
-import { languageHref, resolveVisitorLanguage } from "@/lib/visitor-language";
+import { languageHref, resolveVisitorLanguage, siteNameFor } from "@/lib/visitor-language";
 import { getSiteSettings } from "@/services/settings";
 
 /** Lucide carries no brand marks, so Instagram's is drawn here and shared by the two places that use it. */
@@ -25,11 +25,11 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const title = isEnglish ? "About" : "Hakkında";
   const description = isEnglish ? settings.descriptionEn : settings.description;
   return {
-    title: { absolute: `${title} · ${settings.siteName}` },
+    title: { absolute: `${title} · ${siteNameFor(settings.siteName, language)}` },
     description,
     alternates: { canonical: languageHref("/about", language), languages: { tr: "/about", en: "/about?lang=en", "x-default": "/about" }, types: { "application/rss+xml": languageHref("/feed.xml", language) } },
-    openGraph: { type: "website", siteName: settings.siteName, title: `${title} · ${settings.siteName}`, description, url: languageHref("/about", language), locale: isEnglish ? "en_US" : "tr_TR" },
-    twitter: { card: "summary", title: `${title} · ${settings.siteName}`, description },
+    openGraph: { type: "website", siteName: siteNameFor(settings.siteName, language), title: `${title} · ${siteNameFor(settings.siteName, language)}`, description, url: languageHref("/about", language), locale: isEnglish ? "en_US" : "tr_TR" },
+    twitter: { card: "summary", title: `${title} · ${siteNameFor(settings.siteName, language)}`, description },
   };
 }
 
@@ -57,7 +57,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
           </div>
           <div className="min-w-0">
             <h2 id="about-author" className="feed-about-author visitor-sans">Temha Angelio</h2>
-            <p className="feed-about-role visitor-sans">{isEnglish ? "Founder and editor of Dijital Masallar." : "Dijital Masallar’ın kurucusu ve editörü."}</p>
+            <p className="feed-about-role visitor-sans">{isEnglish ? "Founder and editor of Digital Tales." : "Dijital Masallar’ın kurucusu ve editörü."}</p>
             <div className="feed-about-links visitor-sans">
               <a href="https://www.instagram.com/temhaangelio" target="_blank" rel="noopener noreferrer" className="feed-about-link">
                 <InstagramGlyph size={14} />
@@ -92,7 +92,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
         <section className="feed-about-section" aria-labelledby="about-app">
           <h2 id="about-app" className="feed-about-section-title visitor-sans">{isEnglish ? "One tap away" : "Bir dokunuş uzağında"}</h2>
           <p className="feed-about-copy visitor-copy visitor-sans">{isEnglish
-            ? "Dijital Masallar is a PWA (Progressive Web App): a website that installs like an app. Add it to your home screen and it opens full-screen with its own icon, loads fast and can send notifications. No app store download needed."
+            ? "Digital Tales is a PWA (Progressive Web App): a website that installs like an app. Add it to your home screen and it opens full-screen with its own icon, loads fast and can send notifications. No app store download needed."
             : "Dijital Masallar bir PWA (Progressive Web App), yani uygulama gibi yüklenebilen bir web sitesi. Ana ekranına eklediğinde kendi simgesiyle tam ekran açılır, hızlı yüklenir ve bildirim gönderebilir. Mağazadan indirmen gerekmez."}</p>
           <p className="feed-about-hint visitor-sans"><Smartphone size={14} strokeWidth={1.7} aria-hidden="true" />{isEnglish
             ? "Menu → Settings → Home screen"
@@ -130,7 +130,7 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
 
         <p className="feed-about-made visitor-sans">
           <Heart className="size-3.5" aria-hidden="true" />
-          {isEnglish ? "Made with love in Bursa." : "Bursa’da sevgiyle üretiliyor."}
+          {isEnglish ? "Made with love in Bursa, Türkiye." : "Bursa’da sevgiyle üretiliyor."}
         </p>
       </main>
     </VisitorShell>

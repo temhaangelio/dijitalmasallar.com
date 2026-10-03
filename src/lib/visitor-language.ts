@@ -34,3 +34,15 @@ export function languageHref(path: string, language: VisitorLanguage, extraQuery
   const query = params.toString();
   return query ? `${path}?${query}` : path;
 }
+
+/** The site's Turkish name, and the English one it goes by on English pages. */
+const defaultSiteName = "Dijital Masallar";
+const englishSiteName = "Digital Tales";
+
+/**
+ * The site name as a reader of `language` sees it. Only the built-in name has an English form; a
+ * name changed in the panel is shown as written in both languages.
+ */
+export function siteNameFor(siteName: string, language: VisitorLanguage) {
+  return language === "en" && siteName === defaultSiteName ? englishSiteName : siteName;
+}
