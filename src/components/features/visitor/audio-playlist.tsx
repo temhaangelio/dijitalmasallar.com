@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ListMusic, LoaderCircle, Pause, Play, RotateCcw, RotateCw, SkipBack, SkipForward } from "lucide-react";
+import { ListMusic, LoaderCircle, Pause, Play, RotateCcw, RotateCw, SkipBack, SkipForward } from "lucide-react";
 import { fullDateLabel } from "@/lib/visitor-date";
 import type { VisitorLanguage } from "@/lib/visitor-language";
 import { Button } from "@/components/ui/button";
-import { ActionMenu } from "@/components/ui/action-menu";
 
 export type PlaylistItem = { day: string; audioUrl: string; durationSeconds: number; excerpt: string };
 const clock = (seconds: number) => `${Math.floor(Math.max(0, seconds) / 60)}:${String(Math.floor(Math.max(0, seconds) % 60)).padStart(2, "0")}`;
@@ -20,7 +19,6 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(items[initialIndex]?.durationSeconds ?? 0);
   const [error, setError] = useState(false);
-  const [speed, setSpeed] = useState(1);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   useEffect(() => {
@@ -53,7 +51,6 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
       audio.load();
       setIndex(next); setCurrent(0); setDuration(items[next].durationSeconds);
     }
-    audio.playbackRate = speed;
     try { await audio.play(); }
     catch (reason: unknown) {
       if (token !== request.current) return;
@@ -88,7 +85,7 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
         </div>
         <div className="visitor-daily-audio-track listen-timeline">
           <span className="visitor-daily-audio-time tabular-nums">{clock(current)}</span>
-          <input className="visitor-audio-seek" type="range" min={0} max={duration || 1} step={.1} value={Math.min(current, duration || 0)} aria-label={english ? "Playback position" : "Oynatma konumu"} aria-valuetext={`${clock(current)} / ${clock(duration)}`} onChange={event => { const audio = audioRef.current; if (audio && Number.isFinite(audio.duration)) { audio.currentTime = Number(event.target.value); setCurrent(audio.currentTime); } }} style={{ background: `linear-gradient(to right, var(--color-accent) ${duration ? current / duration * 100 : 0}%, var(--color-line) 0%)` }} />
+          <input className="visitor-audio-seek" type="range" min={0} max={duration || 1} step={.1} value={Math.min(current, duration || 0)} aria-label={english ? "Playback position" : "Oynatma konumu"} aria-valuetext={`${clock(current)} / ${clock(duration)}`} onChange={event => { const audio = audioRef.current; if (audio && Number.isFinite(audio.duration)) { audio.currentTime = Number(event.target.value); setCurrent(audio.currentTime); } }} style={{ background: `linear-gradient(to right, var(--color-ink) ${duration ? current / duration * 100 : 0}%, var(--color-line) 0%)` }} />
           <span className="visitor-daily-audio-time tabular-nums">{clock(duration)}</span>
         </div>
         <div className="listen-transport">
@@ -97,19 +94,6 @@ export function AudioPlaylist({ items, language, initialDay, autoPlay = false }:
           <Button className="!size-16 !min-h-16 !p-0" aria-label={playing || waiting ? (english ? "Pause" : "Duraklat") : (english ? "Play" : "Dinle")} onClick={() => playing || waiting ? pause() : void play()}>{waiting ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : playing ? <Pause size={25} /> : <Play size={25} />}</Button>
           <Button variant="ghost" className="listen-skip" aria-label={english ? "Forward 10 seconds" : "10 saniye ileri"} onClick={() => skip(10)}><RotateCw size={24} aria-hidden="true" /><span>10</span></Button>
           <Button variant="ghost" className="w-11 px-0" disabled={index === items.length - 1} aria-label={english ? "Next recording" : "Sonraki kayıt"} onClick={() => void play(index + 1)}><SkipForward size={20} /></Button>
-        </div>
-        <div className="listen-speed listen-speed-row">
-          <ActionMenu
-            label={`${english ? "Playback speed" : "Oynatma hızı"}: ${speed}×`}
-            trigger={<><span>{speed}×</span><ChevronDown size={12} aria-hidden="true" /></>}
-            triggerClassName="listen-speed-trigger"
-            placement="inline-above"
-            items={[.75, 1, 1.25, 1.5, 2].map(value => ({
-              label: value === 1 ? "1× · Normal" : `${value}×`,
-              checked: speed === value,
-              onSelect: () => { setSpeed(value); if (audioRef.current) audioRef.current.playbackRate = value; },
-            }))}
-          />
         </div>
         {autoplayBlocked ? <p role="status" className="mt-3 text-center text-xs text-muted">{english ? "Press play to start listening." : "Dinlemeye başlamak için oynat düğmesine dokunun."}</p> : null}
         {error ? <div className="mt-3 text-center"><p role="alert" className="mb-2 text-sm text-danger">{english ? "The recording could not be loaded." : "Kayıt yüklenemedi."}</p><Button variant="secondary" onClick={() => void play(index, true)}>{english ? "Reload recording" : "Kaydı yeniden yükle"}</Button></div> : null}
