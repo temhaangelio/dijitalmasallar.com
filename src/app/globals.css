@@ -2188,9 +2188,9 @@ html .visitor-page .listen-transport > button:nth-child(3):active { transform: s
 @keyframes feed-loading-drift { from { -webkit-mask-position: 0 0; mask-position: 0 0; } to { -webkit-mask-position: 0 360px; mask-position: 0 360px; } }
 @media (prefers-reduced-motion: reduce) { .feed-loading-field::before { animation: none; } }
 
-/* The footer is taller than the masthead, so the same field at the same strength read as almost
-   nothing there: a little stronger, and the middle no longer faded nearly out under the text. */
-html .visitor-page .feed-footer::after { opacity: .17; -webkit-mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); }
+/* The field a little stronger than it started, and the middle no longer faded nearly out under the
+   text — first for the taller footer, where it read as almost nothing, then the masthead to match. */
+html .visitor-page :is(.feed-masthead, .feed-footer)::after { opacity: .17; -webkit-mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); }
 
 /* Adding to the home screen is a phone and tablet affair: a desktop browser with a mouse is not
    shown the row in settings, the About page's pointer to it, nor the invitation low on the page —
