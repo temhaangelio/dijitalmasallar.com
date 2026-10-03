@@ -2144,3 +2144,19 @@ html .visitor-page .feed-note-new::after {
   70%, 100% { transform: scale(2.8); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { html .visitor-page .feed-note-new::after { animation: none; content: none; } }
+
+/* ---- Settings in the menu's language: the tabs set like the day heading — bold sans over a
+   2px ink rule — and every setting a serif row like the menu's links, its control a quiet set of
+   pills on the right instead of a boxed segmented bar. ---- */
+html .visitor-settings .feed-sheet-tabs { display: flex; gap: 22px; margin: 0 0 4px; padding: 0; border: 0; border-bottom: 2px solid var(--color-ink); border-radius: 0; background: none; }
+html .visitor-settings .feed-sheet-tab { min-height: 46px; padding: 0; border-radius: 0; background: none; box-shadow: none; font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: var(--color-faint); }
+html .visitor-settings .feed-sheet-tab[aria-selected="true"] { background: none; box-shadow: none; color: var(--color-ink); }
+html .visitor-settings .feed-sheet-tab:hover { color: var(--color-ink-2); }
+html .visitor-settings [role="tabpanel"] .visitor-settings-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+html .visitor-settings .visitor-settings-label { font-family: var(--visitor-reading-family); font-size: 19px; font-weight: 500; letter-spacing: 0; color: var(--color-ink); }
+html .visitor-settings .feed-settings-install-summary > .visitor-settings-label { flex: 0 0 auto; }
+html .visitor-settings .visitor-settings-row > :is([role="group"], [role="radiogroup"]) { flex: 0 0 auto; width: auto; gap: 2px; padding: 0; border: 0; border-radius: 999px; background: none; }
+html .visitor-settings [data-active] { min-width: 40px; min-height: 34px; padding: 0 12px; border-radius: 999px; font-size: 14px; }
+html .visitor-settings :is([role="group"], [role="radiogroup"]) > span[aria-hidden="true"] { top: 0; bottom: 0; border-radius: 999px; }
+html .visitor-settings [data-active="false"] { color: var(--color-muted); }
+html .visitor-settings [data-active="false"]:hover { color: var(--color-ink); }
