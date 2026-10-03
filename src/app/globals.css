@@ -2214,3 +2214,7 @@ html .visitor-page .feed-masthead .visitor-wordmark-beside[data-language="en"] {
    white tile with ink bits. The dark theme's grey tile was meant for marks on the dark canvas. */
 html[data-visitor-theme="dark"] .visitor-page :is(.feed-logo-mark, .feed-footer-mark) { border: 0; background: #ffffff; box-shadow: none; }
 html[data-visitor-theme="dark"] .visitor-page :is(.feed-logo-mark, .feed-footer-mark) .brand-bit { fill: #0a0a0a; }
+
+/* The menu's close: a full 44px target with a 22px cross in ink, so it reads at a glance. */
+html .visitor-settings-sheet .visitor-sheet-close { width: 44px; height: 44px; margin-right: -6px; border-radius: 12px; color: var(--color-ink); }
+html .visitor-settings-sheet .visitor-sheet-close svg { width: 22px; height: 22px; stroke-width: 2; }
