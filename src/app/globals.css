@@ -2218,3 +2218,12 @@ html[data-visitor-theme="dark"] .visitor-page :is(.feed-logo-mark, .feed-footer-
 /* The menu's close: a full 44px target with a 22px cross in ink, so it reads at a glance. */
 html .visitor-settings-sheet .visitor-sheet-close { width: 44px; height: 44px; margin-right: -6px; border-radius: 12px; color: var(--color-ink); }
 html .visitor-settings-sheet .visitor-sheet-close svg { width: 22px; height: 22px; stroke-width: 2; }
+
+/* On phones the lockup steps back about an eighth: it sat a few pixels from the controls and its
+   letters were nearly the headline's size. Desktop keeps its own sizes. */
+@media (max-width: 639px) {
+  html .visitor-page .feed-masthead-lockup { gap: 7px; }
+  html .visitor-page .feed-logo-mark { width: 28px; height: 28px; border-radius: 8px; }
+  html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 132px; }
+  html .visitor-page .feed-masthead .visitor-wordmark-beside[data-language="en"] { width: 109px; }
+}
