@@ -2209,3 +2209,8 @@ html .visitor-page .feed-footer-mark .brand-bit { fill: #0a0a0a; }
 /* Same letter height as the Turkish lockup: the width scaled by the two drawings' ratio. */
 html .visitor-page .feed-masthead .visitor-wordmark-beside[data-language="en"] { width: 124px; }
 @media (min-width: 640px) { html .visitor-page .feed-masthead .visitor-wordmark-beside[data-language="en"] { width: 142px; } }
+
+/* The masthead and footer are ink bands in both themes, so their mark is the same in both: a
+   white tile with ink bits. The dark theme's grey tile was meant for marks on the dark canvas. */
+html[data-visitor-theme="dark"] .visitor-page :is(.feed-logo-mark, .feed-footer-mark) { border: 0; background: #ffffff; box-shadow: none; }
+html[data-visitor-theme="dark"] .visitor-page :is(.feed-logo-mark, .feed-footer-mark) .brand-bit { fill: #0a0a0a; }
