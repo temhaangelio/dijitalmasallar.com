@@ -80,12 +80,12 @@ export async function VisitorShell({
 
 function VisitorFooter({ siteName, language }: { siteName: string; language: VisitorLanguage }) {
   const isEnglish = language === "en";
-  /* The masthead's bookend: an ink band with a line about the site, the sections in
+  /* The masthead's bookend: an ink band with the mark and a line about the site, the sections in
      two columns, and the small print at the foot. */
   return (
     <footer className="visitor-footer feed-footer mt-16 w-full visitor-sans">
       <div className="feed-footer-brand">
-        <p className="feed-footer-lede">{isEnglish
+        <p className="feed-footer-lede"><BrandMark className="visitor-logo-mark feed-footer-mark" />{isEnglish
           ? "Short, sourced notes on technology, AI, science and digital culture."
           : "Teknoloji, yapay zekâ, bilim ve dijital kültürden kaynaklı kısa notlar."}</p>
       </div>

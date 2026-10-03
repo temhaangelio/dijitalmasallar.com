@@ -95,8 +95,8 @@ export default async function AboutPage({ searchParams }: { searchParams: Promis
             ? "Dijital Masallar is a PWA (Progressive Web App): a website that installs like an app. Add it to your home screen and it opens full-screen with its own icon, loads fast and can send notifications. No app store download needed."
             : "Dijital Masallar bir PWA (Progressive Web App), yani uygulama gibi yüklenebilen bir web sitesi. Ana ekranına eklediğinde kendi simgesiyle tam ekran açılır, hızlı yüklenir ve bildirim gönderebilir. Mağazadan indirmen gerekmez."}</p>
           <p className="feed-about-hint visitor-sans"><Smartphone size={14} strokeWidth={1.7} aria-hidden="true" />{isEnglish
-            ? "Menu → More settings → Add to home screen"
-            : "Menü → Diğer ayarlar → Ana ekrana ekle"}</p>
+            ? "Menu → Settings → Home screen"
+            : "Menü → Ayarlar → Ana ekran"}</p>
         </section>
 
         <section className="feed-about-section feed-about-contact visitor-sans" aria-labelledby="about-contact">

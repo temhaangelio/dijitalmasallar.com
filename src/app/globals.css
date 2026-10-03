@@ -2191,3 +2191,14 @@ html .visitor-page .listen-transport > button:nth-child(3):active { transform: s
 /* The footer is taller than the masthead, so the same field at the same strength read as almost
    nothing there: a little stronger, and the middle no longer faded nearly out under the text. */
 html .visitor-page .feed-footer::after { opacity: .17; -webkit-mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); }
+
+/* Adding to the home screen is a phone and tablet affair: a desktop browser with a mouse is not
+   shown the row in settings, nor the About page's pointer to it. */
+@media (hover: hover) and (pointer: fine) {
+  .visitor-settings .feed-settings-install, html .visitor-page .feed-about-hint { display: none; }
+}
+
+/* The mark opens the footer's line about the site, white on the ink band like a drop cap. */
+html .visitor-page .feed-footer-lede { display: flex; align-items: flex-start; gap: 14px; max-width: 46ch; }
+html .visitor-page .feed-footer-mark { flex: none; width: 34px; height: 34px; margin-top: 2px; border: 0; border-radius: 10px; background: #ffffff; box-shadow: none; }
+html .visitor-page .feed-footer-mark .brand-bit { fill: #0a0a0a; }
