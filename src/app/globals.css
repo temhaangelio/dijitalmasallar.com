@@ -2193,9 +2193,10 @@ html .visitor-page .listen-transport > button:nth-child(3):active { transform: s
 html .visitor-page .feed-footer::after { opacity: .17; -webkit-mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); mask-image: linear-gradient(to right, #000 0, rgb(0 0 0 / .55) 50%, #000 100%); }
 
 /* Adding to the home screen is a phone and tablet affair: a desktop browser with a mouse is not
-   shown the row in settings, nor the About page's pointer to it. */
+   shown the row in settings, the About page's pointer to it, nor the invitation low on the page —
+   desktop Chrome offers the install prompt too, which is what used to bring that one up. */
 @media (hover: hover) and (pointer: fine) {
-  .visitor-settings .feed-settings-install, html .visitor-page .feed-about-hint { display: none; }
+  .visitor-settings .feed-settings-install, html .visitor-page .feed-about-hint, .install-banner { display: none; }
 }
 
 /* The mark opens the footer's line about the site, white on the ink band like a drop cap. */
