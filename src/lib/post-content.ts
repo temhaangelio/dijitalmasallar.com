@@ -37,7 +37,10 @@ export function extractTrailingSource(value: string): { body: string; sourceUrl?
   const plainSource = markdownSource ? null : text.match(new RegExp(String.raw`\n*\s*${lead}(https?:\/\/[^\s↗)\]]+)${tail}`, "i"));
   const match = markdownSource ?? plainSource;
   if (!match?.[1] || match.index === undefined) return { body: text };
-  return { body: text.slice(0, match.index).trim(), sourceUrl: cleanSourceUrl(match[1]) };
+  // Drafts often close with the source twice — `[Tavus](…)` and then `[tavus.io/griffin ↗](…)` — so
+  // keep peeling; the link written in the sentence is the one kept as the source.
+  const rest = extractTrailingSource(text.slice(0, match.index));
+  return { body: rest.body, sourceUrl: rest.sourceUrl ?? cleanSourceUrl(match[1]) };
 }
 
 /** Splits the compact `TR: … EN: … [source](url)` format used by editorial drafts. */
@@ -59,6 +62,13 @@ export function parseBilingualPostPaste(value: string): ParsedBilingualPaste | n
 
   if (!tr || !en) return null;
   return { tr, en, ...(sourceUrl ? { sourceUrl } : {}) };
+}
+
+/** Markdown links and emphasis reduced to their text, keeping line breaks. */
+export function stripInlineMarkdown(value: string) {
+  return value
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|==([^=]+)==/g, "$1$2$3$4");
 }
 
 export function stripMarkdown(value: string) {

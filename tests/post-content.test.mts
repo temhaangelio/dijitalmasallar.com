@@ -216,3 +216,11 @@ describe("extractTrailingSource repairs mangled addresses", () => {
     assert.deepEqual(extractTrailingSource("Evaluated on JevBench. [GitHub](https://github.com/strands-labs/strands-decider?utm%3Cem%3Esource=chatgpt.com)"), { body: "Evaluated on JevBench.", sourceUrl: "https://github.com/strands-labs/strands-decider" });
   });
 });
+
+describe("parseBilingualPostPaste with a source after each language", () => {
+  test("removes the per-language link and the closing domain link", () => {
+    const url = "https://www.tavus.io/griffin?utm_source=chatgpt.com";
+    const parsed = parseBilingualPostPaste(`TR: Tavus, Griffin'i tanıttı. İkinci cümle. [Tavus](${url})\n\nEN: Tavus has introduced Griffin. Second sentence. [Tavus](${url})\n\n[tavus.io/griffin ↗](${url})`);
+    assert.deepEqual(parsed, { tr: "Tavus, Griffin'i tanıttı. İkinci cümle.", en: "Tavus has introduced Griffin. Second sentence.", sourceUrl: "https://www.tavus.io/griffin" });
+  });
+});

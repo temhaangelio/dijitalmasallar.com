@@ -5,7 +5,7 @@ import { Bold, Eraser, Heading1, Heading2, Highlighter, Italic, Link2, Maximize2
 import { separateLeadSentence } from "@/lib/post-content";
 import { cn } from "@/lib/utils";
 
-type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean; onPasteText?: (value: string, replacesAll: boolean) => string | false };
+type RichTextEditorProps = { id: string; name: string; value: string; onChange: (value: string) => void; onBlur: () => void; showToolbar?: boolean; onPasteText?: (value: string, replacesAll: boolean) => string | { insert: string } | false };
 type ToolButtonProps = { label: string; shortcut?: string; onPress: () => void; children: React.ReactNode };
 
 function ToolButton({ label, shortcut, onPress, children }: ToolButtonProps) {
@@ -113,7 +113,7 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
     // Rendered clipboard text can omit link destinations; recover them from the HTML
     // as markdown without inserting clipboard HTML into the editable document.
     const html = event.clipboardData.getData("text/html");
-    let replacement: string | false | undefined;
+    let replacement: string | { insert: string } | false | undefined;
     if (onPasteText && html) {
       const document = new DOMParser().parseFromString(html, "text/html");
       document.querySelectorAll("script, style, noscript").forEach(node => node.remove());
@@ -121,6 +121,11 @@ export function RichTextEditor({ id, name, value, onChange, onBlur, showToolbar 
       replacement = onPasteText(markdown, replacesAll);
     }
     if (replacement === undefined || replacement === false) replacement = onPasteText?.(text, replacesAll);
+    if (typeof replacement === "object") {
+      document.execCommand("insertText", false, replacement.insert);
+      syncValue();
+      return;
+    }
     if (replacement !== undefined && replacement !== false) {
       if (editor) { editor.innerHTML = markdownToHtml(replacement); placeCaretAtEnd(editor); }
       syncValue();

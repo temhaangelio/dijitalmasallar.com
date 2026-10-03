@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/ui/toast";
 import { postSchema, type PostFormValues } from "@/lib/validations/post";
 import { isOptimizableImage } from "@/lib/images";
-import { extractTrailingSource, parseBilingualPostPaste, separateLeadSentence } from "@/lib/post-content";
+import { extractTrailingSource, parseBilingualPostPaste, separateLeadSentence, stripInlineMarkdown } from "@/lib/post-content";
 import type { Post } from "@/types/database";
 
 function localDateTime(value: string | null) {
@@ -63,21 +63,23 @@ export function PostForm({ posts }: { posts?: PostTranslations }) {
 
   function importBilingualPaste(value: string, replacesAll: boolean) {
     const parsed = parseBilingualPostPaste(value);
-    if (!parsed) return replacesAll ? importSourcedPaste(value) : false;
+    if (!parsed) return importSourcedPaste(value, replacesAll);
     setValue("tr.body", separateLeadSentence(parsed.tr), { shouldDirty: true, shouldValidate: true });
     setValue("en.body", separateLeadSentence(parsed.en), { shouldDirty: true, shouldValidate: true });
     if (parsed.sourceUrl) setValue("sourceUrl", parsed.sourceUrl, { shouldDirty: true, shouldValidate: true });
-    setActiveLanguage("tr");
     showToast(parsed.sourceUrl ? "Türkçe, İngilizce ve kaynak bağlantısı yerleştirildi." : "Türkçe ve İngilizce içerikler yerleştirildi.", "success");
-    return separateLeadSentence(parsed.tr);
+    // The open editor writes what it is given back into its own language, so it gets its own text.
+    return separateLeadSentence(activeLanguage === "en" ? parsed.en : parsed.tr);
   }
 
   /** A one-language note whose source link closes the text: the link moves to the source field. */
-  function importSourcedPaste(value: string) {
+  function importSourcedPaste(value: string, replacesAll: boolean) {
     const { body, sourceUrl } = extractTrailingSource(value);
     if (!sourceUrl || !body) return false;
     setValue("sourceUrl", sourceUrl, { shouldDirty: true, shouldValidate: true });
     showToast("Kaynak bağlantısı ayrı alana taşındı.", "success");
+    // A fragment goes in at the cursor as plain text, without its link.
+    if (!replacesAll) return { insert: stripInlineMarkdown(body) };
     // Clipboard HTML ends each paragraph with a single line break; the editor separates them with a blank line.
     return separateLeadSentence(body.replace(/\n+/g, "\n\n"));
   }
