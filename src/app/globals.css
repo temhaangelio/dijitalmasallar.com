@@ -2232,9 +2232,3 @@ html .visitor-settings-sheet .visitor-sheet-close svg { width: 22px; height: 22p
    of the first screen: the page's own content is at least a screen tall, so the footer waits below
    the fold as it does on every long page. */
 html .visitor-page > .visitor-content > :is(main, .feed-page):first-child { min-height: calc(100dvh - var(--feed-masthead-h, 68px) - 22px); }
-
-/* Between notes, a short rule at the start of the line instead of one across the column: the
-   boundary still reads at a glance, with a fraction of the ink. */
-html .visitor-page .feed-note { border-bottom: 0; }
-html .visitor-page .feed-note::after { content: ""; position: absolute; left: 0; bottom: 0; width: 40px; height: 2px; border-radius: 2px; background: var(--color-line-strong); }
-html .visitor-page .feed-day-notes > :last-child .feed-note::after, html .visitor-page .feed-day-notes > .feed-note:last-child::after { content: none; }
