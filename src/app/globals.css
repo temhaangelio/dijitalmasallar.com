@@ -2227,3 +2227,8 @@ html .visitor-settings-sheet .visitor-sheet-close svg { width: 22px; height: 22p
   html .visitor-page .feed-masthead .visitor-wordmark-beside { width: 132px; }
   html .visitor-page .feed-masthead .visitor-wordmark-beside[data-language="en"] { width: 109px; }
 }
+
+/* A short page — no favorites yet, an empty search — no longer pulls the footer up into the middle
+   of the first screen: the page's own content is at least a screen tall, so the footer waits below
+   the fold as it does on every long page. */
+html .visitor-page > .visitor-content > :is(main, .feed-page):first-child { min-height: calc(100dvh - var(--feed-masthead-h, 68px) - 22px); }
